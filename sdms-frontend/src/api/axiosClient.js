@@ -2,7 +2,7 @@ import axios from "axios";
 import { authStorage } from "@/auth";
 
 // =========================
-// REFRESH VARIABLES
+// REFRESH MECHANISM
 // =========================
 let isRefreshing = false;
 let failedQueue = [];
@@ -20,11 +20,11 @@ const processQueue = (error, token = null) => {
 // =========================
 const axiosClient = axios.create({
     baseURL: `${import.meta.env.VITE_API_URL}/api`,
-    timeout: 15000, // Tăng nhẹ timeout cho các request phức tạp
+    timeout: 15000,
 });
 
 // =========================
-// REQUEST INTERCEPTOR
+// INTERCEPTORS
 // =========================
 axiosClient.interceptors.request.use(
     (config) => {
@@ -37,50 +37,34 @@ axiosClient.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// =========================
-// RESPONSE INTERCEPTOR
-// =========================
 axiosClient.interceptors.response.use(
-    (response) => response.data?.success !== undefined ? response.data.data : response.data,
+    (response) => response.data?.data ?? response.data,
     async (error) => {
         const originalRequest = error.config;
-        const status = error.response?.status;
 
-        // Xử lý logic 401 Unauthorized
-        if (status === 401 && !originalRequest._retry) {
-            const refreshToken = authStorage.getRefreshToken();
-
-            if (!refreshToken) {
-                authStorage.clear();
-                window.location.href = "/admin/login";
-                return Promise.reject(error);
-            }
-
+        if (error.response?.status === 401 && !originalRequest._retry) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
-                })
-                .then((token) => {
+                }).then((token) => {
                     originalRequest.headers.Authorization = `Bearer ${token}`;
                     return axiosClient(originalRequest);
-                })
-                .catch((err) => Promise.reject(err));
+                });
             }
 
             originalRequest._retry = true;
             isRefreshing = true;
 
             try {
-                // Sử dụng axios trực tiếp để tránh vòng lặp interceptor của axiosClient
-                const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/refresh-token`, { 
-                    refreshToken 
+                const refreshToken = authStorage.getRefreshToken();
+                const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/auth/refresh-token`, {
+                    refreshToken
                 });
 
                 const { accessToken, refreshToken: newRefreshToken } = data.data;
                 authStorage.setTokens({ accessToken, refreshToken: newRefreshToken });
 
                 processQueue(null, accessToken);
-                
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                 return axiosClient(originalRequest);
             } catch (err) {
@@ -93,12 +77,7 @@ axiosClient.interceptors.response.use(
             }
         }
 
-        // Trả về lỗi đã chuẩn hóa
-        return Promise.reject({
-            status,
-            message: error.response?.data?.message || "Đã có lỗi xảy ra",
-            data: error.response?.data
-        });
+        return Promise.reject(error.response?.data || error);
     }
 );
 

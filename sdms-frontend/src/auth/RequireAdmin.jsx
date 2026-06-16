@@ -1,11 +1,13 @@
-// src/auth/RequireAdmin.jsx
-import { Navigate, Outlet, useLocation } from "react-router-dom"; // Thêm useLocation
-import { Box, CircularProgress } from "@mui/material";
+import { useState } from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Box, CircularProgress, Snackbar, Alert } from "@mui/material";
 import { useAuth } from "./AuthContext";
 
 export default function RequireAdmin() {
     const { admin, loading } = useAuth();
     const location = useLocation();
+
+    const [openSnackbar, setOpenSnackbar] = useState(admin && admin.role !== 'ADMIN');
 
     if (loading) {
         return (
@@ -16,13 +18,26 @@ export default function RequireAdmin() {
     }
 
     if (!admin) {
-        // Lưu lại đường dẫn user đang cố truy cập (ví dụ /admin/dashboard)
-        // để sau khi đăng nhập thành công, ta redirect họ quay lại đó
         return <Navigate to="/admin/login" state={{ from: location }} replace />;
     }
 
-    // Optional: Kiểm tra role nếu cần
-    // if (admin.role !== 'ADMIN') return <Navigate to="/unauthorized" replace />;
+    if (admin.role !== 'ADMIN') {
+        return (
+            <>
+                <Snackbar
+                    open={openSnackbar}
+                    autoHideDuration={4000}
+                    onClose={() => setOpenSnackbar(false)}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                    <Alert severity="error" variant="filled">
+                        Bạn không có quyền truy cập trang quản trị
+                    </Alert>
+                </Snackbar>
+                <Navigate to="/" replace />
+            </>
+        );
+    }
 
     return <Outlet />;
 }

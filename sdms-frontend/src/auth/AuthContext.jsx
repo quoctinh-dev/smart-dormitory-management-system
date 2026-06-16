@@ -2,27 +2,22 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { authStorage } from "./authStorage";
 import { authApi } from "@/api";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [admin, setAdmin] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // =========================
-    // CHECK LOGIN & FETCH ME
-    // =========================
     useEffect(() => {
         const initAuth = async () => {
             const token = authStorage.getAccessToken();
 
             if (token) {
                 try {
-                    // Gọi API lấy thông tin admin khi F5 trang
                     const userData = await authApi.getMe();
                     setAdmin(userData);
                 } catch (error) {
-                    // Nếu token hết hạn hoặc lỗi, xóa sạch và yêu cầu đăng nhập lại
-                    console.error("Auth check failed:", error);
+                    console.error("Auth init failed:", error);
                     authStorage.clear();
                     setAdmin(null);
                 }
@@ -33,27 +28,27 @@ export const AuthProvider = ({ children }) => {
         initAuth();
     }, []);
 
-    // =========================
-    // LOGIN
-    // =========================
-    const login = ({ accessToken, refreshToken, user }) => {
-        authStorage.setTokens({ accessToken, refreshToken });
-        setAdmin(user);
+    const login = (authData) => {
+        // authData: { accessToken, refreshToken, user }
+        authStorage.setTokens({
+            accessToken: authData.accessToken,
+            refreshToken: authData.refreshToken
+        });
+        setAdmin(authData.user);
     };
 
-    // =========================
-    // LOGOUT
-    // =========================
     const logout = async () => {
         try {
             await authApi.logout();
         } catch (error) {
-            console.error("Logout error:", error);
+            console.warn("Logout API failed, forcing local logout:", error);
         } finally {
             authStorage.clear();
             setAdmin(null);
         }
     };
+
+    if (loading) return null;
 
     return (
         <AuthContext.Provider
@@ -70,13 +65,8 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-// =========================
-// CUSTOM HOOK
-// =========================
 export const useAuth = () => {
     const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth must be used inside AuthProvider");
-    }
+    if (!context) throw new Error("useAuth must be used inside AuthProvider");
     return context;
 };

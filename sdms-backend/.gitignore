@@ -1,0 +1,19 @@
+# Build output
+target/
+build/
+out/
+.gradle/
+
+# Maven/Spring
+.mvn/wrapper/maven-wrapper.jar
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# Environment
+.env
+application-*.yml
+!application.yml
