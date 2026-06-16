@@ -76,6 +76,9 @@ public class Student extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String permanentAddress;
 
+    @Column(length = 500)
+    private String avatarUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private StudentStatus status = StudentStatus.ACTIVE;

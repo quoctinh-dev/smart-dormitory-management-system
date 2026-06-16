@@ -6,6 +6,7 @@ import com.sdms.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,10 +21,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-/**
- * Cấu hình bảo mật trung tâm cho toàn bộ ứng dụng.
- * Tích hợp các thành phần bảo mật, CORS và định nghĩa các quy tắc truy cập.
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -37,6 +34,7 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/auth/**",
+            "/api/v1/registrations/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
@@ -46,27 +44,30 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Cấu hình CORS
+                // 1. Cấu hình CORS (Phải được đặt đầu tiên)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // Vô hiệu hóa CSRF
+                // 2. Vô hiệu hóa CSRF vì dùng JWT (Stateless)
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // Cấu hình Session Stateless
+                // 3. Sử dụng Stateless Session
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // Xử lý lỗi bảo mật
+                // 4. Cấu hình xử lý lỗi 401/403
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler)
                 )
 
-                // Quy tắc ủy quyền
+                // 5. Quy tắc phân quyền
                 .authorizeHttpRequests(auth -> auth
+                        // Cho phép truy cập OPTIONS cho toàn bộ hệ thống (Fix lỗi Pre-flight)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
 
+                // 6. Cấu hình Provider và Filter
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -77,18 +78,19 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Cho phép domain frontend
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        // Cho phép nguồn React
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173"));
 
-        // Các phương thức cho phép
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // BẮT BUỘC: Thêm "PATCH" và "OPTIONS" vào danh sách cho phép
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
-        // Các header cho phép
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+        // Cho phép các header cần thiết cho Token và Content-Type
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
 
-        // Cho phép credentials
+        // Cho phép cookie/token
         configuration.setAllowCredentials(true);
 
+        // Áp dụng cho toàn bộ đường dẫn
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

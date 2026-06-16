@@ -1,20 +1,38 @@
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import {
-    Box, Container, Button, Typography, Card, TextField, Paper, Stack, InputAdornment, useTheme
+    Box, Container, Button, Typography, Card, TextField, Paper, InputAdornment, useTheme, Dialog, DialogTitle, DialogContent, DialogActions, Alert
 } from "@mui/material";
-import Grid from "@mui/material/Grid2"; // Sử dụng Grid2 để linh hoạt hơn
+import Grid from "@mui/material/Grid2";
 import SearchIcon from '@mui/icons-material/Search';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import periodApi from "../../api/periodApi";
 
 export default function HomePage() {
     const navigate = useNavigate();
     const theme = useTheme();
     const [searchCccd, setSearchCccd] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [checkResult, setCheckResult] = useState({ success: false, message: '' });
 
-    const handleSearch = () => {
-        if (searchCccd.trim()) navigate(`/status?cccd=${searchCccd.trim()}`);
+    const handleCheckEligibility = async () => {
+        if (!searchCccd.trim()) return;
+        setLoading(true);
+        try {
+            const res = await periodApi.checkEligibility({ cccd: searchCccd.trim() });
+            // Cấu trúc response từ api là axiosClient -> data
+            setCheckResult({ success: true, message: res.message || "Bạn đủ điều kiện đăng ký đợt này!" });
+        } catch (error) {
+            setCheckResult({ 
+                success: false, 
+                message: error.response?.data?.message || error.message || "Bạn không thuộc danh sách ưu tiên đợt này." 
+            });
+        } finally {
+            setLoading(false);
+            setDialogOpen(true);
+        }
     };
 
     return (
@@ -37,7 +55,7 @@ export default function HomePage() {
                         Hệ thống nộp hồ sơ và xét duyệt ký túc xá trực tuyến hiện đại, nhanh chóng.
                     </Typography>
 
-                    {/* SEARCH BAR */}
+                    {/* SEARCH BAR FOR ELIGIBILITY */}
                     <Paper
                         elevation={0}
                         sx={{
@@ -52,10 +70,10 @@ export default function HomePage() {
                     >
                         <TextField
                             fullWidth
-                            placeholder="Nhập số CCCD/CMND..."
+                            placeholder="Nhập số CCCD/CMND để kiểm tra điều kiện..."
                             value={searchCccd}
                             onChange={(e) => setSearchCccd(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            onKeyDown={(e) => e.key === 'Enter' && handleCheckEligibility()}
                             variant="standard"
                             sx={{ px: 2 }}
                             InputProps={{
@@ -69,10 +87,11 @@ export default function HomePage() {
                         />
                         <Button
                             variant="contained"
-                            onClick={handleSearch}
-                            sx={{ borderRadius: 3, px: 4, py: 1.5, fontWeight: 'bold' }}
+                            onClick={handleCheckEligibility}
+                            disabled={loading}
+                            sx={{ borderRadius: 3, px: 4, py: 1.5, fontWeight: 'bold', minWidth: '120px' }}
                         >
-                            Tra cứu
+                            {loading ? "Đang kiểm tra..." : "Kiểm tra"}
                         </Button>
                     </Paper>
                 </Container>
@@ -102,6 +121,29 @@ export default function HomePage() {
                     </Grid>
                 </Grid>
             </Container>
+
+            {/* DIALOG KẾT QUẢ KIỂM TRA */}
+            <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Kết quả kiểm tra điều kiện</DialogTitle>
+                <DialogContent dividers>
+                    <Alert severity={checkResult.success ? "success" : "error"} variant="filled">
+                        {checkResult.message}
+                    </Alert>
+                    {checkResult.success && (
+                        <Typography variant="body1" sx={{ mt: 2 }}>
+                            Bạn đã đủ điều kiện, vui lòng nhấn "Bắt đầu đăng ký ngay" để tiếp tục.
+                        </Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDialogOpen(false)} color="inherit">Đóng</Button>
+                    {checkResult.success && (
+                        <Button variant="contained" color="primary" onClick={() => navigate('/register')}>
+                            Đăng ký ngay
+                        </Button>
+                    )}
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

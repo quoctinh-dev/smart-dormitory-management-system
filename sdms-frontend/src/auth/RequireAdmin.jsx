@@ -7,7 +7,7 @@ export default function RequireAdmin() {
     const { admin, loading } = useAuth();
     const location = useLocation();
 
-    const [openSnackbar, setOpenSnackbar] = useState(admin && admin.role !== 'ADMIN');
+    const [openSnackbar, setOpenSnackbar] = useState(admin && !['ADMIN', 'STAFF'].includes(admin.role));
 
     if (loading) {
         return (
@@ -21,7 +21,7 @@ export default function RequireAdmin() {
         return <Navigate to="/admin/login" state={{ from: location }} replace />;
     }
 
-    if (admin.role !== 'ADMIN') {
+    if (!['ADMIN', 'STAFF'].includes(admin.role)) {
         return (
             <>
                 <Snackbar

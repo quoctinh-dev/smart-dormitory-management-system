@@ -3,7 +3,6 @@ package com.sdms.backend.modules.auth.controller;
 import com.sdms.backend.common.response.ApiResponse;
 import com.sdms.backend.modules.auth.dto.request.*;
 import com.sdms.backend.modules.auth.dto.response.AuthResponse;
-import com.sdms.backend.modules.auth.dto.response.MeResponse;
 import com.sdms.backend.modules.auth.service.AuthService;
 import com.sdms.backend.modules.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     @Operation(summary = "User Login", description = "Authenticate user and return JWT tokens")
     @PostMapping("/login")
@@ -65,23 +65,5 @@ public class AuthController {
         authService.resetPassword(request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Password has been reset successfully", null));
     }
-    @RestController
-    @RequestMapping("/api/v1/users")
-    @RequiredArgsConstructor
-    public class UserController {
 
-        private final UserService userService;
-
-        @GetMapping("/me")
-        public ResponseEntity<ApiResponse<MeResponse>> getMe() {
-
-            return ResponseEntity.ok(
-                    new ApiResponse<>(
-                            true,
-                            "User profile retrieved successfully",
-                            userService.getMe()
-                    )
-            );
-        }
-    }
 }

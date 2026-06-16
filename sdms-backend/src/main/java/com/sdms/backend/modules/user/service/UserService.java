@@ -1,9 +1,12 @@
 package com.sdms.backend.modules.user.service;
 
-import com.sdms.backend.modules.auth.dto.response.MeResponse;
+import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.modules.user.dto.response.MeResponse;
 import com.sdms.backend.modules.user.entity.UserAccount;
+import com.sdms.backend.modules.user.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -12,27 +15,38 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
+    private final UserAccountRepository repository;
 
     public MeResponse getMe() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // 1. Kiểm tra xác thực có tồn tại và đã được xác thực chưa
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("Người dùng chưa được xác thực");
+            throw new AppException(
+                    "Unauthorized",
+                    HttpStatus.UNAUTHORIZED
+            );
         }
 
         Object principal = authentication.getPrincipal();
 
-        // 2. Kiểm tra xem principal có phải là UserAccount không
         if (principal instanceof UserAccount account) {
-            return MeResponse.builder()
-                    .accountId(account.getAccountId())
-                    .username(account.getUsername())
-                    .email(account.getEmail())
-                    .role(account.getRole().name())
-                    .build();
+
+            return new MeResponse(
+                    account.getAccountId(),
+                    account.getUsername(),
+                    account.getEmail(),
+                    account.getRole().name(),
+                    account.getStatus().name()
+            );
         }
 
-        throw new RuntimeException("Thông tin người dùng không hợp lệ");
+        throw new AppException(
+                "Invalid authentication information",
+                HttpStatus.UNAUTHORIZED
+        );
     }
 }

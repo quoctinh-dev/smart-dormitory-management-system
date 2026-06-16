@@ -6,6 +6,7 @@ import { RequireAdmin } from "@/auth";
 
 const LoginPage = lazy(() => import("@/pages/admin/LoginPage"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const RegistrationPeriodManager = lazy(() => import("@/pages/admin/RegistrationPeriodManager"));
 
 export const adminRoutes = [
   // Nhóm Auth
@@ -23,6 +24,7 @@ export const adminRoutes = [
         element: <AdminLayout />,
         children: [
           { path: "admin", element: wrap(AdminDashboard) },
+          { path: "admin/registration-periods", element: wrap(RegistrationPeriodManager) },
         ]
       }
     ]

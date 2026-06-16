@@ -1,13 +1,13 @@
-package com.sdms.backend.modules.auth.dto.response;
+package com.sdms.backend.modules.user.dto.response;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class MeResponse {
 
@@ -19,7 +19,5 @@ public class MeResponse {
 
     private String role;
 
-    private String fullName;
-
-    private String avatarUrl;
+    private String status;
 }

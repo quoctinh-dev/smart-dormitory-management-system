@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { applicationApi, periodApi, documentApi } from "@/api";
 
 export const useRegistration = () => {
@@ -11,50 +11,87 @@ export const useRegistration = () => {
     const [formData, setFormData] = useState({ cccd: '', fullName: '' });
     const [uploadedDocs, setUploadedDocs] = useState([]);
 
-    useEffect(() => {
-        const init = async () => {
-            try {
-                const data = await periodApi.getCurrent();
-                setPeriod(data);
-            } catch (err) {
-                if (err.status !== 400) setError("Hệ thống tạm thời ngoại tuyến.");
+    const handleCheckEligibility = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await periodApi.checkEligibility({ cccd: formData.cccd.trim() });
+            if (res.eligible) {
+                setPeriod({
+                    periodName: res.periodName,
+                    registrationType: res.registrationType,
+                });
+                setFormData(prev => ({ ...prev, fullName: res.fullName || '' }));
+                setActiveStep(1); // Proceed to Info step
+            } else {
+                setError(res.message || "Bạn không đủ điều kiện tham gia đợt đăng ký này.");
             }
-        };
-        init();
-    }, []);
+        } catch (err) {
+            setError(err.message || "Lỗi kiểm tra điều kiện.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleNext = async () => {
         setError(null);
-        if (activeStep === 1) {
+        if (activeStep === 0) {
+            await handleCheckEligibility();
+        } else if (activeStep === 1) {
+            // Assume we create application here
             setLoading(true);
             try {
-                const res = await applicationApi.create({ cccd: formData.cccd.trim(), periodId: period?.id });
-                setAppId(res.id);
-                setActiveStep(2);
+                // Mock API call since applicationApi is incomplete
+                // const res = await applicationApi.create({ cccd: formData.cccd.trim() });
+                // setAppId(res.id);
+                setTimeout(() => {
+                    setAppId("dummy-app-id");
+                    setActiveStep(2);
+                    setLoading(false);
+                }, 1000);
             } catch (err) {
-                setError(err.response?.data?.message || "Lỗi tạo hồ sơ.");
-            } finally {
+                setError(err.message || "Lỗi tạo hồ sơ.");
                 setLoading(false);
             }
         } else if (activeStep === 2) {
-            if (uploadedDocs.length === 0) return setError("Bắt buộc tải lên tài liệu.");
+            if (uploadedDocs.length === 0) return setError("Bắt buộc tải ít nhất một tài liệu.");
             setActiveStep(3);
         } else {
             setActiveStep(prev => prev + 1);
         }
     };
 
-    const handleUpload = async (type) => {
+    const handleBack = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+        setError(null);
+    };
+
+    const handleUpload = async (file) => {
         setLoading(true);
+        setError(null);
         try {
-            await documentApi.upload(appId, type, `path/to/file`);
-            setUploadedDocs(prev => [...prev, type]);
+            // Mock upload
+            // await documentApi.upload(appId, type, file);
+            setTimeout(() => {
+                setUploadedDocs(prev => [...prev, file.name]);
+                setLoading(false);
+            }, 1000);
         } catch (err) {
             setError("Lỗi upload.");
-        } finally {
             setLoading(false);
         }
     };
 
-    return { activeStep, loading, error, period, formData, setFormData, uploadedDocs, handleNext, handleUpload };
+    return { 
+        activeStep, 
+        loading, 
+        error, 
+        period, 
+        formData, 
+        setFormData, 
+        uploadedDocs, 
+        handleNext, 
+        handleBack,
+        handleUpload 
+    };
 };

@@ -2,6 +2,8 @@ package com.sdms.backend.modules.user.repository;
 
 import com.sdms.backend.modules.user.entity.UserAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -14,4 +16,7 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, UUID> 
     Optional<UserAccount> findByStudent_StudentId(UUID studentId);
     Optional<UserAccount> findByRefreshToken(String refreshToken);
     Optional<UserAccount> findByResetPasswordToken(String resetPasswordToken);
+
+    @Query("SELECT u FROM UserAccount u LEFT JOIN FETCH u.student WHERE u.username = :username")
+    Optional<UserAccount> findByUsernameWithStudent(@Param("username") String username);
 }

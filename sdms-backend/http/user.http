@@ -1,0 +1,4 @@
+@host = http://localhost:8080
+### 0.GET ME
+GET http://localhost:8080/api/v1/users/me
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdHVkZW50VGVzdF8wMDIiLCJhY2NvdW50SWQiOiJjMTAyYzFkZi1lY2E4LTQ3MDEtODI1Ny03OTkwOTc1MDc1ODMiLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc4MTYwMjQ3MiwiZXhwIjoxNzgxNjAzMzcyfQ.JYQne9-Oy56w1WK3AV7RLZDZCu6tPLVKyiQSDNvPX5bBCnmTsW6U4e9ZTVRked0sxFLo61QBijcP7zI6AsaFmQ

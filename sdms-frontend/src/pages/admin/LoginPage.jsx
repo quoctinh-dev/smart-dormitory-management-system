@@ -6,7 +6,7 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "@/api";
-import { useAuth } from "@/auth";
+import { useAuth, authStorage } from "@/auth";
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -20,13 +20,14 @@ export default function LoginPage() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        // Xóa thông báo lỗi khi người dùng bắt đầu nhập lại
         if (error) setError("");
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError("");
+        setError(""); // Reset lỗi cũ
 
         try {
             const res = await authApi.login({
@@ -34,15 +35,30 @@ export default function LoginPage() {
                 password: formData.password,
             });
 
+            // Lưu token tạm thời để getMe có thể sử dụng
+            authStorage.setTokens({
+                accessToken: res.accessToken,
+                refreshToken: res.refreshToken
+            });
+
+            // Lấy thông tin user thực tế
+            const userData = await authApi.getMe();
+
             login({
                 accessToken: res.accessToken,
                 refreshToken: res.refreshToken,
-                user: res.user || { username: formData.usernameOrEmail, role: 'admin' },
+                user: userData,
             });
 
             navigate("/admin", { replace: true });
         } catch (err) {
-            setError(err?.message || "Đăng nhập thất bại, vui lòng kiểm tra lại thông tin.");
+            // Lấy thông báo lỗi chi tiết từ server nếu có (axios response)
+            const serverMessage = err.response?.data?.message || err.response?.data;
+            const finalErrorMessage = typeof serverMessage === 'string' 
+                ? serverMessage 
+                : "Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản hoặc mật khẩu.";
+            
+            setError(finalErrorMessage);
         } finally {
             setLoading(false);
         }
@@ -56,7 +72,12 @@ export default function LoginPage() {
                     <Typography color="text.secondary">Đăng nhập quản trị hệ thống KTX</Typography>
                 </Box>
 
-                {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
+                {/* Alert sẽ không tự mất cho đến khi người dùng nhập lại nhờ logic trong handleChange */}
+                {error && (
+                    <Alert severity="error" sx={{ borderRadius: 2 }}>
+                        {error}
+                    </Alert>
+                )}
 
                 <form onSubmit={handleSubmit}>
                     <Stack spacing={2.5}>
@@ -66,6 +87,7 @@ export default function LoginPage() {
                             value={formData.usernameOrEmail} 
                             onChange={handleChange} 
                             required 
+                            fullWidth
                         />
                         <TextField 
                             label="Mật khẩu" 
@@ -74,6 +96,7 @@ export default function LoginPage() {
                             value={formData.password} 
                             onChange={handleChange} 
                             required
+                            fullWidth
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
@@ -89,7 +112,7 @@ export default function LoginPage() {
                             variant="contained" 
                             size="large" 
                             disabled={loading}
-                            sx={{ mt: 1 }}
+                            sx={{ mt: 1, py: 1.5 }}
                         >
                             {loading ? <CircularProgress size={24} color="inherit" /> : "ĐĂNG NHẬP"}
                         </Button>

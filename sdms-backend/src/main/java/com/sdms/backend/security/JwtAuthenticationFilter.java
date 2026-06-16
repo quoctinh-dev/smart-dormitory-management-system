@@ -71,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-
+                log.info("User {} has authorities: {}", username, userDetails.getAuthorities());
                 if (!(userDetails instanceof UserAccount account) || account.getStatus() != AccountStatus.ACTIVE) {
                     log.warn("Attempt to access with non-ACTIVE account. Username: {}", username);
                     sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "Account is not active");

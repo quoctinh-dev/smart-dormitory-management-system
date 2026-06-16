@@ -3,9 +3,6 @@
 # =============================================
 
 @host = http://localhost:8080
-### 0.GET ME
-GET http://localhost:8080/api/v1/users/me
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdGFmZjAxIiwiYWNjb3VudElkIjoiMjAwMzM2NTQtMDExZi00ODcxLWI4MjQtNDBiMjE4ZTMzMzk5Iiwicm9sZSI6IlNUQUZGIiwiaWF0IjoxNzgxNTE1MTE3LCJleHAiOjE3ODE1MTYwMTd9.lO5DnScNi8RUjf6Hue0ZX3mh_dXnyhWK84ioavwA9r44ysUTm3YC9UVsumODdC4S2u-J-zx7qkGdxdywAl1Dnw
 
 ### 1. LOGIN
 POST {{host}}/api/v1/auth/login

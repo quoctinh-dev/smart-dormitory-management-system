@@ -1,0 +1,43 @@
+### SETUP: Đảm bảo biến auth_token đã được thiết lập từ bước trước
+@auth_token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdGFmZjAxIiwiYWNjb3VudElkIjoiMGM3NGUwMDMtMmM5NS00M2JmLWFmNzYtMThmMDVmYjI2ZThhIiwicm9sZSI6IlNUQUZGIiwiaWF0IjoxNzgxNjAyOTc5LCJleHAiOjE3ODE2MDM4Nzl9.Gj_Zl3gocPDgRrtD8qsJyRIvyHz3K6FZE5eIJqaeivMXPnqSnPG3gyA7TPOZXj_Jt8rNXqGdPgUPtJhl0hdkZw
+
+### 1. TEST CASE 1: Open Registration
+# Mục tiêu: Đợt mở tự do, mọi CCCD gửi lên đều phải trả về eligible = true.
+POST http://localhost:8080/api/v1/registrations/check-eligibility
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "cccd": "079203001234"
+}
+
+### 2. TEST CASE 2: Restricted Registration - Có trong danh sách (Eligible = true)
+# Mục tiêu: Đợt giới hạn (CURRENT_RESIDENT/NEW_STUDENT), kiểm tra CCCD 079000000001 đã có trong DB.
+POST http://localhost:8080/api/v1/registrations/check-eligibility
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "cccd": "079000000001"
+}
+
+### 3. TEST CASE 3: Restricted Registration - Không có trong danh sách (Eligible = false)
+# Mục tiêu: Đợt giới hạn, kiểm tra CCCD "000000000000" không tồn tại trong DB, phải trả về eligible = false.
+POST http://localhost:8080/api/v1/registrations/check-eligibility
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "cccd": "000000000000"
+}
+
+
+### 2. Kích hoạt đợt đăng ký (Thay <TOKEN> và <ID> bằng giá trị thực)
+# @name activatePeriod
+PATCH http://localhost:8080/api/v1/admin/registration-periods/22222222-2222-2222-2222-222222222222/activate
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdGFmZjAxIiwiYWNjb3VudElkIjoiMGM3NGUwMDMtMmM5NS00M2JmLWFmNzYtMThmMDVmYjI2ZThhIiwicm9sZSI6IlNUQUZGIiwiaWF0IjoxNzgxNjA4Njc2LCJleHAiOjE3ODE2MDk1NzZ9.2CUUm4me8jZweab6jjV6xn1iqWLuhxNYScv044qiw4axqfQXmACJ38gxeBHonvGJoqa2t9OxFMUmb-fYqzVagg
+Content-Type: application/json
+
+### 3. Lấy danh sách đợt đăng ký (Test quyền truy cập)
+GET http://localhost:8080/api/v1/admin/registration-periods
+Authorization: Bearer <PASTE_YOUR_TOKEN_HERE>

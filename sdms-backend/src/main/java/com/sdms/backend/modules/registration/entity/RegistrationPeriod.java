@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.registration.entity;
 
 import com.sdms.backend.common.entity.BaseEntity;
+import com.sdms.backend.modules.registration.enums.RegistrationType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,4 +50,8 @@ public class RegistrationPeriod extends BaseEntity {
 
     @Column(nullable = false)
     private Boolean isActive = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private RegistrationType registrationType;
 }

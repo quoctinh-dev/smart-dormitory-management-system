@@ -1,0 +1,29 @@
+### Variables
+@host = http://localhost:8080
+
+### PROFILE-001: Get My Profile (Success - Student Role)
+GET {{host}}/api/v1/students/me
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdHVkZW50VGVzdF8wMDIiLCJhY2NvdW50SWQiOiJjMTAyYzFkZi1lY2E4LTQ3MDEtODI1Ny03OTkwOTc1MDc1ODMiLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc4MTU4Mjc1NCwiZXhwIjoxNzgxNTgzNjU0fQ.KlmZfp7Z9aNq3zEQKTpHMSoAOL_u6x9SUP-xRxHv4GAL3g2yDcjWN6QGv2FM5wjHJhJOpyxVvLtN7l6YNrO88w
+
+### PROFILE: Cập nhật số điện thoại (PATCH)
+PATCH http://localhost:8080/api/v1/students/me
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdHVkZW50VGVzdF8wMDIiLCJhY2NvdW50SWQiOiJjMTAyYzFkZi1lY2E4LTQ3MDEtODI1Ny03OTkwOTc1MDc1ODMiLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc4MTU4Mjc1NCwiZXhwIjoxNzgxNTgzNjU0fQ.KlmZfp7Z9aNq3zEQKTpHMSoAOL_u6x9SUP-xRxHv4GAL3g2yDcjWN6QGv2FM5wjHJhJOpyxVvLtN7l6YNrO88w
+Content-Type: application/json
+
+{
+  "phone": "0909123456"
+}
+
+### AVATAR-001: Upload Avatar (Test với ảnh từ resources)
+POST http://localhost:8080/api/v1/uploads/avatar
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdHVkZW50VGVzdF8wMDIiLCJhY2NvdW50SWQiOiJjMTAyYzFkZi1lY2E4LTQ3MDEtODI1Ny03OTkwOTc1MDc1ODMiLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc4MTU4Mzg0OCwiZXhwIjoxNzgxNTg0NzQ4fQ.DkIVLbDpyqiTKES6tkt3OLrAEfk6HrmS-28THMCJ7uQCsIXtxYiY5DoDDyBs6MjvQcgli-cK0HH3xj66NSAVqw
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="avatar-test.jpg"
+Content-Type: image/jpeg
+
+< ../src/test/resources/samples/bt.jpeg
+--WebAppBoundary--
+
+

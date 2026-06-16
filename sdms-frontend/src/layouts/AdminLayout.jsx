@@ -10,7 +10,7 @@ const DRAWER_WIDTH = 260; // Bạn có thể move vào theme.spacing nếu muố
 
 const menuItems = [
     { text: "Dashboard", path: "/admin" },
-    { text: "Sản phẩm", path: "/admin/products" },
+    { text: "Quản lý đợt đăng ký", path: "/admin/registration-periods" },
 ];
 
 export default function AdminLayout() {
