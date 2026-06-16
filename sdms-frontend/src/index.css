@@ -1,0 +1,56 @@
+/* ===== RESET & BASE ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /* Ưu tiên Roboto để đồng bộ với MUI Components */
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  line-height: 1.6;
+  background-color: #f8fafc; /* Màu nền nhạt giúp các Card trắng nổi bật hơn */
+  color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden; /* Tránh bị vỡ giao diện ngang trên mobile */
+}
+
+/* ===== LINKS ===== */
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* ===== SCROLLBAR (Tùy chọn cho đẹp) ===== */
+/* Làm thanh cuộn mảnh và hiện đại hơn trên Chrome/Edge */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
