@@ -1,119 +1,110 @@
-import { Container, Paper, Typography, Box, Button, Divider, Alert, CircularProgress } from "@mui/material";
-import Grid from "@mui/material/Grid2";
-import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import axiosClient from "@/api/axiosClient";
+import { useParams, useNavigate } from 'react-router-dom';
+import { Container, Paper, Typography, Box, Button, Divider, Alert, CircularProgress, Snackbar } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import PaymentIcon from '@mui/icons-material/Payment';
+import { alpha } from '@mui/material/styles';
+
+import { usePayment } from '@/hooks/usePayment'; 
+import CustomSkeleton from '@/components/common/CustomSkeleton';
 
 export default function PaymentPage() {
-    const { applicationId } = useParams();
-    const navigate = useNavigate();
-    const [bill, setBill] = useState(null);
-    const [application, setApplication] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [paying, setPaying] = useState(false);
+  const { applicationId } = useParams();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Fetch Application info
-                const appRes = await axiosClient.get(`/v1/applications/${applicationId}`);
-                setApplication(appRes.data || appRes);
+  const {
+    bill,
+    application,
+    loading,
+    error,
+    paying,
+    snackbar,
+    handleMockPayment,
+    closeSnackbar,
+  } = usePayment(applicationId);
 
-                // Fetch Bill info
-                const billRes = await axiosClient.get(`/v1/bills/application/${applicationId}`);
-                setBill(billRes.data || billRes);
+  if (loading) return <CustomSkeleton type="dashboard" count={1} />;
 
-                setLoading(false);
-            } catch (err) {
-                console.error(err);
-                setError("Không tìm thấy thông tin hóa đơn cho hồ sơ này.");
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, [applicationId]);
-
-    const handleMockPayment = async () => {
-        setPaying(true);
-        try {
-            // Giả lập Webhook payment success
-            await axiosClient.post(`/payments/mock-success`, { applicationId });
-            alert("Thanh toán thành công! Hệ thống đang tạo tài khoản cho bạn.");
-            navigate('/status');
-        } catch (err) {
-            alert("Lỗi thanh toán: " + (err.response?.data?.message || err.message));
-        } finally {
-            setPaying(false);
-        }
-    };
-
-    if (loading) return <Container sx={{ py: 10, textAlign: 'center' }}><CircularProgress /></Container>;
-    if (error) return <Container sx={{ py: 10 }}><Alert severity="error">{error}</Alert></Container>;
-
+  if (error) {
     return (
-        <Container maxWidth="sm" sx={{ py: 8 }}>
-            <Paper sx={{ p: 4, borderRadius: 4, textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
-                <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
-                    Thanh Toán Lệ Phí
-                </Typography>
-                <Typography variant="body1" color="text.secondary" mb={4}>
-                    Vui lòng hoàn tất thanh toán để hệ thống tự động cấp phòng và tạo tài khoản sinh viên nội trú cho bạn.
-                </Typography>
-
-                <Box sx={{ bgcolor: '#f8fafc', p: 3, borderRadius: 3, textAlign: 'left', mb: 4 }}>
-                    <Typography variant="h6" fontWeight="bold" mb={2}>Thông tin sinh viên</Typography>
-                    <Grid container spacing={2}>
-                        <Grid size={{ xs: 6 }}><Typography color="text.secondary">Họ và tên:</Typography></Grid>
-                        <Grid size={{ xs: 6 }}><Typography fontWeight="bold" align="right">{application.fullName}</Typography></Grid>
-                        
-                        <Grid size={{ xs: 6 }}><Typography color="text.secondary">CCCD:</Typography></Grid>
-                        <Grid size={{ xs: 6 }}><Typography fontWeight="bold" align="right">{application.cccd}</Typography></Grid>
-                    </Grid>
-                </Box>
-
-                <Box sx={{ bgcolor: '#f8fafc', p: 3, borderRadius: 3, textAlign: 'left', mb: 4 }}>
-                    <Typography variant="h6" fontWeight="bold" mb={2}>Thông tin thanh toán</Typography>
-                    <Grid container spacing={2}>
-                        <Grid size={{ xs: 6 }}><Typography color="text.secondary">Mã hóa đơn:</Typography></Grid>
-                        <Grid size={{ xs: 6 }}><Typography fontWeight="bold" align="right">{bill.billId}</Typography></Grid>
-                        
-                        <Grid size={{ xs: 6 }}><Typography color="text.secondary">Nội dung:</Typography></Grid>
-                        <Grid size={{ xs: 6 }}><Typography fontWeight="bold" align="right">{bill.description}</Typography></Grid>
-                        
-                        <Grid size={{ xs: 6 }}><Typography color="text.secondary">Hạn chót:</Typography></Grid>
-                        <Grid size={{ xs: 6 }}><Typography fontWeight="bold" align="right" color="error">{new Date(bill.dueDate).toLocaleDateString('vi-VN')}</Typography></Grid>
-                    </Grid>
-                    <Divider sx={{ my: 2 }} />
-                    <Grid container>
-                        <Grid size={{ xs: 6 }}><Typography variant="h6">Tổng tiền:</Typography></Grid>
-                        <Grid size={{ xs: 6 }}>
-                            <Typography variant="h6" fontWeight="bold" align="right" color="primary">
-                                {bill.amount.toLocaleString('vi-VN')} VNĐ
-                            </Typography>
-                        </Grid>
-                    </Grid>
-                </Box>
-
-                <Button 
-                    variant="contained" 
-                    size="large" 
-                    fullWidth 
-                    color="warning"
-                    startIcon={paying ? <CircularProgress size={20} color="inherit"/> : <PaymentIcon />}
-                    onClick={handleMockPayment}
-                    disabled={paying}
-                    sx={{ py: 1.5, fontSize: '1.1rem', borderRadius: 2, mb: 2 }}
-                >
-                    {paying ? "Đang xử lý..." : "Mô phỏng Đóng Tiền (Bỏ qua bước VNPay)"}
-                </Button>
-                
-                <Typography variant="body2" color="text.secondary">
-                    *Ghi chú: Nút này hiện để Test nhanh luồng tự động tạo Tài Khoản (Event-Driven) của hệ thống. 
-                    Trong thực tế, bạn sẽ thanh toán VNPay tại đây, hoặc đến văn phòng KTX nộp tiền mặt để Admin xác nhận.
-                </Typography>
-            </Paper>
-        </Container>
+      <Container maxWidth="sm" sx={{ py: 10 }}>
+        <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>
+      </Container>
     );
+  }
+
+  return (
+    <Container maxWidth="sm" sx={{ py: 8 }}>
+      <Paper 
+        variant="outlined" 
+        sx={{ p: 4, borderRadius: 4, textAlign: 'center', boxShadow: (theme) => theme.shadows[3] }}
+      >
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'primary.main', mb: 1 }}>
+          Thanh Toán Lệ Phí
+        </Typography>
+        <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
+          Vui lòng hoàn tất thanh toán để hệ thống tự động cấp phòng và tạo tài khoản sinh viên nội trú cho bạn.
+        </Typography>
+
+        {/* THÔNG TIN SINH VIÊN */}
+        <Box sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04), border: '1px solid', borderColor: 'divider', p: 3, borderRadius: 3, textAlign: 'left', mb: 3 }}>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>Thông tin sinh viên</Typography>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 6 }}><Typography sx={{ color: 'text.secondary' }}>Họ và tên:</Typography></Grid>
+            <Grid size={{ xs: 6 }}><Typography sx={{ fontWeight: 'bold', textAlign: 'right' }}>{application?.fullName}</Typography></Grid>
+            <Grid size={{ xs: 6 }}><Typography sx={{ color: 'text.secondary' }}>CCCD/CMND:</Typography></Grid>
+            <Grid size={{ xs: 6 }}><Typography sx={{ fontWeight: 'bold', textAlign: 'right' }}>{application?.cccd}</Typography></Grid>
+          </Grid>
+        </Box>
+
+        {/* THÔNG TIN HÓA ĐƠN */}
+        <Box sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04), border: '1px solid', borderColor: 'divider', p: 3, borderRadius: 3, textAlign: 'left', mb: 4 }}>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>Thông tin thanh toán</Typography>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 6 }}><Typography sx={{ color: 'text.secondary' }}>Mã hóa đơn:</Typography></Grid>
+            <Grid size={{ xs: 6 }}><Typography sx={{ fontWeight: 'bold', textAlign: 'right' }}>{bill?.billId}</Typography></Grid>
+            <Grid size={{ xs: 6 }}><Typography sx={{ color: 'text.secondary' }}>Nội dung:</Typography></Grid>
+            <Grid size={{ xs: 6 }}><Typography sx={{ fontWeight: 'bold', textAlign: 'right' }}>{bill?.description}</Typography></Grid>
+            <Grid size={{ xs: 6 }}><Typography sx={{ color: 'text.secondary' }}>Hạn chót nộp:</Typography></Grid>
+            <Grid size={{ xs: 6 }}>
+              <Typography sx={{ fontWeight: 'bold', textAlign: 'right', color: 'error.main' }}>
+                {bill?.dueDate ? new Date(bill.dueDate).toLocaleDateString('vi-VN') : ''}
+              </Typography>
+            </Grid>
+          </Grid>
+          <Divider sx={{ my: 2 }} />
+          <Grid container sx={{ alignItems: 'center' }}>
+            <Grid size={{ xs: 6 }}><Typography variant="h6" sx={{ fontWeight: 600 }}>Tổng tiền:</Typography></Grid>
+            <Grid size={{ xs: 6 }}>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'right', color: 'primary.main' }}>
+                {bill?.amount ? bill.amount.toLocaleString('vi-VN') : 0} VNĐ
+              </Typography>
+            </Grid>
+          </Grid>
+        </Box>
+
+        <Button 
+          variant="contained" 
+          size="large" 
+          fullWidth 
+          color="warning"
+          startIcon={paying ? <CircularProgress size={20} color="inherit"/> : <PaymentIcon />}
+          onClick={() => handleMockPayment(() => navigate('/status'))} // Truyền hành động callback chuyển hướng sau khi găm xong thông tin thành công
+          disabled={paying}
+          sx={{ py: 1.5, fontSize: '1.1rem', borderRadius: 2, mb: 2 }}
+        >
+          {paying ? 'Đang xử lý giao dịch...' : 'Mô phỏng Đóng Tiền (Bỏ qua bước VNPay)'}
+        </Button>
+        
+        <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic', fontSize: '0.85rem' }}>
+          *Ghi chú: Nút này phục vụ môi trường kiểm thử (Test) luồng kiến trúc Event-Driven của hệ thống. Trong thực tế, cổng sẽ điều hướng sang cổng ký số VNPay Sandbox.
+        </Typography>
+      </Paper>
+
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={closeSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+        <Alert severity={snackbar.severity} variant="filled" sx={{ width: '100%', borderRadius: 2 }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Container>
+  );
 }

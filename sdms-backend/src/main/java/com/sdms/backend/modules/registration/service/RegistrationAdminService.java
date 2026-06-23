@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,8 +25,14 @@ public class RegistrationAdminService {
 
     // Tạo đợt đăng ký mới
     public RegistrationPeriodResponse createPeriod(CreateRegistrationPeriodRequest req) {
+        LocalDateTime now = LocalDateTime.now();
+
         if (req.getStartDate().isAfter(req.getEndDate())) {
             throw new AppException("Ngày bắt đầu phải trước ngày kết thúc", HttpStatus.BAD_REQUEST);
+        }
+
+        if (req.getEndDate().isBefore(now)) {
+            throw new AppException("Thời gian kết thúc của đợt mới không được ở trong quá khứ", HttpStatus.BAD_REQUEST);
         }
 
         RegistrationPeriod period = new RegistrationPeriod();
@@ -33,26 +40,27 @@ public class RegistrationAdminService {
         period.setRegistrationType(req.getRegistrationType());
         period.setStartDate(req.getStartDate());
         period.setEndDate(req.getEndDate());
-        period.setIsActive(false); // Mặc định tạo ra là tạm dừng
+        period.setIsActive(false); // Mặc định tạo ra là nháp (tạm dừng)
 
         return mapToResponse(repository.save(period));
     }
 
     // Kích hoạt đợt (Tự động tắt các đợt khác)
     public void activatePeriod(UUID id) {
-        // 1. Tắt tất cả đợt active trước đó bằng 1 câu lệnh SQL duy nhất
-        // Điều này đảm bảo không vi phạm ràng buộc Unique Constraint của Database
-        repository.deactivateAll();
-
-        // 2. Tìm và bật đợt mới
         RegistrationPeriod p = repository.findById(id)
                 .orElseThrow(() -> new AppException("Không tìm thấy đợt đăng ký", HttpStatus.NOT_FOUND));
 
+        if (LocalDateTime.now().isAfter(p.getEndDate())) {
+            throw new AppException("Không thể kích hoạt đợt đăng ký đã quá hạn kết thúc", HttpStatus.BAD_REQUEST);
+        }
+
+        // Tắt tất cả các đợt khác để tránh xung đột Unique Constraint
+        repository.deactivateAll();
         p.setIsActive(true);
         repository.save(p);
     }
 
-    // Tắt đợt đang hoạt động (Nghiệp vụ phụ nếu cần)
+    // Tắt đợt đang hoạt động
     public void deactivatePeriod(UUID id) {
         RegistrationPeriod p = repository.findById(id)
                 .orElseThrow(() -> new AppException("Không tìm thấy đợt đăng ký", HttpStatus.NOT_FOUND));
@@ -61,18 +69,46 @@ public class RegistrationAdminService {
         repository.save(p);
     }
 
-    // Cập nhật thông tin đợt
+    // Cập nhật thông tin đợt (Hỗ trợ tái sử dụng hoàn hảo)
     public RegistrationPeriodResponse updatePeriod(UUID id, UpdateRegistrationPeriodRequest req) {
         RegistrationPeriod p = repository.findById(id)
                 .orElseThrow(() -> new AppException("Không tìm thấy đợt đăng ký", HttpStatus.NOT_FOUND));
 
+        // 1. Kiểm tra logic ngày tháng cơ bản
+        if (req.getStartDate().isAfter(req.getEndDate())) {
+            throw new AppException("Ngày bắt đầu phải trước ngày kết thúc", HttpStatus.BAD_REQUEST);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (req.getEndDate().isBefore(now)) {
+            throw new AppException("Thời gian kết thúc cập nhật không được ở trong quá khứ", HttpStatus.BAD_REQUEST);
+        }
+
+        // 2. Kiểm tra xem đợt này có ĐANG TRONG THỜI GIAN HOẠT ĐỘNG thực tế hay không
+        if (Boolean.TRUE.equals(p.getIsActive()) && now.isAfter(p.getStartDate())) {
+
+            // Chốt chặn 1: Không được đổi loại hình đăng ký khi đợt đang mở
+            if (!p.getRegistrationType().equals(req.getRegistrationType())) {
+                throw new AppException("Đợt đăng ký đang hoạt động, không thể thay đổi loại đợt đăng ký", HttpStatus.BAD_REQUEST);
+            }
+
+            // Chốt chặn 2: Không được sửa ngày bắt đầu vì đợt đã chạy qua mốc đó rồi
+            if (!p.getStartDate().equals(req.getStartDate())) {
+                throw new AppException("Đợt đăng ký đã hoặc đang diễn ra, không thể thay đổi ngày bắt đầu", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        // 3. Nếu đợt chưa chạy hoặc đang tắt hẳn (nháp) -> Cho phép cập nhật toàn bộ để "để dành" dùng lại
         p.setPeriodName(req.getPeriodName());
+        p.setRegistrationType(req.getRegistrationType());
         p.setStartDate(req.getStartDate());
         p.setEndDate(req.getEndDate());
+
         return mapToResponse(repository.save(p));
     }
 
     // Lấy danh sách tất cả các đợt
+    @Transactional(readOnly = true)
     public List<RegistrationPeriodResponse> getAllPeriods() {
         return repository.findAll().stream()
                 .map(this::mapToResponse)

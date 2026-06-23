@@ -117,13 +117,13 @@ public class ApplicationReviewService {
         }
 
         ApplicationStatus oldStatus = application.getStatus();
-        application.setStatus(ApplicationStatus.APPROVED);
+
+        application.setStatus(ApplicationStatus.WAITING_PAYMENT);
         application.setReviewedByUserId(adminUserId);
         application.setReviewNote(note);
         application.setApprovedAt(LocalDateTime.now());
         applicationRepository.save(application);
 
-        // Tự động duyệt tất cả các tài liệu đính kèm nếu chưa được duyệt
         java.util.List<VerificationDocument> documents = documentRepository.findByApplication_ApplicationId(applicationId);
         for (VerificationDocument doc : documents) {
             if (doc.getStatus() == VerificationStatus.PENDING) {
@@ -134,9 +134,8 @@ public class ApplicationReviewService {
             }
         }
 
-        saveHistory(application, oldStatus, ApplicationStatus.APPROVED, adminUserId, note);
+        saveHistory(application, oldStatus, ApplicationStatus.WAITING_PAYMENT, adminUserId, note);
 
-        // Phát sự kiện phê duyệt hồ sơ (Decoupled Integration Event)
         eventPublisher.publishEvent(new ApplicationApprovedEvent(
                 this,
                 applicationId,

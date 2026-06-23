@@ -1,71 +1,655 @@
 # PROJECT_RULES.md
 
-## 1. Mục đích
-Tài liệu này đóng vai trò là "Hiến pháp" (Ruleset) của dự án `sdms-frontend`. Mọi lập trình viên và AI Agent khi làm việc trong dự án này đều phải tuân thủ nghiêm ngặt các quy tắc dưới đây nhằm đảm bảo tính nhất quán, dễ bảo trì và mở rộng của mã nguồn.
+# 1. Mục đích
 
-## 2. Quy tắc cấu trúc thư mục (Folder Structure)
-Mọi file phải được đặt đúng vị trí theo kiến trúc đã định. Không đặt file sai chức năng vào các thư mục.
+Tài liệu này là bộ quy chuẩn chính thức của dự án **sdms-frontend**.
 
-*   `src/api/`: **Chỉ chứa** các file gọi API. Phân tách theo từng tài nguyên (resource).
-*   `src/auth/`: **Chỉ chứa** logic xử lý xác thực và phân quyền (AuthContext, RequireAdmin, authStorage).
-*   `src/components/`: **Chỉ chứa** các UI component dùng chung (Shared UI) trên toàn dự án.
-*   `src/hooks/`: **Chỉ chứa** custom hooks (tách biệt logic nghiệp vụ khỏi UI component).
-*   `src/layouts/`: **Chỉ chứa** các component layout (bộ khung) cho các nhóm trang (AdminLayout, PublicLayout, AuthLayout).
-*   `src/pages/`: **Chỉ chứa** các component trang (Page). Phân chia rõ ràng thành `admin/` và `public/`.
-*   `src/routes/`: **Chỉ chứa** cấu hình định tuyến (AppRouter, AdminRoutes, PublicRoutes, utils).
-*   `src/theme/`: **Chỉ chứa** cấu hình và custom theme của Material-UI (MUI).
+Mục tiêu của tài liệu nhằm:
 
-## 3. Quy tắc API (API Standards)
-*   **Centralized Axios:** Mọi HTTP request **BẮT BUỘC** phải đi qua `axiosClient.js`. **KHÔNG** sử dụng `axios` trực tiếp trong các component hoặc hooks.
-*   **Interceptor & Refresh Token:** `axiosClient.js` đã được cấu hình sẵn cơ chế tự động đính kèm token vào header và tự động refresh token khi hết hạn (401). Không viết lại logic này ở nơi khác.
-*   **Data Envelope:** Response từ backend luôn được thiết kế theo dạng envelope `{ success, message, data, ... }`. `axiosClient` đã được cấu hình interceptor để tự động trích xuất phần `data` (`response.data?.data ?? response.data`). Do đó, các hàm gọi API chỉ cần quan tâm đến dữ liệu cốt lõi.
-*   **Resource Modules:** Các endpoint phải được gom nhóm theo file dựa trên resource. Ví dụ: `authApi.js` (xác thực), `applicationApi.js` (hồ sơ), `periodApi.js` (đợt đăng ký).
-*   **Barrel Export:** Bắt buộc sử dụng file `index.js` trong thư mục `src/api/` để export tất cả các API modules.
+* Đảm bảo tính nhất quán trong toàn bộ mã nguồn.
+* Duy trì khả năng bảo trì và mở rộng lâu dài.
+* Chuẩn hóa kiến trúc hệ thống.
+* Tăng tính ổn định và khả năng cộng tác trong quá trình phát triển.
+* Hạn chế phát sinh nợ kỹ thuật (Technical Debt).
 
-```javascript
-// Chuẩn: src/api/userApi.js
-import axiosClient from "./axiosClient";
-
-const userApi = {
-    getAll: () => axiosClient.get('/users'),
-    getById: (id) => axiosClient.get(`/users/${id}`),
-};
-export default userApi;
-```
-
-## 4. Quy tắc Xác thực (Auth Standards)
-*   **Global Auth State:** Sử dụng `AuthContext` (`useAuth` hook) để lấy thông tin người dùng và trạng thái xác thực (`admin`, `isAuthenticated`, `login`, `logout`).
-*   **Route Protection:** Sử dụng component `<RequireAdmin />` trong cấu hình routes để bảo vệ các trang yêu cầu quyền admin. **Tuyệt đối không** kiểm tra token thủ công trong từng trang.
-*   **Token Management:** Quản lý token thông qua `authStorage.js` (`getAccessToken`, `setTokens`, `clear`). **Tuyệt đối không** hardcode token, không ghi trực tiếp vào `localStorage` từ các component.
-
-## 5. Quy tắc UI/UX (Design System)
-*   **Material-UI (MUI):** Dự án sử dụng MUI làm bộ UI component chính. Các styling phải sử dụng hệ thống styling của MUI (như `sx` prop, `styled-components` của MUI) và tuân thủ `theme` đã cấu hình trong `src/theme/`.
-*   **Loading State:** Khi chờ dữ liệu (fetching), **bắt buộc** sử dụng component `<CustomSkeleton />` (nếu có) hoặc các component Skeleton/CircularProgress của MUI để thể hiện trạng thái loading thay vì màn hình trắng.
-*   **Thông báo (Feedback):** Thống nhất cách hiển thị lỗi và thông báo thành công (ví dụ: sử dụng `Snackbar` và `Alert` của MUI).
-
-## 6. Quy tắc Routing (Routing Standards)
-*   **Centralized Router:** Mọi route được định nghĩa trong thư mục `src/routes/`.
-*   **Thêm Route Mới:**
-    *   Route dành cho người dùng công cộng: Thêm vào `publicRoutes` trong file `src/routes/PublicRoutes.jsx`.
-    *   Route dành cho admin (yêu cầu xác thực): Thêm vào `adminRoutes` trong file `src/routes/AdminRoutes.jsx` bên dưới component bảo vệ `RequireAdmin`.
-*   **Lazy Loading:** Các page component phải được import sử dụng `React.lazy()` và bọc trong hàm `wrap()` (hoặc `Suspense`) để tối ưu hóa hiệu suất tải trang.
-
-## 7. Quy tắc Code (Clean Code & Standards)
-*   **Functional Components & Hooks:** Sử dụng 100% Functional Components và Hooks. Không sử dụng Class Components.
-*   **Tách biệt Logic và UI:** Đưa các logic phức tạp (gọi API, xử lý form, state phức tạp) ra các Custom Hooks (thư mục `src/hooks/`) để Page/Component chỉ đảm nhiệm việc render UI.
-*   **ESLint:** Tuân thủ tuyệt đối các quy tắc được định nghĩa trong `eslint.config.js`. Mã nguồn phải không có lỗi linter trước khi commit.
-*   **Barrel Exports:** Sử dụng file `index.js` ở các thư mục (api, auth, components, hooks...) để gom nhóm các exports, giúp import sạch sẽ hơn.
-    *   *Tránh:* `import { MyComponent } from '@/components/MyComponent/MyComponent'`
-    *   *Nên:* `import { MyComponent } from '@/components'`
-
-## 8. Quy tắc đặt tên (Naming Conventions)
-*   **File & Folder:**
-    *   Thư mục: `kebab-case` hoặc `camelCase` (vd: `components`, `admin-dashboard`).
-    *   File React Components, Layouts, Pages: `PascalCase.jsx` (vd: `AdminDashboard.jsx`, `AuthLayout.jsx`).
-    *   File Utilities, Hooks, API, config: `camelCase.js` (vd: `useRegistration.js`, `authApi.js`, `utils.jsx`).
-*   **Variables & Functions:** `camelCase` (vd: `fetchStatus`, `userData`).
-*   **Constants:** `UPPER_SNAKE_CASE` (vd: `MAX_FILE_SIZE`).
-*   **Components:** `PascalCase` (vd: `function CustomSkeleton() { ... }`).
+Mọi thành phần trong hệ thống phải tuân thủ các quy định được mô tả trong tài liệu này.
 
 ---
-*Ghi chú: Bản quy tắc này có thể được cập nhật trong tương lai tùy theo yêu cầu dự án. Bất kỳ thay đổi lớn nào cần có sự đồng thuận của team.*
+
+# 2. Quy chuẩn cấu trúc thư mục
+
+Mỗi thư mục chỉ được chứa các thành phần đúng với trách nhiệm đã được định nghĩa.
+
+Không đặt sai chức năng hoặc trộn lẫn trách nhiệm giữa các thư mục.
+
+## src/api
+
+Chỉ chứa các module giao tiếp với Backend.
+
+Chức năng:
+
+* Khai báo API
+* Gửi HTTP Request
+* Quản lý endpoint theo từng tài nguyên
+
+Ví dụ:
+
+```text
+src/api/
+├── authApi.js
+├── applicationApi.js
+├── periodApi.js
+└── index.js
+```
+
+---
+
+## src/auth
+
+Chứa toàn bộ logic xác thực và phân quyền.
+
+Chức năng:
+
+* AuthContext
+* Auth Hooks
+* Lưu trữ Token
+* Bảo vệ Route
+
+Ví dụ:
+
+```text
+src/auth/
+├── AuthContext.jsx
+├── RequireAdmin.jsx
+├── authStorage.js
+└── index.js
+```
+
+---
+
+## src/components
+
+Chỉ chứa các UI Component dùng chung cho toàn hệ thống.
+
+Ví dụ:
+
+```text
+src/components/
+├── CustomButton
+├── CustomTable
+├── CustomModal
+└── CustomSkeleton
+```
+
+Không đặt component đặc thù của từng trang vào thư mục này.
+
+---
+
+## src/hooks
+
+Chứa các Custom Hooks.
+
+Chức năng:
+
+* Xử lý nghiệp vụ
+* Quản lý State
+* Điều phối API
+* Xử lý Form
+
+Không chứa mã nguồn render giao diện.
+
+---
+
+## src/layouts
+
+Chứa các Layout dùng làm khung giao diện.
+
+Ví dụ:
+
+```text
+AdminLayout
+PublicLayout
+AuthLayout
+```
+
+Layout chỉ chịu trách nhiệm về cấu trúc hiển thị.
+
+---
+
+## src/pages
+
+Chứa các trang hoàn chỉnh của hệ thống.
+
+Cấu trúc:
+
+```text
+src/pages/
+├── admin/
+└── public/
+```
+
+Page đóng vai trò lớp trình bày (Presentation Layer).
+
+---
+
+## src/routes
+
+Chứa toàn bộ cấu hình định tuyến.
+
+Ví dụ:
+
+```text
+AppRouter.jsx
+AdminRoutes.jsx
+PublicRoutes.jsx
+routePaths.js
+```
+
+---
+
+## src/theme
+
+Chứa toàn bộ cấu hình giao diện Material UI.
+
+Bao gồm:
+
+* Màu sắc
+* Typography
+* Theme
+* Component Overrides
+
+---
+
+# 3. Quy chuẩn API
+
+## Axios tập trung
+
+Toàn bộ HTTP Request phải đi qua:
+
+```javascript
+src/api/axiosClient.js
+```
+
+Không được sử dụng trực tiếp axios ở bất kỳ nơi nào khác.
+
+---
+
+## Interceptor và Refresh Token
+
+Việc xử lý:
+
+* Gắn Access Token
+* Refresh Token
+* Xử lý lỗi xác thực
+
+được thực hiện duy nhất tại:
+
+```javascript
+axiosClient.js
+```
+
+Không triển khai lại logic này ở các module khác.
+
+---
+
+## Chuẩn dữ liệu phản hồi
+
+Backend sử dụng cấu trúc:
+
+```json
+{
+  "success": true,
+  "message": "Success",
+  "data": {}
+}
+```
+
+Interceptor sẽ tự động giải nén dữ liệu:
+
+```javascript
+response.data?.data ?? response.data
+```
+
+Các module sử dụng API chỉ nhận dữ liệu nghiệp vụ cuối cùng.
+
+---
+
+## Phân nhóm API theo tài nguyên
+
+Mỗi tài nguyên phải có module riêng.
+
+Ví dụ:
+
+```javascript
+authApi.js
+applicationApi.js
+periodApi.js
+studentApi.js
+```
+
+---
+
+## Barrel Export
+
+Tất cả API phải được export thông qua:
+
+```javascript
+src/api/index.js
+```
+
+Ví dụ:
+
+```javascript
+export { default as authApi } from './authApi';
+export { default as applicationApi } from './applicationApi';
+```
+
+---
+
+# 4. Quy chuẩn Xác thực và Quản lý State
+
+## Trạng thái xác thực
+
+Trạng thái đăng nhập được quản lý thông qua:
+
+```javascript
+AuthContext
+useAuth()
+```
+
+Bao gồm:
+
+* Người dùng hiện tại
+* Trạng thái đăng nhập
+* Đăng nhập
+* Đăng xuất
+* Thông tin phân quyền
+
+---
+
+## Bảo vệ Route
+
+Các trang yêu cầu quyền truy cập phải sử dụng cơ chế bảo vệ tập trung.
+
+Ví dụ:
+
+```jsx
+<RequireAdmin>
+    <AdminPage />
+</RequireAdmin>
+```
+
+Không kiểm tra quyền truy cập riêng lẻ tại từng trang.
+
+---
+
+## Quản lý Token
+
+Toàn bộ thao tác với Token phải thông qua:
+
+```javascript
+authStorage.js
+```
+
+Các hàm được phép sử dụng:
+
+```javascript
+getAccessToken()
+setTokens()
+clear()
+```
+
+Không truy cập trực tiếp localStorage hoặc sessionStorage bên ngoài module này.
+
+---
+
+## Quản lý State Toàn Cục
+
+Ngoài trạng thái xác thực, các trạng thái toàn cục khác phải được quản lý bằng:
+
+* Context riêng biệt
+* Hoặc giải pháp quản lý State được thống nhất
+
+Không sử dụng AuthContext để lưu trữ dữ liệu không liên quan đến xác thực.
+
+---
+
+# 5. Quy chuẩn UI/UX
+
+## Hệ sinh thái Material UI
+
+Material UI là thư viện giao diện chính của dự án.
+
+Ưu tiên sử dụng:
+
+* sx prop
+* Stack
+* Grid
+* styled()
+
+Hạn chế:
+
+* CSS thuần
+* Inline Style
+* Styling không theo Theme
+
+---
+
+## Trạng thái tải dữ liệu
+
+Khi đang tải dữ liệu phải sử dụng:
+
+```jsx
+<CustomSkeleton />
+```
+
+hoặc
+
+```jsx
+<Skeleton />
+<CircularProgress />
+```
+
+Không hiển thị màn hình trắng hoặc văn bản "Loading...".
+
+---
+
+## Thông báo hệ thống
+
+Thông báo thành công hoặc lỗi phải sử dụng hệ thống tập trung:
+
+* Snackbar
+* Alert
+
+Không triển khai nhiều cơ chế thông báo khác nhau.
+
+---
+
+## Xử lý lỗi
+
+Mọi tác vụ bất đồng bộ phải có xử lý lỗi.
+
+Ví dụ:
+
+```javascript
+try {
+    const data = await applicationApi.getAll();
+} catch (error) {
+    handleError(error);
+}
+```
+
+Thông báo lỗi phải rõ ràng và thân thiện với người dùng.
+
+Không để ứng dụng phát sinh lỗi chưa được xử lý.
+
+---
+
+# 6. Quy chuẩn Định tuyến
+
+## Quản lý Route tập trung
+
+Tất cả Route phải được khai báo trong:
+
+```text
+src/routes/
+```
+
+---
+
+## Route Công khai
+
+Được khai báo tại:
+
+```text
+src/routes/PublicRoutes.jsx
+```
+
+---
+
+## Route Quản trị
+
+Được khai báo tại:
+
+```text
+src/routes/AdminRoutes.jsx
+```
+
+và đặt bên trong cơ chế bảo vệ quyền truy cập.
+
+---
+
+## Lazy Loading
+
+Mọi Page phải được tải bằng:
+
+```javascript
+React.lazy()
+```
+
+và hiển thị thông qua:
+
+```jsx
+<Suspense>
+```
+
+hoặc utility wrapper tương đương.
+
+Code Splitting là yêu cầu bắt buộc.
+
+---
+
+# 7. Quy chuẩn Viết mã nguồn
+
+## Functional Component
+
+Toàn bộ giao diện phải sử dụng:
+
+* Functional Component
+* React Hooks
+
+Không sử dụng Class Component.
+
+---
+
+## Tách biệt Logic và Giao diện
+
+Logic nghiệp vụ thuộc:
+
+```text
+src/hooks/
+```
+
+Giao diện thuộc:
+
+```text
+pages/
+components/
+```
+
+Page và Component chỉ chịu trách nhiệm hiển thị dữ liệu.
+
+---
+
+## Absolute Import
+
+Sử dụng Alias:
+
+```javascript
+@/
+```
+
+Ví dụ:
+
+```javascript
+import { CustomButton } from '@/components';
+```
+
+Không sử dụng đường dẫn tương đối nhiều cấp.
+
+---
+
+## ESLint và Formatter
+
+Mã nguồn phải tuân thủ:
+
+```text
+eslint.config.js
+Prettier
+```
+
+Không được tồn tại lỗi nghiêm trọng từ hệ thống kiểm tra mã nguồn.
+
+---
+
+## Barrel Export
+
+Các thư mục chính phải sử dụng:
+
+```javascript
+index.js
+```
+
+để gom nhóm export.
+
+Ví dụ:
+
+```javascript
+import { CustomButton } from '@/components';
+```
+
+Thay vì:
+
+```javascript
+import CustomButton from '@/components/CustomButton/CustomButton';
+```
+
+---
+
+# 8. Quy ước Đặt tên
+
+## Thư mục
+
+Ưu tiên:
+
+```text
+kebab-case
+```
+
+Ví dụ:
+
+```text
+admin-dashboard
+user-profile
+```
+
+Các thư mục lõi của dự án có thể sử dụng camelCase.
+
+---
+
+## Component React
+
+Sử dụng:
+
+```text
+PascalCase.jsx
+```
+
+Ví dụ:
+
+```text
+AdminDashboard.jsx
+AuthLayout.jsx
+CustomButton.jsx
+```
+
+---
+
+## Hooks, API, Utilities
+
+Sử dụng:
+
+```text
+camelCase.js
+```
+
+Ví dụ:
+
+```text
+useRegistration.js
+authApi.js
+formatDate.js
+```
+
+---
+
+## Biến và Hàm
+
+Sử dụng:
+
+```javascript
+camelCase
+```
+
+Ví dụ:
+
+```javascript
+userData
+fetchStatus
+handleSubmit()
+```
+
+---
+
+## Hằng số
+
+Sử dụng:
+
+```javascript
+UPPER_SNAKE_CASE
+```
+
+Ví dụ:
+
+```javascript
+MAX_FILE_SIZE
+API_TIMEOUT
+DEFAULT_PAGE_SIZE
+```
+
+---
+
+## Tên Component
+
+Tên Component phải trùng với tên file.
+
+Ví dụ:
+
+```javascript
+function CustomSkeleton() {
+    return ...
+}
+```
+
+File:
+
+```text
+CustomSkeleton.jsx
+```
+
+---
+
+# 9. Nguyên tắc Quản trị Dự án
+
+Tài liệu này là tiêu chuẩn kỹ thuật chính thức của dự án sdms-frontend.
+
+Mọi thay đổi liên quan đến:
+
+* Kiến trúc hệ thống
+* Cấu trúc thư mục
+* Công nghệ nền tảng
+* Quy trình phát triển
+
+đều cần được xem xét và thống nhất trước khi triển khai.
+
+Tài liệu có thể được cập nhật theo quá trình phát triển của dự án nhưng phải luôn đảm bảo tính nhất quán và khả năng bảo trì lâu dài của hệ thống.

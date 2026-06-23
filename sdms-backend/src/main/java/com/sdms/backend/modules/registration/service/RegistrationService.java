@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,16 +26,21 @@ public class RegistrationService {
     private final RegistrationEligibilityRepository registrationEligibilityRepository;
 
     /**
-     * Lấy đợt đăng ký đang active.
+     * Lấy đợt đăng ký đang active (Đã bọc lót chống lỗi Overlap thời gian).
      */
     private RegistrationPeriod getActivePeriod() {
         LocalDateTime now = LocalDateTime.now();
-        return registrationPeriodRepository
-                .findByIsActiveTrueAndStartDateBeforeAndEndDateAfter(now, now)
-                .orElseThrow(() -> new AppException(
-                        "Hiện tại không có đợt đăng ký nào đang mở.",
-                        HttpStatus.NOT_FOUND
-                ));
+
+        // Sửa ở Repository thành trả về List để tránh vỡ trận khi Admin cấu hình đè thời gian lên nhau
+        List<RegistrationPeriod> activePeriods = registrationPeriodRepository
+                .findByIsActiveTrueAndStartDateBeforeAndEndDateAfter(now, now);
+
+        if (activePeriods.isEmpty()) {
+            throw new AppException("Hiện tại không có đợt đăng ký nào đang mở.", HttpStatus.NOT_FOUND);
+        }
+
+        // Nếu có nhiều đợt trùng nhau, ưu tiên lấy đợt đầu tiên tìm thấy thay vì crash hệ thống
+        return activePeriods.get(0);
     }
 
     /**
@@ -50,6 +56,8 @@ public class RegistrationService {
                     .periodId(activePeriod.getPeriodId())
                     .periodName(activePeriod.getPeriodName())
                     .registrationType(activePeriod.getRegistrationType().name())
+                    // Đợt tự do thường áp dụng cho tất cả đối tượng cư dân cũ + mới
+                    .target("ALL")
                     .message("Đợt đăng ký tự do, tất cả sinh viên đều đủ điều kiện.")
                     .build();
         }
@@ -69,6 +77,8 @@ public class RegistrationService {
                     .periodName(activePeriod.getPeriodName())
                     .registrationType(activePeriod.getRegistrationType().name())
                     .fullName(eligibility.getFullName())
+                    // Trả thêm Target (Ví dụ: FRESHMAN) để Frontend hiển thị giao diện điền đơn phù hợp
+                    .target(eligibility.getTarget() != null ? eligibility.getTarget().name() : "ALL")
                     .message("Bạn đủ điều kiện tham gia đợt đăng ký này.")
                     .build();
         } else {

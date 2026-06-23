@@ -19,6 +19,24 @@ const theme = createTheme({
             default: '#f8fafc',
             paper: '#ffffff',
         },
+
+        //Định nghĩa nhóm màu Neutral/Grey để dùng cho Border, Divider và Text phụ phụ
+        grey: {
+            50: '#f8fafc',
+            100: '#f1f5f9',
+            200: '#e2e8f0',
+            300: '#cbd5e1',
+            400: '#94a3b8',
+            800: '#1e293b',
+            900: '#0f172a', // Màu Slate 900 siêu tối - dùng cho Footer của PublicLayout
+        },
+        // Màu sắc đại diện cho text
+        text: {
+            primary: '#0f172a',
+            secondary: '#475569',
+        },
+        // Đồng bộ màu đường kẻ hệ thống
+        divider: '#e2e8f0', 
     },
 
     // 2. Quản lý khoảng cách (Breakpoints) cho responsive
@@ -65,11 +83,11 @@ const theme = createTheme({
         // Mặc định cho Card
         MuiCard: {
             styleOverrides: {
-                root: {
+                root: ({ theme }) => ({ 
                     borderRadius: 24,
                     boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.05)',
-                    border: '1px solid #f1f5f9',
-                },
+                    border: `1px solid ${theme.palette.divider}`, 
+                }),
             },
         },
         // Mặc định cho Paper (Layout/Background)

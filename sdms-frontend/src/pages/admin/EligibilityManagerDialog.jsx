@@ -1,163 +1,164 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import {
-    Dialog, DialogTitle, DialogContent, DialogActions, Button,
-    Typography, Box, Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Paper, IconButton, CircularProgress, Alert
+import { useRef } from 'react';
+import { 
+  Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, 
+  Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
+  Paper, IconButton, CircularProgress, Alert, TablePagination 
 } from '@mui/material';
 import { Delete, CloudUpload } from '@mui/icons-material';
-import periodApi from '@/api/periodApi';
+import { useEligibilityManager } from '@/hooks/useEligibilityManager';
 
 export default function EligibilityManagerDialog({ open, onClose, period }) {
-    const [eligibilities, setEligibilities] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [importing, setImporting] = useState(false);
-    const [error, setError] = useState(null);
-    const [successMsg, setSuccessMsg] = useState('');
-    const fileInputRef = useRef(null);
+  const fileInputRef = useRef(null);
+  
+  // CHUẨN HÓA UI: Nhận thêm các biến và hàm điều khiển phân trang từ Hook mới
+  const {
+    eligibilities, loading, importing, error, successMsg, deleteTarget,
+    page, size, totalElements, setPage, setSize,
+    setDeleteTarget, confirmDelete, handleImportExcel
+  } = useEligibilityManager(period, open);
 
-    const fetchEligibilities = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            // axiosClient đã unwrap dữ liệu, res ở đây là danh sách eligibilities trực tiếp
-            const data = await periodApi.getEligibilities(period.periodId);
-            setEligibilities(data || []);
-        } catch (err) {
-            setError('Lỗi khi tải danh sách: ' + (err?.message || 'Không thể kết nối tới server'));
-        } finally {
-            setLoading(false);
-        }
-    }, [period]);
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      await handleImportExcel(file);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
-    useEffect(() => {
-        if (open && period) {
-            fetchEligibilities();
-            setError(null);
-            setSuccessMsg('');
-        }
-    }, [open, period, fetchEligibilities]);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
-    const handleDelete = async (eligibilityId) => {
-        if (!window.confirm('Bạn có chắc chắn muốn xóa sinh viên này khỏi danh sách?')) return;
-        try {
-            await periodApi.deleteEligibility(period.periodId, eligibilityId);
-            setSuccessMsg('Đã xóa thành công');
-            setEligibilities(prev => prev.filter(e => e.eligibilityId !== eligibilityId));
-        } catch (err) {
-            setError('Lỗi khi xóa: ' + (err?.message || 'Có lỗi xảy ra'));
-        }
-    };
+  const handleChangeRowsPerPage = (event) => {
+    setSize(parseInt(event.target.value, 10));
+    setPage(0); // Reset về trang đầu tiên khi thay đổi kích thước trang
+  };
 
-    const handleFileChange = async (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
+  const openDeleteConfirm = (eligibilityId) => () => {
+    setDeleteTarget(eligibilityId);
+  };
 
-        setImporting(true);
-        setError(null);
-        setSuccessMsg('');
+  if (!period) return null;
 
-        try {
-            // Gọi API import
-            const result = await periodApi.importEligibility(period.periodId, file);
+  return (
+    <>
+      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>
+          Danh sách đủ điều kiện - {period.periodName}
+        </DialogTitle>
+        <DialogContent dividers sx={{ pb: 0 }}>
+          {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
+          {successMsg && <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>{successMsg}</Alert>}
+          
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, gap: 2 }}>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              Tải lên file Excel (.xlsx) gồm cột CCCD và Họ Tên để cấu hình bộ lọc sinh viên.
+            </Typography>
             
-            // Vì axios đã unwrap, result chính là object { totalRows, importedRows, skippedRows }
-            setSuccessMsg(`Import thành công! Đã thêm: ${result.importedRows}, Bỏ qua: ${result.skippedRows} (Tổng: ${result.totalRows})`);
-            
-            // Làm mới danh sách hiển thị
-            fetchEligibilities();
-        } catch (err) {
-            setError('Lỗi import: ' + (err?.message || 'Có lỗi xảy ra'));
-        } finally {
-            setImporting(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-        }
-    };
+            <Box>
+              <input
+                type="file"
+                accept=".xlsx"
+                style={{ display: 'none' }}
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
+              <Button 
+                variant="outlined" 
+                startIcon={importing ? <CircularProgress size={20} color="inherit" /> : <CloudUpload />} 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={importing}
+                sx={{ borderRadius: 2, whiteSpace: 'nowrap' }}
+              >
+                {importing ? 'Đang tải lên...' : 'Tải lên danh sách'}
+              </Button>
+            </Box>
+          </Box>
 
-    if (!period) return null;
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4, my: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, maxHeight: '400px' }}>
+                <Table size="small" stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>STT</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>CCCD / CMND</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>Họ và tên</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>Hành động</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {eligibilities.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary', fontStyle: 'italic' }}>
+                          Chưa có dữ liệu bộ lọc hoặc trang này không có dữ liệu. Vui lòng kiểm tra lại.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      eligibilities.map((row, index) => (
+                        <TableRow key={row.eligibilityId} hover>
+                          {/* CHUẨN HÓA LOGIC: Tính số thứ tự tăng tiến chuẩn theo trang */}
+                          <TableCell>{index + 1 + page * size}</TableCell>
+                          <TableCell>{row.cccd}</TableCell>
+                          <TableCell sx={{ fontWeight: 500 }}>{row.fullName}</TableCell>
+                          <TableCell align="center">
+                            <IconButton 
+                              color="error" 
+                              size="small"
+                              onClick={openDeleteConfirm(row.eligibilityId)}
+                            >
+                              <Delete fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
-    return (
-        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogTitle>
-                Danh sách đủ điều kiện - {period.periodName}
-            </DialogTitle>
-            <DialogContent dividers>
-                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-                {successMsg && <Alert severity="success" sx={{ mb: 2 }}>{successMsg}</Alert>}
-                
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                    <Typography variant="body2" color="text.secondary">
-                        Tải lên file Excel (.xlsx) gồm cột CCCD và Họ Tên.
-                    </Typography>
-                    
-                    <Box>
-                        <input
-                            type="file"
-                            accept=".xlsx"
-                            style={{ display: 'none' }}
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                        />
-                        <Button 
-                            variant="outlined" 
-                            startIcon={importing ? <CircularProgress size={20} /> : <CloudUpload />} 
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={importing}
-                        >
-                            {importing ? 'Đang tải lên...' : 'Tải lên danh sách'}
-                        </Button>
-                    </Box>
-                </Box>
+              {/* CHUẨN HÓA UI: Thêm cấu phần phân trang tích hợp mượt mà bên dưới bảng dữ liệu */}
+              {totalElements > 0 && (
+                <TablePagination
+                  component="div"
+                  count={totalElements}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  rowsPerPage={size}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  rowsPerPageOptions={[5, 10, 20, 50]}
+                  labelRowsPerPage="Số dòng mỗi trang:"
+                  labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count}`}
+                  sx={{ borderTop: 'none', mt: 1 }}
+                />
+              )}
+            </>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button onClick={onClose} variant="outlined" sx={{ borderRadius: 1.5 }}>Đóng</Button>
+        </DialogActions>
+      </Dialog>
 
-                {loading ? (
-                    <Box display="flex" justifyContent="center" p={4}>
-                        <CircularProgress />
-                    </Box>
-                ) : (
-                    <TableContainer component={Paper} variant="outlined">
-                        <Table size="small">
-                            <TableHead sx={{ bgcolor: 'background.default' }}>
-                                <TableRow>
-                                    <TableCell><strong>STT</strong></TableCell>
-                                    <TableCell><strong>CCCD</strong></TableCell>
-                                    <TableCell><strong>Họ và tên</strong></TableCell>
-                                    <TableCell align="center"><strong>Xóa</strong></TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {eligibilities.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
-                                            Chưa có dữ liệu. Vui lòng tải lên danh sách.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    eligibilities.map((row, index) => (
-                                        <TableRow key={row.eligibilityId} hover>
-                                            <TableCell>{index + 1}</TableCell>
-                                            <TableCell>{row.cccd}</TableCell>
-                                            <TableCell>{row.fullName}</TableCell>
-                                            <TableCell align="center">
-                                                <IconButton 
-                                                    color="error" 
-                                                    size="small"
-                                                    onClick={() => handleDelete(row.eligibilityId)}
-                                                >
-                                                    <Delete fontSize="small" />
-                                                </IconButton>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                )}
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose}>Đóng</Button>
-            </DialogActions>
-        </Dialog>
-    );
+      {/* DIALOG XÁC NHẬN XÓA CHUẨN UX BẢO VỆ TIẾN TRÌNH RUNTIME */}
+      <Dialog open={Boolean(deleteTarget)} onClose={() => setDeleteTarget(null)}>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>Xác nhận gỡ bỏ</DialogTitle>
+        <DialogContent sx={{ minWidth: 320 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Bạn có chắc chắn muốn xóa sinh viên này khỏi danh sách đủ điều kiện đăng ký nội trú? Hành động này không thể hoàn tác.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={() => setDeleteTarget(null)}>Hủy</Button>
+          <Button onClick={confirmDelete} variant="contained" color="error">Xác Nhận Xóa</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
 }

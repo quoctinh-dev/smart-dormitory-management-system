@@ -1,29 +1,26 @@
-import { Box, Container } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Box, Container } from '@mui/material';
+import { Outlet } from 'react-router-dom';
 
 /**
  * AuthLayout
- * Bao bọc các trang xác thực (Login, Register...)
- * Sử dụng Container để giới hạn chiều rộng, tránh form bị kéo dài trên màn hình lớn.
+ * Bao bọc các trang xác thực hệ thống Quản trị (Login)
+ * Sử dụng Container với maxWidth="xs" để giới hạn chiều rộng, form không bị vỡ trên màn hình UltraWide.
  */
-const AuthLayout = () => {
+export default function AuthLayout() {
   return (
     <Box 
       sx={{ 
-        display: "flex", 
-        justifyContent: "center", 
-        alignItems: "center", 
-        minHeight: "100vh", 
-        bgcolor: "background.default", // Sử dụng giá trị từ theme
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh', 
+        bgcolor: 'background.default', 
         p: 2 
       }}
     >
-      {/* Sử dụng Container với maxWidth='xs' hoặc 'sm' để form trông chuyên nghiệp hơn */}
       <Container maxWidth="xs">
         <Outlet />
       </Container>
     </Box>
   );
-};
-
-export default AuthLayout;
+}

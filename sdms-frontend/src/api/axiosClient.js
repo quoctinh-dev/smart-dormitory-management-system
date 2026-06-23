@@ -1,9 +1,6 @@
 import axios from "axios";
 import { authStorage } from "@/auth";
 
-// =========================
-// REFRESH MECHANISM
-// =========================
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -15,17 +12,13 @@ const processQueue = (error, token = null) => {
     failedQueue = [];
 };
 
-// =========================
-// AXIOS INSTANCE
-// =========================
+const API_URL = import.meta.env.VITE_API_URL;
+
 const axiosClient = axios.create({
-    baseURL: `${import.meta.env.VITE_API_URL}/api`,
+    baseURL: `${API_URL}/api`,
     timeout: 15000,
 });
 
-// =========================
-// INTERCEPTORS
-// =========================
 axiosClient.interceptors.request.use(
     (config) => {
         const token = authStorage.getAccessToken();
@@ -43,7 +36,6 @@ axiosClient.interceptors.response.use(
         const originalRequest = error.config;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
-            // Không retry nếu là request login hoặc refresh token bị lỗi 401
             if (originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/refresh-token')) {
                 return Promise.reject(error.response?.data || error);
             }
@@ -62,11 +54,12 @@ axiosClient.interceptors.response.use(
 
             try {
                 const refreshToken = authStorage.getRefreshToken();
-                const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/auth/refresh-token`, {
+                const { data } = await axios.post(`${API_URL}/api/v1/auth/refresh-token`, {
                     refreshToken
                 });
 
-                const { accessToken, refreshToken: newRefreshToken } = data.data;
+                // Lưu ý rà soát cấu trúc JSON đầu ra của API để đảm bảo trích xuất đúng object chứa token
+                const { accessToken, refreshToken: newRefreshToken } = data.data ?? data;
                 authStorage.setTokens({ accessToken, refreshToken: newRefreshToken });
 
                 processQueue(null, accessToken);
@@ -75,8 +68,7 @@ axiosClient.interceptors.response.use(
             } catch (err) {
                 processQueue(err, null);
                 authStorage.clear();
-                // Chỉ redirect về admin/login nếu đang ở khu vực admin
-                // Trang public (đăng ký, v.v.) không bị ảnh hưởng
+                
                 if (window.location.pathname.startsWith('/admin')) {
                     window.location.href = "/admin/login";
                 }

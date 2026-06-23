@@ -1,6 +1,6 @@
 package com.sdms.backend.modules.payment.enums;
 
-public enum BillType {
+public enum         BillType {
     APPLICATION_FEE,
     ACCOMMODATION_FEE,
     ELECTRIC_FEE,
