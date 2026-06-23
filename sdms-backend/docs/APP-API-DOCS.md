@@ -6,7 +6,7 @@
 ---
 
 ## 1. MÔI TRƯỜNG & BẢO MẬT
-- **Base URL:** `http://localhost:8082/api/v1`
+- **Base URL:** `http://localhost:8080/api/v1`
 - **Authentication:** JWT (Bearer Token)
 - **Quy trình tối ưu (Business Flow):**
   1. Trường Đại học chủ động nhập danh sách Sinh Viên (tạo tài khoản sẵn trạng thái `PENDING_ACTIVATION`).
@@ -20,7 +20,7 @@
 ## 2. API TÀI KHOẢN & XÁC THỰC (AUTH MODULE)
 
 ### 2.1 Kích hoạt tài khoản (Lần đầu truy cập)
-- **Endpoint:** `POST /auth/activate`
+- **Endpoint:** `POST /api/v1/auth/activate`
 - **Quyền:** Public
 - **Request Body:**
 ```json
@@ -43,7 +43,7 @@
 ```
 
 ### 2.2 Đăng nhập (Các lần sau)
-- **Endpoint:** `POST /auth/login`
+- **Endpoint:** `POST /api/v1/auth/login`
 - **Quyền:** Public
 - **Request Body:**
 ```json
@@ -54,7 +54,7 @@
 ```
 
 ### 2.3 Cấp mới Token (Refresh Token)
-- **Endpoint:** `POST /auth/refresh-token`
+- **Endpoint:** `POST /api/v1/auth/refresh-token`
 - **Cơ chế:** Khi gọi API bất kỳ bị lỗi `401 Unauthorized`, App tự động gọi ngầm API này bằng `refreshToken` cũ. Nếu thành công, lưu token mới và gọi lại API bị lỗi.
 
 ---
@@ -62,7 +62,7 @@
 ## 3. API THÔNG TIN CÁ NHÂN (STUDENT MODULE)
 
 ### 3.1 Lấy thông tin cá nhân của bản thân
-- **Endpoint:** `GET /users/me`
+- **Endpoint:** `GET /api/v1/users/me`
 - **Header:** `Authorization: Bearer {accessToken}`
 - **Response (200 OK):**
 ```json
@@ -90,8 +90,14 @@
 ```
 
 ### 3.2 Đăng ký khuôn mặt (Face Recognition)
-- **Endpoint:** `POST /students/me/face` (Hoặc theo Face API)
+- **Endpoint:** `POST /api/v1/students/me/face` (Hoặc theo Face API)
 - **Mô tả:** Mobile App mở Camera, chụp ảnh khuôn mặt sinh viên và upload lên để sử dụng cho hệ thống Cửa thông minh (Smart Access IoT).
+
+### 3.3 Quản lý khuôn mặt (Face Administration - Admin Only)
+- **Danh sách chờ duyệt:** `GET /api/v1/admin/faces/pending`
+- **Duyệt khuôn mặt:** `POST /api/v1/admin/faces/{id}/approve`
+- **Từ chối khuôn mặt:** `POST /api/v1/admin/faces/{id}/reject`
+- **Mô tả:** Admin/Staff sử dụng các endpoint này để phê duyệt hoặc từ chối dữ liệu khuôn mặt do sinh viên tải lên.
 
 ---
 
@@ -100,11 +106,11 @@
 *Sinh viên bắt buộc phải đăng nhập (có Access Token) mới được phép tạo đơn.*
 
 ### 4.1 Lấy danh sách đợt đăng ký đang mở
-- **Endpoint:** `GET /registrations/active` (hoặc tương tự)
+- **Endpoint:** `GET /api/v1/registrations/active` (hoặc tương tự)
 - **Mô tả:** Lấy `periodId` để sinh viên chọn đợt đăng ký nội trú.
 
 ### 4.2 Tạo đơn đăng ký nháp (Draft)
-- **Endpoint:** `POST /applications`
+- **Endpoint:** `POST /api/v1/applications`
 - **Header:** `Authorization: Bearer {accessToken}`
 - **Request Body:**
 ```json
@@ -122,17 +128,28 @@
 - **Response:** Trả về `applicationId`.
 
 ### 4.3 Tải lên tài liệu minh chứng
-- **Endpoint:** `POST /applications/{applicationId}/documents`
+- **Endpoint:** `POST /api/v1/applications/{applicationId}/documents`
 - **Mô tả:** Với mỗi diện ưu tiên (POOR_HOUSEHOLD), Mobile App bắt sinh viên chụp ảnh giấy chứng nhận. Gọi API này để đẩy URL ảnh lên.
 - **Params:** `type=PRIORITY_PAPER`, `fileUrl=https://...`
 
 ### 4.4 Nộp đơn chính thức
-- **Endpoint:** `POST /applications/{applicationId}/submit`
+- **Endpoint:** `POST /api/v1/applications/{applicationId}/submit`
 - **Mô tả:** Chốt sổ, chuyển trạng thái đơn sang `PENDING` (chờ Ban Quản Lý KTX duyệt trên Web Admin). Sau bước này App không cho sửa đơn nữa.
 
 ---
 
-## 5. TỐI ƯU TRẢI NGHIỆM MOBILE (MOBILE UX OPTIMIZATIONS)
+## 5. API THANH TOÁN (PAYMENT MODULE)
+
+### 5.1 Thanh toán trực tuyến
+- **Endpoint:** `POST /api/v1/payments/online`
+- **Quyền:** Public
+- **Mô tả:** Endpoint public để khởi tạo giao dịch thanh toán trực tuyến (VNPAY, MoMo, ...).
+- **Request/Response:** Tham khảo DTOs tương ứng trong `API-CONTRACT-FREEZE.md`.
+
+
+---
+
+## 6. TỐI ƯU TRẢI NGHIỆM MOBILE (MOBILE UX OPTIMIZATIONS)
 1. **Offline Caching:** Profile của sinh viên (`GET /users/me`) nên được cache lại trong SQLite/Room Database để App load tức thì khi mở, không cần đợi API.
 2. **Push Notification:** Khi Ban quản lý KTX thao tác Duyệt đơn (Approve) hoặc Từ chối (Reject), Backend sẽ bắn Notification Firebase (FCM). Mobile App cần listen để đẩy thông báo realtime.
 3. **Skeleton Loading:** Khi fetch dữ liệu đợt đăng ký hoặc lịch sử hóa đơn, dùng Skeleton UI (khung xám nhấp nháy) thay vì xoay vòng vòng Loading Spinner.

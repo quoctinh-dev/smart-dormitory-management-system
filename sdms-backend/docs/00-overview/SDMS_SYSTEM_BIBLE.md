@@ -143,7 +143,7 @@ Events are used for cross-module communication within the monolith:
 - **Roles:** `ADMIN`, `STUDENT`
 - **Stateless:** No server-side session
 - **CORS:** Configured for `http://localhost:5173` (dev only)
-- **Public endpoints:** `/api/v1/auth/**`, `/api/v1/registrations/**`, `/api/v1/uploads/**`, application read/create endpoints
+- **Public endpoints:** `/api/v1/auth/**`, `/api/v1/uploads/**`, application read/create endpoints (Note: Registration eligibility checks are admin-only)
 - **Token Refresh:** Automatic silent refresh in Axios interceptor
 
 ### 2.6 Integration Strategy

@@ -12,7 +12,7 @@ The Auth Module operates within the security and account management bounded cont
 
 ## 3. Module Responsibilities
 * **Identity Authentication**: Validating credentials (username/email and password) and issuing JSON Web Tokens (Access and Refresh Tokens).
-* **Account Activation**: Managing first-time logins where accounts are provisioned automatically (via payment completion events) and must be activated with a custom password.
+* **Account Activation**: Activation is a public endpoint; no prior payment required. Users provide email, temporary password (CCCD), and new password to obtain JWT tokens.
 * **Role-Based Access Control (RBAC)**: Enforcing role constraints (`STUDENT`, `STAFF`, `ADMIN`) across all API controllers using Spring Security.
 * **Credential Recovery**: Providing a secure, time-sensitive password reset workflow via email tokens.
 
@@ -27,5 +27,4 @@ To preserve DDD aggregate boundaries and modularity:
 ---
 
 ## 5. Integration Points
-* **Payment Module Integration (Inbound)**: After a student completes payment for dormitory accommodation, the Payment Module listens to `PaymentSuccessEvent` and calls `UserAccountRepository` synchronously to auto-generate a resident credentials profile in `PENDING_ACTIVATION` status.
 * **Security Filters**: `JwtAuthenticationFilter` intercepts incoming HTTP requests to validate the JWT signature, extracts user claims, and loads the authentication profile into the Security Context.
