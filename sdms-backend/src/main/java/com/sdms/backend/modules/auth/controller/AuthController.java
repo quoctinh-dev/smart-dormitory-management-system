@@ -24,6 +24,13 @@ public class AuthController {
     private final AuthService authService;
     private final UserService userService;
 
+    @Operation(summary = "Kích hoạt tài khoản sinh viên", description = "Kích hoạt tài khoản bằng email, mật khẩu tạm thời (CCCD) và mật khẩu mới")
+    @PostMapping("/activate")
+    public ResponseEntity<ApiResponse<AuthResponse>> activate(@Valid @RequestBody ActivateAccountRequest request) {
+        AuthResponse response = authService.activate(request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Tài khoản đã được kích hoạt thành công", response));
+    }
+
     @Operation(summary = "User Login", description = "Authenticate user and return JWT tokens")
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {

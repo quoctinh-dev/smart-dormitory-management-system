@@ -1,43 +1,234 @@
-### SETUP: Đảm bảo biến auth_token đã được thiết lập từ bước trước
-@auth_token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdGFmZjAxIiwiYWNjb3VudElkIjoiMGM3NGUwMDMtMmM5NS00M2JmLWFmNzYtMThmMDVmYjI2ZThhIiwicm9sZSI6IlNUQUZGIiwiaWF0IjoxNzgxNjAyOTc5LCJleHAiOjE3ODE2MDM4Nzl9.Gj_Zl3gocPDgRrtD8qsJyRIvyHz3K6FZE5eIJqaeivMXPnqSnPG3gyA7TPOZXj_Jt8rNXqGdPgUPtJhl0hdkZw
+# ==============================================================================
+# SDMS - REGISTRATION & ELIGIBILITY API TESTING
+# ==============================================================================
 
-### 1. TEST CASE 1: Open Registration
-# Mục tiêu: Đợt mở tự do, mọi CCCD gửi lên đều phải trả về eligible = true.
-POST http://localhost:8080/api/v1/registrations/check-eligibility
-Authorization: Bearer {{auth_token}}
+# ------------------------------------------------------------------------------
+# 1. Cấu hình biến môi trường (Environment Variables)
+# ------------------------------------------------------------------------------
+@host = http://localhost:8080
+@access_token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdGFmZjAxIiwiYWNjb3VudElkIjoiMGM3NGUwMDMtMmM5NS00M2JmLWFmNzYtMThmMDVmYjI2ZThhIiwicm9sZSI6IlNUQUZGIiwiaWF0IjoxNzgxNjAyOTc5LCJleHAiOjE3ODE2MDM4Nzl9.example_access_token
+
+# Các biến lưu động phục vụ kiểm thử luồng (Cập nhật từ response của các API trước)
+@period_id = 22222222-2222-2222-2222-222222222222
+@eligibility_id = 33333333-3333-3333-3333-333333333333
+
+
+# ------------------------------------------------------------------------------
+# PHẦN 1: API TĨNH RIÊNG LẺ (Static Endpoint Testing)
+# ------------------------------------------------------------------------------
+
+### A1. Admin - Tạo đợt đăng ký mới (Create Registration Period)
+# Hỗ trợ 3 loại đợt: CURRENT_RESIDENT, NEW_STUDENT, OPEN_REGISTRATION
+POST {{host}}/api/v1/admin/registration-periods
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "periodName": "Đợt Đăng Ký Tân Sinh Viên K49",
+  "registrationType": "NEW_STUDENT",
+  "startDate": "2026-06-20T08:00:00",
+  "endDate": "2026-07-20T23:59:59"
+}
+
+### A2. Admin - Lấy danh sách tất cả các đợt đăng ký (Get All Periods)
+GET {{host}}/api/v1/admin/registration-periods
+Authorization: Bearer {{access_token}}
+
+### A3. Admin - Cập nhật thông tin đợt đăng ký (Update Period)
+PATCH {{host}}/api/v1/admin/registration-periods/{{period_id}}
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "periodName": "Đợt Đăng Ký Tân Sinh Viên K49 - Cập Nhật",
+  "startDate": "2026-06-21T08:00:00",
+  "endDate": "2026-07-21T23:59:59"
+}
+
+### A4. Admin - Kích hoạt đợt đăng ký (Activate Period)
+# Thao tác này sẽ tự động tắt các đợt đăng ký khác đang active
+PATCH {{host}}/api/v1/admin/registration-periods/{{period_id}}/activate
+Authorization: Bearer {{access_token}}
+
+### A5. Admin - Tắt đợt đăng ký đang hoạt động (Deactivate Period)
+PATCH {{host}}/api/v1/admin/registration-periods/{{period_id}}/deactivate
+Authorization: Bearer {{access_token}}
+
+### A6. Admin - Import danh sách sinh viên đủ điều kiện từ file Excel (Import Eligibility)
+# Chỉ áp dụng cho đợt giới hạn (CURRENT_RESIDENT, NEW_STUDENT)
+# Cần tạo file Excel mẫu tên eligibility_students.xlsx ở cùng thư mục chứa file HTTP này trước khi chạy.
+POST {{host}}/api/v1/admin/registration-periods/{{period_id}}/eligibilities/import
+Authorization: Bearer {{access_token}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="eligibility_students.xlsx"
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+< ./eligibility_students.xlsx
+--WebAppBoundary--
+
+### A7. Admin - Xem danh sách sinh viên đủ điều kiện của một đợt (Get Eligibilities)
+GET {{host}}/api/v1/admin/registration-periods/{{period_id}}/eligibilities
+Authorization: Bearer {{access_token}}
+
+### A8. Admin - Xóa một sinh viên khỏi danh sách đủ điều kiện (Delete Eligibility)
+DELETE {{host}}/api/v1/admin/registration-periods/{{period_id}}/eligibilities/{{eligibility_id}}
+Authorization: Bearer {{access_token}}
+
+### A9. Student - Kiểm tra điều kiện đăng ký của bản thân (Check Eligibility)
+# API này cho phép sinh viên tự kiểm tra xem mình có được phép đăng ký trong đợt đang mở không.
+POST {{host}}/api/v1/registrations/check-eligibility
+Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
   "cccd": "079203001234"
 }
 
-### 2. TEST CASE 2: Restricted Registration - Có trong danh sách (Eligible = true)
-# Mục tiêu: Đợt giới hạn (CURRENT_RESIDENT/NEW_STUDENT), kiểm tra CCCD 079000000001 đã có trong DB.
-POST http://localhost:8080/api/v1/registrations/check-eligibility
-Authorization: Bearer {{auth_token}}
+
+# ------------------------------------------------------------------------------
+# PHẦN 2: KỊCH BẢN NGHIỆP VỤ THEO LUỒNG (Business Flows)
+# ------------------------------------------------------------------------------
+
+### ==============================================================================
+### LUỒNG NGHIỆP VỤ 1: QUY TRÌNH ĐỢT ĐĂNG KÝ TỰ DO (Open Registration Flow)
+### Mục tiêu: Admin Đăng nhập -> Tạo đợt Tự do -> Kích hoạt đợt -> Sinh viên kiểm tra điều kiện (luôn là true với mọi CCCD) -> Tắt đợt -> Sinh viên kiểm tra lại (báo lỗi không có đợt)
+### ==============================================================================
+
+### Bước 1.1: Đăng nhập tài khoản Admin/Staff để lấy Access Token
+# @name loginAdmin
+POST {{host}}/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "cccd": "079000000001"
+  "usernameOrEmail": "staff01",
+  "password": "123456"
 }
 
-### 3. TEST CASE 3: Restricted Registration - Không có trong danh sách (Eligible = false)
-# Mục tiêu: Đợt giới hạn, kiểm tra CCCD "000000000000" không tồn tại trong DB, phải trả về eligible = false.
-POST http://localhost:8080/api/v1/registrations/check-eligibility
-Authorization: Bearer {{auth_token}}
+### Bước 1.2: Admin tạo đợt đăng ký tự do (OPEN_REGISTRATION)
+# (Lấy access token từ Bước 1.1 gán vào biến access_token)
+POST {{host}}/api/v1/admin/registration-periods
+Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
-  "cccd": "000000000000"
+  "periodName": "Đợt Đăng Ký Tự Do Hè 2026",
+  "registrationType": "OPEN_REGISTRATION",
+  "startDate": "2026-06-20T00:00:00",
+  "endDate": "2026-08-20T23:59:59"
+}
+
+### Bước 1.3: Admin kích hoạt đợt đăng ký tự do vừa tạo
+# (Cập nhật giá trị @period_id từ ID của đợt vừa tạo ở Bước 1.2)
+PATCH {{host}}/api/v1/admin/registration-periods/{{period_id}}/activate
+Authorization: Bearer {{access_token}}
+
+### Bước 1.4: Sinh viên kiểm tra điều kiện với một số CCCD ngẫu nhiên (Ví dụ: "079304008888")
+# KỲ VỌNG: Đợt tự do nên trả về eligible = true và có thông điệp báo đợt tự do.
+POST {{host}}/api/v1/registrations/check-eligibility
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "cccd": "079304008888"
+}
+
+### Bước 1.5: Admin tạm dừng / tắt đợt đăng ký tự do này
+PATCH {{host}}/api/v1/admin/registration-periods/{{period_id}}/deactivate
+Authorization: Bearer {{access_token}}
+
+### Bước 1.6: Sinh viên kiểm tra lại điều kiện với CCCD trên sau khi đợt bị tắt
+# KỲ VỌNG: Hệ thống báo lỗi 404 "Hiện tại không có đợt đăng ký nào đang mở." do không có đợt active nào trong thời gian này.
+POST {{host}}/api/v1/registrations/check-eligibility
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "cccd": "079304008888"
 }
 
 
-### 2. Kích hoạt đợt đăng ký (Thay <TOKEN> và <ID> bằng giá trị thực)
-# @name activatePeriod
-PATCH http://localhost:8080/api/v1/admin/registration-periods/22222222-2222-2222-2222-222222222222/activate
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdGFmZjAxIiwiYWNjb3VudElkIjoiMGM3NGUwMDMtMmM5NS00M2JmLWFmNzYtMThmMDVmYjI2ZThhIiwicm9sZSI6IlNUQUZGIiwiaWF0IjoxNzgxNjA4Njc2LCJleHAiOjE3ODE2MDk1NzZ9.2CUUm4me8jZweab6jjV6xn1iqWLuhxNYScv044qiw4axqfQXmACJ38gxeBHonvGJoqa2t9OxFMUmb-fYqzVagg
+### ==============================================================================
+### LUỒNG NGHIỆP VỤ 2: QUY TRÌNH ĐỢT GIỚI HẠN & IMPORT DANH SÁCH (Restricted Period Flow)
+### Mục tiêu: Admin tạo đợt giới hạn -> Kích hoạt -> Sinh viên chưa import kiểm tra (false) -> Admin import file Excel -> Sinh viên kiểm tra lại (true) -> Admin xoá bản ghi -> Sinh viên kiểm tra lại (false)
+### ==============================================================================
+
+### Bước 2.1: Đăng nhập tài khoản Admin/Staff để lấy Access Token (nếu token cũ hết hạn)
+POST {{host}}/api/v1/auth/login
 Content-Type: application/json
 
-### 3. Lấy danh sách đợt đăng ký (Test quyền truy cập)
-GET http://localhost:8080/api/v1/admin/registration-periods
-Authorization: Bearer <PASTE_YOUR_TOKEN_HERE>
+{
+  "usernameOrEmail": "staff01",
+  "password": "123456"
+}
+
+### Bước 2.2: Admin tạo đợt đăng ký giới hạn (NEW_STUDENT)
+POST {{host}}/api/v1/admin/registration-periods
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "periodName": "Đợt Đăng Ký Tân Sinh Viên K49 (Giới Hạn)",
+  "registrationType": "NEW_STUDENT",
+  "startDate": "2026-06-20T00:00:00",
+  "endDate": "2026-07-20T23:59:59"
+}
+
+### Bước 2.3: Admin kích hoạt đợt giới hạn vừa tạo
+# (Cập nhật giá trị @period_id từ ID của đợt vừa tạo ở Bước 2.2)
+PATCH {{host}}/api/v1/admin/registration-periods/{{period_id}}/activate
+Authorization: Bearer {{access_token}}
+
+### Bước 2.4: Sinh viên kiểm tra thử với CCCD "079000000002" khi chưa được import
+# KỲ VỌNG: eligible = false và nhận được message "Bạn không có trong danh sách đủ điều kiện..."
+POST {{host}}/api/v1/registrations/check-eligibility
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "cccd": "079000000002"
+}
+
+### Bước 2.5: Admin import file Excel danh sách hợp lệ (chứa CCCD 079000000002 và Họ tên "Nguyễn Văn B")
+# (Hãy đảm bảo có file eligibility_students.xlsx hợp lệ nằm ở thư mục của file HTTP này)
+POST {{host}}/api/v1/admin/registration-periods/{{period_id}}/eligibilities/import
+Authorization: Bearer {{access_token}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="eligibility_students.xlsx"
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+< ./eligibility_students.xlsx
+--WebAppBoundary--
+
+### Bước 2.6: Admin kiểm tra danh sách đã import để lấy eligibility_id của sinh viên vừa thêm
+# (Từ response này, copy UUID của bản ghi CCCD 079000000002 và cập nhật vào biến @eligibility_id)
+GET {{host}}/api/v1/admin/registration-periods/{{period_id}}/eligibilities
+Authorization: Bearer {{access_token}}
+
+### Bước 2.7: Sinh viên kiểm tra lại điều kiện với CCCD "079000000002"
+# KỲ VỌNG: eligible = true, fullName = "Nguyễn Văn B", message = "Bạn đủ điều kiện tham gia đợt đăng ký này."
+POST {{host}}/api/v1/registrations/check-eligibility
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "cccd": "079000000002"
+}
+
+### Bước 2.8: Admin xóa sinh viên này khỏi danh sách hợp lệ
+# (Sử dụng biến @eligibility_id đã thu thập được từ Bước 2.6)
+DELETE {{host}}/api/v1/admin/registration-periods/{{period_id}}/eligibilities/{{eligibility_id}}
+Authorization: Bearer {{access_token}}
+
+### Bước 2.9: Sinh viên kiểm tra lại điều kiện với CCCD "079000000002" sau khi bị xóa
+# KỲ VỌNG: eligible = false
+POST {{host}}/api/v1/registrations/check-eligibility
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "cccd": "079000000002"
+}

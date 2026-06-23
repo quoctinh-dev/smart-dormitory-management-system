@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
     Dialog, DialogTitle, DialogContent, DialogActions, Button,
     Typography, Box, Table, TableBody, TableCell, TableContainer,
@@ -15,15 +15,7 @@ export default function EligibilityManagerDialog({ open, onClose, period }) {
     const [successMsg, setSuccessMsg] = useState('');
     const fileInputRef = useRef(null);
 
-    useEffect(() => {
-        if (open && period) {
-            fetchEligibilities();
-            setError(null);
-            setSuccessMsg('');
-        }
-    }, [open, period]);
-
-    const fetchEligibilities = async () => {
+    const fetchEligibilities = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -35,7 +27,15 @@ export default function EligibilityManagerDialog({ open, onClose, period }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [period]);
+
+    useEffect(() => {
+        if (open && period) {
+            fetchEligibilities();
+            setError(null);
+            setSuccessMsg('');
+        }
+    }, [open, period, fetchEligibilities]);
 
     const handleDelete = async (eligibilityId) => {
         if (!window.confirm('Bạn có chắc chắn muốn xóa sinh viên này khỏi danh sách?')) return;

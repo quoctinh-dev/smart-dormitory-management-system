@@ -5,7 +5,7 @@ import theme from "@/theme";
 
 export const AppProviders = ({ children }) => {
     return (
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <AuthProvider>
                 <ThemeProvider theme={theme}>
                     <CssBaseline />

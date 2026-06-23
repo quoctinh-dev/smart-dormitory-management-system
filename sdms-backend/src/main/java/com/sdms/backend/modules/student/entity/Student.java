@@ -79,7 +79,13 @@ public class Student extends BaseEntity {
     @Column(length = 500)
     private String avatarUrl;
 
+    @Column(length = 500)
+    private String faceImageUrl;
+
+    @Column(nullable = false)
+    private Boolean isFaceRegistered = false;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private StudentStatus status = StudentStatus.ACTIVE;
+    private StudentStatus status = StudentStatus.PENDING_CHECKIN;
 }

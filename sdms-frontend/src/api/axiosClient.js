@@ -75,7 +75,11 @@ axiosClient.interceptors.response.use(
             } catch (err) {
                 processQueue(err, null);
                 authStorage.clear();
-                window.location.href = "/admin/login";
+                // Chỉ redirect về admin/login nếu đang ở khu vực admin
+                // Trang public (đăng ký, v.v.) không bị ảnh hưởng
+                if (window.location.pathname.startsWith('/admin')) {
+                    window.location.href = "/admin/login";
+                }
                 return Promise.reject(err);
             } finally {
                 isRefreshing = false;

@@ -13,7 +13,39 @@ out/
 .springBeans
 .sts4-cache/
 
-# Environment
+# Environment / Secrets
 .env
+.env.*
 application-*.yml
+application-*.properties
 !application.yml
+!application.properties
+
+# IntelliJ IDEA (IDE - Rất quan trọng vì bạn đang dùng IntelliJ)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code (IDE)
+.vscode/
+
+# Java/Spring Boot Runtime & Logs
+*.class
+*.log
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+
+# OS specific files (MacOS / Windows)
+.DS_Store
+Thumbs.db
+ehthumbs.db
+$RECYCLE.BIN/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp

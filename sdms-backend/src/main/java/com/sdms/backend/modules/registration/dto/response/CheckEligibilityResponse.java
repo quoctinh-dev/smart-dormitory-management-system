@@ -10,6 +10,8 @@ import lombok.*;
 public class CheckEligibilityResponse {
 
     private Boolean eligible;
+    
+    private java.util.UUID periodId;
 
     private String periodName;
 

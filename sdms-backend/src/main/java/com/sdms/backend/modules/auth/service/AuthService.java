@@ -4,6 +4,7 @@ import com.sdms.backend.common.exception.AppException;
 import com.sdms.backend.common.service.EmailService;
 import com.sdms.backend.config.AppProperties;
 import com.sdms.backend.config.JwtConfig;
+import com.sdms.backend.modules.auth.dto.request.ActivateAccountRequest;
 import com.sdms.backend.modules.auth.dto.request.ChangePasswordRequest;
 import com.sdms.backend.modules.auth.dto.request.ForgotPasswordRequest;
 import com.sdms.backend.modules.auth.dto.request.LoginRequest;
@@ -47,6 +48,42 @@ public class AuthService {
     private final EmailService emailService;
 
     /**
+     * Kích hoạt tài khoản cư dân đăng nhập lần đầu sử dụng thông tin định danh Email.
+     */
+    @Transactional
+    public AuthResponse activate(ActivateAccountRequest request) {
+        // 1. Tìm kiếm tài khoản bằng Email và khóa dòng dữ liệu PESSIMISTIC_WRITE để tránh Double Activation
+        UserAccount account = userAccountRepository.findByEmailForUpdate(request.getEmail().trim())
+                .orElseThrow(() -> new AppException("Tài khoản không tồn tại trên hệ thống", HttpStatus.UNAUTHORIZED));
+
+        // 2. Chỉ cho phép các tài khoản có trạng thái PENDING_ACTIVATION được thực hiện kích hoạt
+        if (account.getStatus() == AccountStatus.ACTIVE) {
+            throw new AppException("Tài khoản đã được kích hoạt từ trước", HttpStatus.BAD_REQUEST);
+        }
+        if (account.getStatus() == AccountStatus.LOCKED) {
+            throw new AppException("Tài khoản đã bị khóa, không thể kích hoạt", HttpStatus.BAD_REQUEST);
+        }
+        if (account.getStatus() != AccountStatus.PENDING_ACTIVATION) {
+            throw new AppException("Trạng thái tài khoản không hợp lệ", HttpStatus.BAD_REQUEST);
+        }
+
+        // 3. Đối chiếu mật khẩu tạm thời (Số CCCD của sinh viên đã băm BCrypt)
+        if (!passwordEncoder.matches(request.getTempPassword(), account.getPassword())) {
+            throw new AppException("Mật khẩu tạm thời không chính xác", HttpStatus.UNAUTHORIZED);
+        }
+
+        // 4. Mã hóa mật khẩu mới và cập nhật trạng thái tài khoản sang ACTIVE
+        account.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        account.setStatus(AccountStatus.ACTIVE);
+
+        // 5. Thu hồi toàn bộ token cũ
+        revokeTokens(account);
+
+        // 6. Cấp phát và lưu trữ Refresh Token mới, cập nhật lastLogin
+        return generateAndSaveTokens(account);
+    }
+
+    /**
      * Xác thực người dùng và cấp phát Token.
      */
     @Transactional
@@ -59,6 +96,10 @@ public class AuthService {
 
         UserAccount account = accountOpt.orElseThrow(() ->
                 new AppException("Invalid username or password", HttpStatus.UNAUTHORIZED));
+
+        if (account.getStatus() == AccountStatus.PENDING_ACTIVATION) {
+            throw new AppException("ACCOUNT_PENDING_ACTIVATION", HttpStatus.FORBIDDEN);
+        }
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
             throw new AppException("Account is not active", HttpStatus.FORBIDDEN);

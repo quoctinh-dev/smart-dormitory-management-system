@@ -1,10 +1,90 @@
-# =============================================
-# SDMS - AUTHENTICATION API TESTING
-# =============================================
+# ==============================================================================
+# SDMS - AUTHENTICATION & SESSION MANAGEMENT API TESTING
+# ==============================================================================
 
+# ------------------------------------------------------------------------------
+# 1. Cấu hình biến môi trường (Environment Variables)
+# ------------------------------------------------------------------------------
 @host = http://localhost:8080
+@username = staff01
+@password = 123456
 
-### 1. LOGIN
+# Các biến lưu động phục vụ kiểm thử luồng (sẽ được cập nhật từ response của login/forgot-password)
+@access_token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdGFmZjAxIiwiYWNjb3VudElkIjoiMGM3NGUwMDMtMmM5NS00M2JmLWFmNzYtMThmMDVmYjI2ZThhIiwicm9sZSI6IlNUQUZGIiwiaWF0IjoxNzgxNjAyOTc5LCJleHAiOjE3ODE2MDM4Nzl9.example_access_token
+@refresh_token = example_refresh_token_here
+@reset_token = example_reset_token_here
+
+
+# ------------------------------------------------------------------------------
+# PHẦN 1: API TĨNH RIÊNG LẺ (Static Endpoint Testing)
+# ------------------------------------------------------------------------------
+
+### A1. Đăng nhập (User Login)
+# Cần kiểm tra với cả tài khoản ADMIN, STAFF và STUDENT
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "{{username}}",
+  "password": "{{password}}"
+}
+
+### A2. Làm mới Token (Refresh Token)
+POST {{host}}/api/v1/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refresh_token}}"
+}
+
+### A3. Đăng xuất (User Logout)
+# Đăng xuất thu hồi Refresh Token hiện tại trên Database
+POST {{host}}/api/v1/auth/logout
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+### A4. Đổi mật khẩu trực tiếp (Change Password)
+# Cần truyền mật khẩu cũ và mật khẩu mới hợp lệ (độ dài tối thiểu 6 ký tự)
+POST {{host}}/api/v1/auth/change-password
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "oldPassword": "OldPassword123@",
+  "newPassword": "NewPassword123@"
+}
+
+### A5. Yêu cầu Quên mật khẩu qua Email (Forgot Password)
+# Hệ thống sẽ gửi email chứa Reset Token ngẫu nhiên (hiệu lực 15 phút) đến địa chỉ email đã đăng ký
+POST {{host}}/api/v1/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "quoctinh1911@gmail.com"
+}
+
+### A6. Khôi phục mật khẩu mới (Reset Password)
+# Sử dụng reset_token thu được từ Email/Database để cập nhật mật khẩu mới
+POST {{host}}/api/v1/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{reset_token}}",
+  "newPassword": "NewPassword123@"
+}
+
+
+# ------------------------------------------------------------------------------
+# PHẦN 2: KỊCH BẢN NGHIỆP VỤ THEO LUỒNG (Business Flows)
+# ------------------------------------------------------------------------------
+
+### ==============================================================================
+### LUỒNG NGHIỆP VỤ 1: VÒNG ĐỜI CỦA SESSION & REFRESH TOKEN (Token Lifecycle Flow)
+### Mục tiêu: Đăng nhập -> Sử dụng access token -> Hết hạn access token -> Dùng refresh token để xin mới -> Đăng xuất
+### ==============================================================================
+
+### Bước 1.1: Đăng nhập thành công với tài khoản staff01
+# @name loginStep
 POST {{host}}/api/v1/auth/login
 Content-Type: application/json
 
@@ -13,15 +93,109 @@ Content-Type: application/json
   "password": "123456"
 }
 
-### 2. REFRESH TOKEN
+### Bước 1.2: Sử dụng Access Token vừa có từ Bước 1.1 để gọi API kiểm tra profile hiện tại
+# (Lấy access token từ response Bước 1.1 gán vào biến access_token)
+GET {{host}}/api/v1/users/me
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+### Bước 1.3: Mô phỏng Access Token hết hạn, dùng Refresh Token từ Bước 1.1 để lấy cặp Token mới
+# (Lấy refresh token từ response Bước 1.1 gán vào biến refresh_token)
+# Sau bước này, Refresh Token cũ sẽ bị thay thế trên hệ thống (Token Rotation).
 POST {{host}}/api/v1/auth/refresh-token
 Content-Type: application/json
 
 {
-  "refreshToken": ""
+  "refreshToken": "{{refresh_token}}"
 }
 
-### 3. FORGOT PASSWORD
+### Bước 1.4: Thử sử dụng lại chính xác Refresh Token cũ đã dùng ở Bước 1.3
+# KỲ VỌNG: Hệ thống phát hiện tái sử dụng Token (Token Reuse Detection) và phải trả về lỗi UNAUTHORIZED (401) hoặc thu hồi tất cả session.
+POST {{host}}/api/v1/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refresh_token}}"
+}
+
+### Bước 1.5: Thực hiện Đăng xuất (Logout) bằng Access Token mới
+# (Cập nhật access_token mới lấy được từ Bước 1.3 để thực hiện Logout)
+# Thao tác này sẽ xoá Refresh Token tương ứng trong Database.
+POST {{host}}/api/v1/auth/logout
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+### Bước 1.6: Kiểm chứng Đăng xuất thành công bằng cách truy cập thử lại API Profile
+# KỲ VỌNG: Trả về 401 Unauthorized do token đã bị vô hiệu hóa / hết hạn trên hệ thống.
+GET {{host}}/api/v1/users/me
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+
+### ==============================================================================
+### LUỒNG NGHIỆP VỤ 2: QUY TRÌNH TỰ ĐỔI MẬT KHẨU (Change Password Workflow)
+### Mục tiêu: Đăng nhập -> Đổi mật khẩu mới -> Xác thực đăng nhập thất bại với MK cũ -> Đăng nhập thành công với MK mới
+### ==============================================================================
+
+### Bước 2.1: Đăng nhập ban đầu để lấy Session hoạt động
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "staff01",
+  "password": "123456"
+}
+
+### Bước 2.2: Tiến hành thay đổi mật khẩu sang "NewPassword123@"
+# (Gán access token ở bước 2.1 vào biến access_token)
+# Hệ thống sẽ thay đổi mật khẩu và thu hồi toàn bộ Refresh Token của các thiết bị khác.
+POST {{host}}/api/v1/auth/change-password
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "oldPassword": "123456",
+  "newPassword": "NewPassword123@"
+}
+
+### Bước 2.3: Thử đăng nhập lại bằng Mật khẩu cũ "123456"
+# KỲ VỌNG: Hệ thống trả về lỗi 401 Unauthorized "Invalid username or password".
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "staff01",
+  "password": "123456"
+}
+
+### Bước 2.4: Đăng nhập bằng Mật khẩu mới "NewPassword123@"
+# KỲ VỌNG: Hệ thống trả về 200 OK kèm bộ JWT token mới.
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "staff01",
+  "password": "NewPassword123@"
+}
+
+### Bước 2.5: Đổi lại mật khẩu về mặc định ban đầu "123456" để khôi phục sạch môi trường test
+# (Gán access token từ response Bước 2.4 vào biến access_token)
+POST {{host}}/api/v1/auth/change-password
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "oldPassword": "NewPassword123@",
+  "newPassword": "123456"
+}
+
+
+### ==============================================================================
+### LUỒNG NGHIỆP VỤ 3: QUY TRÌNH KHÔI PHỤC MẬT KHẨU QUA EMAIL (Forgot & Reset Password Workflow)
+### Mục tiêu: Khởi tạo yêu cầu quên mật khẩu -> Nhận token khôi phục -> Thực thi đặt lại MK -> Đăng nhập kiểm chứng
+### ==============================================================================
+
+### Bước 3.1: Gửi yêu cầu quên mật khẩu đến Email hệ thống của tài khoản
 POST {{host}}/api/v1/auth/forgot-password
 Content-Type: application/json
 
@@ -29,20 +203,33 @@ Content-Type: application/json
   "email": "quoctinh1911@gmail.com"
 }
 
-### 4. RESET PASSWORD
+### Bước 3.2: Đặt lại mật khẩu mới thông qua Token khôi phục
+# (Kiểm tra Database cột `reset_password_token` hoặc file log email để lấy token được hash an toàn gán vào biến reset_token)
 POST {{host}}/api/v1/auth/reset-password
 Content-Type: application/json
 
 {
-  "token": "",
-  "newPassword": "NewPassword123@"
+  "token": "{{reset_token}}",
+  "newPassword": "ResetPassword123@"
 }
 
-### 5. LOGOUT
-POST {{host}}/api/v1/auth/logout
+### Bước 3.3: Thử nghiệm Đăng nhập với mật khẩu mới vừa reset thành công
+# KỲ VỌNG: Hệ thống đăng nhập thành công và cấp Access Token mới.
+POST {{host}}/api/v1/auth/login
 Content-Type: application/json
-Authorization: Bearer
 
 {
-  "refreshToken": ""
+  "usernameOrEmail": "staff01",
+  "password": "ResetPassword123@"
+}
+
+### Bước 3.4: Đổi lại mật khẩu về mặc định ban đầu "123456" để đảm bảo tính ổn định của cơ sở dữ liệu
+# (Gán access token từ response Bước 3.3 vào biến access_token)
+POST {{host}}/api/v1/auth/change-password
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "oldPassword": "ResetPassword123@",
+  "newPassword": "123456"
 }

@@ -64,6 +64,9 @@ public class RegistrationEligibilityService {
 
                 String cccd = getCellValue(row.getCell(0));
                 String fullName = getCellValue(row.getCell(1));
+                String studentCode = getCellValue(row.getCell(2));
+                String email = getCellValue(row.getCell(3));
+                String targetStr = getCellValue(row.getCell(4));
 
                 // 4. Validate & Skip nếu trùng
                 if (cccd.isEmpty() || eligibilityRepository.existsByRegistrationPeriod_PeriodIdAndCccd(periodId, cccd)) {
@@ -73,6 +76,23 @@ public class RegistrationEligibilityService {
                     e.setRegistrationPeriod(period);
                     e.setCccd(cccd);
                     e.setFullName(fullName);
+                    
+                    if (!studentCode.isEmpty()) {
+                        e.setStudentCode(studentCode);
+                    }
+                    if (!email.isEmpty()) {
+                        e.setEmail(email);
+                    }
+                    if (!targetStr.isEmpty()) {
+                        try {
+                            e.setTarget(com.sdms.backend.modules.registration.enums.RegistrationTarget.valueOf(targetStr.toUpperCase().trim()));
+                        } catch (IllegalArgumentException ex) {
+                            e.setTarget(com.sdms.backend.modules.registration.enums.RegistrationTarget.FRESHMAN);
+                        }
+                    } else {
+                        e.setTarget(com.sdms.backend.modules.registration.enums.RegistrationTarget.FRESHMAN);
+                    }
+
                     newEligibilities.add(e);
                     imported++;
                 }

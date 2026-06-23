@@ -47,6 +47,7 @@ public class RegistrationService {
         if (activePeriod.getRegistrationType() == RegistrationType.OPEN_REGISTRATION) {
             return CheckEligibilityResponse.builder()
                     .eligible(true)
+                    .periodId(activePeriod.getPeriodId())
                     .periodName(activePeriod.getPeriodName())
                     .registrationType(activePeriod.getRegistrationType().name())
                     .message("Đợt đăng ký tự do, tất cả sinh viên đều đủ điều kiện.")
@@ -64,6 +65,7 @@ public class RegistrationService {
             RegistrationEligibility eligibility = eligibilityOpt.get();
             return CheckEligibilityResponse.builder()
                     .eligible(true)
+                    .periodId(activePeriod.getPeriodId())
                     .periodName(activePeriod.getPeriodName())
                     .registrationType(activePeriod.getRegistrationType().name())
                     .fullName(eligibility.getFullName())
@@ -72,6 +74,7 @@ public class RegistrationService {
         } else {
             return CheckEligibilityResponse.builder()
                     .eligible(false)
+                    .periodId(activePeriod.getPeriodId())
                     .periodName(activePeriod.getPeriodName())
                     .registrationType(activePeriod.getRegistrationType().name())
                     .message("Bạn không có trong danh sách đủ điều kiện của đợt đăng ký này.")

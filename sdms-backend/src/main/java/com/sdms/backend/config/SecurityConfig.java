@@ -35,11 +35,14 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/auth/**",
             "/api/v1/registrations/**",
+            "/api/v1/uploads/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
-            "/webjars/**"
+            "/webjars/**",
+            "/uploads/**"
     };
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -64,6 +67,10 @@ public class SecurityConfig {
                         // Cho phép truy cập OPTIONS cho toàn bộ hệ thống (Fix lỗi Pre-flight)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/applications/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/applications/{applicationId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/applications/status").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/applications").permitAll()
                         .anyRequest().authenticated()
                 )
 

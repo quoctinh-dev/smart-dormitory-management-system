@@ -29,7 +29,7 @@ export const useRegistrationPeriods = () => {
     }, [fetchPeriods]);
 
     // 2. Hàm dùng chung để xử lý mọi API (Create, Update, Activate, Deactivate)
-    const handleApiAction = async (apiCall, successMsg) => {
+    const handleApiAction = async (apiCall) => {
         setIsSubmitting(true);
         setError(null);
         try {

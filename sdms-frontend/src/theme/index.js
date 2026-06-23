@@ -34,10 +34,14 @@ const theme = createTheme({
 
     // 3. Typography (Font chữ toàn cục)
     typography: {
-        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-        h4: { fontWeight: 800, letterSpacing: '-0.5px' },
+        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+        h1: { fontWeight: 900, letterSpacing: '-1.5px' },
+        h2: { fontWeight: 800, letterSpacing: '-1px' },
+        h3: { fontWeight: 800, letterSpacing: '-0.5px' },
+        h4: { fontWeight: 700, letterSpacing: '-0.5px' },
         h5: { fontWeight: 700 },
-        button: { textTransform: 'none', fontWeight: 600 },
+        h6: { fontWeight: 600 },
+        button: { textTransform: 'none', fontWeight: 600, letterSpacing: '0.3px' },
     },
 
     // 4. Component Styles (Design System Core)

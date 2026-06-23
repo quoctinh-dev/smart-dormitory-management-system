@@ -8,6 +8,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import periodApi from "../../api/periodApi";
+import FeatureCard from "../../components/common/FeatureCard";
+import AboutSection from "./components/Home/AboutSection";
+import CostSection from "./components/Home/CostSection";
+import ProcessSection from "./components/Home/ProcessSection";
+import ContactSection from "./components/Home/ContactSection";
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -36,7 +41,7 @@ export default function HomePage() {
     };
 
     return (
-        <Box sx={{ pb: 10 }}>
+        <Box>
             {/* HERO SECTION */}
             <Box
                 sx={{
@@ -49,10 +54,10 @@ export default function HomePage() {
             >
                 <Container maxWidth="md">
                     <Typography variant="h2" fontWeight="800" mb={2} sx={{ letterSpacing: '-1px' }}>
-                        Đăng ký KTX chỉ trong 3 bước
+                        Hệ thống Quản lý Ký túc xá Thông minh
                     </Typography>
                     <Typography variant="h6" sx={{ opacity: 0.9, mb: 6, fontWeight: 300 }}>
-                        Hệ thống nộp hồ sơ và xét duyệt ký túc xá trực tuyến hiện đại, nhanh chóng.
+                        Nền tảng đăng ký, xét duyệt và quản lý lưu trú trực tuyến toàn diện.
                     </Typography>
 
                     {/* SEARCH BAR FOR ELIGIBILITY */}
@@ -70,7 +75,7 @@ export default function HomePage() {
                     >
                         <TextField
                             fullWidth
-                            placeholder="Nhập số CCCD/CMND để kiểm tra điều kiện..."
+                            placeholder="Nhập Mã định danh (CCCD/CMND) để tra cứu..."
                             value={searchCccd}
                             onChange={(e) => setSearchCccd(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleCheckEligibility()}
@@ -91,36 +96,53 @@ export default function HomePage() {
                             disabled={loading}
                             sx={{ borderRadius: 3, px: 4, py: 1.5, fontWeight: 'bold', minWidth: '120px' }}
                         >
-                            {loading ? "Đang kiểm tra..." : "Kiểm tra"}
+                            {loading ? "Đang xử lý..." : "Kiểm tra"}
                         </Button>
                     </Paper>
                 </Container>
             </Box>
 
             {/* ACTION CARDS */}
-            <Container maxWidth="lg" sx={{ mt: -8 }}>
+            <Container maxWidth="lg" sx={{ mt: -8, mb: 10, position: 'relative', zIndex: 2 }}>
                 <Grid container spacing={4} justifyContent="center">
-                    <Grid size={{ xs: 12, md: 5 }}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <FeatureCard 
                             icon={<AssignmentIndIcon sx={{ fontSize: 48, color: "primary.main" }} />}
-                            title="Đăng ký mới"
-                            description="Dành cho sinh viên chưa có hồ sơ hoặc muốn đăng ký mới cho học kỳ này."
-                            buttonText="Bắt đầu đăng ký ngay"
+                            title="Đăng ký lưu trú"
+                            description="Tiếp nhận hồ sơ đăng ký nội trú trực tuyến đối với sinh viên đủ điều kiện."
+                            buttonText="Tiến hành nộp hồ sơ"
                             to="/register"
                         />
                     </Grid>
-                    <Grid size={{ xs: 12, md: 5 }}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <FeatureCard 
                             icon={<CheckCircleOutlineIcon sx={{ fontSize: 48, color: "secondary.main" }} />}
-                            title="Theo dõi trạng thái"
-                            description="Kiểm tra kết quả xét duyệt, bổ sung hồ sơ hoặc xem thông tin nhận phòng."
-                            buttonText="Xem trạng thái hồ sơ"
+                            title="Tra cứu tiến độ"
+                            description="Theo dõi quy trình xét duyệt, cập nhật trạng thái thanh toán và thông tin phòng."
+                            buttonText="Tra cứu hồ sơ"
                             to="/status"
                             variant="outlined"
                         />
                     </Grid>
+                    <Grid size={{ xs: 12, md: 4 }}>
+                        <FeatureCard 
+                            icon={<CheckCircleOutlineIcon sx={{ fontSize: 48, color: "success.main" }} />}
+                            title="Kích hoạt định danh"
+                            description="Khởi tạo tài khoản hệ thống dành cho sinh viên đã hoàn tất thủ tục lưu trú."
+                            buttonText="Thực hiện kích hoạt"
+                            to="/activate"
+                            variant="contained"
+                            color="success"
+                        />
+                    </Grid>
                 </Grid>
             </Container>
+
+            {/* --- Thông Tin KTX STU --- */}
+            <AboutSection />
+            <CostSection />
+            <ProcessSection />
+            <ContactSection />
 
             {/* DIALOG KẾT QUẢ KIỂM TRA */}
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
@@ -147,15 +169,4 @@ export default function HomePage() {
         </Box>
     );
 }
-
-// Sub-component để giữ code sạch
-const FeatureCard = ({ icon, title, description, buttonText, to, variant = "contained" }) => (
-    <Card sx={{ p: 4, borderRadius: 4, height: '100%', transition: '0.3s', '&:hover': { transform: 'translateY(-8px)', boxShadow: 6 } }}>
-        <Box sx={{ mb: 2 }}>{icon}</Box>
-        <Typography variant="h5" fontWeight="700" gutterBottom>{title}</Typography>
-        <Typography color="text.secondary" mb={4}>{description}</Typography>
-        <Button fullWidth variant={variant} size="large" component={RouterLink} to={to} sx={{ borderRadius: 3 }}>
-            {buttonText}
-        </Button>
-    </Card>
-);
+

@@ -1,17 +1,16 @@
 package com.sdms.backend.modules.application.entity;
 
 import com.sdms.backend.common.entity.BaseEntity;
-import com.sdms.backend.modules.application.enums.DocumentStatus;
-import com.sdms.backend.modules.application.enums.DocumentType;
+import com.sdms.backend.modules.application.enums.VerificationStatus;
+import com.sdms.backend.modules.application.enums.VerificationDocumentType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
  * DOMAIN ROLE: Lưu trữ tài liệu minh chứng cho hồ sơ đăng ký.
- * BUSINESS PURPOSE: Phục vụ công tác hậu kiểm và duyệt hồ sơ.
- * ARCHITECTURAL NOTE: Chỉ lưu trạng thái thực tế, không chứa logic cấu hình (required).
  */
 @Entity
 @Table(name = "verification_documents")
@@ -28,13 +27,18 @@ public class VerificationDocument extends BaseEntity {
     private DormitoryApplication application;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
-    private DocumentType documentType;
+    @Column(name = "document_type", nullable = false, length = 50)
+    private VerificationDocumentType documentType;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String fileUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private DocumentStatus status = DocumentStatus.PENDING;
+    private VerificationStatus status = VerificationStatus.PENDING;
+
+    @Column(columnDefinition = "TEXT")
+    private String note;
+
+    private LocalDateTime verifiedAt;
 }

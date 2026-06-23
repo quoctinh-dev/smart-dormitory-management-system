@@ -1,4 +1,74 @@
+# ==============================================================================
+# SDMS - USER ACCOUNT & IDENTITY VERIFICATION API TESTING
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Cấu hình biến môi trường (Environment Variables)
+# ------------------------------------------------------------------------------
 @host = http://localhost:8080
-### 0.GET ME
-GET http://localhost:8080/api/v1/users/me
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdHVkZW50VGVzdF8wMDIiLCJhY2NvdW50SWQiOiJjMTAyYzFkZi1lY2E4LTQ3MDEtODI1Ny03OTkwOTc1MDc1ODMiLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc4MTYwMjQ3MiwiZXhwIjoxNzgxNjAzMzcyfQ.JYQne9-Oy56w1WK3AV7RLZDZCu6tPLVKyiQSDNvPX5bBCnmTsW6U4e9ZTVRked0sxFLo61QBijcP7zI6AsaFmQ
+@access_token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdHVkZW50VGVzdF8wMDIiLCJhY2NvdW50SWQiOiJjMTAyYzFkZi1lY2E4LTQ3MDEtODI1Ny03OTkwOTc1MDc1ODMiLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc4MTYwMjQ3MiwiZXhwIjoxNzgxNjAzMzcyfQ.JYQne9-Oy56w1WK3AV7RLZDZCu6tPLVKyiQSDNvPX5bBCnmTsW6U4e9ZTVRked0sxFLo61QBijcP7zI6AsaFmQ
+
+
+# ------------------------------------------------------------------------------
+# PHẦN 1: API TĨNH RIÊNG LẺ (Static Endpoint Testing)
+# ------------------------------------------------------------------------------
+
+### A1. User - Lấy thông tin tài khoản đang đăng nhập (Get Current User Profile)
+# API này lấy thông tin cơ bản của tài khoản từ Security Context (ID, Username, Email, Role, Status)
+# Áp dụng cho mọi vai trò (STUDENT, STAFF, ADMIN) sau khi đã đăng nhập thành công.
+GET {{host}}/api/v1/users/me
+Authorization: Bearer {{access_token}}
+
+
+# ------------------------------------------------------------------------------
+# PHẦN 2: KỊCH BẢN NGHIỆP VỤ THEO LUỒNG (Business Flows)
+# ------------------------------------------------------------------------------
+
+### ==============================================================================
+### LUỒNG NGHIỆP VỤ 1: XÁC MINH DANH TÍNH ĐA VAI TRÒ & PHÂN QUYỀN (Multi-Role Auth & Role Verification Flow)
+### Mục tiêu:
+###   1. Xác thực tài khoản Sinh viên -> Xác nhận đúng Role STUDENT & trạng thái ACTIVE.
+###   2. Xác thực tài khoản Nhân viên -> Xác nhận đúng Role STAFF & trạng thái ACTIVE.
+###   3. Thử nghiệm với Token không hợp lệ / hết hạn -> Hệ thống từ chối truy cập (401 Unauthorized).
+### ==============================================================================
+
+### Bước 1.1: Đăng nhập với tài khoản Sinh viên (studentTest_002)
+# @name loginStudent
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "studentTest_002",
+  "password": "123456"
+}
+
+### Bước 1.2: Lấy thông tin tài khoản Sinh viên vừa đăng nhập
+# (Lấy access token từ phản hồi Bước 1.1 gán vào biến access_token)
+# KỲ VỌNG: Trả về thông tin tài khoản có:
+#   - role: "STUDENT"
+#   - status: "ACTIVE"
+GET {{host}}/api/v1/users/me
+Authorization: Bearer {{access_token}}
+
+### Bước 1.3: Đăng nhập với tài khoản Nhân viên ban quản lý (staff01)
+# @name loginStaff
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "staff01",
+  "password": "123456"
+}
+
+### Bước 1.4: Lấy thông tin tài khoản Nhân viên vừa đăng nhập
+# (Lấy access token từ phản hồi Bước 1.3 gán vào biến access_token)
+# KỲ VỌNG: Trả về thông tin tài khoản có:
+#   - role: "STAFF"
+#   - status: "ACTIVE"
+GET {{host}}/api/v1/users/me
+Authorization: Bearer {{access_token}}
+
+### Bước 1.5: Thử gọi API Get Me với Token giả mạo hoặc hết hạn
+# KỲ VỌNG: Hệ thống chặn lại từ cổng Security Filter và trả về lỗi 401 Unauthorized.
+GET {{host}}/api/v1/users/me
+Authorization: Bearer invalid_or_expired_token_here

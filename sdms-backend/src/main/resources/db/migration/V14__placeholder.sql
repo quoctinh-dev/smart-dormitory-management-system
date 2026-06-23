@@ -1,0 +1,3 @@
+-- V14__placeholder.sql
+-- Reserved placeholder to maintain sequential migration chain integrity.
+-- No operation.
