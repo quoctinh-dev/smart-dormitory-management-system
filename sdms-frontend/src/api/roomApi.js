@@ -1,30 +1,33 @@
+// src/api/roomApi.js
 import axiosClient from './axiosClient';
 
-const ADMIN_ROOM_API = '/v1/admin/buildings';
-const DASHBOARD_API = '/v1/admin/dashboard/room';
+const BASE_URL = '/v1/admin';
 
 const roomApi = {
-  // ==========================================
-  // ---- DASHBOARD ----
-  // ==========================================
-  getOverview() {
-    return axiosClient.get(DASHBOARD_API);
-  },
-  
-  getBedStats() {
-    return axiosClient.get(`${DASHBOARD_API}/beds`);
-  },
+  // --- BUILDING CONTROLLER ---
+  getBuildings: () => axiosClient.get(`${BASE_URL}/buildings`),
+  getBuildingById: (id) => axiosClient.get(`${BASE_URL}/buildings/${id}`),
+  createBuilding: (data) => axiosClient.post(`${BASE_URL}/buildings`, data),
+  updateBuilding: (id, data) => axiosClient.put(`${BASE_URL}/buildings/${id}`, data),
+  patchBuildingStatus: (id, status) => axiosClient.patch(`${BASE_URL}/buildings/${id}/status`, { status }),
 
-  // ==========================================
-  // ---- BUILDINGS ----
-  // ==========================================
-  getAllBuildings() {
-    return axiosClient.get(ADMIN_ROOM_API);
-  },
-  
-  getBuildingDetail(id) {
-    return axiosClient.get(`${ADMIN_ROOM_API}/${id}`);
-  },
+  // --- FLOOR CONTROLLER ---
+  getFloorsByBuilding: (buildingId) => axiosClient.get(`${BASE_URL}/floors/building/${buildingId}`),
+  getFloorById: (floorId) => axiosClient.get(`${BASE_URL}/floors/${floorId}`),
+  createFloor: (data) => axiosClient.post(`${BASE_URL}/floors`, data),
+  updateFloor: (floorId, data) => axiosClient.put(`${BASE_URL}/floors/${floorId}`, data),
+
+  // --- ROOM CONTROLLER ---
+  getRoomsByFloor: (floorId) => axiosClient.get(`${BASE_URL}/rooms/floor/${floorId}`),
+  getRoomById: (roomId) => axiosClient.get(`${BASE_URL}/rooms/${roomId}`),
+  createRoom: (data) => axiosClient.post(`${BASE_URL}/rooms`, data),
+  updateRoom: (roomId, data) => axiosClient.put(`${BASE_URL}/rooms/${roomId}`, data),
+  patchRoomStatus: (roomId, status) => axiosClient.patch(`${BASE_URL}/rooms/${roomId}/status`, { status }),
+
+  // --- BED CONTROLLER ---
+  getBedsByRoom: (roomId) => axiosClient.get(`${BASE_URL}/beds/room/${roomId}`),
+  createBed: (data) => axiosClient.post(`${BASE_URL}/beds`, data),
+  patchBedStatus: (bedId, status) => axiosClient.patch(`${BASE_URL}/beds/${bedId}/status`, { status }),
 };
 
 export default roomApi;

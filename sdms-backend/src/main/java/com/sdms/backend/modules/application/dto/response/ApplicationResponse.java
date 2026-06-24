@@ -1,15 +1,17 @@
 package com.sdms.backend.modules.application.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.sdms.backend.modules.application.enums.ApplicationStatus;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApplicationResponse {
     private UUID applicationId;
     private String applicationCode;
@@ -17,20 +19,26 @@ public class ApplicationResponse {
     private String cccd;
     private String email;
     private String phone;
-    
-    // Additional fields for review
     private String dob;
     private String gender;
     private String permanentAddress;
     private String contactAddress;
-    private java.util.List<String> priorityCategories;
-    
-    // Documents
-    private java.util.List<DocumentResponse> documents;
-
+    private List<String> priorityCategories;
+    private List<DocumentResponse> documents;
     private ApplicationStatus status;
     private int priorityScore;
-    private String applicationPdfUrl;
+    private String registrationFormPdfUrl; // New field for registration form PDF
+    private String commitmentFormPdfUrl;   // New field for commitment form PDF
     private LocalDateTime submittedAt;
     private LocalDateTime revisionDeadline;
+    private AssignmentInfo assignment;
+
+    @Data
+    @Builder
+    public static class AssignmentInfo {
+        private String buildingName;
+        private String floorName;
+        private String roomName;
+        private String bedName;
+    }
 }

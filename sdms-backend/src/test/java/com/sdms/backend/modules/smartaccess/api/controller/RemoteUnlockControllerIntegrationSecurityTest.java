@@ -68,7 +68,8 @@ class RemoteUnlockControllerIntegrationSecurityTest {
         account.setRole(Role.STUDENT);
         account.setStatus(AccountStatus.ACTIVE);
 
-        when(userAccountRepository.findByUsernameWithStudent(testUsername)).thenReturn(Optional.of(account));
+        // Corrected: Use findByUsername
+        when(userAccountRepository.findByUsername(testUsername)).thenReturn(Optional.of(account));
 
         String token = jwtService.generateAccessToken(account);
 
@@ -94,7 +95,8 @@ class RemoteUnlockControllerIntegrationSecurityTest {
 
         doReturn(List.of(new SimpleGrantedAuthority("REMOTE_UNLOCK"))).when(account).getAuthorities();
 
-        when(userAccountRepository.findByUsernameWithStudent(adminUsername)).thenReturn(Optional.of(account));
+        // Corrected: Use findByUsername
+        when(userAccountRepository.findByUsername(adminUsername)).thenReturn(Optional.of(account));
 
         String token = jwtService.generateAccessToken(account);
 

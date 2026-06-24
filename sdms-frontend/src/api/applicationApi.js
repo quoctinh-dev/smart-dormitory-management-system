@@ -2,7 +2,6 @@ import axiosClient from './axiosClient';
 
 const APP_URL = '/v1/applications';
 const ADMIN_APP_URL = '/v1/admin/applications';
-const PUBLIC_ROOM_URL = '/v1/public/room/assignment';
 const UPLOADS_URL = '/v1/uploads';
 
 const applicationApi = {
@@ -22,9 +21,7 @@ const applicationApi = {
     return axiosClient.get(`${APP_URL}/status`, { params: { cccd } });
   },
 
-  getAssignment(applicationId) {
-    return axiosClient.get(`${PUBLIC_ROOM_URL}/${applicationId}`); 
-  },
+  // getAssignment method is removed as assignment info is now embedded in ApplicationResponse
 
   approve(id, note = 'Approved via Web') {
     return axiosClient.patch(`${ADMIN_APP_URL}/${id}/approve`, { note });

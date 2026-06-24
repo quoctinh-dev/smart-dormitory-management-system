@@ -34,6 +34,8 @@ public interface DormitoryApplicationRepository
 
     boolean existsByCccdAndRegistrationPeriod_PeriodId(String cccd, UUID periodId);
 
+    long countByStatus(ApplicationStatus status);
+
     @Query("""
         SELECT a FROM DormitoryApplication a 
         WHERE a.status = :status 

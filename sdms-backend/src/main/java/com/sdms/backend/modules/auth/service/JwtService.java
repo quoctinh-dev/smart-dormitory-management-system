@@ -53,6 +53,41 @@ public class JwtService {
                 .compact();
     }
 
+    /**
+     * Tạo Activation Token.
+     * Token này có thời hạn ngắn, dùng để kích hoạt tài khoản lần đầu.
+     */
+    public String generateActivationToken(UUID userId, String email) {
+        return Jwts.builder()
+                .subject(email)
+                .claim("userId", userId.toString())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 300000)) // 5 phút hạn sử dụng cho activation token
+                .signWith(getAccessSigningKey()) // Có thể dùng chung key với Access Token hoặc tạo key riêng
+                .compact();
+    }
+
+    /**
+     * Xác thực Activation Token.
+     */
+    public boolean validateActivationToken(String token) {
+        try {
+            extractActivationClaims(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Trích xuất userId từ Activation Token.
+     */
+    public UUID extractUserIdFromActivationToken(String token) throws JwtException {
+        Claims claims = extractActivationClaims(token);
+        String userId = claims.get("userId", String.class);
+        return UUID.fromString(userId);
+    }
+
     // Các hàm helper để trích xuất thông tin (Claims) từ token
     public <T> T extractAccessClaim(String token, Function<Claims, T> claimsResolver) throws JwtException {
         final Claims claims = extractAccessClaims(token);
@@ -101,6 +136,14 @@ public class JwtService {
     private Claims extractRefreshClaims(String token) throws JwtException {
         return Jwts.parser()
                 .verifyWith(getRefreshSigningKey()) // Xác thực chữ ký bằng key Refresh
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    private Claims extractActivationClaims(String token) throws JwtException {
+        return Jwts.parser()
+                .verifyWith(getAccessSigningKey()) // Sử dụng cùng key với Access Token
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();

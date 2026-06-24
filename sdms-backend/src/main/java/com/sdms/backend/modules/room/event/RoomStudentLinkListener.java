@@ -1,3 +1,4 @@
+// 📄 File: com/sdms/backend/modules/room/event/RoomStudentLinkListener.java
 package com.sdms.backend.modules.room.event;
 
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
@@ -9,10 +10,6 @@ import com.sdms.backend.modules.student.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.Optional;
 
@@ -36,14 +33,15 @@ public class RoomStudentLinkListener {
 
         StudentHousingAssignment assignment = assignmentOpt.get();
 
-        if (assignment.getStatus() != AssignmentStatus.RESERVED) {
-            log.warn("[RoomStudentLinkListener] Assignment={} is not in RESERVED state (current={}), skipping link", 
+        // 🌟 FIX CHÍ MẠCH TẠI ĐÂY: Chấp nhận cả RESERVED hoặc PENDING_CHECKIN do luồng chạy bất đồng bộ Async
+        if (assignment.getStatus() != AssignmentStatus.RESERVED && assignment.getStatus() != AssignmentStatus.PENDING_CHECKIN) {
+            log.warn("[RoomStudentLinkListener] Assignment={} is not in RESERVED or PENDING_CHECKIN state (current={}), skipping link",
                     event.getAssignmentId(), assignment.getStatus());
             return;
         }
 
         if (assignment.getStudent() != null) {
-            log.warn("[RoomStudentLinkListener] Assignment={} already linked to student={}, skipping.", 
+            log.warn("[RoomStudentLinkListener] Assignment={} already linked to student={}, skipping.",
                     event.getAssignmentId(), assignment.getStudent().getStudentId());
             return;
         }
@@ -55,10 +53,12 @@ public class RoomStudentLinkListener {
         }
 
         assignment.setStudent(studentOpt.get());
+
+        // Luôn đồng bộ giữ trạng thái tối thiểu là PENDING_CHECKIN sau khi thanh toán giả lập và tạo sinh viên thành công
         assignment.setStatus(AssignmentStatus.PENDING_CHECKIN);
-        
+
         assignmentRepository.save(assignment);
-        log.info("[RoomStudentLinkListener] Successfully linked student={} to assignment={} and transitioned to PENDING_CHECKIN", 
+        log.info("[RoomStudentLinkListener] Successfully linked student={} to assignment={} and transitioned to PENDING_CHECKIN",
                 event.getStudentId(), event.getAssignmentId());
     }
 }

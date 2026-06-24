@@ -14,6 +14,7 @@ export default function PaymentPage() {
   const {
     bill,
     application,
+    paymentInstructions, // Get payment instructions from the hook
     loading,
     error,
     paying,
@@ -31,6 +32,11 @@ export default function PaymentPage() {
       </Container>
     );
   }
+
+  // Construct transfer content
+  const transferContent = paymentInstructions?.contentPrefix 
+    ? `${paymentInstructions.contentPrefix}${application?.cccd}` 
+    : application?.cccd;
 
   return (
     <Container maxWidth="sm" sx={{ py: 8 }}>
@@ -74,13 +80,34 @@ export default function PaymentPage() {
           <Divider sx={{ my: 2 }} />
           <Grid container sx={{ alignItems: 'center' }}>
             <Grid size={{ xs: 6 }}><Typography variant="h6" sx={{ fontWeight: 600 }}>Tổng tiền:</Typography></Grid>
-            <Grid size={{ xs: 6 }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'right', color: 'primary.main' }}>
-                {bill?.amount ? bill.amount.toLocaleString('vi-VN') : 0} VNĐ
-              </Typography>
-            </Grid>
+            <Grid size={{ xs: 6 }}><Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'right', color: 'primary.main' }}>{bill?.amount ? bill.amount.toLocaleString('vi-VN') : 0} VNĐ</Typography></Grid>
           </Grid>
         </Box>
+
+        {/* PAYMENT INSTRUCTIONS */}
+        {paymentInstructions && (
+          <Box sx={{ bgcolor: (theme) => alpha(theme.palette.success.light, 0.08), border: '1px solid', borderColor: 'success.main', p: 3, borderRadius: 3, textAlign: 'left', mb: 4 }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'success.dark', mb: 2 }}>
+              Hướng dẫn chuyển khoản
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 6 }}><Typography sx={{ color: 'text.secondary' }}>Ngân hàng:</Typography></Grid>
+              <Grid size={{ xs: 6 }}><Typography sx={{ fontWeight: 'bold', textAlign: 'right' }}>{paymentInstructions.bankName}</Typography></Grid>
+              <Grid size={{ xs: 6 }}><Typography sx={{ color: 'text.secondary' }}>Số tài khoản:</Typography></Grid>
+              <Grid size={{ xs: 6 }}><Typography sx={{ fontWeight: 'bold', textAlign: 'right' }}>{paymentInstructions.accountNumber}</Typography></Grid>
+              <Grid size={{ xs: 6 }}><Typography sx={{ color: 'text.secondary' }}>Chủ tài khoản:</Typography></Grid>
+              <Grid size={{ xs: 6 }}><Typography sx={{ fontWeight: 'bold', textAlign: 'right' }}>{paymentInstructions.accountHolder}</Typography></Grid>
+              <Grid size={{ xs: 6 }}><Typography sx={{ color: 'text.secondary' }}>Nội dung chuyển khoản:</Typography></Grid>
+              <Grid size={{ xs: 6 }}><Typography sx={{ fontWeight: 'bold', textAlign: 'right', color: 'error.main' }}>{transferContent}</Typography></Grid>
+            </Grid>
+            {paymentInstructions.qrCodeUrl && (
+              <Box sx={{ mt: 3, textAlign: 'center' }}>
+                <Typography variant="body1" sx={{ mb: 1 }}>Hoặc quét mã QR để thanh toán:</Typography>
+                <img src={paymentInstructions.qrCodeUrl} alt="QR Code" style={{ maxWidth: '200px', height: 'auto', border: '1px solid #ddd', borderRadius: '4px' }} />
+              </Box>
+            )}
+          </Box>
+        )}
 
         <Button 
           variant="contained" 
@@ -88,7 +115,7 @@ export default function PaymentPage() {
           fullWidth 
           color="warning"
           startIcon={paying ? <CircularProgress size={20} color="inherit"/> : <PaymentIcon />}
-          onClick={() => handleMockPayment(() => navigate('/status'))} // Truyền hành động callback chuyển hướng sau khi găm xong thông tin thành công
+          onClick={() => handleMockPayment(() => navigate('/status'))} 
           disabled={paying}
           sx={{ py: 1.5, fontSize: '1.1rem', borderRadius: 2, mb: 2 }}
         >

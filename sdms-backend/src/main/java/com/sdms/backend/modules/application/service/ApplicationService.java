@@ -1,35 +1,42 @@
 package com.sdms.backend.modules.application.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.application.dto.request.CreateApplicationRequest;
 import com.sdms.backend.modules.application.dto.response.ApplicationResponse;
 import com.sdms.backend.modules.application.dto.response.DocumentResponse;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
+import com.sdms.backend.modules.application.entity.DormitoryApplicationStatusHistory;
 import com.sdms.backend.modules.application.entity.VerificationDocument;
 import com.sdms.backend.modules.application.enums.ApplicationStatus;
 import com.sdms.backend.modules.application.enums.VerificationDocumentType;
 import com.sdms.backend.modules.application.enums.VerificationStatus;
-import com.sdms.backend.modules.application.entity.DormitoryApplicationStatusHistory;
-import com.sdms.backend.modules.application.repository.DormitoryApplicationStatusHistoryRepository;
+import com.sdms.backend.modules.application.event.ApplicationSubmittedEvent;
 import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
+import com.sdms.backend.modules.application.repository.DormitoryApplicationStatusHistoryRepository;
 import com.sdms.backend.modules.application.repository.VerificationDocumentRepository;
 import com.sdms.backend.modules.registration.entity.RegistrationPeriod;
 import com.sdms.backend.modules.registration.enums.RegistrationType;
 import com.sdms.backend.modules.registration.repository.RegistrationEligibilityRepository;
 import com.sdms.backend.modules.registration.repository.RegistrationPeriodRepository;
+import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
+import com.sdms.backend.modules.room.enums.AssignmentStatus;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.sdms.backend.common.response.PageResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -41,26 +48,16 @@ public class ApplicationService {
     private final DormitoryApplicationRepository applicationRepository;
     private final VerificationDocumentRepository documentRepository;
     private final DormitoryApplicationStatusHistoryRepository statusHistoryRepository;
-    
+    private final StudentHousingAssignmentRepository assignmentRepository;
+
     private final ApplicationPriorityService priorityService;
     private final ApplicationPdfService pdfService;
     private final ApplicationEventPublisher eventPublisher;
 
-    /**
-     * BUSINESS WORKFLOW - Khởi tạo Đơn đăng ký Nháp (Draft State).
-     * 
-     * ARCHITECTURAL NOTE ON DRAFT STATE:
-     * Trạng thái "DRAFT" (Nháp) thuần túy là một trạng thái giao diện người dùng (UI State). 
-     * Do trong hệ thống dữ liệu đóng băng (ApplicationStatus) không có trường DRAFT, 
-     * bản ghi khi được lưu nháp trong CSDL sẽ có giá trị status mặc định là PENDING.
-     * Tuy nhiên, các ràng buộc dữ liệu hồ sơ bắt buộc (hồ sơ đính kèm) và phát sự kiện Submit 
-     * sẽ CHỈ được kích hoạt thực sự khi sinh viên nhấn nút gửi (submitApplication).
-     */
     @Transactional
     public ApplicationResponse createDraft(CreateApplicationRequest request) {
         log.info("Creating application draft for cccd={}", request.getCccd());
 
-        // 1. Kiểm tra Kỳ đăng ký
         RegistrationPeriod period = periodRepository.findById(request.getPeriodId())
                 .orElseThrow(() -> new AppException("Kỳ đăng ký không tồn tại", HttpStatus.NOT_FOUND));
 
@@ -69,21 +66,18 @@ public class ApplicationService {
             throw new AppException("Kỳ đăng ký hiện đã đóng hoặc chưa mở", HttpStatus.BAD_REQUEST);
         }
 
-        // 2. Kiểm tra điều kiện Eligibility (Không áp dụng cho OPEN_REGISTRATION)
         if (period.getRegistrationType() != RegistrationType.OPEN_REGISTRATION) {
             boolean eligible = eligibilityRepository.existsByRegistrationPeriod_PeriodIdAndCccd(period.getPeriodId(), request.getCccd());
             if (!eligible) {
-                throw new AppException("Bạn không có trong danh sách đủ điều kiện tham gia đợt này", HttpStatus.BAD_REQUEST);
+                throw new AppException("Bạn không có trong danh sách đủ điều kiện tham gia đợt này", HttpStatus.FORBIDDEN);
             }
         }
 
-        // 3. Kiểm tra trùng lặp đơn đăng ký trong cùng một kỳ
         boolean alreadySubmitted = applicationRepository.existsByCccdAndRegistrationPeriod_PeriodId(request.getCccd(), period.getPeriodId());
         if (alreadySubmitted) {
-            throw new AppException("Bạn đã nộp đơn đăng ký cho kỳ tuyển sinh này rồi", HttpStatus.BAD_REQUEST);
+            throw new AppException("Bạn đã nộp đơn đăng ký cho kỳ tuyển sinh này rồi", HttpStatus.CONFLICT);
         }
 
-        // 4. Khởi tạo thực thể DormitoryApplication
         DormitoryApplication application = new DormitoryApplication();
         application.setRegistrationPeriod(period);
         application.setFullName(request.getFullName());
@@ -110,14 +104,15 @@ public class ApplicationService {
         application.setMotherPhone(request.getMotherPhone());
         application.setFamilyContact(request.getFamilyContact());
         application.setEmergencyContact(request.getEmergencyContact());
-        
+
         application.setApplicationCode(generateApplicationCode());
-        application.setStatus(ApplicationStatus.PENDING); // Lưu tạm dạng PENDING trong DB
+
+        // 🌟 GIỮ NGUYÊN: Trạng thái ban đầu bắt buộc là PENDING theo đặc tả V1
+        application.setStatus(ApplicationStatus.PENDING);
         application.setWaitingListUsed(false);
 
         application = applicationRepository.save(application);
 
-        // 5. Gán diện ưu tiên nếu có
         if (request.getPriorityCategories() != null && !request.getPriorityCategories().isEmpty()) {
             priorityService.assignPriorities(application.getApplicationId(), request.getPriorityCategories());
         }
@@ -126,9 +121,6 @@ public class ApplicationService {
         return mapToResponse(application);
     }
 
-    /**
-     * Tải lên tài liệu đính kèm cho đơn đăng ký.
-     */
     @Transactional
     public DocumentResponse uploadDocument(UUID applicationId, VerificationDocumentType type, String fileUrl) {
         log.info("Uploading document type={} for application={}", type, applicationId);
@@ -136,8 +128,9 @@ public class ApplicationService {
         DormitoryApplication application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new AppException("Hồ sơ đăng ký không tồn tại", HttpStatus.NOT_FOUND));
 
-        if (application.getStatus() != ApplicationStatus.PENDING && application.getStatus() != ApplicationStatus.UNDER_REVIEW) {
-            throw new AppException("Không thể bổ sung tài liệu khi đơn đã được duyệt hoặc từ chối", HttpStatus.BAD_REQUEST);
+        // 🌟 GIỮ NGUYÊN: Cho phép upload khi PENDING (Đang hoàn thiện nháp) hoặc REQUEST_REVISION
+        if (application.getStatus() != ApplicationStatus.PENDING && application.getStatus() != ApplicationStatus.REQUEST_REVISION) {
+            throw new AppException("Không thể bổ sung tài liệu khi đơn đã được xử lý xong", HttpStatus.BAD_REQUEST);
         }
 
         VerificationDocument doc = new VerificationDocument();
@@ -148,18 +141,9 @@ public class ApplicationService {
 
         doc = documentRepository.save(doc);
 
-        return DocumentResponse.builder()
-                .documentId(doc.getDocumentId())
-                .documentType(doc.getDocumentType())
-                .fileUrl(doc.getFileUrl())
-                .status(doc.getStatus())
-                .note(doc.getNote())
-                .build();
+        return DocumentResponse.fromEntity(doc);
     }
 
-    /**
-     * Sinh viên nộp lại tài liệu bị sai (Resubmit Document).
-     */
     @Transactional
     public DocumentResponse resubmitDocument(UUID applicationId, UUID documentId, String newFileUrl) {
         log.info("Resubmitting document={} for application={}", documentId, applicationId);
@@ -194,7 +178,6 @@ public class ApplicationService {
         doc.setNote("Đã nộp lại, chờ duyệt");
         doc = documentRepository.save(doc);
 
-        // Nếu tất cả các tài liệu INVALID đã được nộp lại, tự động chuyển hồ sơ về PENDING
         long invalidCount = documentRepository.findByApplication_ApplicationId(applicationId)
                 .stream().filter(d -> d.getStatus() == VerificationStatus.INVALID).count();
         if (invalidCount == 0) {
@@ -202,27 +185,12 @@ public class ApplicationService {
             application.setStatus(ApplicationStatus.PENDING);
             applicationRepository.save(application);
 
-            DormitoryApplicationStatusHistory history = new DormitoryApplicationStatusHistory();
-            history.setApplication(application);
-            history.setFromStatus(oldStatus);
-            history.setToStatus(ApplicationStatus.PENDING);
-            history.setChangedAt(LocalDateTime.now());
-            history.setNote("Sinh viên đã hoàn tất nộp lại tài liệu");
-            statusHistoryRepository.save(history);
+            saveHistory(application, oldStatus, ApplicationStatus.PENDING, null, "Sinh viên đã hoàn tất nộp lại tài liệu");
         }
 
-        return DocumentResponse.builder()
-                .documentId(doc.getDocumentId())
-                .documentType(doc.getDocumentType())
-                .fileUrl(doc.getFileUrl())
-                .status(doc.getStatus())
-                .note(doc.getNote())
-                .build();
+        return DocumentResponse.fromEntity(doc);
     }
 
-    /**
-     * Thực hiện gửi đơn đăng ký chính thức lên hệ thống xét duyệt.
-     */
     @Transactional
     public ApplicationResponse submitApplication(UUID applicationId) {
         log.info("Submitting application ID={}", applicationId);
@@ -234,7 +202,10 @@ public class ApplicationService {
             throw new AppException("Đơn đăng ký không ở trạng thái hợp lệ để gửi đi", HttpStatus.BAD_REQUEST);
         }
 
-        // 1. Kiểm duyệt các tài liệu đính kèm bắt buộc trước khi cho phép submit
+        if (application.getSubmittedAt() != null) {
+            throw new AppException("Đơn đăng ký này đã được nộp chính thức trước đó", HttpStatus.BAD_REQUEST);
+        }
+
         List<VerificationDocument> docs = documentRepository.findByApplication_ApplicationId(applicationId);
         boolean hasCccdFront = docs.stream().anyMatch(d -> d.getDocumentType() == VerificationDocumentType.CCCD_FRONT);
         boolean hasCccdBack = docs.stream().anyMatch(d -> d.getDocumentType() == VerificationDocumentType.CCCD_BACK);
@@ -244,32 +215,29 @@ public class ApplicationService {
             throw new AppException("Thiếu tài liệu bắt buộc. Vui lòng tải lên mặt trước/sau CCCD và ảnh chân dung.", HttpStatus.BAD_REQUEST);
         }
 
-        // 2. Cập nhật mốc thời gian nộp đơn
         application.setSubmittedAt(LocalDateTime.now());
-        application = applicationRepository.save(application);
+        DormitoryApplication savedApplication = applicationRepository.save(application);
 
-        // Lưu lịch sử trạng thái (Status History Audit)
-        DormitoryApplicationStatusHistory history = new DormitoryApplicationStatusHistory();
-        history.setApplication(application);
-        history.setFromStatus(null);
-        history.setToStatus(ApplicationStatus.PENDING);
-        history.setChangedAt(LocalDateTime.now());
-        history.setNote("Sinh viên nộp đơn chính thức thành công");
-        statusHistoryRepository.save(history);
+        saveHistory(savedApplication, null, ApplicationStatus.PENDING, null, "Sinh viên nộp đơn chính thức thành công");
 
-        // 3. Kích hoạt quy trình sinh PDF không đồng bộ (Asynchronous PDF creation)
-        pdfService.generateRegistrationFormPdf(applicationId);
-        pdfService.generateCommitmentFormPdf(applicationId);
+        pdfService.generateAndUploadRegistrationFormPdf(savedApplication);
+        pdfService.generateAndUploadCommitmentFormPdf(savedApplication);
 
-        // 4. Đơn đã được nộp thành công (Dọn dẹp Dead Event)
+        // 🌟 KÍCH HOẠT DUY NHẤT NGÒI NỔ XẾP PHÒNG DỰ KIẾN TẠI ĐÂY
+        eventPublisher.publishEvent(new ApplicationSubmittedEvent(
+                this,
+                savedApplication.getApplicationId(),
+                savedApplication.getGender().name(),
+                savedApplication.getPriorityScore()
+        ));
 
-        log.info("Application submitted successfully. Code={}", application.getApplicationCode());
-        return mapToResponse(application);
+        log.info("Application submitted successfully. Code={}", savedApplication.getApplicationCode());
+        return mapToResponse(savedApplication);
     }
+    // =========================================================================
+    // 🌟 FIX HIỆU NĂNG & THỜI GIAN: Thêm @Transactional(readOnly = true) an toàn
+    // =========================================================================
 
-    /**
-     * Lấy chi tiết đơn đăng ký.
-     */
     @Transactional(readOnly = true)
     public ApplicationResponse getApplicationDetail(UUID applicationId) {
         log.info("Getting application detail for ID={}", applicationId);
@@ -280,31 +248,40 @@ public class ApplicationService {
 
     @Transactional(readOnly = true)
     public ApplicationResponse getApplicationByCccd(String cccd) {
-        DormitoryApplication application = applicationRepository.findByCccd(cccd)
-                .stream().findFirst()
-                .orElseThrow(() -> new AppException("Không tìm thấy hồ sơ đăng ký cho CCCD này", HttpStatus.NOT_FOUND));
+        log.info("Tra cứu hồ sơ theo CCCD công khai: {}", cccd);
 
-        return mapToResponse(application);
+        // 1. Tìm tất cả đơn của CCCD này từ Database dưới dạng danh sách List
+        List<DormitoryApplication> applications = applicationRepository.findByCccd(cccd);
+
+        if (applications.isEmpty()) {
+            throw new AppException("Không tìm thấy hồ sơ đăng ký cho CCCD này trên hệ thống", HttpStatus.NOT_FOUND);
+        }
+
+        // 2. Sử dụng Java Stream tối ưu để tìm ra đơn đăng ký mới nhất dựa trên thời gian
+        // Đã xóa bỏ hoàn toàn lệnh .Wood() lỗi gõ phím và ép kiểu tường minh dữ liệu Lambda
+        DormitoryApplication latestApplication = applications.stream()
+                .max((DormitoryApplication app1, DormitoryApplication app2) -> {
+                    LocalDateTime time1 = app1.getSubmittedAt() != null ? app1.getSubmittedAt() : app1.getCreatedAt();
+                    LocalDateTime time2 = app2.getSubmittedAt() != null ? app2.getSubmittedAt() : app2.getCreatedAt();
+                    return time1.compareTo(time2);
+                })
+                .orElse(applications.get(0));
+
+        log.info("Tìm thấy hồ sơ mới nhất cho CCCD={}, Mã đơn={}, Trạng thái={}",
+                cccd, latestApplication.getApplicationCode(), latestApplication.getStatus());
+
+        // 3. Quy đổi dữ liệu Entity sang DTO Response để trả về cho Frontend hiển thị
+        return mapToResponse(latestApplication);
     }
 
-    /**
-     * Lấy danh sách tất cả các đơn đăng ký có phân trang.
-     */
     @Transactional(readOnly = true)
     public PageResponse<ApplicationResponse> getApplications(Pageable pageable) {
         log.info("Getting page of applications pageNumber={}, pageSize={}", pageable.getPageNumber(), pageable.getPageSize());
         Page<DormitoryApplication> page = applicationRepository.findAll(pageable);
         List<ApplicationResponse> list = page.getContent().stream()
                 .map(this::mapToResponse)
-                .collect(java.util.stream.Collectors.toList());
-        return PageResponse.<ApplicationResponse>builder()
-                .content(list)
-                .pageNumber(page.getNumber())
-                .pageSize(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .last(page.isLast())
-                .build();
+                .collect(Collectors.toList());
+        return PageResponse.fromPage(page, list);
     }
 
     private String generateApplicationCode() {
@@ -316,21 +293,15 @@ public class ApplicationService {
     }
 
     private ApplicationResponse mapToResponse(DormitoryApplication application) {
-        java.util.List<String> priorityCategories = application.getPriorities() != null ? 
-            application.getPriorities().stream()
-                .map(p -> p.getPriorityCategory().name())
-                .collect(java.util.stream.Collectors.toList()) : new java.util.ArrayList<>();
+        List<String> priorityCategories = application.getPriorities() != null ?
+                application.getPriorities().stream()
+                        .map(p -> p.getPriorityCategory().name())
+                        .collect(Collectors.toList()) : List.of();
 
-        java.util.List<DocumentResponse> documents = application.getDocuments() != null ? 
-            application.getDocuments().stream().map(d -> DocumentResponse.builder()
-                .documentId(d.getDocumentId())
-                .documentType(d.getDocumentType())
-                .fileUrl(d.getFileUrl())
-                .status(d.getStatus())
-                .note(d.getNote())
-                .build()).collect(java.util.stream.Collectors.toList()) : new java.util.ArrayList<>();
+        List<DocumentResponse> documents = application.getDocuments() != null ?
+                application.getDocuments().stream().map(DocumentResponse::fromEntity).collect(Collectors.toList()) : List.of();
 
-        return ApplicationResponse.builder()
+        ApplicationResponse.ApplicationResponseBuilder builder = ApplicationResponse.builder()
                 .applicationId(application.getApplicationId())
                 .applicationCode(application.getApplicationCode())
                 .fullName(application.getFullName())
@@ -345,9 +316,35 @@ public class ApplicationService {
                 .documents(documents)
                 .status(application.getStatus())
                 .priorityScore(application.getPriorityScore())
-                .applicationPdfUrl(application.getApplicationPdfUrl())
+                .registrationFormPdfUrl(application.getRegistrationFormPdfUrl())
+                .commitmentFormPdfUrl(application.getCommitmentFormPdfUrl())
                 .submittedAt(application.getSubmittedAt())
-                .revisionDeadline(application.getRevisionDeadline())
-                .build();
+                .revisionDeadline(application.getRevisionDeadline());
+
+        Optional<StudentHousingAssignment> assignmentOpt = assignmentRepository
+                .findByApplication_ApplicationIdAndStatusIn(application.getApplicationId(), EnumSet.of(AssignmentStatus.RESERVED, AssignmentStatus.PENDING_CHECKIN));
+
+        assignmentOpt.ifPresent(assignment -> {
+            ApplicationResponse.AssignmentInfo assignmentInfo = ApplicationResponse.AssignmentInfo.builder()
+                    .buildingName(assignment.getBed().getRoom().getFloor().getBuilding().getName())
+                    .floorName(String.valueOf(assignment.getBed().getRoom().getFloor().getFloorNumber()))
+                    .roomName(assignment.getBed().getRoom().getRoomCode())
+                    .bedName(assignment.getBed().getBedCode())
+                    .build();
+            builder.assignment(assignmentInfo);
+        });
+
+        return builder.build();
+    }
+
+    private void saveHistory(DormitoryApplication application, ApplicationStatus from, ApplicationStatus to, UUID userId, String note) {
+        DormitoryApplicationStatusHistory history = new DormitoryApplicationStatusHistory();
+        history.setApplication(application);
+        history.setFromStatus(from);
+        history.setToStatus(to);
+        history.setChangedByUserId(userId);
+        history.setChangedAt(LocalDateTime.now());
+        history.setNote(note);
+        statusHistoryRepository.save(history);
     }
 }

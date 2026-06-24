@@ -1,22 +1,33 @@
+// src/layouts/AdminLayout.jsx
+import React from 'react';
 import { 
   AppBar, Toolbar, Typography, Box, Drawer, List, 
-  ListItemButton, ListItemText, Button, CssBaseline 
+  ListItemButton, ListItemIcon, ListItemText, Button, CssBaseline 
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import FaceIcon from '@mui/icons-material/Face';
+import BedIcon from '@mui/icons-material/Bed';
+import PaymentIcon from '@mui/icons-material/Payment';
+import RoomPreferencesIcon from '@mui/icons-material/RoomPreferences';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import { useAuth } from '@/auth';
 
 const DRAWER_WIDTH = 260;
 
 const MENU_ITEMS = [
-  { text: 'Dashboard', path: '/admin' },
-  { text: 'Quản lý đợt đăng ký', path: '/admin/registration-periods' },
-  { text: 'Kiểm duyệt hồ sơ', path: '/admin/applications/review' },
-  { text: 'Kiểm duyệt khuôn mặt', path: '/admin/faces/approve' },
-  { text: 'Sơ đồ Giường/Phòng', path: '/admin/rooms/dashboard' },
-  { text: 'Quản lý Thanh toán', path: '/admin/payments' },
-  { text: 'Lễ tân Check-in', path: '/admin/check-in' },
+  { text: 'Dashboard', path: '/admin', icon: <DashboardIcon /> },
+  { text: 'Quản lý đợt đăng ký', path: '/admin/registration-periods', icon: <DateRangeIcon /> },
+  { text: 'Kiểm duyệt hồ sơ', path: '/admin/applications/review', icon: <AssignmentTurnedInIcon /> },
+  { text: 'Kiểm duyệt khuôn mặt', path: '/admin/faces/approve', icon: <FaceIcon /> },
+  { text: 'Quản lý Giường & Phòng', path: '/admin/rooms', icon: <BedIcon /> },
+  { text: 'Quản lý Thanh toán', path: '/admin/payments', icon: <PaymentIcon /> },
+  { text: 'Lễ tân Check-in', path: '/admin/check-in', icon: <RoomPreferencesIcon /> },
 ];
 
 export default function AdminLayout() {
@@ -29,12 +40,20 @@ export default function AdminLayout() {
       <CssBaseline />
       
       {/* APPBAR */}
-      <AppBar position="fixed" elevation={1} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ fontWeight: 700, flexGrow: 1 }}>
+      <AppBar position="fixed" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', color: 'text.primary' }}>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', letterSpacing: '-0.5px' }}>
             Dormitory Admin
           </Typography>
-          <Button color="inherit" onClick={logout}>Logout</Button>
+          <Button 
+            color="error" 
+            variant="text"
+            startIcon={<LogoutIcon />}
+            onClick={logout}
+            sx={{ fontWeight: 600 }}
+          >
+            Đăng xuất
+          </Button>
         </Toolbar>
       </AppBar>
 
@@ -48,14 +67,16 @@ export default function AdminLayout() {
             width: DRAWER_WIDTH, 
             boxSizing: 'border-box',
             borderRight: '1px solid',
-            borderColor: 'divider'
+            borderColor: 'divider',
+            bgcolor: 'background.paper'
           },
         }}
       >
         <Toolbar /> 
-        <List sx={{ px: 2 }}>
+        <List sx={{ px: 2, mt: 2 }}>
           {MENU_ITEMS.map((item) => {
-            const isSelected = location.pathname === item.path;
+            // Kiểm tra trạng thái Active chính xác kể cả với đường dẫn con hoặc đường dẫn chính
+            const isSelected = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
             
             return (
               <ListItemButton 
@@ -63,23 +84,37 @@ export default function AdminLayout() {
                 selected={isSelected}
                 onClick={() => navigate(item.path)}
                 sx={{ 
-                  borderRadius: 2, 
+                  borderRadius: '12px', 
                   mb: 1,
+                  py: 1,
+                  px: 2,
+                  transition: 'all 0.2s ease',
                   '&.Mui-selected': {
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
                     color: 'primary.main',
+                    '& .MuiListItemIcon-root': {
+                      color: 'primary.main',
+                    },
                     '&:hover': {
-                      bgcolor: (theme) => alpha(theme.palette.primary.main, 0.15),
+                      bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12),
                     },
                   },
+                  '&:hover': {
+                    bgcolor: 'grey.100',
+                  }
                 }}
               >
-        
+                {/* Thêm Icon để tăng trải nghiệm UI người dùng */}
+                <ListItemIcon sx={{ minWidth: 40, color: isSelected ? 'primary.main' : 'text.secondary' }}>
+                  {item.icon}
+                </ListItemIcon>
+
                 <ListItemText 
                   primary={item.text} 
                   primaryTypographyProps={{ 
-                    fontSize: '0.95rem',
-                    fontWeight: isSelected ? 700 : 500 
+                    fontSize: '0.9rem',
+                    fontWeight: isSelected ? 700 : 500,
+                    color: isSelected ? 'primary.main' : 'text.secondary'
                   }} 
                 />
               </ListItemButton>
@@ -89,7 +124,7 @@ export default function AdminLayout() {
       </Drawer>
 
       {/* MAIN CONTENT */}
-      <Box component="main" sx={{ flexGrow: 1, p: 4 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 4, minWidth: 0 }}>
         <Toolbar /> 
         <Outlet />
       </Box>

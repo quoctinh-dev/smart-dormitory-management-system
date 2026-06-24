@@ -64,22 +64,49 @@ export default function ApplicationReviewDetail() {
         <Grid size={{ xs: 12, md: 8 }}>
           <Grid container spacing={3}>
             {/* FILE PDF HỆ THỐNG TỰ SINH */}
-            <Grid size={{ xs: 12 }}>
-              <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
-                  <PictureAsPdf sx={{ mr: 1, color: 'error.main' }} /> Tài Liệu Sinh Tự Động (Cần đối chiếu)
-                </Typography>
-                <Divider sx={{ mb: 2 }} />
-                {app.applicationPdfUrl ? (
-                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                    <Button variant="contained" color="error" href={`${import.meta.env.VITE_API_URL}${app.applicationPdfUrl}`} target="_blank">Mở Phiếu Đăng Ký (PDF)</Button>
-                    <Button variant="outlined" color="error" href={`${import.meta.env.VITE_API_URL}${app.applicationPdfUrl.replace('registration_', 'commitment_')}`} target="_blank">Mở Bản Cam Kết (PDF)</Button>
-                  </Box>
-                ) : (
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>Chưa đính kèm tệp PDF.</Typography>
-                )}
-              </Paper>
-            </Grid>
+<Grid size={{ xs: 12 }}>
+  <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
+    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
+      <PictureAsPdf sx={{ mr: 1, color: 'error.main' }} /> Tài Liệu Sinh Tự Động (Cần đối chiếu)
+    </Typography>
+    <Divider sx={{ mb: 2 }} />
+    
+    {/* 🌟 FIX TẠI ĐÂY: Check chính xác 2 trường URL độc lập từ Backend nhả về */}
+    {app.registrationFormPdfUrl || app.commitmentFormPdfUrl ? (
+      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        
+        {app.registrationFormPdfUrl && (
+          <Button 
+            variant="contained" 
+            color="error" 
+            href={app.registrationFormPdfUrl} 
+            target="_blank"
+            startIcon={<PictureAsPdf />}
+          >
+            Mở Phiếu Đăng Ký (PDF)
+          </Button>
+        )}
+        
+        {app.commitmentFormPdfUrl && (
+          <Button 
+            variant="outlined" 
+            color="error" 
+            href={app.commitmentFormPdfUrl} 
+            target="_blank"
+            startIcon={<PictureAsPdf />}
+          >
+            Mở Bản Cam Kết (PDF)
+          </Button>
+        )}
+
+      </Box>
+    ) : (
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+        Hệ thống chưa tạo xong tệp PDF hoặc hồ sơ dính lỗi sinh file.
+      </Typography>
+    )}
+  </Paper>
+</Grid>
 
             {/* DANH SÁCH ẢNH MINH CHỨNG */}
             <Grid size={{ xs: 12 }}>

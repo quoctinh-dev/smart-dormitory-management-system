@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import paymentApi from '@/api/paymentApi';
+import applicationApi from '@/api/applicationApi'; // Import applicationApi to get application details
 
 export const usePayment = (applicationId) => {
   const [bill, setBill] = useState(null);
   const [application, setApplication] = useState(null);
+  const [paymentInstructions, setPaymentInstructions] = useState(null); // New state for payment instructions
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [paying, setPaying] = useState(false);
@@ -13,22 +15,28 @@ export const usePayment = (applicationId) => {
     let isMounted = true;
 
     const fetchData = async () => {
-      if (!applicationId) return;
+      if (!applicationId) {
+        setLoading(false);
+        setError('Application ID is missing.');
+        return;
+      }
       try {
-        const [appRes, billRes] = await Promise.all([
-          paymentApi.getApplicationDetail(applicationId),
+        const [appRes, billRes, instructionsRes] = await Promise.all([
+          applicationApi.getById(applicationId), // Use applicationApi to get application details
           paymentApi.getBillByApplication(applicationId),
+          paymentApi.getPaymentInstructions(), // Fetch payment instructions
         ]);
 
         if (isMounted) {
           setApplication(appRes.data || appRes);
           setBill(billRes.data || billRes);
+          setPaymentInstructions(instructionsRes.data || instructionsRes);
           setLoading(false);
         }
       } catch (err) {
         if (isMounted) {
           console.error(err);
-          setError(err.response?.data?.message || 'Không tìm thấy thông tin hóa đơn cho hồ sơ này.');
+          setError(err.response?.data?.message || 'Không tìm thấy thông tin hóa đơn hoặc hồ sơ cho hồ sơ này.');
           setLoading(false);
         }
       }
@@ -72,6 +80,7 @@ export const usePayment = (applicationId) => {
   return {
     bill,
     application,
+    paymentInstructions, // Return payment instructions
     loading,
     error,
     paying,

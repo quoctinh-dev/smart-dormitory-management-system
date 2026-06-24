@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -51,6 +52,54 @@ public class PaymentService {
     public PaymentResponse approveCashPayment(UUID billId, BigDecimal amount) {
         String transactionCode = "CASH-" + UUID.randomUUID().toString().replace("-", "").toUpperCase();
         return executePayment(billId, amount, PaymentMethod.CASH, transactionCode, PaymentStatus.SUCCESS);
+    }
+
+    // ==================== MOCK PAYMENT SUCCESS (FOR TESTING/DEMO) ====================
+    // This method is for testing/demo purposes only. In a real scenario, payments come from gateways.
+    @Transactional
+    public PaymentResponse mockPaymentSuccess(UUID applicationId) {
+        log.info("[PaymentService] Mocking payment success for application={}", applicationId);
+
+        // Find the bill for the application that is UNPAID or PARTIALLY_PAID
+        List<Bill> bills = billRepository.findByApplicationIdAndStatusIn(applicationId, List.of(BillStatus.UNPAID, BillStatus.PARTIALLY_PAID));
+        if (bills.isEmpty()) {
+            throw new AppException("No unpaid or partially paid bill found for this application", HttpStatus.NOT_FOUND);
+        }
+        Bill bill = bills.get(0); // Assuming one bill per application for simplicity in mock
+
+        // Calculate remaining amount
+        BigDecimal remainingAmount = bill.getAmount().subtract(bill.getPaidAmount());
+        if (remainingAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new AppException("Bill is already fully paid", HttpStatus.BAD_REQUEST);
+        }
+
+        // Create a mock payment record
+        Payment payment = createPaymentRecord(
+                bill,
+                remainingAmount,
+                PaymentMethod.BANK_TRANSFER, // Using BANK_TRANSFER as a valid mock method
+                "MOCK-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase(),
+                PaymentStatus.SUCCESS
+        );
+
+        // Update bill status
+        updateBillAfterPayment(bill, remainingAmount);
+
+        // Publish event if bill is fully paid
+        if (bill.getStatus() == BillStatus.PAID) {
+            if (bill.getAssignmentId() != null && bill.getApplicationId() != null) {
+                eventPublisher.publishEvent(new PaymentSuccessEvent(
+                        this,
+                        bill.getBillId(),
+                        bill.getAssignmentId(),
+                        bill.getApplicationId()
+                ));
+                log.info("[PaymentService] Published PaymentSuccessEvent for mock payment: bill={}, assignment={}",
+                        bill.getBillId(), bill.getAssignmentId());
+            }
+        }
+
+        return buildPaymentResponse(bill, payment);
     }
 
     // ==================== PRIVATE COMMON LOGIC ====================
@@ -194,7 +243,8 @@ public class PaymentService {
         if (txnCode == null || txnCode.isBlank()) {
             txnCode = "TXN-" + UUID.randomUUID().toString().replace("-", "").toUpperCase();
         }
-        if (paymentRepository.findByTransactionCode(txnCode).isPresent()) {
+        // Check for duplicate transaction code only if it's not a mock payment
+        if (method != PaymentMethod.BANK_TRANSFER && paymentRepository.findByTransactionCode(txnCode).isPresent()) { // Changed MOCK to BANK_TRANSFER
             log.warn("Duplicate transaction code: {}", txnCode);
             throw new AppException("Duplicate transaction", HttpStatus.BAD_REQUEST);
         }

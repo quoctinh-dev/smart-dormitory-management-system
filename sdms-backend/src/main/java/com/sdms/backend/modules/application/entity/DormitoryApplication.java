@@ -125,8 +125,12 @@ public class DormitoryApplication extends BaseEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String applicationCode;
 
+    // Updated PDF URLs
     @Column(columnDefinition = "TEXT")
-    private String applicationPdfUrl;
+    private String registrationFormPdfUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String commitmentFormPdfUrl;
 
     // --- Người duyệt và Ghi chú (Soft Reference) ---
     private UUID reviewedByUserId;
@@ -169,8 +173,8 @@ public class DormitoryApplication extends BaseEntity {
     private java.util.Set<VerificationDocument> documents = new java.util.HashSet<>();
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ApplicationGeneratedDocument> generatedDocuments = new ArrayList<>();
+    private java.util.List<ApplicationGeneratedDocument> generatedDocuments = new ArrayList<>();
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DormitoryApplicationStatusHistory> statusHistory = new ArrayList<>();
+    private java.util.List<DormitoryApplicationStatusHistory> statusHistory = new ArrayList<>();
 }

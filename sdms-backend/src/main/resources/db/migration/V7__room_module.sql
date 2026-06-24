@@ -83,7 +83,3 @@ CREATE INDEX idx_assignment_application_id ON student_housing_assignments(applic
 -- Database Guards for Concurrency (Unique active assignments per application/student)
 CREATE UNIQUE INDEX uk_active_assignment_application ON student_housing_assignments(application_id) WHERE status IN ('RESERVED', 'OCCUPIED');
 CREATE UNIQUE INDEX uk_active_assignment_student ON student_housing_assignments(student_id) WHERE status IN ('RESERVED', 'OCCUPIED') AND student_id IS NOT NULL;
-
--- 7. SAMPLE DATA (Building A)
-INSERT INTO buildings (building_id, code, name, status)
-VALUES (uuid_generate_v4(), 'A', 'Dormitory Building A', 'ACTIVE');

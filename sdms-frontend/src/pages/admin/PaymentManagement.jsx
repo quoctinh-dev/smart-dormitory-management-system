@@ -1,3 +1,5 @@
+// 📄 File: src/pages/admin/PaymentManagement.jsx
+import React from 'react';
 import { 
   Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, 
   TableHead, TableRow, Chip, Button, IconButton, Dialog, DialogTitle, 
@@ -9,16 +11,15 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import SearchIcon from '@mui/icons-material/Search';
 import { alpha } from '@mui/material/styles';
 
-// ĐÚNG CHUẨN: Sử dụng Absolute Import đồng bộ toàn bộ dự án
 import { usePaymentManagement } from '@/hooks/usePaymentManagement';
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 
-// Map từ khóa Enum Backend sang định dạng tiếng Việt hiển thị UI chuẩn chỉ
+// 🌟 FIX TẠI ĐÂY: Đổi key thành ACCOMMODATION_FEE cho khớp 100% tầng core DB Backend
 const BILL_TYPES = {
   ALL: 'Tất cả loại phí',
-  ACCOMMODATION: 'Phí nội trú / Phòng',
-  SERVICE: 'Phí dịch vụ (Điện/Nước)',
-  FINE: 'Phí phạt vi phạm',
+  ACCOMMODATION_FEE: 'Phí nội trú / Phòng',
+  SERVICE_FEE: 'Phí dịch vụ (Điện/Nước)',
+  FINE_FEE: 'Phí phạt vi phạm',
   OTHER: 'Phí khác'
 };
 
@@ -26,7 +27,7 @@ const STATUS_MAP = {
   UNPAID: { label: 'Chưa đóng', color: 'warning' },
   PARTIALLY_PAID: { label: 'Đóng một phần', color: 'info' },
   PAID: { label: 'Đã đóng', color: 'success' },
-  OVERDUE: { label: 'Quá hạn (Chưa đóng)', color: 'error' },
+  OVERDUE: { label: 'Quá hạn', color: 'error' },
   CANCELLED: { label: 'Đã hủy', color: 'default' }
 };
 
@@ -37,11 +38,10 @@ export default function PaymentManagement() {
     setConfirmDialog, setDetailsDialog, handleConfirmCashPayment, openDetails, openConfirm, closeSnackbar
   } = usePaymentManagement();
 
-  // ĐÚNG CHUẨN UI: Hiển thị Skeleton loading khi dữ liệu đang tải lên ban đầu, không để trắng màn hình
   if (loading && bills.length === 0) {
     return (
       <Box sx={{ py: 4 }}>
-        <CustomSkeleton type="table" />
+        <CustomSkeleton type="table" count={5} />
       </Box>
     );
   }
@@ -55,11 +55,9 @@ export default function PaymentManagement() {
         Theo dõi trạng thái thu tiền đóng phí, quản lý dòng tiền và phê duyệt thanh toán tiền mặt trực tiếp tại quầy hành chính.
       </Typography>
 
-      {/* TOOLBAR: THANH ĐIỀU HƯỚNG BỘ LỌC TẬP TRUNG */}
+      {/* TOOLBAR */}
       <Paper variant="outlined" sx={{ borderRadius: 3, mb: 3, p: 2, borderColor: 'divider' }}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'space-between', alignItems: 'center' }}>
-          
-          {/* Nhóm Tabs trạng thái đóng tiền */}
           <Tabs 
             value={currentTab} 
             onChange={(_, newValue) => setCurrentTab(newValue)}
@@ -72,10 +70,7 @@ export default function PaymentManagement() {
             <Tab label="Đã hủy" value="CANCELLED" sx={{ textTransform: 'none', fontWeight: 600 }} />
           </Tabs>
 
-          {/* Nhóm các Ô kiểm soát tìm kiếm nâng cao */}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', width: { xs: '100%', sm: 'auto' } }}>
-            
-            {/* ĐÚNG CHUẨN: Lọc phân tách các loại phí cấu hình từ Backend */}
             <TextField
               select
               size="small"
@@ -89,20 +84,17 @@ export default function PaymentManagement() {
               ))}
             </TextField>
 
-            {/* Ô nhập thông tin tìm kiếm nhanh */}
             <TextField
               size="small"
               placeholder="Tìm tên sinh viên, mã..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
-                }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
               }}
               sx={{ width: { xs: '100%', sm: 240 } }}
             />
@@ -110,7 +102,7 @@ export default function PaymentManagement() {
         </Box>
       </Paper>
 
-      {/* DANH SÁCH BẢNG HIỂN THỊ DỮ LIỆU CHUẨN HOÁ */}
+      {/* DATA TABLE */}
       <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, borderColor: 'divider', overflow: 'hidden' }}>
         <Table>
           <TableHead>
@@ -165,7 +157,6 @@ export default function PaymentManagement() {
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
                         
-                        {/* Chỉ hiện nút gạch nợ tiền mặt nếu hóa đơn ở trạng thái chưa đóng hoặc quá hạn */}
                         {(bill.status === 'UNPAID' || bill.status === 'OVERDUE') && (
                           <Button 
                             variant="contained" 
@@ -188,7 +179,7 @@ export default function PaymentManagement() {
         </Table>
       </TableContainer>
 
-      {/* DIALOG XÁC NHẬN THU TIỀN MẶT TẠI QUẦY */}
+      {/* CONFIRM DIALOG */}
       <Dialog open={confirmDialog} onClose={() => setConfirmDialog(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 'bold' }}>Xác nhận thu tiền mặt</DialogTitle>
         <DialogContent sx={{ pt: 1 }}>
@@ -206,7 +197,7 @@ export default function PaymentManagement() {
         </DialogActions>
       </Dialog>
 
-      {/* DIALOG XEM CHI TIẾT TOÀN BỘ THÔNG TIN HOÁ ĐƠN */}
+      {/* DETAILS DIALOG */}
       <Dialog open={detailsDialog} onClose={() => setDetailsDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ fontWeight: 'bold' }}>Chi tiết thông tin hóa đơn hệ thống</DialogTitle>
         <DialogContent dividers>
@@ -237,7 +228,7 @@ export default function PaymentManagement() {
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography color="text.secondary">Thời hạn đóng cuối cùng:</Typography>
                 <Typography sx={{ fontWeight: 'bold', color: 'error.main' }}>
-                  {selectedBill.dueDate ? new Date(selectedBill.dueDate).toLocaleString('vi-VN') : 'Không giới hạn'}
+                  {selectedBill.dueDate ? new Date(selectedBill.dueDate).toLocaleDateString('vi-VN') : 'Không giới hạn'}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1, pt: 2, borderTop: '1px dashed', borderColor: 'divider' }}>
@@ -256,7 +247,7 @@ export default function PaymentManagement() {
         </DialogActions>
       </Dialog>
 
-      {/* SNACKBAR THÔNG BÁO TIẾN TRÌNH TẬP TRUNG */}
+      {/* SNACKBAR */}
       <Snackbar 
         open={snackbar.open} 
         autoHideDuration={4000} 

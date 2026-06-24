@@ -6,21 +6,21 @@ import com.sdms.backend.modules.application.entity.DormitoryApplicationStatusHis
 import com.sdms.backend.modules.application.entity.VerificationDocument;
 import com.sdms.backend.modules.application.enums.ApplicationStatus;
 import com.sdms.backend.modules.application.enums.VerificationStatus;
-import com.sdms.backend.modules.application.event.ApplicationApprovedEvent;
 import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
 import com.sdms.backend.modules.application.repository.DormitoryApplicationStatusHistoryRepository;
 import com.sdms.backend.modules.application.repository.VerificationDocumentRepository;
 import com.sdms.backend.common.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -30,34 +30,25 @@ public class ApplicationReviewService {
     private final DormitoryApplicationRepository applicationRepository;
     private final VerificationDocumentRepository documentRepository;
     private final DormitoryApplicationStatusHistoryRepository statusHistoryRepository;
-    
     private final ApplicationPriorityService priorityService;
-    private final ApplicationEventPublisher eventPublisher;
     private final EmailService emailService;
+    private final ApplicationEventPublisher eventPublisher;
 
-    /**
-     * Bắt đầu quá trình xem xét hồ sơ (Chuyển sang UNDER_REVIEW).
-     */
+    @Value("${application.payment.deadline-days:3}")
+    private int paymentDeadlineDays;
+
     @Transactional
     public void startReview(UUID applicationId, UUID adminUserId) {
         log.info("Starting review for application={} by admin={}", applicationId, adminUserId);
-        DormitoryApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Application not found", HttpStatus.NOT_FOUND));
+        DormitoryApplication application = findApplicationOrThrow(applicationId);
 
         if (application.getStatus() != ApplicationStatus.PENDING) {
             throw new AppException("Chỉ có thể chuyển sang xét duyệt đối với đơn ở trạng thái PENDING", HttpStatus.BAD_REQUEST);
         }
 
-        ApplicationStatus oldStatus = application.getStatus();
-        application.setStatus(ApplicationStatus.UNDER_REVIEW);
-        applicationRepository.save(application);
-
-        saveHistory(application, oldStatus, ApplicationStatus.UNDER_REVIEW, adminUserId, "Bắt đầu xét duyệt hồ sơ");
+        updateStatusAndSaveHistory(application, ApplicationStatus.UNDER_REVIEW, adminUserId, "Bắt đầu xét duyệt hồ sơ");
     }
 
-    /**
-     * Xác thực và duyệt từng tài liệu minh chứng trong hồ sơ.
-     */
     @Transactional
     public void verifyDocument(UUID documentId, VerificationStatus status, String note, UUID adminUserId) {
         log.info("Verifying document={} status={} by admin={}", documentId, status, adminUserId);
@@ -74,90 +65,83 @@ public class ApplicationReviewService {
         doc.setVerifiedAt(LocalDateTime.now());
         documentRepository.save(doc);
 
-        // Nếu là tài liệu minh chứng ưu tiên, thực hiện tính toán lại điểm ưu tiên của hồ sơ
         if (doc.getDocumentType().name().startsWith("PRIORITY_")) {
             priorityService.recalculateScore(application.getApplicationId());
         }
     }
 
-    /**
-     * Từ chối đơn đăng ký.
-     */
     @Transactional
     public void rejectApplication(UUID applicationId, String note, UUID adminUserId) {
         log.info("Rejecting application={} by admin={}", applicationId, adminUserId);
-        DormitoryApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Application not found", HttpStatus.NOT_FOUND));
+        DormitoryApplication application = findApplicationOrThrow(applicationId);
 
         if (application.getStatus() != ApplicationStatus.PENDING && application.getStatus() != ApplicationStatus.UNDER_REVIEW) {
             throw new AppException("Hồ sơ đã được xử lý xong, không thể từ chối", HttpStatus.BAD_REQUEST);
         }
 
-        ApplicationStatus oldStatus = application.getStatus();
-        application.setStatus(ApplicationStatus.REJECTED);
         application.setReviewedByUserId(adminUserId);
         application.setReviewNote(note);
-        applicationRepository.save(application);
-
-        saveHistory(application, oldStatus, ApplicationStatus.REJECTED, adminUserId, note);
+        updateStatusAndSaveHistory(application, ApplicationStatus.REJECTED, adminUserId, note);
     }
 
-    /**
-     * Phê duyệt đơn đăng ký.
-     * Phát sự kiện ApplicationApprovedEvent sau khi giao dịch lưu trạng thái thành công.
-     */
+    // 📄 File: ApplicationReviewService.java
+
+    // 🌟 Nhớ khai báo thêm repo này ở đầu class để tìm assignmentId:
+    private final com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository assignmentRepository;
+
     @Transactional
     public void approveApplication(UUID applicationId, String note, UUID adminUserId) {
         log.info("Approving application={} by admin={}", applicationId, adminUserId);
-        DormitoryApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Application not found", HttpStatus.NOT_FOUND));
+        DormitoryApplication application = findApplicationOrThrow(applicationId);
 
         if (application.getStatus() != ApplicationStatus.PENDING && application.getStatus() != ApplicationStatus.UNDER_REVIEW) {
             throw new AppException("Hồ sơ đã được xử lý xong, không thể phê duyệt lại", HttpStatus.BAD_REQUEST);
         }
 
-        ApplicationStatus oldStatus = application.getStatus();
-
-        application.setStatus(ApplicationStatus.WAITING_PAYMENT);
-        application.setReviewedByUserId(adminUserId);
-        application.setReviewNote(note);
-        application.setApprovedAt(LocalDateTime.now());
-        applicationRepository.save(application);
-
-        java.util.List<VerificationDocument> documents = documentRepository.findByApplication_ApplicationId(applicationId);
-        for (VerificationDocument doc : documents) {
+        // Tự động duyệt các tài liệu còn lại là VALID
+        documentRepository.findByApplication_ApplicationId(applicationId).forEach(doc -> {
             if (doc.getStatus() == VerificationStatus.PENDING) {
                 doc.setStatus(VerificationStatus.VALID);
                 doc.setNote("Tự động duyệt theo hồ sơ");
                 doc.setVerifiedAt(LocalDateTime.now());
                 documentRepository.save(doc);
             }
-        }
+        });
 
-        saveHistory(application, oldStatus, ApplicationStatus.WAITING_PAYMENT, adminUserId, note);
+        application.setReviewedByUserId(adminUserId);
+        application.setReviewNote(note);
+        application.setApprovedAt(LocalDateTime.now());
+        application.setPaymentDeadline(LocalDateTime.now().plusDays(paymentDeadlineDays));
 
-        eventPublisher.publishEvent(new ApplicationApprovedEvent(
+        // Cập nhật trạng thái đơn sang WAITING_PAYMENT và lưu lịch sử
+        updateStatusAndSaveHistory(application, ApplicationStatus.WAITING_PAYMENT, adminUserId, note);
+
+        // 🌟 1. TRUY VẤN LẤY ASSIGNMENT ID ĐÃ ĐƯỢC TẠO DỰ KIẾN TỪ BƯỚC PENDING
+        // Tìm bản ghi gán phòng đang ở trạng thái RESERVED hoặc PENDING của đơn này
+        var assignment = assignmentRepository.findByApplication_ApplicationId(application.getApplicationId())
+                .stream().findFirst()
+                .orElseThrow(() -> new AppException("Không tìm thấy thông tin xếp phòng dự kiến từ bước nộp đơn", HttpStatus.NOT_FOUND));
+
+        // 🌟 2. THAY ĐỔI NGÒI NỔ: Bắn BedReservedEvent để kích hoạt tạo hóa đơn 2tr1
+        // Thao tác này sẽ đánh động sang BillGenerationListener để sinh Bill UNPAID
+        eventPublisher.publishEvent(new com.sdms.backend.modules.room.event.BedReservedEvent(
                 this,
-                applicationId,
-                application.getGender().name(),
-                application.getPriorityScore()
+                application.getApplicationId(),
+                assignment.getAssignmentId() // Truyền chính xác mã phòng đã giữ chỗ sang cho module Bill
         ));
+
+        log.info("Application {} approved. Status moved to WAITING_PAYMENT. BedReservedEvent fired for Bill Generation.", applicationId);
     }
 
-    /**
-     * Yêu cầu sinh viên nộp lại minh chứng sai.
-     */
     @Transactional
     public void requestRevision(UUID applicationId, String note, int deadlineDays, UUID adminUserId) {
         log.info("Requesting revision for application={} by admin={}, deadlineDays={}", applicationId, adminUserId, deadlineDays);
-        DormitoryApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Application not found", HttpStatus.NOT_FOUND));
+        DormitoryApplication application = findApplicationOrThrow(applicationId);
 
         if (application.getStatus() != ApplicationStatus.PENDING && application.getStatus() != ApplicationStatus.UNDER_REVIEW) {
             throw new AppException("Chỉ có thể yêu cầu bổ sung khi hồ sơ đang chờ duyệt", HttpStatus.BAD_REQUEST);
         }
 
-        // Kiểm tra xem có tài liệu nào bị đánh dấu INVALID không
         List<VerificationDocument> invalidDocs = documentRepository.findByApplication_ApplicationId(applicationId)
                 .stream().filter(d -> d.getStatus() == VerificationStatus.INVALID).toList();
 
@@ -165,37 +149,25 @@ public class ApplicationReviewService {
             throw new AppException("Phải đánh dấu ít nhất 1 tài liệu là Không hợp lệ (INVALID) để yêu cầu bổ sung", HttpStatus.BAD_REQUEST);
         }
 
-        ApplicationStatus oldStatus = application.getStatus();
-        application.setStatus(ApplicationStatus.REQUEST_REVISION);
         application.setReviewedByUserId(adminUserId);
         application.setReviewNote(note);
         LocalDateTime deadline = LocalDateTime.now().plusDays(deadlineDays);
         application.setRevisionDeadline(deadline);
+
+        updateStatusAndSaveHistory(application, ApplicationStatus.REQUEST_REVISION, adminUserId, note);
+        sendRevisionEmail(application, note, invalidDocs, deadline);
+    }
+
+    private DormitoryApplication findApplicationOrThrow(UUID applicationId) {
+        return applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new AppException("Application not found", HttpStatus.NOT_FOUND));
+    }
+
+    private void updateStatusAndSaveHistory(DormitoryApplication application, ApplicationStatus newStatus, UUID userId, String note) {
+        ApplicationStatus oldStatus = application.getStatus();
+        application.setStatus(newStatus);
         applicationRepository.save(application);
-
-        saveHistory(application, oldStatus, ApplicationStatus.REQUEST_REVISION, adminUserId, note);
-
-        // Gửi email
-        if (application.getEmail() != null) {
-            StringBuilder invalidDocsStr = new StringBuilder("<ul>");
-            for (VerificationDocument doc : invalidDocs) {
-                invalidDocsStr.append("<li><b>").append(doc.getDocumentType().name()).append("</b>: ").append(doc.getNote() != null ? doc.getNote() : "Không hợp lệ").append("</li>");
-            }
-            invalidDocsStr.append("</ul>");
-
-            String emailHtml = String.format(
-                    "<h3>Kính gửi sinh viên %s,</h3>" +
-                    "<p>Hồ sơ đăng ký KTX của bạn (Mã: <b>%s</b>) cần được bổ sung/cập nhật lại một số giấy tờ sau:</p>" +
-                    "%s" +
-                    "<p><b>Ghi chú từ Ban Quản Lý:</b> %s</p>" +
-                    "<p>Vui lòng đăng nhập hệ thống và cập nhật lại tài liệu bị sai trước hạn chót: <b>%s</b>.</p>" +
-                    "<p>Sau thời hạn này, nếu bạn không bổ sung, hồ sơ sẽ bị tự động từ chối.</p>",
-                    application.getFullName(), application.getApplicationCode(), invalidDocsStr.toString(),
-                    note != null ? note : "Không có",
-                    deadline.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
-            );
-            emailService.sendNotificationEmail(application.getEmail(), "[STU Dormitory] Yêu cầu bổ sung hồ sơ KTX", emailHtml);
-        }
+        saveHistory(application, oldStatus, newStatus, userId, note);
     }
 
     private void saveHistory(DormitoryApplication application, ApplicationStatus from, ApplicationStatus to, UUID userId, String note) {
@@ -207,5 +179,28 @@ public class ApplicationReviewService {
         history.setChangedAt(LocalDateTime.now());
         history.setNote(note);
         statusHistoryRepository.save(history);
+    }
+
+    private void sendRevisionEmail(DormitoryApplication application, String note, List<VerificationDocument> invalidDocs, LocalDateTime deadline) {
+        if (application.getEmail() == null) return;
+
+        StringBuilder invalidDocsStr = new StringBuilder("<ul>");
+        for (VerificationDocument doc : invalidDocs) {
+            invalidDocsStr.append("<li><b>").append(doc.getDocumentType().name()).append("</b>: ").append(doc.getNote() != null ? doc.getNote() : "Không hợp lệ").append("</li>");
+        }
+        invalidDocsStr.append("</ul>");
+
+        String emailHtml = String.format(
+                "<h3>Kính gửi sinh viên %s,</h3>" +
+                "<p>Hồ sơ đăng ký KTX của bạn (Mã: <b>%s</b>) cần được bổ sung/cập nhật lại một số giấy tờ sau:</p>" +
+                "%s" +
+                "<p><b>Ghi chú từ Ban Quản Lý:</b> %s</p>" +
+                "<p>Vui lòng đăng nhập hệ thống và cập nhật lại tài liệu bị sai trước hạn chót: <b>%s</b>.</p>" +
+                "<p>Sau thời hạn này, nếu bạn không bổ sung, hồ sơ sẽ bị tự động từ chối.</p>",
+                application.getFullName(), application.getApplicationCode(), invalidDocsStr.toString(),
+                note != null ? note : "Không có",
+                deadline.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+        );
+        emailService.sendNotificationEmail(application.getEmail(), "[STU Dormitory] Yêu cầu bổ sung hồ sơ KTX", emailHtml);
     }
 }

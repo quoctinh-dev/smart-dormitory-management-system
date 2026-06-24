@@ -1,9 +1,11 @@
 
 -- ==========================================
--- DỌN DATABASE
+-- DỌN DATABASE (Xóa sạch)
 -- ==========================================
+
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
+
 
 -- ==========================================
 -- PHẦN 1: TÀI KHOẢN QUẢN TRỊ (ADMIN ACCOUNT)
@@ -26,20 +28,12 @@ VALUES ('11111111-1111-1111-1111-111111111111',
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP);
 
-
-SELECT *
-FROM user_accounts;
-
-update user_accounts
-set status = ''
-where username ilike 'STU-079200001234';
-
 -- ==========================================
 -- PHẦN 2: DỮ LIỆU TÒA NHÀ & PHÒNG (ROOM MODULE)
 -- ==========================================
 -- Cung cấp 2 tòa nhà (1 Nam, 1 Nữ), mỗi tòa 1 tầng, mỗi tầng 1 phòng mẫu.
-
 -- 1. Thêm Tòa Nhà (Buildings)
+
 INSERT INTO buildings (building_id, code, name, description, status, created_at, updated_at)
 VALUES ('a1111111-1111-1111-1111-111111111111', 'A', 'Tòa A (Nam)', 'Khu KTX dành cho Nam sinh viên', 'ACTIVE',
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
@@ -48,6 +42,7 @@ VALUES ('b2222222-2222-2222-2222-222222222222', 'B', 'Tòa B (Nữ)', 'Khu KTX d
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- 2. Thêm Tầng (Floors)
+
 INSERT INTO floors (floor_id, building_id, floor_number, occupancy_policy, created_at, updated_at)
 VALUES ('f1111111-1111-1111-1111-111111111111', 'a1111111-1111-1111-1111-111111111111', 1, 'MALE', CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP),
@@ -55,6 +50,7 @@ VALUES ('f1111111-1111-1111-1111-111111111111', 'a1111111-1111-1111-1111-1111111
         CURRENT_TIMESTAMP);
 
 -- 3. Thêm Phòng (Rooms)
+
 INSERT INTO rooms (room_id, floor_id, room_code, capacity, occupied_beds, status, created_at, updated_at)
 VALUES ('c1111111-1111-1111-1111-111111111111', 'f1111111-1111-1111-1111-111111111111', 'A101', 4, 0, 'AVAILABLE',
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
@@ -77,7 +73,7 @@ VALUES ('d1111111-1111-1111-1111-111111111111', 'c1111111-1111-1111-1111-1111111
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- ==========================================
--- PHẦN 2: DỮ LIỆU ĐỢT ĐĂNG KÝ
+-- PHẦN 3: DỮ LIỆU ĐỢT ĐĂNG KÝ
 -- ==========================================
 INSERT INTO registration_periods (period_id, period_name, start_date, end_date, is_active, registration_type,
                                   created_at, updated_at)
@@ -89,9 +85,4 @@ VALUES ('e1111111-1111-1111-1111-111111111111',
         'OPEN_REGISTRATION',
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP);
-
-
-SELECT * FROM user_accounts;
-
-
 

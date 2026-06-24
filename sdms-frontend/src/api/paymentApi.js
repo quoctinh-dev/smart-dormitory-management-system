@@ -12,11 +12,21 @@ export const paymentApi = {
 
   // 2. Xử lý thanh toán
   processOnlinePayment: async (data) => {
-    return await axiosClient.post('/payments/online', data);
+    return await axiosClient.post('/v1/payments/online', data); // Updated path
   },
 
   approveCashPayment: async (data) => {
-    return await axiosClient.post('/payments/cash/approve', data);
+    return await axiosClient.post('/v1/payments/cash/approve', data); // Updated path
+  },
+
+  // 3. Lấy hướng dẫn thanh toán
+  getPaymentInstructions: async () => {
+    return await axiosClient.get('/v1/public/payment-instructions');
+  },
+
+  // Mock payment success for testing event-driven flow
+  mockPaymentSuccess: async (applicationId) => {
+    return await axiosClient.post(`/v1/payments/mock-success/${applicationId}`);
   }
 };
 

@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.HashMap;
 
@@ -21,13 +21,13 @@ public class PublicRoomController {
 
     @GetMapping("/assignment/{applicationId}")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getAssignmentByApplicationId(@PathVariable UUID applicationId) {
-        List<StudentHousingAssignment> assignments = assignmentRepository.findByApplication_ApplicationId(applicationId);
+        Optional<StudentHousingAssignment> assignmentOpt = assignmentRepository.findByApplication_ApplicationId(applicationId);
         
-        if (assignments.isEmpty()) {
+        if (assignmentOpt.isEmpty()) {
             return ResponseEntity.status(404).body(new ApiResponse<>(false, "Chưa được cấp phòng", null));
         }
 
-        StudentHousingAssignment assignment = assignments.get(0);
+        StudentHousingAssignment assignment = assignmentOpt.get();
         
         Map<String, Object> data = new HashMap<>();
         data.put("assignmentId", assignment.getAssignmentId());

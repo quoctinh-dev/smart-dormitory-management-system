@@ -1,3 +1,4 @@
+// 📄 Đường dẫn: src/main/java/com/sdms/backend/modules/student/repository/StudentRepository.java
 package com.sdms.backend.modules.student.repository;
 
 import com.sdms.backend.modules.student.entity.Student;
@@ -13,4 +14,6 @@ public interface StudentRepository extends JpaRepository<Student, UUID>, JpaSpec
     Optional<Student> findByStudentCode(String studentCode);
     Optional<Student> findByCccd(String cccd);
     boolean existsByCccd(String cccd);
+    Optional<Student> findBySourceApplication_ApplicationId(UUID applicationId);
+    boolean existsBySourceApplication_ApplicationId(UUID applicationId);
 }

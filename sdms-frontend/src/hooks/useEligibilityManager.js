@@ -15,22 +15,24 @@ export const useEligibilityManager = (period, open) => {
   const [totalElements, setTotalElements] = useState(0);
 
   const fetchEligibilities = useCallback(async () => {
-    if (!period?.periodId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await adminRegistrationApi.getEligibilities(period.periodId, page, size);
-      
-      if (res) {
-        setEligibilities(res.content || []);
-        setTotalElements(res.totalElements || 0);
-      }
-    } catch (err) {
-      setError('Lỗi khi tải danh sách: ' + (err?.message || 'Không thể kết nối tới server'));
-    } finally {
-      setLoading(false);
+  if (!period?.periodId) return;
+  setLoading(true);
+  setError(null);
+  try {
+    const res = await adminRegistrationApi.getEligibilities(period.periodId, page, size);
+  
+    const pageData = res?.data ? res.data : res; 
+    
+    if (pageData) {
+      setEligibilities(pageData.content || []);
+      setTotalElements(pageData.totalElements || 0);
     }
-  }, [period, page, size]);
+  } catch (err) {
+    setError('Lỗi khi tải danh sách: ' + (err?.message || 'Không thể kết nối tới server'));
+  } finally {
+    setLoading(false);
+  }
+}, [period, page, size]);
 
   useEffect(() => {
     if (open && period) {
@@ -59,27 +61,34 @@ export const useEligibilityManager = (period, open) => {
   };
 
   // Import file Excel danh sách sinh viên đủ điều kiện
-  const handleImportExcel = async (file) => {
-    if (!file) return;
-    setImporting(true);
-    setError(null);
-    setSuccessMsg('');
+ const handleImportExcel = async (file) => {
+  if (!file) return;
+  setImporting(true);
+  setError(null);
+  setSuccessMsg('');
 
-    try {
-      const result = await adminRegistrationApi.importEligibility(period.periodId, file);
+  try {
+    const result = await adminRegistrationApi.importEligibility(period.periodId, file);
+    
+    if (result) {
+      const data = result.data ? result.data : result;
+
+      // Ép kiểu hoặc fallback về 0 nếu chẳng may nhận phải null/undefined
+      const imported = data.imported ?? 0;
+      const skipped = data.skipped ?? 0;
+      const total = data.total ?? 0;
+
+      setSuccessMsg(`Import thành công! Đã thêm: ${imported}, Bỏ qua: ${skipped} (Tổng: ${total})`);
       
-      if (result) {
-        setSuccessMsg(`Import thành công! Đã thêm: ${result.imported}, Bỏ qua: ${result.skipped} (Tổng: ${result.total})`);
-        
-        setPage(0); // Đưa Admin về trang đầu tiên để nhìn thấy dữ liệu mới cập nhật
-        fetchEligibilities();
-      }
-    } catch (err) {
-      setError('Lỗi import: ' + (err?.message || 'Có lỗi xảy ra'));
-    } finally {
-      setImporting(false);
+      setPage(0); 
+      fetchEligibilities();
     }
-  };
+  } catch (err) {
+    setError('Lỗi import: ' + (err?.message || 'Có lỗi xảy ra'));
+  } finally {
+    setImporting(false);
+  }
+};
 
   return {
     eligibilities, 

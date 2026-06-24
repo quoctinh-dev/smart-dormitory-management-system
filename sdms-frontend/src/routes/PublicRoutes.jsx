@@ -1,16 +1,17 @@
+// 📄 File: src/routes/publicRoutes.js
 import { lazy } from 'react';
 
 import PublicLayout from '@/layouts/PublicLayout';
 import { wrap } from '@/utils/routeUtils';
 
-// 1. Khai báo lazy loading cũ
+// 1. Khai báo lazy loading các trang công khai
 const HomePage = lazy(() => import('@/pages/public/HomePage'));
 const RegistrationPage = lazy(() => import('@/pages/public/RegistrationPage'));
 const StatusPage = lazy(() => import('@/pages/public/StatusPage'));
 const PaymentPage = lazy(() => import('@/pages/public/PaymentPage'));
 const ActivateAccountPage = lazy(() => import('@/pages/public/ActivateAccountPage'));
 
-// 2. KHÔI PHỤC HÀM WRAP: Đưa về luồng bọc component cũ của phía Sinh viên
+// 2. Bọc component qua hàm wrap phục vụ tối ưu render của Sinh viên
 const HomeLazy = wrap(HomePage);
 const RegisterLazy = wrap(RegistrationPage);
 const StatusLazy = wrap(StatusPage);
@@ -25,7 +26,7 @@ export const publicRoutes = [
       { path: 'register', element: <RegisterLazy /> },
       { path: 'status', element: <StatusLazy /> },
       { path: 'payment/:applicationId', element: <PaymentLazy /> },
-      { path: 'activate', element: <ActivateLazy /> },
+      { path: 'activate-account', element: <ActivateLazy /> },
     ],
   },
 ];

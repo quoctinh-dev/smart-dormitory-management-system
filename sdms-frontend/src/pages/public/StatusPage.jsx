@@ -1,26 +1,29 @@
+// 📄 File: src/pages/public/StatusPage.jsx
 import { useState, useCallback, useMemo } from 'react';
 import { Container, Paper, Fade, Box, Typography, TextField, Button, Alert } from '@mui/material';
 import { useApplicationStatus } from '@/hooks/useApplicationStatus';
+import { paymentApi } from '@/api'; 
+import { useNavigate } from 'react-router-dom'; // 🌟 BỔ SUNG: Để điều hướng trang
 import CustomSkeleton from '@/components/common/CustomSkeleton';
-import StatusIndicator from './components/Status/StatusIndicator';
-import AssignmentInfo from './components/Status/AssignmentInfo';
-import ApplicationInfo from './components/Status/ApplicationInfo';
+import StatusIndicator from '@/pages/public/components/Status/StatusIndicator'; 
+import AssignmentInfo from '@/pages/public/components/Status/AssignmentInfo';      
+import ApplicationInfo from '@/pages/public/components/Status/ApplicationInfo';   
 
 export default function StatusPage() {
+  const navigate = useNavigate(); // 🌟 Khởi tạo navigate
   const [cccd, setCccd] = useState('');
-  const [hasSearched, setHasSearched] = useState(false); // Trạng thái kiểm soát để hiện thông báo "Không tìm thấy hồ sơ"
+  const [hasSearched, setHasSearched] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false); 
 
-  const { application, assignment, documents, loading, error, fetchStatus } = useApplicationStatus();
+  const { application, loading, error, fetchStatus } = useApplicationStatus();
 
-  // Xử lý lọc dữ liệu đầu vào chỉ cho phép nhập số
   const handleCccdChange = (e) => {
     const rawValue = e.target.value;
     const onlyNums = rawValue.replace(/[^0-9]/g, '');
     setCccd(onlyNums);
-    if (hasSearched) setHasSearched(false); // Reset trạng thái khi bắt đầu gõ số mới
+    if (hasSearched) setHasSearched(false);
   };
 
-  // TỐI ƯU HIỆU NĂNG: Bọc hành động tra cứu bằng useCallback
   const handleSearch = useCallback(() => {
     const cleanCccd = cccd.trim();
     if (!cleanCccd || (cleanCccd.length !== 9 && cleanCccd.length !== 12)) return;
@@ -35,7 +38,22 @@ export default function StatusPage() {
     }
   };
 
-  // Các biến tính toán trạng thái Helper Text và Nút Bấm bằng useMemo để tối ưu CPU
+  const handleMockPayment = async () => {
+    if (!application?.applicationId) return;
+    
+    setPaymentLoading(true);
+    try {
+      await paymentApi.mockPaymentSuccess(application.applicationId);
+      alert("Thanh toán giả lập thành công! Giường và hóa đơn của bạn đã được chuyển sang trạng thái CHÍNH THỨC.");
+      fetchStatus(cccd.trim());
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi hệ thống khi thanh toán thử nghiệm: " + (err.response?.data?.message || err.message));
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   const currentLength = cccd.length;
   const isLengthInvalid = useMemo(() => currentLength > 0 && currentLength !== 9 && currentLength !== 12, [currentLength]);
   const isBtnDisabled = useMemo(() => loading || !cccd || isLengthInvalid, [loading, cccd, isLengthInvalid]);
@@ -51,14 +69,7 @@ export default function StatusPage() {
       <Fade in timeout={800}>
         <Paper variant="outlined" sx={{ borderRadius: 6, overflow: 'hidden', boxShadow: 3 }}>
           {/* HEADER AREA */}
-          <Box 
-            sx={{ 
-              bgcolor: 'primary.main', 
-              color: 'primary.contrastText', 
-              py: 4, 
-              textAlign: 'center' 
-            }}
-          >
+          <Box sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', py: 4, textAlign: 'center' }}>
             <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
               Tra cứu trạng thái hồ sơ
             </Typography>
@@ -79,11 +90,9 @@ export default function StatusPage() {
                 onKeyDown={handleKeyDown}
                 error={isLengthInvalid}
                 helperText={helperText}
-                slotProps={{
-                  htmlInput: {
-                    maxLength: 12, 
-                    inputMode: 'numeric'
-                  }
+                inputProps={{ 
+                  maxLength: 12, 
+                  inputMode: 'numeric'
                 }}
               />
               <Button 
@@ -109,20 +118,72 @@ export default function StatusPage() {
             ) : application ? (
               <Fade in timeout={400}>
                 <Box>
-                  <StatusIndicator 
-                    status={application.status} 
-                    applicationId={application.applicationId} 
-                  />
-                  <AssignmentInfo assignment={assignment} />
-                  <ApplicationInfo 
-                    application={application} 
-                    documents={documents} 
-                    fetchStatus={fetchStatus} 
-                  />
+                  <StatusIndicator status={application.status} />
+                  
+                  {application.assignment && (
+                    <AssignmentInfo 
+                      assignment={application.assignment} 
+                      applicationStatus={application.status} 
+                    />
+                  )}
+                  
+                  <ApplicationInfo application={application} />
+
+                  {/* KHU VỰC 1: THANH TOÁN MOCK TIỀN PHÒNG */}
+                  {application.status === 'WAITING_PAYMENT' && (
+                    <Box 
+                      sx={{ 
+                        mt: 4, p: 4, 
+                        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.900' : 'grey.50', 
+                        borderRadius: 4, border: '1px dashed', borderColor: 'warning.main', textAlign: 'center' 
+                      }}
+                    >
+                      <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Hồ sơ hợp lệ & Đã được cấp phòng thành công!
+                      </Typography>
+                      <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
+                        Số tiền lưu trú cần đóng cho học kỳ này: 
+                        <span style={{ color: '#d32f2f', fontSize: '1.4rem', fontWeight: 'bold', marginLeft: '6px' }}>
+                          {application.bill ? application.bill.amount.toLocaleString('vi-VN') : '2,100,000'}
+                        </span> đ
+                      </Typography>
+                      <Button 
+                        variant="contained" color="success" size="large"
+                        disabled={paymentLoading} onClick={handleMockPayment}
+                        sx={{ fontWeight: 'bold', px: 5, py: 1.8, borderRadius: 2 }}
+                      >
+                        {paymentLoading ? 'Đang xử lý thanh toán...' : 'Xác nhận thanh toán thử nghiệm (2.100.000đ)'}
+                      </Button>
+                    </Box>
+                  )}
+
+                  {/* 🌟 CẬP NHẬT MỚI: HỒ SƠ ĐÃ APPROVED -> HIỂN THỊ NÚT KÍCH HOẠT ĐIỀU HƯỚNG SẠCH */}
+                  {application.status === 'APPROVED' && (
+                    <Box 
+                      sx={{ 
+                        mt: 4, p: 4, 
+                        bgcolor: 'success.light', color: 'success.contrastText',
+                        borderRadius: 4, textAlign: 'center', boxShadow: 2
+                      }}
+                    >
+                      <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Hồ sơ đã được duyệt chính thức thành công!
+                      </Typography>
+                      <Typography variant="body2" sx={{ mb: 3, opacity: 0.9 }}>
+                        Hệ thống đã khởi tạo tài khoản ký túc xá cho bạn. Vui lòng nhấn nút dưới đây để kích hoạt và thiết lập mật khẩu đăng nhập lần đầu.
+                      </Typography>
+                      <Button 
+                        variant="contained" color="primary" size="large"
+                        onClick={() => navigate('/activate-account')} // 🌟 FIX ROUTE CHUẨN ĐỒNG BỘ FRONTEND
+                        sx={{ fontWeight: 'bold', px: 4, py: 1.5, borderRadius: 2, bgcolor: 'primary.dark' }}
+                      >
+                        Đi Đến Kích Hoạt Tài Khoản Cư Dân
+                      </Button>
+                    </Box>
+                  )}
                 </Box>
               </Fade>
             ) : (
-              // CHUẨN UX: Nếu đã bấm nút Tìm kiếm nhưng API trả về null (Không có đơn nháp/đơn chính thức)
               hasSearched && !error && (
                 <Fade in>
                   <Alert severity="info" sx={{ borderRadius: 2, mt: 2 }}>

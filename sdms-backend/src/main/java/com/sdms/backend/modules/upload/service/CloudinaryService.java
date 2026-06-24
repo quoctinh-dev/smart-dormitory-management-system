@@ -42,4 +42,25 @@ public class CloudinaryService {
             throw new RuntimeException("Upload failed", e);
         }
     }
+
+    public String uploadPdfBytes(byte[] pdfBytes, String folder, String fileName) {
+        if (pdfBytes == null || pdfBytes.length == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PDF byte array is empty or null");
+        }
+
+        try {
+            Map uploadResult = cloudinary.uploader().upload(
+                    pdfBytes,
+                    ObjectUtils.asMap(
+                            "folder", folder,
+                            "public_id", fileName.replace(".pdf", ""),
+                            "resource_type", "raw",
+                            "format", "pdf"
+                    )
+            );
+            return uploadResult.get("secure_url").toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Upload PDF to Cloudinary failed", e);
+        }
+    }
 }

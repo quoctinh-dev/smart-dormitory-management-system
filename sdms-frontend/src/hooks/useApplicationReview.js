@@ -8,7 +8,6 @@ export const useApplicationReview = (id, navigate) => {
   const [app, setApp] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // States quản lý trạng thái đóng/mở và dữ liệu của các Dialog
   const [dialogs, setDialogs] = useState({
     reject: false,
     revision: false,
@@ -25,7 +24,6 @@ export const useApplicationReview = (id, navigate) => {
   const [selectedDocId, setSelectedDocId] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  // Hàm tiện ích đóng/mở nhanh các dialog chuyên trách
   const toggleDialog = (type, openState) => {
     setDialogs((prev) => ({ ...prev, [type]: openState }));
   };
@@ -34,12 +32,19 @@ export const useApplicationReview = (id, navigate) => {
     setNotes((prev) => ({ ...prev, [type]: e.target.value }));
   };
 
+  // 🌟 TỐI ƯU TẠI ĐÂY: Gọi đích danh API lấy chi tiết thay vì quét mảng 100 phần tử
   const fetchApp = useCallback(async () => {
     try {
-      const res = await applicationApi.getAll({ page: 0, size: 100 });
-      const found = res?.content?.find(a => a.applicationId === id);
-      if (found) {
-        setApp(found);
+      setLoading(true);
+      // Giả định hàm lấy chi tiết của bạn tên là getDetail hoặc getById
+      // Nếu file api của bạn chỉ có hàm getAll, hãy bổ sung hàm getById(id) vào nhé!
+      const res = await applicationApi.getById(id); 
+      
+      // Unwrap data theo chuẩn của axiosClient của bạn
+      const data = res?.data ? res.data : res;
+
+      if (data) {
+        setApp(data);
       } else {
         setSnackbar({ open: true, message: 'Không tìm thấy thông tin hồ sơ kiểm duyệt!', severity: 'error' });
         if (navigate) setTimeout(() => navigate('/admin/applications/review'), 2000);
@@ -56,7 +61,6 @@ export const useApplicationReview = (id, navigate) => {
     if (id) fetchApp();
   }, [id, fetchApp]);
 
-  // Hành động 1: Duyệt hồ sơ hợp lệ
   const handleApprove = async () => {
     try {
       await applicationApi.approve(id, 'Được duyệt trên Hệ thống Web Admin');
@@ -67,7 +71,6 @@ export const useApplicationReview = (id, navigate) => {
     }
   };
 
-  // Hành động 2: Xác nhận từ chối hồ sơ
   const handleRejectSubmit = async () => {
     if (!notes.reject.trim()) return;
     try {
@@ -80,7 +83,6 @@ export const useApplicationReview = (id, navigate) => {
     }
   };
 
-  // Hành động 3: Gửi yêu cầu sinh viên sửa đổi bổ sung
   const handleRequestRevision = async () => {
     try {
       await applicationApi.requestRevision(id, notes.revision, deadlineDays);
@@ -92,7 +94,6 @@ export const useApplicationReview = (id, navigate) => {
     }
   };
 
-  // Hành động 4: Kiểm duyệt trạng thái từng ảnh minh chứng lẻ
   const handleVerifyDocument = async (docId, status) => {
     try {
       if (status === 'INVALID') {
@@ -103,20 +104,19 @@ export const useApplicationReview = (id, navigate) => {
       }
       await applicationApi.verifyDocument(docId, 'VALID', 'Hợp lệ');
       setSnackbar({ open: true, message: 'Đã xác nhận tài liệu Hợp lệ.', severity: 'success' });
-      fetchApp();
+      fetchApp(); // Reload mượt vì data dung lượng nhỏ
     } catch (error) {
       setSnackbar({ open: true, message: `Lỗi: ${error.response?.data?.message || error.message}`, severity: 'error' });
     }
   };
 
-  // Hành động 5: Xác nhận ảnh minh chứng bị sai lý do gì
   const handleInvalidDocSubmit = async () => {
     if (!notes.doc.trim()) return;
     try {
       await applicationApi.verifyDocument(selectedDocId, 'INVALID', notes.doc.trim());
       toggleDialog('docVerify', false);
       setSnackbar({ open: true, message: 'Đã đánh dấu tài liệu Không hợp lệ.', severity: 'error' });
-      fetchApp();
+      fetchApp(); // Reload mượt vì data dung lượng nhỏ
     } catch (error) {
       setSnackbar({ open: true, message: `Lỗi: ${error.response?.data?.message || error.message}`, severity: 'error' });
     }

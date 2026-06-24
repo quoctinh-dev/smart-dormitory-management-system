@@ -10,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
-@RequestMapping("/api/payments")
+@RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
 public class PaymentController {
 
@@ -65,6 +67,20 @@ public class PaymentController {
         return new ApiResponse<>(
                 true,
                 "Cash payment approved successfully",
+                response
+        );
+    }
+
+    /**
+     * MOCK PAYMENT SUCCESS for testing event-driven flow.
+     * This endpoint is for development/testing purposes only.
+     */
+    @PostMapping("/mock-success/{applicationId}")
+    public ApiResponse<PaymentResponse> mockPaymentSuccess(@PathVariable UUID applicationId) {
+        PaymentResponse response = paymentService.mockPaymentSuccess(applicationId);
+        return new ApiResponse<>(
+                true,
+                "Mock payment successful, bill paid and event published.",
                 response
         );
     }

@@ -30,29 +30,36 @@ export const useCheckIn = () => {
   };
 
   const handleCheckIn = async () => {
-    if (!studentData?.assignmentId) return;
-    setCheckInLoading(true);
-    setError(null);
-    setSuccessMsg('');
+  if (!studentData?.assignmentId) return;
+  setCheckInLoading(true);
+  setError(null);
+  setSuccessMsg('');
 
-    try {
-      await checkInApi.confirmCheckIn(studentData.assignmentId);
-      setSuccessMsg(`Sinh viên ${studentData.studentName} đã nhận phòng và bàn giao chìa khóa thành công!`);
-      setStudentData(null);
-      setCccd('');
-      
-      confetti({
-        particleCount: 150,
-        spread: 80,
-        origin: { y: 0.6 },
-        colors: ['#22c55e', '#3b82f6', '#f59e0b', '#ec4899']
-      });
-    } catch (err) {
-      setError(err.response?.data?.message || 'Đã xảy ra lỗi hệ thống khi xử lý Check-in.');
-    } finally {
-      setCheckInLoading(false);
-    }
-  };
+  try {
+    // Gọi API sang Backend
+    const res = await checkInApi.confirmCheckIn(studentData.assignmentId);
+    
+    // 🌟 ĐỒNG BỘ CHUẨN: Bốc đúng trường "message" từ Map.of Backend trả về
+    const msg = res?.message || `Sinh viên ${studentData.studentName} đã nhận phòng thành công!`;
+    setSuccessMsg(msg);
+    
+    setStudentData(null);
+    setCccd('');
+    
+    confetti({
+      particleCount: 150,
+      spread: 80,
+      origin: { y: 0.6 },
+      colors: ['#22c55e', '#3b82f6', '#f59e0b', '#ec4899']
+    });
+  } catch (err) {
+    console.error("Check-in error object:", err);
+    // 🌟 ĐỒNG BỘ CHUẨN: Đọc cả chuỗi lỗi thô nếu lỗi trả về dạng phẳng do interceptor đẩy ra
+    setError(err?.message || err.response?.data?.message || 'Đã xảy ra lỗi hệ thống khi xử lý Check-in.');
+  } finally {
+    setCheckInLoading(false);
+  }
+};
 
   return {
     cccd, setCccd, loading, checkInLoading, error, studentData, successMsg,

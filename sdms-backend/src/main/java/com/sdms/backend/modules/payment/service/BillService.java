@@ -32,7 +32,6 @@ public class BillService {
      *    ↓
      * Check-in
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public Bill createAccommodationBill(
             UUID assignmentId,

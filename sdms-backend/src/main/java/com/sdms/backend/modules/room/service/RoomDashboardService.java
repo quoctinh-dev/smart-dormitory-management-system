@@ -1,9 +1,14 @@
 package com.sdms.backend.modules.room.service;
 
-import com.sdms.backend.modules.room.dto.response.*;
+import com.sdms.backend.modules.application.enums.ApplicationStatus;
+import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
+import com.sdms.backend.modules.room.dto.response.DashboardStatsResponse;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
-import com.sdms.backend.modules.room.enums.BedStatus;
-import com.sdms.backend.modules.room.repository.*;
+import com.sdms.backend.modules.room.repository.BedRepository;
+import com.sdms.backend.modules.room.repository.BuildingRepository; // Added
+import com.sdms.backend.modules.room.repository.FloorRepository;   // Added
+import com.sdms.backend.modules.room.repository.RoomRepository;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,40 +18,32 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class RoomDashboardService {
 
-    // Inject đầy đủ các Repository cần thiết
-    private final BuildingRepository buildingRepository;
-    private final FloorRepository floorRepository;
+    private final DormitoryApplicationRepository applicationRepository;
+    private final StudentHousingAssignmentRepository assignmentRepository;
     private final RoomRepository roomRepository;
     private final BedRepository bedRepository;
-    private final StudentHousingAssignmentRepository assignmentRepository;
+    private final BuildingRepository buildingRepository; // Added
+    private final FloorRepository floorRepository;       // Added
 
-    public RoomDashboardResponse getOverview() {
+    public DashboardStatsResponse getDashboardStats() {
+        long pendingApplications = applicationRepository.countByStatus(ApplicationStatus.PENDING);
+        long waitingPayment = applicationRepository.countByStatus(ApplicationStatus.WAITING_PAYMENT);
+        long waitingCheckIn = assignmentRepository.countByStatus(AssignmentStatus.PENDING_CHECKIN);
+        long occupied = assignmentRepository.countByStatus(AssignmentStatus.OCCUPIED);
+        long totalRooms = roomRepository.count();
         long totalBeds = bedRepository.count();
-        // Sử dụng Assignment làm nguồn dữ liệu chính cho các giường đang có người ở
-        long occupiedBeds = assignmentRepository.countByStatus(AssignmentStatus.OCCUPIED);
-        long maintenanceBeds = bedRepository.countByStatus(BedStatus.MAINTENANCE);
+        long totalBuildings = buildingRepository.count(); // Added
+        long totalFloors = floorRepository.count();       // Added
 
-        // Bảo vệ khỏi lỗi chia cho 0
-        double occupancyRate = (totalBeds == 0) ? 0.0 : ((double) occupiedBeds / totalBeds) * 100;
-
-        return RoomDashboardResponse.builder()
-                .totalBuildings(buildingRepository.count())
-                .totalFloors(floorRepository.count())
-                .totalRooms(roomRepository.count())
+        return DashboardStatsResponse.builder()
+                .pendingApplications(pendingApplications)
+                .waitingForPayment(waitingPayment)
+                .pendingCheckIn(waitingCheckIn)
+                .occupiedAssignments(occupied)
+                .totalRooms(totalRooms)
                 .totalBeds(totalBeds)
-                .occupiedBeds(occupiedBeds)
-                .availableBeds(totalBeds - occupiedBeds - maintenanceBeds)
-                .maintenanceBeds(maintenanceBeds)
-                .occupancyRate(Math.round(occupancyRate * 100.0) / 100.0)
-                .build();
-    }
-
-    public BedStatisticsResponse getBedStatistics() {
-        return BedStatisticsResponse.builder()
-                .availableBeds(bedRepository.countByStatus(BedStatus.AVAILABLE))
-                .reservedBeds(bedRepository.countByStatus(BedStatus.RESERVED))
-                .occupiedBeds(assignmentRepository.countByStatus(AssignmentStatus.OCCUPIED))
-                .maintenanceBeds(bedRepository.countByStatus(BedStatus.MAINTENANCE))
+                .totalBuildings(totalBuildings) // Added
+                .totalFloors(totalFloors)       // Added
                 .build();
     }
 }

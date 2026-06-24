@@ -34,7 +34,7 @@ public class ApplicationReviewController {
             @PathVariable UUID applicationId,
             @AuthenticationPrincipal UserAccount userAccount
     ) {
-        UUID adminUserId = getUserIdSafely(userAccount);
+        UUID adminUserId = getAccountIdSafely(userAccount);
         reviewService.startReview(applicationId, adminUserId);
         return ResponseEntity.ok(ApiResponse.success("Bắt đầu xét duyệt thành công"));
     }
@@ -47,7 +47,7 @@ public class ApplicationReviewController {
             @Valid @RequestBody VerifyDocumentRequest request,
             @AuthenticationPrincipal UserAccount userAccount
     ) {
-        UUID adminUserId = getUserIdSafely(userAccount);
+        UUID adminUserId = getAccountIdSafely(userAccount);
         reviewService.verifyDocument(documentId, request.getStatus(), request.getNote(), adminUserId);
         return ResponseEntity.ok(ApiResponse.success("Xác minh tài liệu thành công"));
     }
@@ -60,7 +60,7 @@ public class ApplicationReviewController {
             @Valid @RequestBody AdminReviewRequest request,
             @AuthenticationPrincipal UserAccount userAccount
     ) {
-        UUID adminUserId = getUserIdSafely(userAccount);
+        UUID adminUserId = getAccountIdSafely(userAccount);
         reviewService.approveApplication(applicationId, request.getNote(), adminUserId);
         return ResponseEntity.ok(ApiResponse.success("Phê duyệt đơn thành công"));
     }
@@ -73,7 +73,7 @@ public class ApplicationReviewController {
             @Valid @RequestBody AdminReviewRequest request,
             @AuthenticationPrincipal UserAccount userAccount
     ) {
-        UUID adminUserId = getUserIdSafely(userAccount);
+        UUID adminUserId = getAccountIdSafely(userAccount);
         reviewService.rejectApplication(applicationId, request.getNote(), adminUserId);
         return ResponseEntity.ok(ApiResponse.success("Từ chối đơn thành công"));
     }
@@ -86,12 +86,12 @@ public class ApplicationReviewController {
             @Valid @RequestBody com.sdms.backend.modules.application.dto.request.AdminRequestRevisionRequest request,
             @AuthenticationPrincipal UserAccount userAccount
     ) {
-        UUID adminUserId = getUserIdSafely(userAccount);
+        UUID adminUserId = getAccountIdSafely(userAccount);
         reviewService.requestRevision(applicationId, request.getNote(), request.getDeadlineDays(), adminUserId);
         return ResponseEntity.ok(ApiResponse.success("Đã gửi email yêu cầu nộp lại minh chứng thành công"));
     }
 
-    private UUID getUserIdSafely(UserAccount userAccount) {
+    private UUID getAccountIdSafely(UserAccount userAccount) {
         if (userAccount == null) {
             throw new AppException("User not authenticated", HttpStatus.UNAUTHORIZED);
         }

@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+// 📄 File: src/pages/public/HomePage.jsx
+import { useState, useMemo } from 'react';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import SearchIcon from '@mui/icons-material/Search';
@@ -35,8 +36,7 @@ export default function HomePage() {
     handleNavigateRegister,
   } = useHome();
 
-  // TỐI ƯU HIỆU NĂNG: Bọc các section thông tin tĩnh vào useMemo để cô lập,
-  // Tránh việc gõ phím ô tìm kiếm làm re-render lại toàn bộ các cụm section này.
+  // TỐI ƯU HIỆU NĂNG: Bọc các section thông tin tĩnh vào useMemo để cô lập
   const renderedStaticSections = useMemo(() => (
     <>
       <AboutSection />
@@ -137,7 +137,7 @@ export default function HomePage() {
               title="Kích hoạt định danh"
               description="Khởi tạo tài khoản hệ thống dành cho sinh viên đã hoàn tất thủ tục lưu trú."
               buttonText="Thực hiện kích hoạt"
-              to="/activate"
+              to="/activate-account" // 🌟 FIX TẠI ĐÂY: Đồng bộ chính xác lộ trình sang đường dẫn mới
               variant="contained"
               color="success"
             />
