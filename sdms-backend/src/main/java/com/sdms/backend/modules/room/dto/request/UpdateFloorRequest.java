@@ -1,6 +1,6 @@
 package com.sdms.backend.modules.room.dto.request;
 
-import com.sdms.backend.modules.room.enums.OccupancyPolicy;
+import com.sdms.backend.common.enums.Gender;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,5 +14,5 @@ import lombok.Setter;
 public class UpdateFloorRequest {
 
     @NotNull(message = "Occupancy policy is required")
-    private OccupancyPolicy occupancyPolicy;
+    private Gender gender;
 }

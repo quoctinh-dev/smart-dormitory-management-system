@@ -10,6 +10,9 @@ import com.sdms.backend.modules.payment.enums.PaymentMethod;
 import com.sdms.backend.modules.payment.repository.BillRepository;
 import com.sdms.backend.modules.payment.repository.PaymentRepository;
 import com.sdms.backend.modules.payment.event.PaymentSuccessEvent;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
+import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,6 +33,7 @@ public class PaymentService {
 
     private final BillRepository billRepository;
     private final PaymentRepository paymentRepository;
+    private final StudentHousingAssignmentRepository assignmentRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     // ==================== ONLINE PAYMENT (STUDENT) ====================
@@ -92,7 +96,11 @@ public class PaymentService {
                         this,
                         bill.getBillId(),
                         bill.getAssignmentId(),
-                        bill.getApplicationId()
+                        bill.getApplicationId(),
+                        bill.getStudentId(),
+                        null,
+                        null,
+                        bill.getAmount()
                 ));
                 log.info("[PaymentService] Published PaymentSuccessEvent for mock payment: bill={}, assignment={}",
                         bill.getBillId(), bill.getAssignmentId());
@@ -176,7 +184,11 @@ public class PaymentService {
                         this,
                         bill.getBillId(),
                         bill.getAssignmentId(),
-                        bill.getApplicationId()
+                        bill.getApplicationId(),
+                        bill.getStudentId(),
+                        null,
+                        null,
+                        bill.getAmount()
                 ));
                 log.info("[PaymentService] Published PaymentSuccessEvent for bill={}, assignment={}",
                         bill.getBillId(), bill.getAssignmentId());
@@ -206,7 +218,11 @@ public class PaymentService {
                             this,
                             bill.getBillId(),
                             bill.getAssignmentId(),
-                            bill.getApplicationId()
+                            bill.getApplicationId(),
+                            bill.getStudentId(),
+                            null,
+                            null,
+                            bill.getAmount()
                     ));
                     log.info("[PaymentService] Published PaymentSuccessEvent for bill={}, assignment={}",
                             bill.getBillId(), bill.getAssignmentId());
@@ -224,6 +240,14 @@ public class PaymentService {
     private Bill validateBillAndAmount(UUID billId, BigDecimal amount) {
         Bill bill = billRepository.findByIdForUpdate(billId)
                 .orElseThrow(() -> new AppException("Bill not found", HttpStatus.NOT_FOUND));
+
+        if (bill.getAssignmentId() != null) {
+            assignmentRepository.findById(bill.getAssignmentId()).ifPresent(assignment -> {
+                if (assignment.getStatus() == AssignmentStatus.EXPIRED || assignment.getStatus() == AssignmentStatus.CANCELLED) {
+                    throw new AppException("Hóa đơn này thuộc về một đơn giữ chỗ đã hết hạn hoặc bị hủy. Không thể tiến hành thanh toán!", HttpStatus.BAD_REQUEST);
+                }
+            });
+        }
 
         if (bill.getStatus() == BillStatus.PAID) {
             throw new AppException("Bill already paid", HttpStatus.BAD_REQUEST);

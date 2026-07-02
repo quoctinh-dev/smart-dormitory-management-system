@@ -21,7 +21,7 @@ public class RoomAllocationListener {
 
     /**
      * Lắng nghe sự kiện sinh viên nộp đơn thành công (ApplicationSubmittedEvent).
-     * Tự động tìm và gán giường dự kiến ngay khi hồ sơ ở trạng thái PENDING.
+     * Tự động tìm và gán giường dự kiến ngay khi hồ sơ được nộp.
      */
     @Async("taskExecutor")
     @EventListener // 🌟 Đổi sang EventListener thuần để chạy đồng bộ/bất đồng bộ an toàn khi nộp đơn

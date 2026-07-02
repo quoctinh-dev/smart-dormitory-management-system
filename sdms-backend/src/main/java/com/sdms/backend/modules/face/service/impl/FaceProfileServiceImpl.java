@@ -78,7 +78,7 @@ public class FaceProfileServiceImpl implements FaceProfileService {
         faceProfileRepository.save(profile);
 
         // AFTER_COMMIT listeners will handle this transactionally
-        eventPublisher.publishEvent(new FaceProfileApprovedEvent(profileId));
+        eventPublisher.publishEvent(new FaceProfileApprovedEvent(profileId, profile.getStudentId(), null, null));
     }
 
     @Override

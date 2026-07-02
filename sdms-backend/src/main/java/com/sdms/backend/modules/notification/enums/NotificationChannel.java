@@ -1,0 +1,8 @@
+package com.sdms.backend.modules.notification.enums;
+
+public enum NotificationChannel {
+    EMAIL,
+    IN_APP,
+    SMS,
+    PUSH
+}

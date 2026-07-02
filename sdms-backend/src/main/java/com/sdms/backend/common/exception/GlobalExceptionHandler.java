@@ -1,5 +1,7 @@
 package com.sdms.backend.common.exception;
 
+import com.sdms.backend.common.exception.ErrorCode;
+
 import com.sdms.backend.common.response.ApiResponse;
 import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
@@ -11,10 +13,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +35,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ApiResponse<?>> handleAppException(AppException ex) {
         log.warn("Business Error: {}", ex.getMessage());
-        return ResponseEntity.status(ex.getStatus()).body(new ApiResponse<>(false, ex.getMessage(), null));
+        String errorCodeStr = ex.getErrorCode() != null ? ex.getErrorCode().name() : null;
+        return ResponseEntity.status(ex.getStatus()).body(new ApiResponse<>(false, ex.getMessage(), null, errorCodeStr));
     }
 
     // 2. Lỗi Validation (DTO)
@@ -42,7 +47,7 @@ public class GlobalExceptionHandler {
                 errors.put(error.getField(), error.getDefaultMessage()));
 
         log.warn("Validation Error: {}", errors);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, "Invalid input data", errors));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, ErrorCode.VALIDATION_FAILED.getMessage(), errors, ErrorCode.VALIDATION_FAILED.name()));
     }
 
     // 3. Nhóm lỗi Bad Request (Client gửi sai cấu trúc, thiếu tham số)
@@ -63,35 +68,42 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse<>(false, "Data conflict or integrity violation", null));
     }
 
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ApiResponse<?>> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<>(false, "Phòng/Giường này vừa được người khác cập nhật. Vui lòng tải lại và thử lại!", null));
+    }
+
     // 5. Lỗi Security & Auth
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<?>> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Access Denied: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "You do not have permission to access this resource", null));
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, ErrorCode.FORBIDDEN.getMessage(), null, ErrorCode.FORBIDDEN.name()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse<?>> handleBadCredentialsException(BadCredentialsException ex) {
         log.warn("Auth Failed: Invalid credentials");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Invalid username or password", null));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, ErrorCode.INVALID_CREDENTIALS.getMessage(), null, ErrorCode.INVALID_CREDENTIALS.name()));
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ApiResponse<?>> handleUsernameNotFoundException(UsernameNotFoundException ex) {
         log.warn("Auth Failed: User not found");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Invalid username or password", null));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, ErrorCode.INVALID_CREDENTIALS.getMessage(), null, ErrorCode.INVALID_CREDENTIALS.name()));
     }
 
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ApiResponse<?>> handleJwtException(JwtException ex) {
         log.warn("JWT Error: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Token expired or invalid", null));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, ErrorCode.TOKEN_INVALID.getMessage(), null, ErrorCode.TOKEN_INVALID.name()));
     }
 
     // 6. Lỗi Hệ thống (Fallback)
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<?>> handleGenericException(Exception ex) {
-        log.error("Internal Server Error: ", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(false, "An unexpected error occurred", null));
+    public ResponseEntity<ApiResponse<Object>> handleGlobalException(Exception ex, WebRequest request) {
+        log.error("Internal Server Error URI: {} - Error: ", request.getDescription(false), ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(false, ErrorCode.INTERNAL_SERVER_ERROR.getMessage(), null, ErrorCode.INTERNAL_SERVER_ERROR.name()));
     }
 }

@@ -11,7 +11,7 @@ public class FloorMapper {
         return FloorResponse.builder()
                 .floorId(floor.getFloorId())
                 .floorNumber(floor.getFloorNumber())
-                .occupancyPolicy(floor.getOccupancyPolicy())
+                .gender(floor.getGender())
                 .buildingId(floor.getBuilding().getBuildingId())
                 .buildingCode(floor.getBuilding().getCode())
                 .buildingName(floor.getBuilding().getName())

@@ -1,7 +1,7 @@
 package com.sdms.backend.modules.room.entity;
 
 import com.sdms.backend.common.entity.BaseEntity;
-import com.sdms.backend.modules.room.enums.OccupancyPolicy;
+import com.sdms.backend.common.enums.Gender;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,7 +45,7 @@ public class Floor extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private OccupancyPolicy occupancyPolicy;
+    private Gender gender;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "building_id", nullable = false)

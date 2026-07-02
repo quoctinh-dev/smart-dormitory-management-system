@@ -36,7 +36,7 @@ public class RoomCancellationListener {
             StudentHousingAssignment assignment = assignmentOpt.get();
             try {
                 // Thu hồi giường dự kiến về trạng thái trống (AVAILABLE)
-                housingAssignmentService.expireReservation(assignment.getAssignmentId());
+                housingAssignmentService.cancelReservation(assignment.getAssignmentId());
                 log.info("[RoomCancellationListener] Successfully revoked provisional bed for application={}", applicationId);
             } catch (Exception e) {
                 log.error("[RoomCancellationListener] Failed to revoke provisional bed", e);

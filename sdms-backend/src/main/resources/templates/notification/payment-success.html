@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận thanh toán thành công - SDMS</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           CORE BASE STYLES (Đồng bộ Typography & Text Color)
+           ========================================================================== */
+        body {
+            font-family: "Inter", "Roboto", "Helvetica", "Arial", sans-serif;
+            line-height: 1.6;
+            color: #0f172a; /* theme.palette.text.primary (Slate 900) */
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* LAYOUT WRAPPER: Matches theme.palette.background.default */
+        .wrapper {
+            background-color: #f8fafc; /* Màu nền hệ thống: Slate 50 */
+            padding: 40px 20px;
+        }
+
+        /* CARD CONTAINER: Matches MuiCard / MuiPaper Style Overrides
+           Properties: borderRadius: 24, border: 1px solid divider, box-shadow: elevation1 */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff; /* theme.palette.background.paper */
+            border-radius: 24px; /* Đồng bộ borderRadius: 24 của Card/Paper */
+            overflow: hidden;
+            border: 1px solid #e2e8f0; /* theme.palette.divider */
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); /* Card Box Shadow */
+        }
+
+        /* ==========================================================================
+           COMPONENT STYLES (Header, Content, Badges, Icons)
+           ========================================================================== */
+
+        /* HEADER BLOCK: Transformed to brand secondary success green */
+        .header {
+            background-color: #059669; /* theme.palette.secondary.main (Xanh lá thương hiệu) */
+            color: #ffffff; /* theme.palette.secondary.contrastText */
+            padding: 35px 25px;
+            text-align: center;
+        }
+
+        /* HEADER TYPOGRAPHY: Matches theme.typography.h2 specifications */
+        .header h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800; /* theme.typography.h2.fontWeight */
+            letter-spacing: -0.5px;
+        }
+
+        /* MAIN CONTENT AREA: Controls padding inside the card */
+        .content {
+            padding: 40px 30px;
+        }
+
+        /* SUCCESS ICON VISUAL: Styled using secondary green palette */
+        .success-icon-wrapper {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .success-icon {
+            display: inline-block;
+            width: 64px;
+            height: 64px;
+            line-height: 64px;
+            font-size: 32px;
+            color: #059669; /* theme.palette.secondary.main */
+            background-color: #ecfdf5; /* MuiAlert success background light (Emerald 50) */
+            border-radius: 50%; /* Perfect circular icon indicator */
+            text-align: center;
+        }
+
+        /* STATUS BADGE: Synchronized with alert/badge specifications */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background-color: #ecfdf5; /* Success light background */
+            color: #059669; /* theme.palette.secondary.main */
+            font-weight: 700;
+            border-radius: 12px; /* Matches MuiAlert borderRadius */
+            font-size: 14px;
+        }
+
+        /* ==========================================================================
+           FOOTER STYLES (Chân trang hệ thống công cộng)
+           ========================================================================== */
+
+        /* FOOTER BRAND BLOCK: Dark slate variant for rich structural anchor */
+        .footer {
+            background-color: #1e293b; /* theme.palette.grey.800 (Slate 800) */
+            padding: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: #cbd5e1; /* theme.palette.grey.300 for readable contrast */
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="container">
+
+        <div class="header">
+            <h2>THANH TOÁN THÀNH CÔNG</h2>
+        </div>
+
+        <div class="content">
+
+            <div class="success-icon-wrapper">
+                <div class="success-icon">✓</div>
+            </div>
+
+            <p style="font-size: 16px; margin-top: 0;">
+                Xin chào <strong style="color: #0f172a;"><span th:text="${studentName}">Sinh viên</span></strong>,
+            </p>
+
+            <p style="color: #475569; font-size: 15px;"> Hệ thống SDMS xác nhận đã nhận đầy đủ khoản thanh toán cho hóa đơn
+                <strong style="color: #2563eb;" th:text="${billId}">#MÃ_HÓA_ĐƠN</strong> của bạn.
+            </p>
+
+            <p style="color: #475569; font-size: 15px;">
+                Giao dịch của bạn đã được đối soát thành công tự động trên hệ thống.
+                Trạng thái hóa đơn đã chuyển sang:
+            </p>
+
+            <div style="margin: 5px 0 20px 0;">
+                <span class="status-badge">ĐÃ THANH TOÁN</span>
+            </div>
+
+            <p style="color: #475569; font-size: 15px; margin-bottom: 0;">
+                Cảm ơn bạn đã thực hiện nghĩa vụ thanh toán đúng hạn!
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>Email gửi tự động từ phân hệ tài chính SDMS.</p>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

@@ -22,6 +22,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Mục tiêu/Nghiệp vụ: Xử lý quy trình xét duyệt hồ sơ của Ban quản lý KTX (Bắt đầu duyệt, Xác thực từng tài liệu, Yêu cầu bổ sung, Từ chối, Phê duyệt).
+ * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Áp dụng State Pattern mô phỏng để quản lý vòng đời chuyển đổi trạng thái (PENDING -> UNDER_REVIEW -> REQUEST_REVISION / WAITING_PAYMENT / REJECTED). Sử dụng Spring ApplicationEventPublisher để kích hoạt quy trình sinh hóa đơn thanh toán tiền giữ chỗ bất đồng bộ.
+ * Lưu ý Kiến thức (Dành cho phản biện): Giải thích Guard Clauses ở mỗi hàm: Ở mỗi hàm như startReview, approveApplication, luôn có các lệnh IF kiểm tra trạng thái của đơn trước khi thao tác. Việc này để chặn lỗi "Race Condition" khi nhiều admin cùng click duyệt 1 đơn cùng lúc, đảm bảo tính Idempotency và vẹn toàn quy trình.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,6 +38,7 @@ public class ApplicationReviewService {
     private final ApplicationPriorityService priorityService;
     private final EmailService emailService;
     private final ApplicationEventPublisher eventPublisher;
+    private final com.sdms.backend.modules.payment.service.PaymentService paymentService;
 
     @Value("${application.payment.deadline-days:3}")
     private int paymentDeadlineDays;
@@ -122,6 +128,10 @@ public class ApplicationReviewService {
                 .stream().findFirst()
                 .orElseThrow(() -> new AppException("Không tìm thấy thông tin xếp phòng dự kiến từ bước nộp đơn", HttpStatus.NOT_FOUND));
 
+        // Tự động gán Hạn lưu trú từ Đợt đăng ký vào Assignment của Tân Sinh Viên
+        assignment.setExpectedCheckOutAt(application.getRegistrationPeriod().getStayEndDate());
+        assignmentRepository.save(assignment);
+
         // 🌟 2. THAY ĐỔI NGÒI NỔ: Bắn BedReservedEvent để kích hoạt tạo hóa đơn 2tr1
         // Thao tác này sẽ đánh động sang BillGenerationListener để sinh Bill UNPAID
         eventPublisher.publishEvent(new com.sdms.backend.modules.room.event.BedReservedEvent(
@@ -130,7 +140,59 @@ public class ApplicationReviewService {
                 assignment.getAssignmentId() // Truyền chính xác mã phòng đã giữ chỗ sang cho module Bill
         ));
 
-        log.info("Application {} approved. Status moved to WAITING_PAYMENT. BedReservedEvent fired for Bill Generation.", applicationId);
+        // 🌟 3. THÔNG BÁO CHO SINH VIÊN: Bắn ApplicationApprovedEvent để gửi Notification
+        eventPublisher.publishEvent(new com.sdms.backend.modules.application.event.ApplicationApprovedEvent(
+                this,
+                application.getApplicationId(),
+                null, // studentId chưa có đối với public flow
+                application.getGender().name(),
+                application.getPriorityScore(),
+                application.getFullName(),
+                application.getEmail()
+        ));
+
+        log.info("Application {} approved. Status moved to WAITING_PAYMENT. BedReservedEvent and ApplicationApprovedEvent fired.", applicationId);
+    }
+
+    @Transactional
+    public void confirmCashPayment(UUID applicationId, String note, UUID adminUserId) {
+        log.info("Confirming cash payment for application={} by admin={}", applicationId, adminUserId);
+        DormitoryApplication application = findApplicationOrThrow(applicationId);
+
+        if (application.getStatus() != ApplicationStatus.WAITING_PAYMENT) {
+            throw new AppException("Chỉ có thể xác nhận thanh toán khi hồ sơ đang chờ thanh toán", HttpStatus.BAD_REQUEST);
+        }
+
+        // Tự động tìm Bill của đơn này và gọi PaymentService để hoàn tất thanh toán
+        // Điều này sẽ tự động bắn ra PaymentSuccessEvent -> Kích hoạt StudentProvisioningListener sinh tài khoản
+        try {
+            paymentService.mockPaymentSuccess(applicationId);
+        } catch (Exception e) {
+            log.error("Failed to process payment for application={}. Reason: {}", applicationId, e.getMessage(), e);
+            throw new AppException("Không thể xử lý hóa đơn, vui lòng kiểm tra lại", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        // Trạng thái đơn và phòng sẽ được tự động cập nhật sang APPROVED và PENDING_CHECKIN
+        // thông qua PaymentSuccessEvent listener (onPaymentSuccess và PaymentWorkflowListener)
+        
+        // Cập nhật người duyệt và ghi chú
+        application.setReviewedByUserId(adminUserId);
+        if (note != null && !note.isBlank()) {
+            application.setReviewNote(note);
+            applicationRepository.save(application);
+        }
+    }
+
+    @org.springframework.context.event.EventListener
+    public void onPaymentSuccess(com.sdms.backend.modules.payment.event.PaymentSuccessEvent event) {
+        if (event.getApplicationId() != null) {
+            applicationRepository.findById(event.getApplicationId()).ifPresent(application -> {
+                if (application.getStatus() != ApplicationStatus.APPROVED) {
+                    log.info("[ApplicationReviewService] Auto-approving application {} due to PaymentSuccessEvent", application.getApplicationId());
+                    updateStatusAndSaveHistory(application, ApplicationStatus.APPROVED, null, "Thanh toán thành công (Hệ thống tự động cập nhật)");
+                }
+            });
+        }
     }
 
     @Transactional

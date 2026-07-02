@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.entity;
 
 import com.sdms.backend.common.entity.BaseEntity;
+import com.sdms.backend.modules.room.enums.BuildingGender;
 import com.sdms.backend.modules.room.enums.BuildingStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -62,4 +63,11 @@ public class Building extends BaseEntity {
             length = 20
     )
     private BuildingStatus status = BuildingStatus.ACTIVE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(
+            nullable = false,
+            length = 20
+    )
+    private BuildingGender gender = BuildingGender.MIXED;
 }

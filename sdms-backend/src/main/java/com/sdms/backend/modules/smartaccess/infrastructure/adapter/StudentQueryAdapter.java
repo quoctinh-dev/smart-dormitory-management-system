@@ -13,7 +13,6 @@ public class StudentQueryAdapter implements StudentQueryPort {
 
     @Override
     public Optional<StudentEligibilitySnapshot> getStudentEligibility(UUID studentId) {
-        // TODO: Implement cross-module communication with Student and Room modules.
         // For now, this acts as a stub to resolve the ApplicationContext missing bean error
         // and allow the SmartAccess module to boot up.
         return Optional.of(StudentEligibilitySnapshot.builder()

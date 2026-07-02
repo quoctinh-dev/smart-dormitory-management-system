@@ -101,6 +101,11 @@ public class CheckInService {
 
         // 4. KÍCH NỔ SỰ KIỆN VỆ TINH: Tách biệt phân hệ mở rộng
         log.info("[CheckInService] Publishing CheckInCompletedEvent for assignmentId={}", assignmentId);
-        eventPublisher.publishEvent(new CheckInCompletedEvent(this, assignmentId, applicationId));
+        eventPublisher.publishEvent(new CheckInCompletedEvent(this, assignmentId, applicationId,
+                student != null ? student.getStudentId() : null,
+                student != null ? student.getEmail() : null,
+                student != null ? student.getFullName() : null,
+                assignment.getBed().getBedCode(),
+                assignment.getBed().getRoom().getRoomCode()));
     }
 }

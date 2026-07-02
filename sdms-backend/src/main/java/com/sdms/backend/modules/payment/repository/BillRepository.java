@@ -41,4 +41,8 @@ public interface BillRepository extends JpaRepository<Bill, UUID> {
             @Param("currentDate") java.time.LocalDate currentDate);
     
     List<Bill> findByStudentIdAndBillTypeAndStatus(UUID studentId, BillType billType, BillStatus status);
+
+    boolean existsByStudentIdAndStatusIn(UUID studentId, List<BillStatus> statuses);
+
+    List<Bill> findByStatusAndDueDateBefore(BillStatus status, java.time.LocalDate date);
 }

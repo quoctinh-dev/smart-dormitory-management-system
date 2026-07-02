@@ -24,7 +24,7 @@ public interface DormitoryApplicationRepository
     extends JpaRepository<DormitoryApplication, UUID>, JpaSpecificationExecutor<DormitoryApplication> {
 
     @Override
-    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"priorities", "documents"})
+    // Đã xóa @EntityGraph để tránh cảnh báo HHH90003004 khi phân trang với fetch collection
     org.springframework.data.domain.Page<DormitoryApplication> findAll(org.springframework.data.domain.Pageable pageable);
 
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"priorities", "documents"})

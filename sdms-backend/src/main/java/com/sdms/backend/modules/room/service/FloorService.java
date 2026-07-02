@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.sdms.backend.common.enums.Gender;
+import com.sdms.backend.modules.room.enums.BuildingGender;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -38,23 +41,50 @@ public class FloorService {
             throw new AppException("Floor number already exists in building", HttpStatus.BAD_REQUEST);
         }
 
+        Gender targetGender = request.getGender();
+        if (building.getGender() != BuildingGender.MIXED) {
+            Gender expectedGender = Gender.valueOf(building.getGender().name());
+            if (targetGender != null && targetGender != expectedGender) {
+                throw new AppException("Building gender restricts floor gender to " + expectedGender, HttpStatus.BAD_REQUEST);
+            }
+            targetGender = expectedGender;
+        }
+
+        if (targetGender == null) {
+            throw new AppException("Floor gender cannot be null", HttpStatus.BAD_REQUEST);
+        }
+
         Floor floor = new Floor();
         floor.setBuilding(building);
         floor.setFloorNumber(request.getFloorNumber());
-        floor.setOccupancyPolicy(request.getOccupancyPolicy());
+        floor.setGender(targetGender);
 
         return floorMapper.toResponse(floorRepository.save(floor));
     }
 
     public FloorResponse updateFloor(UUID floorId, UpdateFloorRequest request) {
         Floor floor = findById(floorId);
+        Building building = floor.getBuilding();
+
+        Gender targetGender = request.getGender();
+        if (building.getGender() != BuildingGender.MIXED) {
+            Gender expectedGender = Gender.valueOf(building.getGender().name());
+            if (targetGender != null && targetGender != expectedGender) {
+                throw new AppException("Cannot change floor gender because the building is strictly " + expectedGender, HttpStatus.BAD_REQUEST);
+            }
+            targetGender = expectedGender;
+        }
+
+        if (targetGender == null) {
+            throw new AppException("Floor gender cannot be null", HttpStatus.BAD_REQUEST);
+        }
 
         // Kiểm tra xem chính sách có thay đổi không
-        if (request.getOccupancyPolicy() != floor.getOccupancyPolicy()) {
+        if (targetGender != floor.getGender()) {
             floorValidator.validatePolicyChange(floorId);
         }
 
-        floor.setOccupancyPolicy(request.getOccupancyPolicy());
+        floor.setGender(targetGender);
         return floorMapper.toResponse(floorRepository.save(floor));
     }
 

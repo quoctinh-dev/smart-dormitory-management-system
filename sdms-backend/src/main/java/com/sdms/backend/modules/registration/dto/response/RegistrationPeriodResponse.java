@@ -32,4 +32,10 @@ public class RegistrationPeriodResponse {
 
     @Schema(description = "Trạng thái kích hoạt")
     private Boolean isActive;
+
+    @Schema(description = "Thời gian bắt đầu lưu trú")
+    private LocalDateTime stayStartDate;
+
+    @Schema(description = "Thời gian kết thúc lưu trú")
+    private LocalDateTime stayEndDate;
 }

@@ -5,7 +5,8 @@ package com.sdms.backend.modules.application.enums;
  */
 public enum GeneratedDocumentType {
     REGISTRATION_FORM("Phiếu đăng ký lưu trú"),
-    COMMITMENT_FORM("Bản cam kết lưu trú");
+    COMMITMENT_FORM("Bản cam kết lưu trú"),
+    EXTENSION_DECISION("Quyết định gia hạn lưu trú");
 
     private final String displayName;
 

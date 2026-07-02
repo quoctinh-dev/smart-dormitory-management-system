@@ -10,6 +10,7 @@ import com.sdms.backend.modules.room.repository.FloorRepository;   // Added
 import com.sdms.backend.modules.room.repository.RoomRepository;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ public class RoomDashboardService {
     private final BuildingRepository buildingRepository; // Added
     private final FloorRepository floorRepository;       // Added
 
+    @Cacheable(value = "dashboard_static", key = "'static_metrics'")
     public DashboardStatsResponse getDashboardStats() {
         long pendingApplications = applicationRepository.countByStatus(ApplicationStatus.PENDING);
         long waitingPayment = applicationRepository.countByStatus(ApplicationStatus.WAITING_PAYMENT);

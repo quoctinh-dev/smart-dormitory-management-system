@@ -114,7 +114,6 @@ public class AssignmentValidator {
             );
         }
 
-        // TODO (ROOM-04 STEP 05): Tích hợp kiểm tra trạng thái thanh toán từ ROOM-PAY (validateCanExpire)
         // Nhằm tránh việc hủy nhầm hồ sơ đã thanh toán thành công nhưng chưa kích hoạt webhook.
     }
 

@@ -9,6 +9,7 @@ import com.sdms.backend.modules.room.repository.*;
 import com.sdms.backend.modules.room.validator.AssignmentValidator;
 import com.sdms.backend.modules.room.event.CheckInCompletedEvent;
 import com.sdms.backend.modules.room.event.HousingReservationExpiredEvent;
+import com.sdms.backend.modules.room.event.AssignmentCancelledEvent;
 import com.sdms.backend.modules.room.event.BedReleasedEvent;
 import com.sdms.backend.modules.student.entity.Student;
 import lombok.RequiredArgsConstructor;
@@ -51,10 +52,11 @@ public class HousingAssignmentService {
     public StudentHousingAssignment reserveBed(UUID applicationId, Gender gender) {
         validateApplicationCanAssign(applicationId);
 
-        OccupancyPolicy policy = (gender == Gender.MALE)
-                ? OccupancyPolicy.MALE : OccupancyPolicy.FEMALE;
+        com.sdms.backend.modules.room.enums.BuildingGender buildingGender = 
+            (gender == Gender.MALE) ? com.sdms.backend.modules.room.enums.BuildingGender.MALE 
+                                    : com.sdms.backend.modules.room.enums.BuildingGender.FEMALE;
 
-        List<Room> rooms = roomRepository.findAvailableRoomsByPolicy(policy, RoomStatus.AVAILABLE);
+        List<Room> rooms = roomRepository.findAvailableRoomsByGender(gender, buildingGender, RoomStatus.AVAILABLE);
 
         for (Room room : rooms) {
             Room lockedRoom = roomRepository.findByIdForUpdate(room.getRoomId())
@@ -107,8 +109,20 @@ public class HousingAssignmentService {
 
         recalculateRoomStatus(bed.getRoom());
 
-        eventPublisher.publishEvent(new CheckInCompletedEvent(this, assignment.getAssignmentId(), assignment.getApplication().getApplicationId()));
+        eventPublisher.publishEvent(new CheckInCompletedEvent(this, assignment.getAssignmentId(), assignment.getApplication().getApplicationId(),
+                assignment.getStudent() != null ? assignment.getStudent().getStudentId() : null,
+                assignment.getStudent() != null ? assignment.getStudent().getEmail() : null,
+                assignment.getStudent() != null ? assignment.getStudent().getFullName() : null,
+                assignment.getBed().getBedCode(),
+                assignment.getBed().getRoom().getRoomCode()));
         log.info("Student checked in successfully for assignment {}. Published CheckInCompletedEvent.", assignmentId);
+    }
+
+    public void confirmReserved(UUID assignmentId) {
+        StudentHousingAssignment assignment = findAssignment(assignmentId);
+        assignment.setStatus(AssignmentStatus.PENDING_CHECKIN);
+        assignmentRepository.save(assignment);
+        log.info("Assignment {} status updated to PENDING_CHECKIN upon payment success", assignmentId);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -120,6 +134,17 @@ public class HousingAssignmentService {
         assignmentRepository.save(assignment);
 
         eventPublisher.publishEvent(new HousingReservationExpiredEvent(this, assignment.getApplication().getApplicationId(), assignmentId));
+        eventPublisher.publishEvent(new AssignmentCancelledEvent(this, assignmentId, "EXPIRED"));
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void cancelReservation(UUID assignmentId) {
+        StudentHousingAssignment assignment = findAssignment(assignmentId);
+        releaseResources(assignment);
+        assignment.setStatus(AssignmentStatus.CANCELLED);
+        assignmentRepository.save(assignment);
+
+        eventPublisher.publishEvent(new AssignmentCancelledEvent(this, assignmentId, "CANCELLED"));
     }
 
     public void checkOut(UUID assignmentId) {

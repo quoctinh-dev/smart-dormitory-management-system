@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Quyết định gia hạn lưu trú</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .title { font-size: 24px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; }
+        .content { margin-bottom: 30px; }
+        .footer { margin-top: 50px; text-align: right; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>BAN QUẢN LÝ KÝ TÚC XÁ</h2>
+        <div class="title">QUYẾT ĐỊNH GIA HẠN LƯU TRÚ</div>
+    </div>
+    
+    <div class="content">
+        <p>Căn cứ đơn xin gia hạn lưu trú của sinh viên,</p>
+        <p>Ban Quản lý Ký túc xá quyết định phê duyệt gia hạn lưu trú cho sinh viên sau:</p>
+        
+        <table class="table">
+            <tr>
+                <th style="width: 30%;">Họ và tên</th>
+                <td th:text="${student.fullName}"></td>
+            </tr>
+            <tr>
+                <th>Mã số sinh viên</th>
+                <td th:text="${student.studentCode}"></td>
+            </tr>
+            <tr>
+                <th>CCCD/CMND</th>
+                <td th:text="${student.cccd}"></td>
+            </tr>
+            <tr>
+                <th>Phòng/Giường hiện tại</th>
+                <td>Phòng <span th:text="${ext.currentBed.room.roomCode}"></span> - Giường <span th:text="${ext.currentBed.bedCode}"></span></td>
+            </tr>
+            <tr>
+                <th>Lý do gia hạn</th>
+                <td th:text="${ext.reason}"></td>
+            </tr>
+            <tr>
+                <th>Mô tả thêm</th>
+                <td th:text="${ext.description}"></td>
+            </tr>
+        </table>
+        
+        <p style="margin-top: 20px;"><strong>Quyết định:</strong> Chấp thuận gia hạn lưu trú đến ngày <span th:text="${#temporals.format(ext.newExpectedCheckOutAt, 'dd/MM/yyyy')}"></span>.</p>
+    </div>
+    
+    <div class="footer">
+        <p><em>Ngày ..... tháng ..... năm 20.....</em></p>
+        <p><strong>BAN QUẢN LÝ KÝ TÚC XÁ</strong></p>
+        <p>(Ký và ghi rõ họ tên)</p>
+    </div>
+</body>
+</html>

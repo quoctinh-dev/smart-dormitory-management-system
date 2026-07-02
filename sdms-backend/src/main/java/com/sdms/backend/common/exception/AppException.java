@@ -10,22 +10,27 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class AppException extends RuntimeException {
     private final HttpStatus status;
+    private ErrorCode errorCode;
 
     public AppException(String message, HttpStatus status) {
         super(message);
         this.status = status;
     }
 
-    /**
-     * Constructor mới cho phép truyền vào cả exception gốc (cause).
-     * Giúp giữ lại stack trace của lỗi ban đầu để tiện cho việc debug.
-     *
-     * @param message Thông báo lỗi cho client
-     * @param status  Mã trạng thái HTTP
-     * @param cause   Ngoại lệ gốc đã gây ra lỗi này
-     */
     public AppException(String message, HttpStatus status, Throwable cause) {
         super(message, cause);
         this.status = status;
+    }
+
+    public AppException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.status = errorCode.getStatus();
+        this.errorCode = errorCode;
+    }
+    
+    public AppException(ErrorCode errorCode, String customMessage) {
+        super(customMessage);
+        this.status = errorCode.getStatus();
+        this.errorCode = errorCode;
     }
 }

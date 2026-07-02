@@ -9,14 +9,21 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   flyway:
     enabled: true
     baseline-on-migrate: true
+
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: src/main/java,src/main/resources
+    livereload:
+      enabled: true
 
 app:
   frontend-url: ${APP_FRONTEND_URL:http://localhost:5173}
@@ -47,3 +54,8 @@ logging:
 application:
   payment:
     deadline-days: 3
+
+management:
+  health:
+    redis:
+      enabled: false

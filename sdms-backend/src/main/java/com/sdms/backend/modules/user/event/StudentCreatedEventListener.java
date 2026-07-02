@@ -7,7 +7,8 @@ import com.sdms.backend.modules.student.repository.StudentRepository;
 import com.sdms.backend.modules.student.event.StudentCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
+import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ public class StudentCreatedEventListener {
      * Nhiệm vụ duy nhất: Gửi email hướng dẫn kích hoạt tài khoản bằng Async (Bất đồng bộ).
      */
     @Async("taskExecutor") // Chạy Thread riêng để không làm chậm luồng phản hồi thanh toán
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void handleStudentCreatedEvent(StudentCreatedEvent event) {
         log.info("[StudentCreatedEventListener] Đang chuẩn bị gửi email kích hoạt cho studentId={}", event.getStudentId());
 

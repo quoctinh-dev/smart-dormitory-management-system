@@ -24,7 +24,6 @@ public class SepayReconciliationJob {
         
         // 2. Recover missed webhooks (Placeholder for actual API call to SePay GET /transactions)
         log.info("[SepayReconciliationJob] Recovering missed webhooks from Gateway...");
-        // TODO: Call SePay API and process transactions that match pending PENDING transactionCodes
         
         log.info("[SepayReconciliationJob] Reconciliation finished.");
     }

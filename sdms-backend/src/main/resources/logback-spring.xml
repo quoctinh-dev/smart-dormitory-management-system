@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Biến để định nghĩa đường dẫn và tên file log -->
+    <property name="LOGS_PATH" value="./logs"/>
+    <property name="LOG_FILE_NAME" value="sdms-backend"/>
+
+    <!-- Cấu hình Appender cho Console (để hiển thị log trên màn hình) -->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- Sửa lỗi: Sử dụng <encoder> thay vì <layout> trực tiếp -->
+        <encoder>
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n
+            </Pattern>
+        </encoder>
+    </appender>
+
+    <!-- Cấu hình Appender để ghi log ra file, có chức năng xoay vòng (Rolling) -->
+    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS_PATH}/${LOG_FILE_NAME}.log</file>
+
+        <!-- Sửa lỗi: Sửa %C{1.} thành %C{1} -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d %p %C{1} [%t] %m%n</Pattern>
+        </encoder>
+
+        <!-- Sửa lỗi: Sử dụng cấu trúc mới cho Time and Size Based Rolling -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Xoay vòng file log hàng ngày -->
+            <fileNamePattern>${LOGS_PATH}/${LOG_FILE_NAME}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+
+            <!-- Kích thước file tối đa trước khi xoay vòng -->
+            <maxFileSize>10MB</maxFileSize>
+
+            <!-- Giữ lại lịch sử log trong 30 ngày -->
+            <maxHistory>30</maxHistory>
+
+            <!-- Tổng dung lượng tối đa của tất cả các file log cũ -->
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Cấu hình Logger mặc định cho toàn bộ ứng dụng -->
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+        <appender-ref ref="RollingFile"/>
+    </root>
+
+    <!-- Cấu hình Logger riêng cho các package cụ thể (ví dụ) -->
+    <!-- Để log chi tiết hơn cho module payment khi cần gỡ lỗi -->
+    <logger name="com.sdms.backend.modules.payment" level="DEBUG" additivity="false">
+        <appender-ref ref="Console"/>
+        <appender-ref ref="RollingFile"/>
+    </logger>
+
+    <!-- Giảm bớt log "nhiễu" từ các thư viện của Spring và Hibernate -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.hibernate" level="WARN"/>
+
+</configuration>

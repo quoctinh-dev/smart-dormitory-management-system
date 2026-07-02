@@ -38,6 +38,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Mục tiêu/Nghiệp vụ: Quản lý vòng đời đơn đăng ký nội trú của sinh viên (Tạo nháp, nộp tài liệu, gửi đơn chính thức, tra cứu đơn, hủy đơn).
+ * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Xây dựng theo Service Layer Pattern. Sử dụng Event-Driven Architecture (phát ApplicationSubmittedEvent) để decouple quá trình nộp đơn và quá trình xếp phòng (phân tải cho hệ thống).
+ * Lưu ý Kiến thức (Dành cho phản biện): Ghi chú các bẫy trạng thái: Giải thích tại sao phải khóa chặn điều kiện trùng căn cước công dân (CCCD) trên các đơn đang hoạt động (tránh 1 sinh viên spam nhiều đơn, làm sai lệch báo cáo giường trống). Giải thích lý do lưu vết status lịch sử đơn từ riêng biệt (DormitoryApplicationStatusHistory): Đảm bảo tính minh bạch, hỗ trợ thanh tra/kiểm toán (Audit) khi sinh viên khiếu nại về quyết định duyệt/từ chối của ban quản lý.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -220,20 +225,41 @@ public class ApplicationService {
 
         saveHistory(savedApplication, null, ApplicationStatus.PENDING, null, "Sinh viên nộp đơn chính thức thành công");
 
-        pdfService.generateAndUploadRegistrationFormPdf(savedApplication);
-        pdfService.generateAndUploadCommitmentFormPdf(savedApplication);
+        String registrationPdf = pdfService.generateAndUploadRegistrationFormPdf(savedApplication);
+        String commitmentPdf = pdfService.generateAndUploadCommitmentFormPdf(savedApplication);
+        
+        savedApplication.setRegistrationFormPdfUrl(registrationPdf);
+        savedApplication.setCommitmentFormPdfUrl(commitmentPdf);
+        savedApplication = applicationRepository.save(savedApplication);
 
-        // 🌟 KÍCH HOẠT DUY NHẤT NGÒI NỔ XẾP PHÒNG DỰ KIẾN TẠI ĐÂY
+        // KÍCH HOẠT VIỆC XẾP PHÒNG Ở ĐÂY
         eventPublisher.publishEvent(new ApplicationSubmittedEvent(
                 this,
                 savedApplication.getApplicationId(),
+                null,
                 savedApplication.getGender().name(),
-                savedApplication.getPriorityScore()
+                savedApplication.getPriorityScore(),
+                savedApplication.getFullName(),
+                savedApplication.getEmail()
         ));
 
         log.info("Application submitted successfully. Code={}", savedApplication.getApplicationCode());
         return mapToResponse(savedApplication);
     }
+    @Transactional
+    public void cancelApplicationDueToPayment(UUID applicationId) {
+        log.info("Cancelling application ID={} due to payment expiration", applicationId);
+        DormitoryApplication application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new AppException("Hồ sơ đăng ký không tồn tại", HttpStatus.NOT_FOUND));
+
+        ApplicationStatus oldStatus = application.getStatus();
+        application.setStatus(ApplicationStatus.REJECTED);
+        application.setReviewNote("Hồ sơ bị từ chối do quá hạn nộp phí giữ chỗ");
+        applicationRepository.save(application);
+
+        saveHistory(application, oldStatus, ApplicationStatus.REJECTED, null, "Hủy đơn do quá hạn thanh toán hóa đơn giữ chỗ");
+    }
+
     // =========================================================================
     // 🌟 FIX HIỆU NĂNG & THỜI GIAN: Thêm @Transactional(readOnly = true) an toàn
     // =========================================================================

@@ -23,7 +23,6 @@ public class RestAiExtractionAdapter implements AiExtractionPort {
     public float[] extractVector(String imageUrl) {
         log.info("Requesting vector extraction from AI Engine. Image: {}", imageUrl);
         try {
-            // TODO: Uncomment the real call when Python AI sidecar is deployed
             // Map<String, String> payload = Map.of("image_url", imageUrl);
             // return restTemplate.postForObject(aiEngineUrl, payload, float[].class);
             

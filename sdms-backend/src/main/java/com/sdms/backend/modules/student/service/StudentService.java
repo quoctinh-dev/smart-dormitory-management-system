@@ -13,6 +13,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Mục tiêu/Nghiệp vụ: Quản lý thông tin hồ sơ cá nhân (Profile) của cư dân (Sinh viên) đã được duyệt và cấp tài khoản, phục vụ cho quá trình sinh hoạt nội trú tại KTX.
+ * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Cập nhật thông tin qua cơ chế PATCH (chỉ update các trường có dữ liệu) thay vì PUT (ghi đè toàn bộ). Lấy thông tin sinh viên hiện hành trực tiếp từ SecurityContextHolder của Spring Security.
+ * Lưu ý Kiến thức (Dành cho phản biện): Tại sao lấy thông tin từ SecurityContextHolder thay vì bắt Frontend truyền studentId: Đây là cơ chế bảo mật quan trọng để chống lỗ hổng IDOR (Insecure Direct Object Reference). Việc lấy thông tin từ JWT Token giải mã tại backend đảm bảo sinh viên A không thể tùy tiện cập nhật profile của sinh viên B bằng cách chặn bắt và thay đổi ID trên request.
+ */
 @Service
 @RequiredArgsConstructor
 public class StudentService {

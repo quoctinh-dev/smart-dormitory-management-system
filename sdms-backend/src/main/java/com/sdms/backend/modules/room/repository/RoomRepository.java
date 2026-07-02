@@ -1,12 +1,13 @@
 package com.sdms.backend.modules.room.repository;
 
 import com.sdms.backend.modules.room.entity.Room;
-import com.sdms.backend.modules.room.enums.OccupancyPolicy;
+import com.sdms.backend.common.enums.Gender;
 import com.sdms.backend.modules.room.enums.RoomStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import jakarta.persistence.LockModeType;
 import org.springframework.stereotype.Repository;
 
@@ -21,7 +22,7 @@ import java.util.UUID;
  * - Trạng thái phòng (status) quyết định khả năng phân bổ chỗ ở (reserve).
  */
 @Repository
-public interface RoomRepository extends JpaRepository<Room, UUID> {
+public interface RoomRepository extends JpaRepository<Room, UUID>, JpaSpecificationExecutor<Room> {
 
     Optional<Room> findByFloor_FloorIdAndRoomCode(UUID floorId, String roomCode);
 
@@ -31,24 +32,24 @@ public interface RoomRepository extends JpaRepository<Room, UUID> {
 
     List<Room> findByStatus(RoomStatus status);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT r FROM Room r WHERE r.roomId = :roomId")
     Optional<Room> findByIdForUpdate(@Param("roomId") UUID roomId);
 
     /**
-     * BUSINESS LOGIC: Tìm danh sách phòng khả dụng dựa trên chính sách giới tính của tầng.
-     * * ORDERING: Sắp xếp theo số lượng giường đã chiếm (occupiedBeds) tăng dần
-     * để ưu tiên lấp đầy phòng có ít người trước (tối ưu hóa phân bổ).
-     * * FIXED DÒNG 41: Sửa @Param("roomStatus") thành @Param("status") để khớp hoàn toàn với JPQL :status.
+     * BUSINESS LOGIC: Tìm danh sách phòng khả dụng dựa trên chính sách giới tính kép (Building + Floor).
+     * * Tòa nhà phải cùng giới tính hoặc là MIXED.
+     * * Tầng phải trùng khớp tuyệt đối với giới tính sinh viên.
      */
     @Query("""
         SELECT r FROM Room r 
-        WHERE r.floor.occupancyPolicy = :policy 
+        WHERE (r.floor.building.gender = :buildingGender OR r.floor.building.gender = com.sdms.backend.modules.room.enums.BuildingGender.MIXED) 
+        AND r.floor.gender = :studentGender 
         AND r.status = :status 
         ORDER BY r.occupiedBeds ASC
     """)
-    List<Room> findAvailableRoomsByPolicy(
-            @Param("policy") OccupancyPolicy policy,
+    List<Room> findAvailableRoomsByGender(
+            @Param("studentGender") Gender studentGender,
+            @Param("buildingGender") com.sdms.backend.modules.room.enums.BuildingGender buildingGender,
             @Param("status") RoomStatus status
     );
 }

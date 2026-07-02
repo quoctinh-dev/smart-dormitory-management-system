@@ -1,6 +1,6 @@
 package com.sdms.backend.modules.room.dto.response;
 
-import com.sdms.backend.modules.room.enums.OccupancyPolicy;
+import com.sdms.backend.common.enums.Gender;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +20,7 @@ public class FloorResponse {
 
     private Integer floorNumber;
 
-    private OccupancyPolicy occupancyPolicy;
+    private Gender gender;
 
     private UUID buildingId;
 

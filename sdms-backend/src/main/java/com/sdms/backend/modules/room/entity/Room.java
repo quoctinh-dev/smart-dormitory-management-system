@@ -3,6 +3,7 @@ package com.sdms.backend.modules.room.entity;
 import com.sdms.backend.common.entity.BaseEntity;
 import com.sdms.backend.modules.room.enums.RoomStatus;
 import jakarta.persistence.*;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -47,4 +48,8 @@ public class Room extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "floor_id", nullable = false)
     private Floor floor;
+
+    @Version
+    @Column(name = "version")
+    private Integer version;
 }

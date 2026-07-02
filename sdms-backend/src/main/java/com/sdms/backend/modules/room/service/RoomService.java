@@ -12,6 +12,16 @@ import com.sdms.backend.modules.room.repository.FloorRepository;
 import com.sdms.backend.modules.room.repository.RoomRepository;
 import com.sdms.backend.modules.room.validator.RoomValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import com.sdms.backend.common.enums.Gender;
+import com.sdms.backend.modules.room.repository.RoomSpecification;
+import com.sdms.backend.modules.room.dto.response.OccupancyAnalyticsResponse;
+import com.sdms.backend.modules.room.dto.response.RevenueAtRiskResponse;
+import com.sdms.backend.modules.room.dto.response.MaintenanceReportResponse;
+import com.sdms.backend.modules.room.service.integration.PaymentIntegrationService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +45,9 @@ public class RoomService {
 
     // ROOM-04 INTEGRATION: Thay thế việc gọi trực tiếp AssignmentRepository bằng RoomValidator lớp chuyên trách
     private final RoomValidator roomValidator;
+    
+    // Tích hợp thanh toán
+    private final PaymentIntegrationService paymentIntegrationService;
 
     public RoomResponse createRoom(CreateRoomRequest request) {
         Floor floor = floorRepository.findById(request.getFloorId())
@@ -96,6 +109,87 @@ public class RoomService {
         return roomRepository.findByFloor_FloorId(floorId).stream()
                 .map(roomMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RoomResponse> searchRooms(UUID buildingId, UUID floorId, RoomStatus status, Gender policy, Pageable pageable) {
+        Specification<Room> spec = RoomSpecification.filterRooms(buildingId, floorId, status, policy);
+        Page<Room> roomPage = roomRepository.findAll(spec, pageable);
+        return roomPage.map(roomMapper::toResponse);
+    }
+
+    // ========================================================================
+    // ANALYTICS METHODS FOR ADMIN DASHBOARD
+    // ========================================================================
+
+    @Cacheable(value = "analytics_occupancy", key = "'occupancy'")
+    @Transactional(readOnly = true)
+    public OccupancyAnalyticsResponse getOccupancyAnalytics() {
+        List<Room> rooms = roomRepository.findAll();
+        int totalCapacity = rooms.stream().mapToInt(Room::getCapacity).sum();
+        int totalOccupied = rooms.stream().mapToInt(Room::getOccupiedBeds).sum();
+        
+        double occupancyRate = totalCapacity == 0 ? 0 : (double) totalOccupied / totalCapacity * 100;
+        
+        String recommendation = "Tỷ lệ lấp đầy ổn định.";
+        if (occupancyRate < 40.0) {
+            recommendation = "Tỷ lệ lấp đầy quá thấp, đề xuất dồn sinh viên vào các phòng khác để tiết kiệm chi phí vận hành.";
+        }
+        
+        return OccupancyAnalyticsResponse.builder()
+                .overallOccupancyRate(occupancyRate)
+                .recommendationAction(recommendation)
+                .build();
+    }
+    
+    @Cacheable(value = "roomEmergencyRelocation")
+    @Transactional(readOnly = true)
+    public List<RoomResponse> getEmergencyRelocationRooms() {
+        List<Room> availableRooms = roomRepository.findAll().stream()
+            .filter(r -> r.getStatus() == RoomStatus.AVAILABLE && r.getOccupiedBeds() < r.getCapacity())
+            .collect(Collectors.toList());
+        return availableRooms.stream().map(roomMapper::toResponse).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public RevenueAtRiskResponse getRevenueAtRisk() {
+        // Tích hợp Loose Coupling: Lấy danh sách giường bị nợ tiền từ module Payment
+        var overdueMap = paymentIntegrationService.getOverduePaymentsByBed();
+        
+        List<RevenueAtRiskResponse.OverdueRecord> records = overdueMap.entrySet().stream()
+                .map(entry -> RevenueAtRiskResponse.OverdueRecord.builder()
+                        .bedCode(entry.getKey())
+                        .amountDue(entry.getValue())
+                        .daysOverdue(15) // Giả lập
+                        .build())
+                .collect(Collectors.toList());
+
+        double totalRisk = records.stream().mapToDouble(RevenueAtRiskResponse.OverdueRecord::getAmountDue).sum();
+
+        return RevenueAtRiskResponse.builder()
+                .totalAmountAtRisk(totalRisk)
+                .totalOverdueBeds(records.size())
+                .overdueRecords(records)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public MaintenanceReportResponse getMaintenanceReport() {
+        // Lấy danh sách các phòng đang bảo trì
+        List<Room> maintenanceRooms = roomRepository.findByStatus(RoomStatus.MAINTENANCE);
+        
+        List<MaintenanceReportResponse.MaintenanceRecord> records = maintenanceRooms.stream()
+                .map(r -> MaintenanceReportResponse.MaintenanceRecord.builder()
+                        .roomCode(r.getRoomCode())
+                        .issueDescription("Phòng đang trong trạng thái khóa bảo trì. Xem thêm chi tiết ở Ticket.")
+                        .expectedCompletionDate("Đang xử lý")
+                        .build())
+                .collect(Collectors.toList());
+                
+        return MaintenanceReportResponse.builder()
+                .totalRoomsUnderMaintenance(records.size())
+                .records(records)
+                .build();
     }
 
     // ========================================================================

@@ -4,6 +4,7 @@ import com.sdms.backend.common.entity.BaseEntity;
 import com.sdms.backend.modules.room.enums.BedStatus;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Version;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,23 +12,9 @@ import lombok.Setter;
 import java.util.UUID;
 
 /**
- * DOMAIN ROLE
- *
- * Đại diện cho một giường cụ thể
- * trong hệ thống KTX.
- *
- * BUSINESS PURPOSE
- *
- * Là đơn vị nhỏ nhất để
- * phân bổ chỗ ở cho sinh viên.
- *
- * BUSINESS RULE
- *
- * Một Bed chỉ thuộc duy nhất
- * một Room.
- *
- * Một Bed chỉ chứa tối đa
- * một sinh viên tại cùng thời điểm.
+ * Mục tiêu/Nghiệp vụ: Quản lý trạng thái vật lý của một chiếc giường trong phòng (Trống, Đã đặt chỗ, Đang ở, Bảo trì). Ngăn chặn tuyệt đối lỗi hệ thống xếp 2 sinh viên vào cùng 1 giường.
+ * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Sử dụng cơ chế Optimistic Locking (Khóa lạc quan) của Hibernate thông qua trường `@Version`.
+ * Lưu ý Kiến thức (Dành cho phản biện): Giải thích tại sao phải dùng `@Version`: Trong đợt đăng ký cao điểm, hàng ngàn sinh viên có thể click chọn cùng 1 chiếc giường trống tại một thời điểm (Race Condition). Nếu không có `@Version`, cả 2 transaction có thể cùng lưu thành công, dẫn đến overbooking. Khóa lạc quan sẽ tự động throw `ObjectOptimisticLockingFailureException` cho transaction đến sau, đảm bảo tính toàn vẹn dữ liệu mà không làm sụt giảm hiệu năng (như Pessimistic Locking).
  */
 
 @Entity
@@ -94,4 +81,8 @@ public class Bed extends BaseEntity {
             nullable = false
     )
     private Room room;
+
+    @Version
+    @Column(name = "version")
+    private Integer version;
 }

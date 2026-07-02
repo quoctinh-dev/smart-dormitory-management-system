@@ -28,8 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Filter một lần cho mỗi request để xác thực JWT.
- * Chịu trách nhiệm chặn request, kiểm tra token, và thiết lập SecurityContext.
+ * Mục tiêu/Nghiệp vụ: Filter một lần cho mỗi request để xác thực JWT của hệ thống Ký túc xá. Chịu trách nhiệm chặn request, kiểm tra token (tính hợp lệ, thời hạn, quyền hạn), và thiết lập SecurityContext cho sinh viên hoặc ban quản lý.
+ * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Kế thừa OncePerRequestFilter của Spring Security (thuộc Chain of Responsibility Pattern).
+ * Lưu ý Kiến thức (Dành cho phản biện): Giải thích cho hội đồng tại sao dùng OncePerRequestFilter thay vì Filter thông thường: Đảm bảo logic xác thực chỉ chạy 1 lần duy nhất trên 1 request, tránh vòng lặp forward/include trong servlet container gây tràn bộ nhớ hoặc xác thực nhiều lần dư thừa.
  */
 @Slf4j
 @Component

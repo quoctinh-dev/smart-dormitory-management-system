@@ -49,6 +49,12 @@ public class RegistrationPeriod extends BaseEntity {
     private LocalDateTime endDate;
 
     @Column(nullable = false)
+    private LocalDateTime stayStartDate;
+
+    @Column(nullable = false)
+    private LocalDateTime stayEndDate;
+
+    @Column(nullable = false)
     private Boolean isActive = true;
 
     @Enumerated(EnumType.STRING)

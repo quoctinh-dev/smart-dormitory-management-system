@@ -3,6 +3,7 @@ package com.sdms.backend.modules.application.service;
 import com.sdms.backend.modules.application.entity.ApplicationGeneratedDocument;
 import com.sdms.backend.modules.application.entity.ApplicationPriority;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
+import com.sdms.backend.modules.student.entity.StayExtension;
 import com.sdms.backend.modules.application.enums.GeneratedDocumentType;
 import com.sdms.backend.modules.application.repository.ApplicationGeneratedDocumentRepository;
 import com.sdms.backend.modules.upload.service.CloudinaryService;
@@ -67,6 +68,20 @@ public class ApplicationPdfService {
         String fileUrl = generateAndUploadPdf(htmlContent, fileName);
         saveGeneratedDocument(application, GeneratedDocumentType.COMMITMENT_FORM, fileUrl);
         log.info("Successfully generated and uploaded commitment form PDF for application code: {}", application.getApplicationCode());
+        return fileUrl;
+    }
+
+    public String generateAndUploadExtensionDecisionPdf(StayExtension extension) {
+        log.info("Generating extension decision PDF for student code: {}", extension.getStudent().getStudentCode());
+        Context context = new Context();
+        context.setVariable("ext", extension);
+        context.setVariable("student", extension.getStudent());
+
+        String htmlContent = templateEngine.process("pdf/stay_extension_decision", context);
+        String fileName = "extension_decision_" + extension.getStudent().getStudentCode() + "_" + extension.getExtensionId();
+
+        String fileUrl = generateAndUploadPdf(htmlContent, fileName);
+        log.info("Successfully generated and uploaded extension decision form PDF for student code: {}", extension.getStudent().getStudentCode());
         return fileUrl;
     }
 

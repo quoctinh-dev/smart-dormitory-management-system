@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.user.repository;
 
 import com.sdms.backend.modules.user.entity.UserAccount;
+import com.sdms.backend.modules.user.enums.Role;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -9,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.LockModeType;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,4 +32,6 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, UUID> 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT u FROM UserAccount u WHERE u.email = :email")
     Optional<UserAccount> findByEmailForUpdate(@Param("email") String email);
+
+    List<UserAccount> findByRole(Role role);
 }

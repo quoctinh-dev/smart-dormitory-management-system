@@ -3,6 +3,7 @@ package com.sdms.backend.modules.registration.service;
 import com.sdms.backend.common.exception.AppException;
 import com.sdms.backend.modules.registration.dto.request.CheckEligibilityRequest;
 import com.sdms.backend.modules.registration.dto.response.CheckEligibilityResponse;
+import com.sdms.backend.modules.registration.dto.response.RegistrationPeriodResponse;
 import com.sdms.backend.modules.registration.entity.RegistrationEligibility;
 import com.sdms.backend.modules.registration.entity.RegistrationPeriod;
 import com.sdms.backend.modules.registration.enums.RegistrationType;
@@ -17,6 +18,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Mục tiêu/Nghiệp vụ: Quản lý các đợt đăng ký KTX và kiểm tra điều kiện (Eligibility) của sinh viên trước khi họ được phép tạo đơn (VD: Tân sinh viên được ưu tiên đợt 1).
+ * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Xây dựng dựa trên nguyên lý Single Responsibility. Sử dụng Hibernate/Spring Data JPA để truy vấn whitelist (danh sách đủ điều kiện), thiết lập `@Transactional(readOnly = true)` để tối ưu cache L1 và connection pool.
+ * Lưu ý Kiến thức (Dành cho phản biện): Giải thích bẫy trạng thái Overlap thời gian ở hàm getActivePeriod: Do admin có thể thiết lập nhầm thời gian của 2 đợt đăng ký chồng lên nhau (overlap), nếu dùng phương thức JPA trả về 1 kết quả (Single/Optional) hệ thống sẽ throw NonUniqueResultException làm sập toàn bộ luồng tạo đơn. Thay vào đó, trả về List và lấy activePeriods.get(0) để bảo vệ hệ thống trước lỗi con người (Fault Tolerance).
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -41,6 +47,23 @@ public class RegistrationService {
 
         // Nếu có nhiều đợt trùng nhau, ưu tiên lấy đợt đầu tiên tìm thấy thay vì crash hệ thống
         return activePeriods.get(0);
+    }
+
+    /**
+     * Lấy thông tin đợt đăng ký đang active cho client.
+     */
+    public RegistrationPeriodResponse getActiveRegistrationPeriod() {
+        RegistrationPeriod p = getActivePeriod();
+        return new RegistrationPeriodResponse(
+                p.getPeriodId(),
+                p.getPeriodName(),
+                p.getRegistrationType(),
+                p.getStartDate(),
+                p.getEndDate(),
+                p.getIsActive(),
+                p.getStayStartDate(),
+                p.getStayEndDate()
+        );
     }
 
     /**

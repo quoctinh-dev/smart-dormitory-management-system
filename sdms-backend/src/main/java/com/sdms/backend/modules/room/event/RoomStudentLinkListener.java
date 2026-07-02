@@ -21,8 +21,11 @@ public class RoomStudentLinkListener {
     private final StudentHousingAssignmentRepository assignmentRepository;
     private final StudentRepository studentRepository;
 
-    @org.springframework.context.event.EventListener
+    @org.springframework.transaction.event.TransactionalEventListener(phase = org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    @org.springframework.scheduling.annotation.Async
+    @org.springframework.transaction.annotation.Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
     public void handleStudentCreatedEvent(StudentCreatedEvent event) {
+        try {
         log.info("[RoomStudentLinkListener] Handling StudentCreatedEvent for assignmentId={}", event.getAssignmentId());
 
         Optional<StudentHousingAssignment> assignmentOpt = assignmentRepository.findByIdForUpdate(event.getAssignmentId());
@@ -60,5 +63,8 @@ public class RoomStudentLinkListener {
         assignmentRepository.save(assignment);
         log.info("[RoomStudentLinkListener] Successfully linked student={} to assignment={} and transitioned to PENDING_CHECKIN",
                 event.getStudentId(), event.getAssignmentId());
+        } catch (Exception e) {
+            log.error("[RoomStudentLinkListener] Lỗi ngầm khi xử lý StudentCreatedEvent: {}", e.getMessage(), e);
+        }
     }
 }

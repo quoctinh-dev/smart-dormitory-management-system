@@ -14,6 +14,9 @@ import com.sdms.backend.modules.user.entity.UserAccount;
 import com.sdms.backend.modules.user.enums.Role;
 import com.sdms.backend.modules.user.enums.AccountStatus;
 import com.sdms.backend.modules.user.repository.UserAccountRepository;
+import com.sdms.backend.modules.room.event.CheckInCompletedEvent;
+import com.sdms.backend.modules.user.enums.AccountStatus;
+import com.sdms.backend.modules.user.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -121,6 +124,18 @@ public class StudentProvisioningListener {
             log.error("[StudentProvisioningListener] Thất bại khi sinh hồ sơ/tài khoản tự động cho Đơn={}. Lý do: {}",
                     event.getApplicationId(), e.getMessage(), e);
             throw new AppException("Lỗi hệ thống ngầm khi sinh tài khoản cư dân tự động.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @EventListener
+    @Transactional
+    public void handleCheckInCompleted(CheckInCompletedEvent event) {
+        if (event.getStudentId() != null) {
+            studentRepository.findById(event.getStudentId()).ifPresent(student -> {
+                student.setStatus(StudentStatus.ACTIVE);
+                studentRepository.save(student);
+                log.info("[StudentProvisioningListener] Đã cập nhật trạng thái Student {} thành ACTIVE sau khi check-in", event.getStudentId());
+            });
         }
     }
 }

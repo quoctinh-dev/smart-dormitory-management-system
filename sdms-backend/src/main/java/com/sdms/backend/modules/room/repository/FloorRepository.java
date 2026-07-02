@@ -1,7 +1,7 @@
 package com.sdms.backend.modules.room.repository;
 
 import com.sdms.backend.modules.room.entity.Floor;
-import com.sdms.backend.modules.room.enums.OccupancyPolicy;
+import com.sdms.backend.common.enums.Gender;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -25,7 +25,7 @@ public interface FloorRepository extends JpaRepository<Floor, UUID> {
      * Lọc các tầng theo chính sách cư trú (ví dụ: MALE, FEMALE).
      * Phục vụ nhu cầu quản trị và báo cáo của Admin.
      */
-    List<Floor> findByOccupancyPolicy(OccupancyPolicy occupancyPolicy);
+    List<Floor> findByGender(Gender gender);
 
     /**
      * Kiểm tra tính duy nhất của floor_number trong cùng một tòa nhà.

@@ -2,6 +2,7 @@ package com.sdms.backend.modules.payment.event;
 
 import com.sdms.backend.modules.payment.service.BillService;
 import com.sdms.backend.modules.room.event.BedReservedEvent;
+import com.sdms.backend.modules.student.event.ExtensionApprovedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -50,6 +51,33 @@ public class BillGenerationListener {
         } catch (Exception e) {
             log.error("[BillGenerationListener] Failed to create bill for assignmentId={}. Reason: {}",
                     event.getAssignmentId(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Lắng nghe sự kiện gia hạn lưu trú được duyệt (ExtensionApprovedEvent).
+     * Tạo ra một hóa đơn tiền phòng cho đợt gia hạn mới.
+     */
+    @Async("taskExecutor")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void handleExtensionApprovedEvent(ExtensionApprovedEvent event) {
+        log.info("[BillGenerationListener] Handling ExtensionApprovedEvent for extensionId={}", event.getExtensionId());
+        try {
+            BigDecimal accommodationFee = new BigDecimal("2100000"); // 🌟 Phí lưu trú 1 năm (giả định)
+
+            billService.createAccommodationBill(
+                    event.getAssignmentId(),
+                    null, // Đơn gia hạn không gắn với ApplicationId (Registration) của năm đầu
+                    accommodationFee
+            );
+
+            log.info("[BillGenerationListener] Successfully created accommodation bill for extensionId={} with amount {}",
+                    event.getExtensionId(), accommodationFee);
+
+        } catch (Exception e) {
+            log.error("[BillGenerationListener] Failed to create bill for extensionId={}. Reason: {}",
+                    event.getExtensionId(), e.getMessage(), e);
         }
     }
 }

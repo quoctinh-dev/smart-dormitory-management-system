@@ -19,4 +19,10 @@ public class CreateRegistrationPeriodRequest {
 
     @NotNull private LocalDateTime startDate;
     @NotNull private LocalDateTime endDate;
+
+    @NotNull(message = "Ngày bắt đầu lưu trú không được trống") 
+    private LocalDateTime stayStartDate;
+    
+    @NotNull(message = "Ngày kết thúc lưu trú không được trống") 
+    private LocalDateTime stayEndDate;
 }

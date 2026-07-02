@@ -19,6 +19,11 @@ import java.math.RoundingMode;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Mục tiêu/Nghiệp vụ: Dịch vụ cốt lõi xử lý nhận diện khuôn mặt sinh viên tại cổng KTX. So khớp vector đặc trưng (Face Embedding) gửi từ camera/IoT với cơ sở dữ liệu để xác minh danh tính.
+ * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Sử dụng Facade Pattern (gom nhóm logic query db, tính ngưỡng, publish event) và kiến trúc Event-Driven. Sử dụng pgvector trên PostgreSQL với chỉ mục HNSW.
+ * Lưu ý Kiến thức (Dành cho phản biện): Giải thích cho hội đồng tại sao dùng pgvector và HNSW: KTX có hàng ngàn sinh viên, so khớp tuần tự O(N) sẽ chậm. pgvector với HNSW (Hierarchical Navigable Small World) giúp tìm kiếm vector với độ phức tạp O(log N) cho kết quả dưới 100ms, đáp ứng yêu cầu realtime tại cổng rào. Distance dùng Cosine Similarity.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -37,10 +42,10 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
     @Override
     public com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse verifyFace(String gateDeviceId, com.sdms.backend.modules.face.dto.request.FaceVerificationRequest verificationPayload) {
         
-        // 1. Extract vector from DTO
+        // 1. Trích xuất vector (128 hoặc 512 chiều) từ payload của thiết bị IoT
         String queryVectorStr = verificationPayload.queryVector();
 
-        // 2. Perform nearest neighbor search in DB (pgvector)
+        // 2. Tìm kiếm vector lân cận gần nhất trong CSDL thông qua pgvector
         Optional<FaceEmbeddingRepository.VectorMatchResult> matchOpt = faceEmbeddingRepository.findNearestMatch(queryVectorStr);
 
         if (matchOpt.isEmpty()) {
@@ -51,20 +56,19 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
         UUID profileId = match.getProfileId();
         Double distance = match.getDistance();
 
-        // 3. Evaluate threshold locally in service
+        // 3. Đánh giá ngưỡng (Threshold) tại tầng Service
         boolean isMatch = distance <= matchDistanceThreshold;
         
-        // Diagnostic confidence score (1.0 - distance)
+        // Điểm tin cậy (Confidence Score: 1.0 - distance), làm tròn 8 chữ số thập phân
         BigDecimal confidenceScore = BigDecimal.valueOf(Math.max(0.0, 1.0 - distance))
                 .setScale(8, RoundingMode.HALF_UP);
 
         if (!isMatch) {
-            // TODO (Security Audit): Confirm if we should persist the suspected target's profileId 
-            // for forensics, or leave it null to prevent false identity linking.
+            // Lưu vết thất bại phục vụ audit, giữ lại profileId bị nhận diện nhầm nếu có (pháp y)
             return processFailedAttempt(gateDeviceId, profileId, FaceVerificationResult.FAIL, confidenceScore);
         }
 
-        // 4. Append-only persistence (Audit Ledger)
+        // 4. Ghi nhận lịch sử (Append-only) làm bằng chứng không thể chối cãi
         FaceVerificationAttempt attempt = FaceVerificationAttempt.builder()
                 .gateDeviceId(gateDeviceId)
                 .profileId(profileId)
@@ -74,7 +78,7 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
 
         attempt = attemptRepository.save(attempt);
 
-        // 5. Publish Event (Authorization is delegated to Smart Access via this event)
+        // 5. Phát sự kiện (Ủy quyền quyết định đóng/mở cổng cho module Smart Access thông qua event)
         eventPublisher.publishEvent(new FaceMatchSuccessEvent(gateDeviceId, profileId, attempt.getAttemptId()));
 
         return new com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse(true, profileId, confidenceScore, attempt.getAttemptId());

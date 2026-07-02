@@ -6,16 +6,20 @@ import lombok.Getter;
 import lombok.Setter;
 import java.util.UUID;
 
+import java.io.Serializable;
+
 /**
  * DTO trả về thông tin phòng chi tiết.
  * * DESIGN NOTE:
  * - Bao gồm các thông tin phân cấp (Floor, Building) giúp UI Admin hiển thị
  * dữ liệu tổng quan mà không cần thực hiện nhiều truy vấn liên quan.
  */
+
 @Getter
 @Setter
 @Builder
-public class RoomResponse {
+public class RoomResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private UUID roomId;
 

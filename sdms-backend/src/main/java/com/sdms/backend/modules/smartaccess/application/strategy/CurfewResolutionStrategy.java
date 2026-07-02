@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Mục tiêu/Nghiệp vụ: Đánh giá xem sinh viên có được phép ra/vào KTX tại một thời điểm nhất định hay không dựa trên các quy định giờ giới nghiêm (Curfew Policy) của từng tòa nhà.
+ * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Áp dụng Strategy Pattern để đóng gói thuật toán xử lý giờ giới nghiêm. Hệ thống lấy ra policy có độ ưu tiên cao nhất (Priority) để quyết định.
+ * Lưu ý Kiến thức (Dành cho phản biện): Giải thích cho hội đồng tại sao dùng toán tử Tuyển OR cho giờ giới nghiêm qua đêm trong hàm isTimeInWindow: Vì thời gian bắt đầu (VD: 23:00) lớn hơn thời gian kết thúc (VD: 05:00 sáng hôm sau). Một mốc thời gian T nằm trong khoảng này nếu T > 23:00 HOẶC T < 05:00. Ngược lại, nếu trong cùng một ngày, dùng toán tử AND.
+ */
 @Component
 @RequiredArgsConstructor
 public class CurfewResolutionStrategy {
@@ -24,7 +29,7 @@ public class CurfewResolutionStrategy {
             return true; // No curfew defined, default allow
         }
 
-        // Configuration-driven resolution: highest priority dictates outcome
+        // Lấy policy có mức độ ưu tiên cao nhất để áp dụng, cho phép ghi đè linh hoạt
         Optional<CurfewPolicy> highestPriorityPolicy = activePolicies.stream()
                 .max(Comparator.comparingInt(CurfewPolicy::getPriority));
 
@@ -40,7 +45,7 @@ public class CurfewResolutionStrategy {
         if (start.isBefore(end)) {
             return currentTime.isAfter(start) && currentTime.isBefore(end);
         } else {
-            // Support for Overnight Windows (e.g., 22:00 -> 05:00)
+            // Xử lý khung giờ qua đêm (VD: 23:00 hôm trước đến 05:00 hôm sau) bằng toán tử OR (Tuyển)
             return currentTime.isAfter(start) || currentTime.isBefore(end);
         }
     }

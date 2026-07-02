@@ -40,6 +40,8 @@ public class RegistrationAdminService {
         period.setRegistrationType(req.getRegistrationType());
         period.setStartDate(req.getStartDate());
         period.setEndDate(req.getEndDate());
+        period.setStayStartDate(req.getStayStartDate());
+        period.setStayEndDate(req.getStayEndDate());
         period.setIsActive(false); // Mặc định tạo ra là nháp (tạm dừng)
 
         return mapToResponse(repository.save(period));
@@ -103,6 +105,8 @@ public class RegistrationAdminService {
         p.setRegistrationType(req.getRegistrationType());
         p.setStartDate(req.getStartDate());
         p.setEndDate(req.getEndDate());
+        p.setStayStartDate(req.getStayStartDate());
+        p.setStayEndDate(req.getStayEndDate());
 
         return mapToResponse(repository.save(p));
     }
@@ -123,7 +127,9 @@ public class RegistrationAdminService {
                 p.getRegistrationType(),
                 p.getStartDate(),
                 p.getEndDate(),
-                p.getIsActive()
+                p.getIsActive(),
+                p.getStayStartDate(),
+                p.getStayEndDate()
         );
     }
 }

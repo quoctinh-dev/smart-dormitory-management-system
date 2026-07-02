@@ -46,6 +46,8 @@ public interface StudentHousingAssignmentRepository extends JpaRepository<Studen
 
     long countByStatus(AssignmentStatus status);
 
+    List<StudentHousingAssignment> findByBed_Room_RoomIdAndStatus(UUID roomId, AssignmentStatus status);
+
     List<StudentHousingAssignment> findByStatusAndReservedAtBefore(AssignmentStatus status, LocalDateTime dateTime);
 
     @Query("SELECT s FROM StudentHousingAssignment s WHERE s.application.applicationId = :applicationId AND s.status = :status")

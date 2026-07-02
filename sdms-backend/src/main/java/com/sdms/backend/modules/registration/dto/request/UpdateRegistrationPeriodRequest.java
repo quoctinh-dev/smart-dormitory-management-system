@@ -27,4 +27,10 @@ public class UpdateRegistrationPeriodRequest {
     @Schema(description = "Thời gian kết thúc mới", example = "2026-07-01T23:59:59")
     @NotNull(message = "Thời gian kết thúc là bắt buộc")
     private LocalDateTime endDate;
+
+    @NotNull(message = "Ngày bắt đầu lưu trú không được trống") 
+    private LocalDateTime stayStartDate;
+    
+    @NotNull(message = "Ngày kết thúc lưu trú không được trống") 
+    private LocalDateTime stayEndDate;
 }
