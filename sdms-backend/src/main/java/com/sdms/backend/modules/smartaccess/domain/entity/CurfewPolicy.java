@@ -5,6 +5,8 @@ import lombok.*;
 import com.sdms.backend.modules.smartaccess.domain.enums.CurfewType;
 import com.sdms.backend.modules.smartaccess.domain.enums.ResidentType;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -27,6 +29,7 @@ public class CurfewPolicy extends BaseEntity {
     private UUID buildingId;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "resident_type", nullable = false, columnDefinition = "resident_type_enum")
     private ResidentType residentType;
 
@@ -37,6 +40,7 @@ public class CurfewPolicy extends BaseEntity {
     private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "type", nullable = false, columnDefinition = "curfew_type_enum")
     private CurfewType type;
 

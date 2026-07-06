@@ -108,6 +108,13 @@ export default function ApplicationReviewDetail() {
         )}
       </Box>
 
+      {app.status === 'WAITING_LIST' && (
+        <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
+          <strong>Lưu ý:</strong> Hồ sơ này đang nằm trong <strong>Danh sách chờ</strong> do hệ thống đã hết phòng trống. 
+          Bạn không thể duyệt hồ sơ lúc này. Khi có giường trống, hệ thống sẽ tự động chuyển hồ sơ về trạng thái Chờ duyệt.
+        </Alert>
+      )}
+
       <Grid container spacing={3}>
         {/* THÔNG TIN SINH VIÊN */}
         <Grid size={{ xs: 12, md: 4 }}>

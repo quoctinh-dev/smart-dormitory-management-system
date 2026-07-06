@@ -40,6 +40,11 @@ public class RemoteUnlockService {
 
         accessHistoryRepository.save(history);
 
-        // Publish event to trigger IoT module (to be handled by an AFTER_COMMIT listener)
+        // Publish event to trigger IoT module (handled by an AFTER_COMMIT listener)
+        eventPublisher.publishEvent(new com.sdms.backend.modules.smartaccess.event.GateCommandEvent(
+                gateId,
+                "UNLOCK",
+                "REMOTE_UNLOCK_BY_OPERATOR_" + operatorId
+        ));
     }
 }

@@ -49,7 +49,7 @@ public class ApplicationEventListener {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @org.springframework.context.event.EventListener
     public void handleBedReservationFailed(BedReservationFailedEvent event) {
         log.info("[ApplicationEventListener] Handling BedReservationFailedEvent for application={}", event.getApplicationId());
 

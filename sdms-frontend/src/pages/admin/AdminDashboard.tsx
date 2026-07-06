@@ -2,7 +2,7 @@ import { Box, Paper, Stack, Typography, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useEffect, useState } from 'react';
 
-import dashboardApi from '@/api/dashboardApi';
+import dashboardApi, { DashboardStatsResponse } from '@/api/dashboardApi';
 import { useAuth } from '@/auth';
 
 const StatCard = ({
@@ -35,14 +35,15 @@ const StatCard = ({
 
 export default function AdminDashboard() {
   const { admin } = useAuth();
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<DashboardStatsResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const res = await dashboardApi.getStats();
-        setData(res.data || res);
+        // Extract data properly if it is wrapped in an ApiResponse, or use it directly
+        setData((res as any).data || res);
       } catch (error) {
         console.error('Error fetching dashboard stats', error);
       } finally {
@@ -59,6 +60,7 @@ export default function AdminDashboard() {
         { title: 'Chưa làm thủ tục Check-in', value: data.pendingCheckIn, color: 'secondary.main' },
         { title: 'Sinh viên đang lưu trú', value: data.occupiedAssignments, color: 'success.main' },
         { title: 'Tổng số Toà nhà', value: data.totalBuildings, color: 'info.main' },
+        { title: 'Tổng số Tầng', value: data.totalFloors, color: 'info.light' },
         { title: 'Tổng số Phòng', value: data.totalRooms, color: 'info.dark' },
         { title: 'Tổng số Giường', value: data.totalBeds, color: 'primary.main' },
       ]

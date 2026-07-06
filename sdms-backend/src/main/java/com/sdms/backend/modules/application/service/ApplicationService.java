@@ -341,6 +341,7 @@ public class ApplicationService {
                 .priorityCategories(priorityCategories)
                 .documents(documents)
                 .status(application.getStatus())
+                .reviewNote(application.getReviewNote())
                 .priorityScore(application.getPriorityScore())
                 .registrationFormPdfUrl(application.getRegistrationFormPdfUrl())
                 .commitmentFormPdfUrl(application.getCommitmentFormPdfUrl())

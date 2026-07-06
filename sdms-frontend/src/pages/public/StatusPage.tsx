@@ -139,10 +139,27 @@ export default function StatusPage() {
                     />
                   )}
 
-                  <ApplicationInfo 
-                    application={application} 
+                  {/* THÔNG BÁO CHO DANH SÁCH CHỜ */}
+                  {application.status === 'WAITING_LIST' && (
+                    <Alert severity="info" sx={{ mb: 3, borderRadius: 2 }}>
+                      <strong>Thông báo:</strong> Hiện tại ký túc xá đang tạm thời hết phòng trống theo cấu hình phân bổ. 
+                      Hồ sơ của bạn đã được hệ thống tự động đưa vào <strong>Danh sách chờ</strong>. 
+                      Ngay khi có sinh viên khác hủy đơn hoặc trả phòng, hệ thống sẽ tự động xếp phòng cho bạn theo thứ tự ưu tiên và cập nhật trạng thái tại đây.
+                    </Alert>
+                  )}
+
+                  {/* THÔNG BÁO KHI BỊ TỪ CHỐI */}
+                  {application.status === 'REJECTED' && (
+                    <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+                      <strong>Hồ sơ của bạn đã bị từ chối với lý do: </strong> 
+                      {application.reviewNote || 'Không có lý do cụ thể.'}
+                    </Alert>
+                  )}
+
+                  <ApplicationInfo
+                    application={application}
                     documents={application.documents}
-                    fetchStatus={fetchStatus} 
+                    fetchStatus={fetchStatus}
                   />
 
                   {/* KHU VỰC 1: THANH TOÁN MOCK TIỀN PHÒNG */}
@@ -210,10 +227,12 @@ export default function StatusPage() {
                         Thanh toán thành công & Hồ sơ đã được duyệt!
                       </Typography>
                       <Typography variant="body1" sx={{ mb: 2, fontWeight: 'medium' }}>
-                        Vui lòng mang giấy tờ tùy thân đến quầy lễ tân ký túc xá để tiến hành thủ tục nhận phòng (Check-in).
+                        Vui lòng mang giấy tờ tùy thân đến quầy lễ tân ký túc xá để tiến hành thủ
+                        tục nhận phòng (Check-in).
                       </Typography>
                       <Typography variant="body2" sx={{ mb: 3, opacity: 0.9 }}>
-                        Đồng thời, hệ thống đã khởi tạo tài khoản cư dân nội trú cho bạn. Hãy kích hoạt ngay để sử dụng dịch vụ.
+                        Đồng thời, hệ thống đã khởi tạo tài khoản cư dân nội trú cho bạn. Hãy kích
+                        hoạt ngay để sử dụng dịch vụ.
                       </Typography>
                       <Button
                         variant="contained"

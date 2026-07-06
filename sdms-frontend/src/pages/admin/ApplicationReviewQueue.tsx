@@ -21,7 +21,7 @@ import { useApplicationQueue } from '@/hooks/useApplicationQueue';
 
 const STATUS_MAPPING: Record<
   string,
-  { label: string; color: 'warning' | 'error' | 'success' | 'info' | 'default' }
+  { label: string; color: 'warning' | 'error' | 'success' | 'info' | 'default' | 'secondary' }
 > = {
   PENDING: { label: 'Chờ duyệt', color: 'warning' },
   UNDER_REVIEW: { label: 'Đang xét', color: 'warning' },
@@ -29,6 +29,7 @@ const STATUS_MAPPING: Record<
   APPROVED: { label: 'Đã duyệt', color: 'success' },
   WAITING_PAYMENT: { label: 'Chờ đóng phí', color: 'info' },
   REJECTED: { label: 'Từ chối', color: 'error' },
+  WAITING_LIST: { label: 'Danh sách chờ', color: 'secondary' },
 };
 
 export default function ApplicationReviewQueue() {

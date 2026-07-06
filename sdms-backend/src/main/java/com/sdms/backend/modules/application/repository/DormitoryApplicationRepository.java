@@ -34,6 +34,8 @@ public interface DormitoryApplicationRepository
 
     boolean existsByCccdAndRegistrationPeriod_PeriodId(String cccd, UUID periodId);
 
+    List<DormitoryApplication> findByRegistrationPeriod_PeriodIdAndStatusIn(UUID periodId, List<ApplicationStatus> statuses);
+
     long countByStatus(ApplicationStatus status);
 
     @Query("""

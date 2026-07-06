@@ -4,7 +4,7 @@ import com.sdms.backend.modules.payment.entity.Bill;
 import com.sdms.backend.modules.payment.enums.BillStatus;
 import com.sdms.backend.modules.payment.enums.BillType;
 import com.sdms.backend.modules.payment.repository.BillRepository;
-import com.sdms.backend.modules.utility.event.ElectricityBillCalculatedEvent;
+import com.sdms.backend.modules.payment.event.ElectricityBillCalculatedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

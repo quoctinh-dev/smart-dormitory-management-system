@@ -15,16 +15,16 @@ import com.sdms.backend.modules.user.enums.Role;
 import com.sdms.backend.modules.user.enums.AccountStatus;
 import com.sdms.backend.modules.user.repository.UserAccountRepository;
 import com.sdms.backend.modules.room.event.CheckInCompletedEvent;
-import com.sdms.backend.modules.user.enums.AccountStatus;
-import com.sdms.backend.modules.user.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.UUID;
 
@@ -43,8 +43,17 @@ public class StudentProvisioningListener {
      * Lắng nghe sự kiện gạch nợ hóa đơn thành công (PaymentSuccessEvent).
      * Tiến hành sinh Hồ sơ cư dân Student và Tài khoản người dùng UserAccount ngầm.
      */
-    @EventListener
-    @Transactional
+    /**
+     * FIX: Dùng @TransactionalEventListener(AFTER_COMMIT) thay vì @EventListener.
+     * Lý do: @EventListener chạy trong cùng Transaction của PaymentService.
+     * Khi Hibernate auto-flush DormitoryApplication (entity dirty) trước khi SELECT,
+     * nó cố UPDATE với version cũ → StaleObjectStateException (Optimistic Locking).
+     * AFTER_COMMIT đảm bảo listener chỉ chạy sau khi Payment transaction commit xong,
+     * entity đã được flush sạch → không còn xung đột version.
+     * REQUIRES_NEW: Tạo transaction mới độc lập để tránh lây nhiễm từ transaction cũ.
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handlePaymentSuccess(PaymentSuccessEvent event) {
         log.info("[StudentProvisioningListener] Khởi động luồng sinh hồ sơ tự động cho Đơn={}", event.getApplicationId());
 
@@ -127,8 +136,8 @@ public class StudentProvisioningListener {
         }
     }
 
-    @EventListener
-    @Transactional
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleCheckInCompleted(CheckInCompletedEvent event) {
         if (event.getStudentId() != null) {
             studentRepository.findById(event.getStudentId()).ifPresent(student -> {

@@ -18,10 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
  * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Cập nhật thông tin qua cơ chế PATCH (chỉ update các trường có dữ liệu) thay vì PUT (ghi đè toàn bộ). Lấy thông tin sinh viên hiện hành trực tiếp từ SecurityContextHolder của Spring Security.
  * Lưu ý Kiến thức (Dành cho phản biện): Tại sao lấy thông tin từ SecurityContextHolder thay vì bắt Frontend truyền studentId: Đây là cơ chế bảo mật quan trọng để chống lỗ hổng IDOR (Insecure Direct Object Reference). Việc lấy thông tin từ JWT Token giải mã tại backend đảm bảo sinh viên A không thể tùy tiện cập nhật profile của sinh viên B bằng cách chặn bắt và thay đổi ID trên request.
  */
+import org.springframework.context.ApplicationEventPublisher;
+import com.sdms.backend.modules.student.event.StudentRfidAssignedEvent;
+
 @Service
 @RequiredArgsConstructor
 public class StudentService {
     private final StudentRepository studentRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public StudentProfileResponse getMyProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -66,5 +70,16 @@ public class StudentService {
 
         // Map sang DTO và return
         return StudentProfileResponse.fromEntity(updatedStudent);
+    }
+
+    @Transactional
+    public void assignRfidCode(java.util.UUID studentId, String rfidCode) {
+        Student student = studentRepository.findById(studentId)
+            .orElseThrow(() -> new AppException("Student not found", HttpStatus.NOT_FOUND));
+        
+        student.setRfidCode(rfidCode);
+        studentRepository.save(student);
+        
+        eventPublisher.publishEvent(new StudentRfidAssignedEvent(this, studentId, rfidCode));
     }
 }

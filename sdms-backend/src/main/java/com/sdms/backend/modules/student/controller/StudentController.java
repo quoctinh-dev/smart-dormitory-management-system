@@ -46,4 +46,14 @@ public class StudentController {
                 profile
         ));
     }
+
+    @Operation(summary = "Assign RFID to a student", description = "Admin assigns an RFID card to a specific student.")
+    @PostMapping("/{studentId}/rfid")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<ApiResponse<Void>> assignRfid(
+            @PathVariable java.util.UUID studentId,
+            @RequestParam("rfidCode") String rfidCode) {
+        studentService.assignRfidCode(studentId, rfidCode);
+        return ResponseEntity.ok(new ApiResponse<>(true, "RFID assigned successfully", null));
+    }
 }

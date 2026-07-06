@@ -1,11 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, TablePagination, Chip, Button, Dialog, DialogTitle,
-  DialogContent, DialogActions, TextField, CircularProgress, Alert
-} from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import {
+  Box,
+  Typography,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Chip,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  CircularProgress,
+  Alert,
+} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+
 import { stayExtensionApi, StayExtensionResponse } from '@/api/stayExtensionApi';
 import { snackbar } from '@/utils/snackbar';
 
@@ -58,7 +75,7 @@ export default function StayExtensionManagement() {
     try {
       await stayExtensionApi.reviewExtension(selectedRequest.extensionId, {
         status: reviewStatus,
-        rejectReason: reviewStatus === 'REJECTED' ? rejectReason : undefined
+        rejectReason: reviewStatus === 'REJECTED' ? rejectReason : undefined,
       });
       snackbar.success('Xét duyệt đơn gia hạn thành công!');
       setOpenReview(false);
@@ -73,8 +90,10 @@ export default function StayExtensionManagement() {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight="bold" sx={{ mb: 3 }}>Quản Lý Gia Hạn Lưu Trú</Typography>
-      
+      <Typography variant="h4" fontWeight="bold" sx={{ mb: 3 }}>
+        Quản Lý Gia Hạn Lưu Trú
+      </Typography>
+
       <Paper sx={{ width: '100%', mb: 2, borderRadius: 3, overflow: 'hidden' }}>
         <TableContainer sx={{ maxHeight: '70vh' }}>
           <Table stickyHeader>
@@ -106,46 +125,66 @@ export default function StayExtensionManagement() {
                   <TableRow hover key={row.extensionId}>
                     <TableCell>
                       <Typography variant="subtitle2">{row.fullName}</Typography>
-                      <Typography variant="caption" color="text.secondary">{row.studentCode}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {row.studentCode}
+                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2">P.{row.currentRoomCode}</Typography>
-                      <Typography variant="caption" color="text.secondary">Giường {row.currentBedCode}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Giường {row.currentBedCode}
+                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-                        Cũ: {row.oldExpectedCheckOutAt ? new Date(row.oldExpectedCheckOutAt).toLocaleDateString('vi-VN') : '-'}
+                        Cũ:{' '}
+                        {row.oldExpectedCheckOutAt
+                          ? new Date(row.oldExpectedCheckOutAt).toLocaleDateString('vi-VN')
+                          : '-'}
                       </Typography>
-                      <Typography variant="body2" sx={{ fontSize: '0.8rem', color: 'success.main', fontWeight: 'bold' }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontSize: '0.8rem', color: 'success.main', fontWeight: 'bold' }}
+                      >
                         Mới: {new Date(row.newExpectedCheckOutAt).toLocaleDateString('vi-VN')}
                       </Typography>
                     </TableCell>
                     <TableCell sx={{ maxWidth: 200 }}>
-                      <Typography variant="body2" noWrap title={row.reason}>{row.reason}</Typography>
-                      <Typography variant="caption" color="text.secondary" noWrap>{row.description}</Typography>
+                      <Typography variant="body2" noWrap title={row.reason}>
+                        {row.reason}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" noWrap>
+                        {row.description}
+                      </Typography>
                     </TableCell>
                     <TableCell>
-                      <Chip 
-                        label={row.status} 
-                        size="small" 
-                        color={row.status === 'APPROVED' ? 'success' : row.status === 'REJECTED' ? 'error' : 'warning'} 
+                      <Chip
+                        label={row.status}
+                        size="small"
+                        color={
+                          row.status === 'APPROVED'
+                            ? 'success'
+                            : row.status === 'REJECTED'
+                              ? 'error'
+                              : 'warning'
+                        }
                       />
                     </TableCell>
                     <TableCell align="center">
                       {row.status === 'PENDING' && (
                         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                          <Button 
-                            variant="contained" 
-                            color="success" 
+                          <Button
+                            variant="contained"
+                            color="success"
                             size="small"
                             onClick={() => handleOpenReview(row, 'APPROVED')}
                             sx={{ minWidth: 40, p: 0.5 }}
                           >
                             <CheckCircleIcon fontSize="small" />
                           </Button>
-                          <Button 
-                            variant="contained" 
-                            color="error" 
+                          <Button
+                            variant="contained"
+                            color="error"
                             size="small"
                             onClick={() => handleOpenReview(row, 'REJECTED')}
                             sx={{ minWidth: 40, p: 0.5 }}
@@ -155,12 +194,7 @@ export default function StayExtensionManagement() {
                         </Box>
                       )}
                       {row.status === 'APPROVED' && row.pdfUrl && (
-                        <Button 
-                          variant="outlined" 
-                          size="small" 
-                          href={row.pdfUrl} 
-                          target="_blank"
-                        >
+                        <Button variant="outlined" size="small" href={row.pdfUrl} target="_blank">
                           Xem Hợp Đồng
                         </Button>
                       )}
@@ -183,7 +217,10 @@ export default function StayExtensionManagement() {
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, p) => setPage(p)}
-          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
           labelRowsPerPage="Số dòng:"
         />
       </Paper>
@@ -198,7 +235,8 @@ export default function StayExtensionManagement() {
             Bạn đang thao tác với đơn gia hạn của sinh viên <b>{selectedRequest?.fullName}</b>.
             {reviewStatus === 'APPROVED' && (
               <Alert severity="info" sx={{ mt: 2 }}>
-                Sau khi duyệt, hệ thống sẽ kéo dài hợp đồng và tự động sinh hóa đơn thu tiền cho đợt lưu trú mới.
+                Sau khi duyệt, hệ thống sẽ kéo dài hợp đồng và tự động sinh hóa đơn thu tiền cho đợt
+                lưu trú mới.
               </Alert>
             )}
           </Typography>
@@ -217,9 +255,11 @@ export default function StayExtensionManagement() {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
-          <Button onClick={() => setOpenReview(false)} disabled={submitting}>Hủy</Button>
-          <Button 
-            onClick={handleReviewSubmit} 
+          <Button onClick={() => setOpenReview(false)} disabled={submitting}>
+            Hủy
+          </Button>
+          <Button
+            onClick={handleReviewSubmit}
             variant="contained"
             color={reviewStatus === 'APPROVED' ? 'success' : 'error'}
             disabled={submitting || (reviewStatus === 'REJECTED' && !rejectReason.trim())}

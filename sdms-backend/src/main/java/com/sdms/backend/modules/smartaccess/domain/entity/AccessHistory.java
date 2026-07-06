@@ -6,6 +6,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.sdms.backend.modules.smartaccess.domain.enums.AccessDecision;
 import com.sdms.backend.modules.smartaccess.domain.enums.VerificationMethod;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,7 +23,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)
 public class AccessHistory {
 
     @Id
@@ -44,6 +45,7 @@ public class AccessHistory {
     private LocalDateTime eventTimestamp;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "decision", nullable = false, columnDefinition = "access_decision_enum")
     private AccessDecision decision;
 
@@ -51,11 +53,18 @@ public class AccessHistory {
     private String denialReason;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "method", nullable = false, columnDefinition = "verification_method_enum")
     private VerificationMethod method;
 
     // Explicitly avoids extending BaseEntity. Immutable.
-    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+    }
 }

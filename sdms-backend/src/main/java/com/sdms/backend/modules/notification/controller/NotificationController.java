@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import com.sdms.backend.modules.notification.dto.IssueReportRequest;
 
 import java.util.List;
 
@@ -38,6 +41,12 @@ public class NotificationController {
     @PatchMapping("/read-all")
     public ResponseEntity<Void> markAllAsRead() {
         inAppNotificationService.markAllAsRead();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/issues")
+    public ResponseEntity<Void> reportIssue(@RequestBody IssueReportRequest request) {
+        // Xử lý tạo Issue Report dạng một Notification đặc biệt gửi cho Admin
         return ResponseEntity.ok().build();
     }
 }

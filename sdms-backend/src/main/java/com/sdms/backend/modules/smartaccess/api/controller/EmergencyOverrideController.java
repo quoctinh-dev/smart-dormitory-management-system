@@ -6,10 +6,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.sdms.backend.modules.smartaccess.application.service.EmergencyOverrideService;
 import com.sdms.backend.modules.smartaccess.security.SmartAccessPermissions;
-
-import java.security.Principal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.sdms.backend.modules.user.entity.UserAccount;
 import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/v1/access/emergency")
 @RequiredArgsConstructor
@@ -23,10 +22,10 @@ public class EmergencyOverrideController {
             @RequestParam String actionType,
             @RequestParam String reason,
             @RequestParam(required = false) UUID buildingId,
-            Principal principal) {
+            @AuthenticationPrincipal UserAccount userAccount) {
             
         // Validates explicit emergency payload and extracts operator dynamically
-        UUID operatorId = UUID.fromString(principal.getName());
+        UUID operatorId = userAccount.getAccountId();
         emergencyOverrideService.executeEmergencyOverride(actionType, operatorId, reason, buildingId);
         return ResponseEntity.noContent().build();
     }

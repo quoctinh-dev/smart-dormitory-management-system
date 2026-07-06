@@ -8,10 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import com.sdms.backend.modules.smartaccess.application.service.RemoteUnlockService;
 import com.sdms.backend.modules.smartaccess.security.SmartAccessPermissions;
 import com.sdms.backend.modules.face.dto.response.FaceProfileDetailResponse; // Import FaceProfileDetailResponse
-
-import java.security.Principal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.sdms.backend.modules.user.entity.UserAccount;
 import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/v1/access/gates/{gateId}/unlock")
 @RequiredArgsConstructor
@@ -22,10 +21,8 @@ public class RemoteUnlockController {
 
     @PostMapping
     @PreAuthorize(SmartAccessPermissions.REMOTE_UNLOCK)
-    public ResponseEntity<Void> unlockGate(@PathVariable UUID gateId, @RequestParam UUID buildingId, Principal principal) {
-        UUID studentId = UUID.fromString(principal.getName());
-        FaceProfileDetailResponse faceProfile = faceProfileService.getMyFaceProfile(studentId); // Break down the call
-        UUID operatorId = faceProfile.studentId();
+    public ResponseEntity<Void> unlockGate(@PathVariable UUID gateId, @RequestParam UUID buildingId, @AuthenticationPrincipal UserAccount userAccount) {
+        UUID operatorId = userAccount.getAccountId();
         remoteUnlockService.executeRemoteUnlock(gateId, operatorId, buildingId);
         return ResponseEntity.noContent().build();
     }

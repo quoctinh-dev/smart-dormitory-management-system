@@ -37,7 +37,7 @@ export default function ProcessSection() {
     <Box
       sx={{
         py: 10,
-        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'background.default' : '#f8fafc',
+        bgcolor: (theme) => (theme.palette.mode === 'dark' ? 'background.default' : '#f8fafc'),
       }}
     >
       <Container maxWidth="md">
@@ -58,7 +58,7 @@ export default function ProcessSection() {
             borderRadius: 6,
             border: 1,
             borderColor: 'divider',
-            background: 'linear-gradient(to bottom right, #ffffff, #f8fafc)'
+            background: 'linear-gradient(to bottom right, #ffffff, #f8fafc)',
           }}
         >
           <Stepper orientation="vertical">
@@ -72,14 +72,16 @@ export default function ProcessSection() {
                     },
                     '& .MuiStepLabel-label': {
                       mt: 0.5,
-                    }
+                    },
                   }}
                 >
                   <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.dark' }}>
                     Bước {index + 1}: {step.label}
                   </Typography>
                 </StepLabel>
-                <StepContent sx={{ ml: 2.2, borderLeft: '2px dashed', borderColor: 'primary.light' }}>
+                <StepContent
+                  sx={{ ml: 2.2, borderLeft: '2px dashed', borderColor: 'primary.light' }}
+                >
                   <Typography
                     variant="body1"
                     sx={{

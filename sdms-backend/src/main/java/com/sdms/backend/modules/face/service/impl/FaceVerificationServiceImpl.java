@@ -33,11 +33,30 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
     private final FaceEmbeddingRepository faceEmbeddingRepository;
     private final FaceVerificationAttemptRepository attemptRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final com.sdms.backend.modules.face.port.AiExtractionPort aiExtractionPort;
 
     // AI Cosine Similarity Threshold (Governance constraint)
     // Distance = 1.0 - Similarity. Configurable via application.yml
     @org.springframework.beans.factory.annotation.Value("${sdms.face.verification.threshold:0.2}")
     private double matchDistanceThreshold;
+
+    @Override
+    public com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse verifyFace(String gateDeviceId, org.springframework.web.multipart.MultipartFile faceImage) {
+        log.info("[IoT] Extracting vector for gate {} using Python AI Sidecar...", gateDeviceId);
+        float[] vector = aiExtractionPort.extractVector(faceImage);
+        
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < vector.length; i++) {
+            sb.append(vector[i]);
+            if (i < vector.length - 1) sb.append(",");
+        }
+        sb.append("]");
+        
+        com.sdms.backend.modules.face.dto.request.FaceVerificationRequest payload = 
+            new com.sdms.backend.modules.face.dto.request.FaceVerificationRequest(sb.toString());
+            
+        return verifyFace(gateDeviceId, payload);
+    }
 
     @Override
     public com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse verifyFace(String gateDeviceId, com.sdms.backend.modules.face.dto.request.FaceVerificationRequest verificationPayload) {
@@ -101,6 +120,13 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
     @Override
     @Transactional(readOnly = true)
     public Page<com.sdms.backend.modules.face.dto.response.VerificationAttemptSummaryResponse> viewVerificationAttempts(UUID profileId, Pageable pageable) {
-        return Page.empty(); // To be implemented in DTO Mapping phase
+        return attemptRepository.findByProfileId(profileId, pageable)
+                .map(attempt -> new com.sdms.backend.modules.face.dto.response.VerificationAttemptSummaryResponse(
+                        attempt.getAttemptId(),
+                        attempt.getGateDeviceId(),
+                        attempt.getStatus(),
+                        attempt.getConfidenceScore(),
+                        attempt.getAttemptedAt()
+                ));
     }
 }

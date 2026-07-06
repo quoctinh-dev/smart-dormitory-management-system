@@ -29,4 +29,23 @@ public class EligibilityEvaluationService {
 
         return Optional.of(snapshot);
     }
+
+    public Optional<StudentEligibilitySnapshot> evaluateEligibilityByRfid(String rfidCode) {
+        Optional<StudentEligibilitySnapshot> snapshotOpt = studentQueryPort.getEligibilityByRfid(rfidCode);
+        
+        if (snapshotOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        StudentEligibilitySnapshot snapshot = snapshotOpt.get();
+        if (!"ACTIVE".equals(snapshot.getStatus())) {
+            return Optional.empty(); 
+        }
+
+        return Optional.of(snapshot);
+    }
+
+    public java.util.List<String> getActiveRfidWhitelists() {
+        return studentQueryPort.getActiveRfidWhitelists();
+    }
 }

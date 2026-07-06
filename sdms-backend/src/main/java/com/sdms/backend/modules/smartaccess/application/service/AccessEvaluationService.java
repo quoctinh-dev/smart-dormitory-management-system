@@ -72,6 +72,38 @@ public class AccessEvaluationService {
         }
     }
 
+    @Transactional
+    public AccessDecision evaluateAccessSync(UUID studentId, UUID gateId, VerificationMethod method) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalTime currentTime = now.toLocalTime();
+
+        Optional<StudentEligibilitySnapshot> eligibilityOpt = eligibilityEvaluationService.evaluateEligibility(studentId);
+        if (eligibilityOpt.isEmpty()) {
+            recordAccess(studentId, gateId, null, now, AccessDecision.DENIED, "UNAUTHORIZED_OR_INACTIVE", method);
+            return AccessDecision.DENIED;
+        }
+
+        StudentEligibilitySnapshot snapshot = eligibilityOpt.get();
+        boolean isAllowed;
+        String denialReason = null;
+
+        if (snapshot.getResidentType() == ResidentType.BOARDING) {
+            isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);
+            if (!isAllowed) denialReason = "CURFEW_VIOLATION";
+        } else {
+            isAllowed = timeWindowEvaluationStrategy.isAllowed(snapshot.getBuildingId(), snapshot.getResidentType(), currentTime);
+            if (!isAllowed) denialReason = "OUTSIDE_TIME_WINDOW";
+        }
+
+        if (isAllowed) {
+            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.GRANTED, null, method);
+            return AccessDecision.GRANTED;
+        } else {
+            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, denialReason, method);
+            return AccessDecision.DENIED;
+        }
+    }
+
     private void recordAccess(UUID studentId, UUID gateId, UUID buildingId, LocalDateTime eventTimestamp, AccessDecision decision, String reason, VerificationMethod method) {
         UUID finalBuildingId = buildingId != null ? buildingId : UUID.fromString("00000000-0000-0000-0000-000000000000");
         

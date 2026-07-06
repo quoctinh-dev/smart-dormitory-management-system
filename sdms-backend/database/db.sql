@@ -1,6 +1,6 @@
 -- SDMS (Smart Dormitory Management System) - Master Database Schema
 -- Version: 1.0
--- `tree /F /A > structure.txt
+-- tree /F /A > structure.txt
 -- =================================================================================
 
 -- =================================================================================
@@ -545,8 +545,32 @@ CREATE INDEX idx_noti_status ON notification_histories(status);
 -- =================================================================================
 -- END OF SCHEMA
 -- =================================================================================
-SELECT * FROM stay_extensions;
 
-DELETE
+
+TRUNCATE TABLE face_verification_attempts CASCADE;
+TRUNCATE TABLE face_embeddings CASCADE;
+TRUNCATE TABLE face_profiles CASCADE;
+TRUNCATE TABLE access_history CASCADE;
+TRUNCATE TABLE processed_messages CASCADE;
+TRUNCATE TABLE payments CASCADE;
+TRUNCATE TABLE bills CASCADE;
+TRUNCATE TABLE student_housing_assignments CASCADE;
+TRUNCATE TABLE beds CASCADE;
+TRUNCATE TABLE rooms CASCADE;
+TRUNCATE TABLE floors CASCADE;
+TRUNCATE TABLE buildings CASCADE;
+TRUNCATE TABLE notifications CASCADE;
+TRUNCATE TABLE user_accounts CASCADE;
+TRUNCATE TABLE students CASCADE;
+TRUNCATE TABLE application_generated_documents CASCADE;
+TRUNCATE TABLE dormitory_application_status_history CASCADE;
+TRUNCATE TABLE application_priorities CASCADE;
+TRUNCATE TABLE verification_documents CASCADE;
+TRUNCATE TABLE dormitory_applications CASCADE;
+TRUNCATE TABLE registration_eligibilities CASCADE;
+TRUNCATE TABLE registration_periods CASCADE;
+TRUNCATE TABLE shedlock CASCADE;
+
+
 
 

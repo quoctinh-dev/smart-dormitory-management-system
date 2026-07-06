@@ -85,9 +85,45 @@ public class ApplicationPdfService {
         return fileUrl;
     }
 
+    private String regularFontPath;
+    private String boldFontPath;
+
+    @jakarta.annotation.PostConstruct
+    public void initFonts() {
+        try {
+            java.io.File regFile = java.io.File.createTempFile("times", ".ttf");
+            regFile.deleteOnExit();
+            try (java.io.InputStream in = new org.springframework.core.io.ClassPathResource("fonts/times.ttf").getInputStream();
+                 java.io.OutputStream out = new java.io.FileOutputStream(regFile)) {
+                org.springframework.util.StreamUtils.copy(in, out);
+            }
+            this.regularFontPath = regFile.getAbsolutePath();
+
+            java.io.File boldFile = java.io.File.createTempFile("timesbd", ".ttf");
+            boldFile.deleteOnExit();
+            try (java.io.InputStream in = new org.springframework.core.io.ClassPathResource("fonts/timesbd.ttf").getInputStream();
+                 java.io.OutputStream out = new java.io.FileOutputStream(boldFile)) {
+                org.springframework.util.StreamUtils.copy(in, out);
+            }
+            this.boldFontPath = boldFile.getAbsolutePath();
+            log.info("Successfully extracted fonts to temp directory");
+        } catch (Exception e) {
+            log.error("Failed to extract fonts", e);
+        }
+    }
+
     private String generateAndUploadPdf(String htmlContent, String fileName) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ITextRenderer renderer = new ITextRenderer();
+            
+            // Add custom fonts for Vietnamese support
+            if (this.regularFontPath != null) {
+                renderer.getFontResolver().addFont(this.regularFontPath, com.itextpdf.text.pdf.BaseFont.IDENTITY_H, com.itextpdf.text.pdf.BaseFont.EMBEDDED);
+            }
+            if (this.boldFontPath != null) {
+                renderer.getFontResolver().addFont(this.boldFontPath, com.itextpdf.text.pdf.BaseFont.IDENTITY_H, com.itextpdf.text.pdf.BaseFont.EMBEDDED);
+            }
+
             renderer.setDocumentFromString(htmlContent);
             renderer.layout();
             renderer.createPDF(outputStream);

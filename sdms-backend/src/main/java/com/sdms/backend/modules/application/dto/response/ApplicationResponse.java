@@ -29,6 +29,7 @@ public class ApplicationResponse {
     private int priorityScore;
     private String registrationFormPdfUrl; // New field for registration form PDF
     private String commitmentFormPdfUrl;   // New field for commitment form PDF
+    private String reviewNote;
     private LocalDateTime submittedAt;
     private LocalDateTime revisionDeadline;
     private AssignmentInfo assignment;

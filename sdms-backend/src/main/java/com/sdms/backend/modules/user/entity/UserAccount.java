@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -97,7 +98,27 @@ public class UserAccount extends BaseEntity implements UserDetails {
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        
+        // 1. Gán Base Role
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        
+        // 2. Gán Granular Capabilities (Tối ưu cho đồ án không có Database RBAC động)
+        if (role == Role.ADMIN) {
+            // ADMIN có toàn quyền hệ thống (bao gồm cấu hình rủi ro cao)
+            authorities.add(new SimpleGrantedAuthority("MANAGE_CURFEW_POLICY"));
+            authorities.add(new SimpleGrantedAuthority("MANAGE_TIME_WINDOW_POLICY"));
+            authorities.add(new SimpleGrantedAuthority("VIEW_ACCESS_HISTORY"));
+            authorities.add(new SimpleGrantedAuthority("REMOTE_UNLOCK"));
+            authorities.add(new SimpleGrantedAuthority("EMERGENCY_OVERRIDE"));
+        } else if (role == Role.STAFF) {
+            // STAFF (Ban quản lý) chỉ được xem lịch sử và mở cổng hỗ trợ sinh viên
+            // Không được quyền can thiệp Emergency Lockdown hay Sửa Giờ giới nghiêm
+            authorities.add(new SimpleGrantedAuthority("VIEW_ACCESS_HISTORY"));
+            authorities.add(new SimpleGrantedAuthority("REMOTE_UNLOCK"));
+        }
+        
+        return authorities;
     }
 
     @Override

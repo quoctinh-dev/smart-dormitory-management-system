@@ -1,106 +1,59 @@
 # AI AGENT WORKFLOW FOR SDMS FRONTEND
+**Operational Manual for Frontend AI Agents (AGENTS.md)**
 
-**CRITICAL RULE: Always read `PROJECT_RULE.md` before making any code changes. This document defines the AI working process, NOT coding conventions or rules.**
+## 1. GOVERNANCE HIERARCHY
+Ensure every document clearly defines this hierarchy:
+Business Documentation
+↓
+PROJECT_RULE
+↓
+AGENTS
+↓
+Implementation
+↓
+Testing
+↓
+Deployment
 
-## 1. Mission
+Higher-level documents always have higher priority. Implementation must never violate higher-level documents.
+
+## 2. MISSION & SCOPE
 - **Role:** AI Assistant working on the SDMS Frontend source code.
-- **Goal:** Implement features, fix bugs, and refactor safely.
-- **Limitations:** Do not rewrite architecture, do not violate `PROJECT_RULE.md`, and do not modify core boundaries without explicit user request.
+- **Goal:** Execute UI implementations, fix bugs, and refactor code strictly following the engineering principles.
+- **Scope:** Work only within `sdms-frontend/`. Strictly ignore `node_modules/`, `dist/`.
 
-## 2. Workspace Scope
-- AI must only work within the Frontend environment (`sdms-frontend/`).
-- **Allowed to read/write:** 
-  - `src/`
-  - `docs/`
-  - `package.json`
-  - `vite.config.ts`
-  - `tsconfig.json`
-- **Strictly Ignore:** 
-  - `node_modules/`
-  - `dist/`
-  - `public/`
+## 3. WORKFLOW: BUSINESS & IMPACT ANALYSIS
+Before making any UI modifications, you MUST:
+- Read `PROJECT_RULE.md`.
+- Read Business Documentation (`docs/business/`) if business logic or UI requirements are affected.
+- Read Backend API Contracts, DTOs, and `ApiResponse`.
+- Read Hook boundaries and Route permissions.
+- **Perform Change Impact Analysis:** Evaluate the impact on Component Layouts, Router Navigation, Context States, and external API Contracts.
+- If the impact violates the Business Freeze Policy or breaks external contracts, STOP and report the conflict. **Never silently resolve conflicts.**
 
-## 3. Scan Workflow
-When starting a task, read in the following strict order:
-1. `PROJECT_RULE.md` (located in `sdms-frontend/`)
-2. `package.json`
-3. `tsconfig.json`
-4. `src/api`
-5. `src/hooks`
-6. `src/components`
-7. `src/pages`
+## 4. WORKFLOW: PLANNING
+Formulate an execution plan:
+- **Scope:** Identify exactly which UI components, hooks, or API wrappers need to be modified.
+- **Traceability:** Map the code changes to the corresponding Business Rule or UI Workflow.
 
-## 4. Analyze Workflow
-Before making any changes, AI MUST:
-- Analyze Architecture and Dependencies.
-- Analyze Hooks, API integrations, and Axios configurations.
-- Analyze DTOs, Interfaces, and Types.
-- Analyze React Context and Permissions.
-- Evaluate the build system and TypeScript configurations.
-- **Do not modify code immediately.**
+## 5. WORKFLOW: IMPLEMENTATION
+Execute the plan strictly following `PROJECT_RULE.md`:
+- Make the minimum necessary changes.
+- Do not refactor unrelated code.
+- Do not silently modify `axiosClient`, Interceptors, global `Context`, or Folder structures.
+- Ensure the Definition of Done (DoD) from `PROJECT_RULE.md` is strictly followed.
 
-## 5. Planning Workflow
-After analysis, AI must formulate a plan:
-- **Scope:** Identify exactly which files need to be modified.
-- **Dependency:** Assess impacts on UI components and hooks.
-- **Impact:** Evaluate potential risks (e.g., breaking API contracts, layout shifts).
-- **Rule:** Only modify the parts explicitly requested by the user.
+## 6. WORKFLOW: VERIFICATION & SYNCHRONIZATION
+After modifying code, you MUST self-verify:
+- **TypeScript Clean:** Ensure there are no type errors (`npm run build`).
+- **Lint Clean:** Ensure there are no linting warnings/errors (`npm run lint`).
+- **Validate:** Ensure API Contracts match the Backend. Check for Architecture violations.
+- **Synchronize Documentation:** Update any affected documentation (Business Workflows, Route Documentation, README). Implementation is NOT complete until documentation is synchronized.
 
-## 6. Modify Workflow
-When executing changes:
-- Make the **minimum** necessary changes.
-- Do not refactor the entire project or unrelated code.
-- **Do NOT change** (unless explicitly requested):
-  - `axiosClient` / Interceptors
-  - Folder Structure
-  - API Contracts
-  - Routing / `Routes`
-  - Global `Context` (e.g., `AuthContext`)
-
-## 7. Verification Workflow
-After making modifications, AI MUST verify:
-- **Lint:** Run linting to check for code style issues.
-- **Typecheck:** Ensure there are no TypeScript errors.
-- **Build:** Verify the project builds successfully.
-- **Import:** Check for missing or broken imports.
-- **Dependency:** Ensure no missing or broken dependencies.
-
-## 8. Build Gate
-AI must NOT conclude a task if the build fails. Ensure the following passes:
-- `npm run lint`
-- `npm run build`
-
-## 9. Change Impact Checklist
-When modifying specific layers, cross-check the following:
-
-- **If modifying `axiosClient`:**
-  - Check `API`
-  - Check `Hook`
-  - Check `Component`
-
-- **If modifying DTO:**
-  - Check `Interface`
-  - Check `Hook`
-  - Check `Page`
-
-- **If modifying Route:**
-  - Check `Navigation`
-  - Check `Permission`
-  - Check `Layout`
-
-## 10. AI Safety Rules
-AI is strictly PROHIBITED from:
-- Changing rules defined in `PROJECT_RULE.md`.
-- Modifying API Contracts silently.
-- Modifying `axiosClient` silently.
-- Modifying Folder Structure silently.
-- Modifying `AuthContext` silently.
-
-## 11. Completion Checklist
-Before finishing a task, the AI must self-verify:
-- [ ] Read `PROJECT_RULE.md`
-- [ ] Analyzed change impact
-- [ ] Architecture remains intact
-- [ ] No new technical debt created
-- [ ] Lint is successful (`npm run lint`)
-- [ ] Build is successful (`npm run build`)
+## 7. WORKFLOW: CHANGE SUMMARY
+At the end of every task, provide the user with a summary containing:
+- Files modified
+- Documentation modified (and the reason for the update)
+- Impact summary
+- Remaining technical debt
+- Next recommended task

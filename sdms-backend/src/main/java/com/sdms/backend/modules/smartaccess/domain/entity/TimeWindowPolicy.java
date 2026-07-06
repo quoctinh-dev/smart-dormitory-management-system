@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import com.sdms.backend.modules.smartaccess.domain.enums.ResidentType;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -26,6 +28,7 @@ public class TimeWindowPolicy extends BaseEntity {
     private UUID buildingId;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "resident_type", nullable = false, columnDefinition = "resident_type_enum")
     private ResidentType residentType;
 

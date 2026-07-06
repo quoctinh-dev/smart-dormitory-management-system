@@ -20,6 +20,7 @@ const NotificationHistory = lazy(() => import('@/pages/admin/NotificationHistory
 const IntegratedReviewPage = lazy(() => import('@/pages/admin/IntegratedReviewPage'));
 const ExtensionManagementPage = lazy(() => import('@/pages/admin/StayExtensionManagement'));
 const CheckoutManagementPage = lazy(() => import('@/pages/admin/CheckoutManagement'));
+const SmartAccessManagement = lazy(() => import('@/pages/admin/SmartAccessManagement'));
 
 // Wrapped components for suspense
 const LoginLazy = wrap(LoginPage);
@@ -35,6 +36,7 @@ const IntegratedReviewPageLazy = wrap(IntegratedReviewPage);
 const ExtensionManagementLazy = wrap(ExtensionManagementPage);
 const CheckoutManagementLazy = wrap(CheckoutManagementPage);
 const RoomManagementLazy = wrap(RoomManagementPage);
+const SmartAccessManagementLazy = wrap(SmartAccessManagement);
 
 export const adminRoutes: RouteObject[] = [
   // Auth layout for admin login
@@ -61,6 +63,7 @@ export const adminRoutes: RouteObject[] = [
           { path: 'admin/notifications', element: <NotificationHistoryLazy /> },
           { path: 'admin/extension-requests', element: <ExtensionManagementLazy /> },
           { path: 'admin/checkout-requests', element: <CheckoutManagementLazy /> },
+          { path: 'admin/smart-access', element: <SmartAccessManagementLazy /> },
         ],
       },
     ],

@@ -19,6 +19,11 @@ public class EmergencyOverrideService {
         log.warn("Executing Emergency Override: ACTION={}, OPERATOR={}, REASON={}, BUILDING={}", 
             actionType, operatorId, reason, buildingId);
 
-        // Publish global lockdown/unlock event to IoT module (to be handled by AFTER_COMMIT listener)
+        // Publish global lockdown/unlock event to IoT module (handled by AFTER_COMMIT listener)
+        eventPublisher.publishEvent(new com.sdms.backend.modules.smartaccess.event.SystemEmergencyEvent(
+                actionType,
+                reason + " (by operator " + operatorId + ")",
+                buildingId
+        ));
     }
 }

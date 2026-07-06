@@ -39,6 +39,7 @@ public class ApplicationReviewService {
     private final EmailService emailService;
     private final ApplicationEventPublisher eventPublisher;
     private final com.sdms.backend.modules.payment.service.PaymentService paymentService;
+    private final com.sdms.backend.modules.room.service.HousingAssignmentService housingAssignmentService;
 
     @Value("${application.payment.deadline-days:3}")
     private int paymentDeadlineDays;
@@ -81,13 +82,29 @@ public class ApplicationReviewService {
         log.info("Rejecting application={} by admin={}", applicationId, adminUserId);
         DormitoryApplication application = findApplicationOrThrow(applicationId);
 
-        if (application.getStatus() != ApplicationStatus.PENDING && application.getStatus() != ApplicationStatus.UNDER_REVIEW) {
+        if (application.getStatus() != ApplicationStatus.PENDING && 
+            application.getStatus() != ApplicationStatus.UNDER_REVIEW && 
+            application.getStatus() != ApplicationStatus.REQUEST_REVISION &&
+            application.getStatus() != ApplicationStatus.WAITING_LIST) {
             throw new AppException("Hồ sơ đã được xử lý xong, không thể từ chối", HttpStatus.BAD_REQUEST);
         }
 
         application.setReviewedByUserId(adminUserId);
         application.setReviewNote(note);
         updateStatusAndSaveHistory(application, ApplicationStatus.REJECTED, adminUserId, note);
+
+        // Hủy giường dự kiến (nếu có) để giải phóng tài nguyên
+        try {
+            assignmentRepository.findByApplication_ApplicationId(applicationId)
+                    .stream().filter(a -> a.getStatus() == com.sdms.backend.modules.room.enums.AssignmentStatus.RESERVED)
+                    .findFirst()
+                    .ifPresent(assignment -> {
+                        log.info("Canceling provisional assignment={} due to application rejection", assignment.getAssignmentId());
+                        housingAssignmentService.cancelReservation(assignment.getAssignmentId());
+                    });
+        } catch (Exception e) {
+            log.error("Failed to cancel assignment for rejected application={}", applicationId, e);
+        }
     }
 
     // 📄 File: ApplicationReviewService.java

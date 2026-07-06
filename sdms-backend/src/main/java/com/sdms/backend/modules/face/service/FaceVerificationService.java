@@ -26,6 +26,11 @@ public interface FaceVerificationService {
      */
     com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse verifyFace(String gateDeviceId, com.sdms.backend.modules.face.dto.request.FaceVerificationRequest verificationPayload);
 
+    /**
+     * Verifies an incoming face image directly from an IoT gate.
+     * Delegates extraction to the AiExtractionPort.
+     */
+    com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse verifyFace(String gateDeviceId, org.springframework.web.multipart.MultipartFile faceImage);
     // --- QUERIES ---
 
     /**

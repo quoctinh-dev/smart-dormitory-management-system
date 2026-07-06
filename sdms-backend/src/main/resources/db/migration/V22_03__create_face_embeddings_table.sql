@@ -9,7 +9,7 @@ CREATE TABLE face_embeddings (
     profile_id UUID NOT NULL,
     
     -- Mapped to @Column(name = "vector") in FaceEmbedding.java
-    vector vector(512) NOT NULL,
+    vector vector(192) NOT NULL,
     
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,

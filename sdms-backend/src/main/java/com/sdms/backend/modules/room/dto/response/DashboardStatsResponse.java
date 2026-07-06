@@ -3,9 +3,11 @@ package com.sdms.backend.modules.room.dto.response;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @Builder
-public class DashboardStatsResponse {
+public class DashboardStatsResponse implements Serializable {
     private long pendingApplications;
     private long waitingForPayment;
     private long pendingCheckIn;

@@ -85,6 +85,9 @@ public class Student extends BaseEntity {
     @Column(nullable = false)
     private Boolean isFaceRegistered = false;
 
+    @Column(length = 50, unique = true)
+    private String rfidCode;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private StudentStatus status = StudentStatus.PENDING_CHECKIN;

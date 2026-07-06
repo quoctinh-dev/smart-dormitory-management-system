@@ -13,6 +13,8 @@ const getStatusProps = (status: string): { label: string; color: any } => {
       return { label: 'Đã từ chối', color: 'error' };
     case 'REQUEST_REVISION':
       return { label: 'Yêu cầu bổ sung', color: 'secondary' };
+    case 'WAITING_LIST':
+      return { label: 'Danh sách chờ', color: 'secondary' };
     default:
       return { label: 'Không xác định', color: 'default' };
   }

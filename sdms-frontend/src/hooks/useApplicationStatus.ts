@@ -12,6 +12,7 @@ interface ApplicationStatus {
   assignment?: any;
   bill?: any;
   documents?: any[];
+  reviewNote?: string;
 }
 
 export const useApplicationStatus = () => {

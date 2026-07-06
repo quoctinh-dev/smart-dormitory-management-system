@@ -10,6 +10,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PaymentIcon from '@mui/icons-material/Payment';
 import RoomPreferencesIcon from '@mui/icons-material/RoomPreferences';
+import SensorsIcon from '@mui/icons-material/Sensors';
 import {
   AppBar,
   Toolbar,
@@ -48,6 +49,11 @@ const MENU_ITEMS = [
     text: 'Kiểm duyệt khuôn mặt',
     path: '/admin/faces/approve',
     icon: <FaceIcon />,
+  },
+  {
+    text: 'Smart Access & IoT',
+    path: '/admin/smart-access',
+    icon: <SensorsIcon />,
   },
   { text: 'Quản lý giường & phòng', path: '/admin/rooms', icon: <BedIcon /> },
   {
