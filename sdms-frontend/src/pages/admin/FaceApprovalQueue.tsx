@@ -1,3 +1,4 @@
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Box,
   Typography,
@@ -15,9 +16,13 @@ import {
   TextField,
   Snackbar,
   Alert,
+  CircularProgress,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { alpha } from '@mui/material/styles';
+import { useState } from 'react';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useFaceApproval } from '@/hooks/useFaceApproval';
@@ -26,6 +31,7 @@ export default function FaceApprovalQueue() {
   const {
     profiles,
     loading,
+    actionLoading,
     snackbar,
     rejectTarget,
     reason,
@@ -34,7 +40,10 @@ export default function FaceApprovalQueue() {
     handleApprove,
     handleRejectSubmit,
     closeSnackbar,
+    fetchPendingFaces,
   } = useFaceApproval();
+
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const onApproveClick = (profileId: string) => () => {
     handleApprove(profileId);
@@ -46,12 +55,20 @@ export default function FaceApprovalQueue() {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
-        Kiểm Duyệt Ảnh Khuôn Mặt
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+          Kiểm Duyệt Ảnh Khuôn Mặt
+        </Typography>
+        <Tooltip title="Tải lại danh sách">
+          <IconButton onClick={fetchPendingFaces} disabled={loading} color="primary">
+            <RefreshIcon />
+          </IconButton>
+        </Tooltip>
+      </Box>
+
       <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
-        Ảnh chân dung được duyệt sẽ dùng làm mẫu AI nạp vào hệ thống Edge điều khiển mở cổng tự
-        động.
+        Ảnh chân dung được duyệt sẽ tự động được gửi qua AI phân tích, trích xuất Vector để nạp vào
+        hệ thống Edge điều khiển mở cổng.
       </Typography>
 
       {loading ? (
@@ -60,33 +77,52 @@ export default function FaceApprovalQueue() {
         <Paper
           variant="outlined"
           sx={{
-            p: 5,
+            p: 6,
             textAlign: 'center',
             borderRadius: 3,
             bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04),
           }}
         >
-          <Typography sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png"
+            alt="Empty"
+            style={{ width: 120, opacity: 0.5, marginBottom: 16 }}
+          />
+          <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+            Tất cả đã được xử lý!
+          </Typography>
+          <Typography sx={{ color: 'text.secondary', mb: 3 }}>
             Hiện tại không có ảnh khuôn mặt nào trong hàng đợi chờ duyệt.
           </Typography>
+          <Button variant="outlined" startIcon={<RefreshIcon />} onClick={fetchPendingFaces}>
+            Kiểm tra lại
+          </Button>
         </Paper>
       ) : (
         <Grid container spacing={3}>
           {profiles.map((profile) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={profile.profileId}>
-              <Card variant="outlined" sx={{ borderRadius: 3, boxShadow: 'none' }}>
+              <Card
+                variant="outlined"
+                sx={{
+                  borderRadius: 3,
+                  boxShadow: 'none',
+                  transition: '0.2s',
+                  '&:hover': { borderColor: 'primary.main', boxShadow: 2 },
+                }}
+              >
                 <CardMedia
                   component="img"
                   height="240"
-                  image={
-                    profile.pendingFaceImageUrl || 'https://via.placeholder.com/240?text=No+Image'
-                  }
+                  image={profile.faceImageUrl || 'https://via.placeholder.com/240?text=No+Image'}
                   alt={profile.studentName || 'Sinh viên'}
-                  sx={{ objectFit: 'cover' }}
+                  sx={{ objectFit: 'cover', cursor: 'pointer' }}
+                  onClick={() => setPreviewImage(profile.faceImageUrl || null)}
+                  title="Nhấn để phóng to ảnh"
                 />
                 <CardContent sx={{ p: 2 }}>
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }} noWrap>
-                    {profile.studentName || 'Sinh viên nội trú'}
+                    {profile.studentName || 'Hồ sơ Sinh viên'}
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1.5 }} noWrap>
                     Mã số SV: {profile.studentId}
@@ -104,6 +140,7 @@ export default function FaceApprovalQueue() {
                     color="error"
                     variant="outlined"
                     onClick={onRejectClick(profile.profileId)}
+                    disabled={actionLoading === profile.profileId}
                     fullWidth
                     sx={{ borderRadius: 1.5 }}
                   >
@@ -114,11 +151,16 @@ export default function FaceApprovalQueue() {
                     color="success"
                     variant="contained"
                     onClick={onApproveClick(profile.profileId)}
+                    disabled={actionLoading === profile.profileId}
                     disableElevation
                     fullWidth
                     sx={{ borderRadius: 1.5 }}
                   >
-                    Chấp nhận
+                    {actionLoading === profile.profileId ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      'Chấp nhận'
+                    )}
                   </Button>
                 </CardActions>
               </Card>
@@ -127,7 +169,7 @@ export default function FaceApprovalQueue() {
         </Grid>
       )}
 
-      {/* DIALOG NHẬP LÝ DO TỪ CHỐI ẢNH CHUẨN UX BẢO VỆ TIẾN TRÌNH RUNTIME */}
+      {/* DIALOG NHẬP LÝ DO TỪ CHỐI ẢNH */}
       <Dialog
         open={Boolean(rejectTarget)}
         onClose={() => setRejectTarget(null)}
@@ -136,28 +178,64 @@ export default function FaceApprovalQueue() {
       >
         <DialogTitle sx={{ fontWeight: 'bold' }}>Lý do từ chối ảnh</DialogTitle>
         <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Lý do này sẽ được gửi trực tiếp đến App của sinh viên để họ chụp lại ảnh mới.
+          </Typography>
           <TextField
             autoFocus
             margin="dense"
-            label="Chi tiết (Ảnh mờ, sai góc độ, đeo khẩu trang...)"
+            label="Chi tiết (VD: Ảnh mờ, sai góc độ, đeo khẩu trang...)"
             fullWidth
             multiline
-            rows={2}
+            rows={3}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button onClick={() => setRejectTarget(null)}>Hủy</Button>
+          <Button onClick={() => setRejectTarget(null)} disabled={Boolean(actionLoading)}>
+            Hủy
+          </Button>
           <Button
             onClick={handleRejectSubmit}
             variant="contained"
             color="error"
-            disabled={!reason.trim()}
+            disabled={!reason.trim() || Boolean(actionLoading)}
           >
-            Xác Nhận
+            {actionLoading ? <CircularProgress size={20} color="inherit" /> : 'Xác Nhận'}
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* DIALOG XEM ẢNH PHÓNG TO */}
+      <Dialog
+        open={Boolean(previewImage)}
+        onClose={() => setPreviewImage(null)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle
+          sx={{
+            fontWeight: 'bold',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          Chi tiết khuôn mặt
+          <Button onClick={() => setPreviewImage(null)} color="inherit">
+            Đóng
+          </Button>
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: 'center', p: 0, bgcolor: '#000' }}>
+          {previewImage && (
+            <img
+              src={previewImage}
+              alt="Preview"
+              style={{ width: '100%', maxHeight: '70vh', objectFit: 'contain', display: 'block' }}
+            />
+          )}
+        </DialogContent>
       </Dialog>
 
       {/* SNACKBAR THÔNG BÁO TIẾN ĐỘ */}

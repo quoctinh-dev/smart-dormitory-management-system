@@ -171,34 +171,7 @@ public class ApplicationReviewService {
         log.info("Application {} approved. Status moved to WAITING_PAYMENT. BedReservedEvent and ApplicationApprovedEvent fired.", applicationId);
     }
 
-    @Transactional
-    public void confirmCashPayment(UUID applicationId, String note, UUID adminUserId) {
-        log.info("Confirming cash payment for application={} by admin={}", applicationId, adminUserId);
-        DormitoryApplication application = findApplicationOrThrow(applicationId);
 
-        if (application.getStatus() != ApplicationStatus.WAITING_PAYMENT) {
-            throw new AppException("Chỉ có thể xác nhận thanh toán khi hồ sơ đang chờ thanh toán", HttpStatus.BAD_REQUEST);
-        }
-
-        // Tự động tìm Bill của đơn này và gọi PaymentService để hoàn tất thanh toán
-        // Điều này sẽ tự động bắn ra PaymentSuccessEvent -> Kích hoạt StudentProvisioningListener sinh tài khoản
-        try {
-            paymentService.mockPaymentSuccess(applicationId);
-        } catch (Exception e) {
-            log.error("Failed to process payment for application={}. Reason: {}", applicationId, e.getMessage(), e);
-            throw new AppException("Không thể xử lý hóa đơn, vui lòng kiểm tra lại", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        // Trạng thái đơn và phòng sẽ được tự động cập nhật sang APPROVED và PENDING_CHECKIN
-        // thông qua PaymentSuccessEvent listener (onPaymentSuccess và PaymentWorkflowListener)
-        
-        // Cập nhật người duyệt và ghi chú
-        application.setReviewedByUserId(adminUserId);
-        if (note != null && !note.isBlank()) {
-            application.setReviewNote(note);
-            applicationRepository.save(application);
-        }
-    }
 
     @org.springframework.context.event.EventListener
     public void onPaymentSuccess(com.sdms.backend.modules.payment.event.PaymentSuccessEvent event) {

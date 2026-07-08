@@ -8,6 +8,7 @@ export interface IEligibility {
   eligibilityId: string;
   cccd: string;
   fullName: string;
+  studentCode?: string;
   [key: string]: any;
 }
 

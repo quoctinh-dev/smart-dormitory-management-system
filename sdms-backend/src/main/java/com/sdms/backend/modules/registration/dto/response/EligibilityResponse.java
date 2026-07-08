@@ -17,4 +17,6 @@ public class EligibilityResponse {
     private String cccd;
 
     private String fullName;
+
+    private String studentCode;
 }

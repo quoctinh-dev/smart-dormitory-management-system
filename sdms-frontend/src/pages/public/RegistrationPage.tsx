@@ -22,13 +22,13 @@ import SuccessSection from './components/Registration/SuccessSection';
 const STEP_LABELS = ['Kiểm tra', 'Thông tin', 'Hồ sơ', 'Cam kết', 'Hoàn tất'];
 
 // Đưa cấu hình tĩnh ra ngoài scope của component để tiết kiệm RAM khi re-render
-const PRIORITY_LABELS = {
-  NONE: 'Không thuộc diện ưu tiên',
-  POOR_HOUSEHOLD: 'Hộ nghèo / Hộ cận nghèo',
-  WAR_INVALIDS_CHILD: 'Con thương binh / Liệt sĩ',
-  ETHNIC_MINORITY: 'Sinh viên dân tộc thiểu số',
-  DISABLED: 'Sinh viên khuyết tật',
-};
+// const PRIORITY_LABELS = {
+//   NONE: 'Không thuộc diện ưu tiên',
+//   POOR_HOUSEHOLD: 'Hộ nghèo / Hộ cận nghèo',
+//   WAR_INVALIDS_CHILD: 'Con thương binh / Liệt sĩ',
+//   ETHNIC_MINORITY: 'Sinh viên dân tộc thiểu số',
+//   DISABLED: 'Sinh viên khuyết tật',
+// };
 
 const REGISTRATION_TYPE_TEXT = {
   NEW_STUDENT: 'Dành cho Tân Sinh Viên',

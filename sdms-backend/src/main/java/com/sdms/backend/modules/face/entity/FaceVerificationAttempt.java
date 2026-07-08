@@ -86,4 +86,11 @@ public class FaceVerificationAttempt {
     @CreatedDate
     @Column(name = "attempted_at", nullable = false, updatable = false)
     private LocalDateTime attemptedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.attemptedAt == null) {
+            this.attemptedAt = LocalDateTime.now();
+        }
+    }
 }

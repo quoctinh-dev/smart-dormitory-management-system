@@ -42,7 +42,7 @@ graph TD
 
 | Trạng thái | Mô tả | Chuyển đổi |
 | :--- | :--- | :--- |
-| `UNPAID` | **Chưa thanh toán:** Trạng thái ban đầu khi hóa đơn được tạo. | Được tạo ra bởi `BillGenerationListener` khi lắng nghe `ApplicationApprovedEvent`. |
+| `UNPAID` | **Chưa thanh toán:** Trạng thái ban đầu khi hóa đơn được tạo. | Được tạo ra bởi `BillGenerationListener` khi lắng nghe `BedReservedEvent` hoặc `ExtensionApprovedEvent`. |
 | `PAID` | **Đã thanh toán:** Hóa đơn đã được thanh toán đầy đủ. | Chuyển từ `UNPAID` hoặc `OVERDUE` khi một giao dịch `Payment` liên quan được xác nhận là `SUCCESS`. |
 | `OVERDUE` | **Quá hạn:** Hóa đơn không được thanh toán trước `dueDate`. | Được cập nhật bởi `BillOverdueJob` (một scheduler chạy hàng ngày để kiểm tra các hóa đơn quá hạn). |
 | `CANCELLED` | **Đã hủy:** Hóa đơn bị hủy (ví dụ: do việc giữ chỗ bị hủy). | Chuyển từ `UNPAID` khi có sự kiện hủy tương ứng. |
@@ -58,9 +58,9 @@ graph TD
 ## 4. Quy trình Tích hợp
 
 1.  **Tạo Hóa đơn (Tự động):**
-    *   **Sự kiện:** `ApplicationApprovedEvent`.
+    *   **Sự kiện:** `BedReservedEvent` và `ExtensionApprovedEvent`.
     *   **Hành động:** `BillGenerationListener` lắng nghe sự kiện, tạo ra một `Bill` mới với trạng thái `UNPAID`.
-    *   **Đối chiếu code (Lỗ hổng):** Listener này **chưa được triển khai**.
+    *   **Đối chiếu code:** Listener này **đã được triển khai hoàn chỉnh** trong `com.sdms.backend.modules.payment.event`.
 
 2.  **Sinh viên Thanh toán Online:**
     *   Sinh viên chọn thanh toán online. Hệ thống tạo một `Payment` với trạng thái `PENDING` và chuyển hướng sinh viên đến cổng thanh toán.

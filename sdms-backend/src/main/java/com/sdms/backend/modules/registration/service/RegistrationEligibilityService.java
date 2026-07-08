@@ -119,7 +119,7 @@ public class RegistrationEligibilityService {
             throw new AppException("Không tìm thấy đợt đăng ký", HttpStatus.NOT_FOUND);
         }
         return eligibilityRepository.findByRegistrationPeriod_PeriodId(periodId, pageable)
-                .map(e -> new EligibilityResponse(e.getEligibilityId(), e.getCccd(), e.getFullName()));
+                .map(e -> new EligibilityResponse(e.getEligibilityId(), e.getCccd(), e.getFullName(), e.getStudentCode()));
     }
 
     /**

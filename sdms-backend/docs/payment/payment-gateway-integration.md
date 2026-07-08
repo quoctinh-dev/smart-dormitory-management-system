@@ -8,8 +8,25 @@ Tài liệu này mô tả quy trình kỹ thuật và các biện pháp đảm b
 ## 1. Bối cảnh nghiệp vụ
 *(Nội dung không đổi, giữ nguyên như phiên bản 1.0)*
 
-## 2. Luồng Tương tác
-*(Nội dung không đổi, giữ nguyên như phiên bản 1.0)*
+## 2. Luồng Tương tác (Online Payment)
+
+Quy trình thanh toán online được thiết kế theo kiến trúc Event-Driven kết hợp Webhook bất đồng bộ:
+
+1. **Khởi tạo (Initiate):**
+   - Frontend gửi yêu cầu thanh toán online.
+   - Backend (`PaymentService`) tạo bản ghi `Payment` với trạng thái `PENDING` và sinh ra một `transactionCode` duy nhất.
+   - Backend sinh URL chứa mã QR chuẩn VietQR/SePay (bao gồm số tài khoản, số tiền, và nội dung chuyển khoản là `transactionCode`).
+   - Trả thông tin này về cho Frontend hiển thị.
+2. **Chờ xác nhận (Polling/WebSocket):**
+   - Frontend hiển thị mã QR và bắt đầu cơ chế Polling (gọi API kiểm tra liên tục) hoặc qua WebSocket để theo dõi trạng thái của `Payment`.
+3. **Xử lý Webhook (Async):**
+   - Sinh viên quét QR thanh toán thành công qua App Ngân hàng.
+   - Cổng thanh toán (SePay) gửi Webhook về `SepayWebhookController`.
+   - `SepayService` trích xuất `transactionCode` từ nội dung tin nhắn chuyển khoản, tìm giao dịch `PENDING` tương ứng.
+4. **Hoàn tất (Completion):**
+   - Nếu số tiền khớp và hợp lệ, hệ thống cập nhật `Payment` thành `SUCCESS`, `Bill` thành `PAID`.
+   - Phát ra sự kiện `PaymentSuccessEvent` (để tự động cấp phát giường).
+   - Frontend nhận được trạng thái `SUCCESS` và tự động chuyển hướng sinh viên sang trang báo hỷ.
 
 ## 3. Các Biện pháp Đảm bảo An toàn và Tin cậy
 

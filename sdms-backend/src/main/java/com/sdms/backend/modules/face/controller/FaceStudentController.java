@@ -44,12 +44,19 @@ public class FaceStudentController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Face registered successfully and pending approval", profileId));
     }
 
-    @PostMapping("/replacements")
+    @PostMapping(value = "/replacements", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void requestReplacement(
+    public ResponseEntity<ApiResponse<Void>> requestReplacement(
             @RequestHeader("X-Student-Id") UUID studentId,
-            @Valid @RequestBody FaceReplacementRequest request) {
-        faceProfileService.requestReplacement(studentId, request.pendingFaceImageUrl());
+            @RequestParam("file") MultipartFile file) {
+        
+        // Upload ảnh thay thế lên Cloudinary
+        String imageUrl = cloudinaryService.uploadFile(file, "sdms/faces");
+        
+        // Gửi yêu cầu thay thế ảnh
+        faceProfileService.requestReplacement(studentId, imageUrl);
+        
+        return ResponseEntity.ok(new ApiResponse<>(true, "Replacement requested successfully", null));
     }
 
     @GetMapping

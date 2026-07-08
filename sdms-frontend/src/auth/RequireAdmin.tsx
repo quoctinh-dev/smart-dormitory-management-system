@@ -13,7 +13,7 @@ export default function RequireAdmin() {
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const isAuthorized =
-    admin && ['ADMIN', 'STAFF', 'Admin', 'SuperAdmin'].includes(admin.role?.toUpperCase());
+    admin && ['ADMIN', 'STAFF'].includes(admin.role?.toUpperCase());
 
   useEffect(() => {
     if (admin && !isAuthorized) {

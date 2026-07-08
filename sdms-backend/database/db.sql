@@ -555,12 +555,6 @@ TRUNCATE TABLE processed_messages CASCADE;
 TRUNCATE TABLE payments CASCADE;
 TRUNCATE TABLE bills CASCADE;
 TRUNCATE TABLE student_housing_assignments CASCADE;
-TRUNCATE TABLE beds CASCADE;
-TRUNCATE TABLE rooms CASCADE;
-TRUNCATE TABLE floors CASCADE;
-TRUNCATE TABLE buildings CASCADE;
-TRUNCATE TABLE notifications CASCADE;
-TRUNCATE TABLE user_accounts CASCADE;
 TRUNCATE TABLE students CASCADE;
 TRUNCATE TABLE application_generated_documents CASCADE;
 TRUNCATE TABLE dormitory_application_status_history CASCADE;
@@ -570,6 +564,11 @@ TRUNCATE TABLE dormitory_applications CASCADE;
 TRUNCATE TABLE registration_eligibilities CASCADE;
 TRUNCATE TABLE registration_periods CASCADE;
 TRUNCATE TABLE shedlock CASCADE;
+
+
+SELECT * FROM user_accounts;
+
+
 
 
 

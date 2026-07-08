@@ -2,6 +2,7 @@ package com.sdms.backend.modules.face.repository;
 
 import com.sdms.backend.modules.face.entity.FaceEmbedding;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -32,8 +33,11 @@ public interface FaceEmbeddingRepository extends JpaRepository<FaceEmbedding, UU
     /**
      * Deletes the embedding for a specific profile.
      * Used by FaceProfileService during an Atomic Swap replacement.
+     * Use @Modifying query to bypass entity fetching which fails due to pgvector mapping issues.
      */
-    void deleteByProfileId(UUID profileId);
+    @Modifying
+    @Query("DELETE FROM FaceEmbedding e WHERE e.profileId = :profileId")
+    void deleteByProfileId(@Param("profileId") UUID profileId);
 
     /**
      * Executes a pgvector cosine similarity nearest-neighbor search against all

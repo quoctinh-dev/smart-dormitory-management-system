@@ -1,57 +1,59 @@
-# Quy chế Yêu cầu Phần mềm (SSR) - Hệ thống Quản lý Ký túc xá Thông minh (SDMS)
-**Phiên bản:** 2.0 (Bản hoàn thiện để bảo vệ)
-**Ngày:** 2026-06-26
+# Quy chế Yêu cầu Phần mềm (SSR) & Định hướng Tài liệu Backend - SDMS
+**Phiên bản:** 3.0 (Bản Đã Quy hoạch theo Single Source of Truth)
+**Ngày cập nhật:** 2026-07-07
 
 ## 1. Giới thiệu Tổng quan
 
-Tài liệu này là Quy chế Yêu cầu Phần mềm (Software Requirements Specification - SSR) chính thức cho dự án "Hệ thống Quản lý Ký túc xá Thông minh (SDMS)". Mục tiêu của tài liệu là định nghĩa một cách đầy đủ, rõ ràng và nhất quán toàn bộ các yêu cầu về nghiệp vụ, chức năng, phi chức năng, và các quyết định kiến trúc của hệ thống.
+Tài liệu này là **Master Index (Mục lục Cốt lõi)** cho toàn bộ hệ thống tài liệu của `sdms-backend`. Nó đóng vai trò định hướng để các kỹ sư và AI Agent biết cách tìm kiếm tài liệu đúng nơi, đúng chỗ theo nguyên tắc **Quy hoạch tập trung** và **Tách biệt UI/UX**.
 
-Đây là tài liệu trung tâm, đóng vai trò là nguồn tham chiếu duy nhất và chính xác nhất (Single Source of Truth) cho cả đội ngũ phát triển và các bên liên quan, bao gồm cả Hội đồng Phản biện Đồ án Tốt nghiệp.
+**NGUYÊN TẮC QUẢN TRỊ TÀI LIỆU BẮT BUỘC:**
+- **Code is Truth:** Nếu tài liệu nói khác với mã nguồn Java thực tế, thì mã nguồn là chân lý, và tài liệu phải được cập nhật lại.
+- **Không có Frontend Logic:** Toàn bộ hướng dẫn React, giao diện, Axios, State Machine của Mobile App đã bị trục xuất sang `sdms-frontend/docs/`. Backend chỉ chứa nghiệp vụ và cấu trúc Backend.
+- **API Centralization:** Bất kỳ tài liệu nào mô tả Flow gọi API, Sequence Diagram hoặc Payload HTTP đều được gom về thư mục `api/`.
+- **Roadmap Global:** Các tính năng chưa được code (tương lai) phải nằm ở `docs/roadmap/` (thư mục gốc của monorepo), không được để lẫn lộn ở Backend gây nhầm lẫn.
 
-## 2. Mục lục và Cấu trúc Tài liệu
+---
 
-Hệ thống tài liệu được tổ chức theo cấu trúc module, được liên kết chặt chẽ với nhau bắt đầu từ các nguyên tắc thiết kế cốt lõi.
+## 2. Mục lục và Cấu trúc Tài liệu Backend
 
-### PHẦN A: NỀN TẢNG VÀ KIẾN TRÚC
+### PHẦN A: NỀN TẢNG KIẾN TRÚC & API (GLOBAL)
+1. **[Kiến trúc Hệ thống (Architecture)](./architecture/)**
+   - [Nguyên tắc Thiết kế Cốt lõi (Event-Driven, Decoupling)](./architecture/system-design-principles.md)
+   - [Quy chế Vận hành Tin cậy & Xử lý Tình huống Bất ngờ](./architecture/system-reliability-design.md)
+2. **[Đặc tả API & Luồng Giao tiếp (API Flow Central)](./api/)**
+   - *Thư mục này chứa 100% các tài liệu về HTTP Endpoints, Webhook, Sequence Diagram API, và luồng gọi API từ Client.*
+   - *(Vui lòng xem [README của thư mục API](./api/README.md) để tra cứu các luồng API Auth, Student, Registration, v.v).*
 
-1.  **[Các Nguyên tắc Thiết kế Cốt lõi](./overview/system-design-principles.md)**
-    *   *Mô tả các quyết định kiến trúc nền tảng (Event-Driven, Idempotency, Decoupling) và lý do lựa chọn chúng.*
-2.  **[Quy chế Vận hành Tin cậy & Xử lý Tình huống Bất ngờ](./overview/reliability-and-edge-cases.md)**
-    *   *Mô tả các giải pháp cho các kịch bản thực tế (mất mạng, lỗi dịch vụ, xung đột dữ liệu) để đảm bảo hệ thống hoạt động ổn định.*
-3.  **[Luồng Nghiệp vụ Tổng thể](./overview/business-flow.md)**
-    *   *Mô tả hành trình end-to-end của các tác nhân chính (Sinh viên, Admin).*
-4.  **[Ma trận và Quy tắc Nghiệp vụ](./overview/)**
-    *   [Các Quy tắc Cam kết Nội trú](./overview/commitment-rules.md)
-    *   [Ma trận Tính điểm Ưu tiên](./overview/priority-matrix.md)
+### PHẦN B: ĐẶC TẢ NGHIỆP VỤ THEO MODULE (MODULE-SPECIFIC SSR)
+Mỗi module sẽ có một file `SSR-[TênModule].md` đóng vai trò định nghĩa Yêu cầu Chức năng (Functional Requirements).
 
-### PHẦN B: PHÂN TÍCH NGHIỆP VỤ CHI TIẾT TỪNG MODULE
+1. **[Module 01: Xác thực & Phân quyền (Auth)](./auth/)**
+   - [Yêu cầu Chức năng Xác thực](./auth/SSR-AuthModule.md)
+2. **[Module 02: Quản lý Sinh viên (Student)](./student/)**
+   - [Yêu cầu Chức năng Sinh viên](./student/SSR-StudentModule.md)
+   - [Vòng đời và Quản lý Hồ sơ Sinh viên](./student/student-lifecycle.md)
+3. **[Module 03: Đợt Đăng ký (Registration)](./registration/)**
+   - [Yêu cầu Chức năng Đợt Đăng ký](./registration/SSR-RegistrationModule.md)
+4. **[Module 04: Đơn từ Đăng ký Phòng (Application)](./application/)**
+   - [Yêu cầu Chức năng Đơn từ](./application/SSR-ApplicationModule.md)
+   - [Phân tích Mô hình Miền & Dữ liệu](./application/domain-model.md)
+   - [Luồng Xử lý End-to-End](./application/end-to-end-workflow.md)
+   - [Thiết kế Biểu mẫu (Form Design)](./application/form-design.md)
+5. **[Module 05: Quản lý Phòng & Xếp giường (Room)](./room/)**
+   - [Yêu cầu Chức năng Phòng](./room/SSR-RoomModule.md)
+   - [Mô hình Thực thể Phòng & Tòa nhà](./room/room-entity-model.md)
+6. **[Module 06: Thanh toán KTX (Payment)](./payment/)**
+   - [Yêu cầu Chức năng Thanh toán](./payment/SSR-PaymentModule.md)
+   - [Vòng đời Hóa đơn & Đối soát](./payment/payment-lifecycle.md)
+   - [Tích hợp Cổng thanh toán (Webhook/Polling)](./payment/payment-gateway-integration.md)
+7. **[Module 07: Thông báo Tự động (Notification)](./notification/)**
+   - [Yêu cầu Chức năng Thông báo](./notification/SSR-NotificationModule.md)
+   - [Kiến trúc Hướng Sự kiện (Event-Driven Notifications)](./notification/event-driven-architecture.md)
+8. **[Module 08: Ra vào Thông minh (SmartAccess)](./smartaccess/)**
+   - *Lưu ý: Thư mục này đang chuẩn bị được Audit quy hoạch.*
+   - [Yêu cầu Hệ thống Cổng từ](./smartaccess/01_SYSTEM_REQUIREMENTS.md)
+   - [Luồng Kiểm soát Ra vào](./smartaccess/03_ACCESS_CONTROL_FLOW.md)
+   - [Tích hợp MQTT & Sự kiện IoT](./smartaccess/04_EVENT_AND_MQTT_INTEGRATION.md)
 
-1.  **[Module 01: Xác thực & Phân quyền (Auth)](./auth/)**
-    *   [Tổng quan Module](./auth/auth-overview.md)
-    *   [Luồng Kích hoạt Tài khoản](./auth/activation-flow.md)
-    *   [Mô hình Vai trò và Phân quyền](./auth/role-permission-model.md)
-2.  **[Module 02: Quản lý Sinh viên (Student)](./student/)**
-    *   [Vòng đời và Quản lý Hồ sơ Sinh viên](./student/student-lifecycle.md)
-    *   [Luồng Đăng ký và Duyệt Khuôn mặt](./student/face-registration-flow.md)
-3.  **[Module 03: Quản lý Đợt Đăng ký (Registration)](./registration/)**
-    *   [Thiết kế và Quản lý Đợt Đăng ký](./registration/registration-period-design.md)
-4.  **[Module 04: Quản lý Đơn từ (Application)](./application/)**
-    *   [Thiết kế Biểu mẫu và Dữ liệu](./application/form-design.md)
-    *   [Phân tích Mô hình Miền](./application/domain-model.md)
-    *   [Luồng Xử lý End-to-End](./application/end-to-end-workflow.md)
-5.  **[Module 05: Quản lý Phòng (Room)](./room/)**
-    *   [Tổng quan Module](./room/room-overview.md)
-    *   [Phân tích Mô hình Thực thể](./room/room-entity-model.md)
-6.  **[Module 06: Quản lý Thanh toán (Payment)](./payment/)**
-    *   [Vòng đời Hóa đơn và Giao dịch](./payment/payment-lifecycle.md)
-    *   [Tích hợp Cổng thanh toán qua Webhook](./payment/payment-gateway-integration.md)
-7.  **[Module 07: Ra vào Thông minh (SmartAccess)](./smartaccess/)**
-    *   [Luồng Hoạt động và Logic Kiểm soát Ra vào](./smartaccess/access-control-flow.md)
-    *   [Tích hợp Thiết bị IoT và Xử lý Sự kiện](./smartaccess/event-and-device-integration.md)
-8.  **[Module 08: Thông báo (Notification)](./notification/)**
-    *   [Chức năng và Hoạt động của Module](./notification/notification-functionality.md)
-
-### PHẦN C: PHỤ LỤC
-
-1.  **[Mô hình Dữ liệu Tổng thể (Master SQL Schema)](../database/db.sql)**
-    *   *File SQL tổng hợp toàn bộ cấu trúc cơ sở dữ liệu của dự án.*
+### PHẦN C: HƯỚNG DẪN DEV & VẬN HÀNH
+1. **[Hướng dẫn Deploy bằng Docker](../../docs/DOCKER_GUIDE.md)**

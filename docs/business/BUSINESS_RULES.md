@@ -149,6 +149,12 @@ Validators, Services, Event Listeners, Schedulers, SecurityConfig.
 *   **Validation:** Kiểm tra lịch sử `FaceProfile` trong database.
 *   **Evidence:** `FaceProfileServiceImpl.java` (`registerFace`).
 
+### BR-I03: Xác thực chất lượng ảnh bằng AI (No Face Detected)
+*   **Description:** Hệ thống AI bắt buộc phải phát hiện chính xác ít nhất 1 khuôn mặt (bằng thuật toán MTCNN) trước khi trích xuất Vector. Nếu ảnh không có khuôn mặt hoặc ảnh bị che khuất, AI ném lỗi và API Admin Approve phải báo lỗi HTTP 400 Bad Request ngay lập tức.
+*   **Trigger:** Admin bấm "Duyệt" ảnh trên Web.
+*   **Validation:** Python AI trả về lỗi `no_face_detected`, Spring Boot ném `FaceAiExtractionException`. Transaction rollback, ảnh vẫn nằm ở trạng thái `PENDING`.
+*   **Evidence:** `FaceAiOrchestratorImpl.java`, module `face` trên Python AI (trả về HTTP 400).
+
 ### BR-I02: Smart Access - Chiến lược giờ giới nghiêm (Curfew Strategy)
 *   **Description:** Khi quét khuôn mặt tại cổng, sinh viên Nội trú (`BOARDING`) sẽ bị kiểm tra bởi `CurfewResolutionStrategy` (Giờ giới nghiêm). Các đối tượng khác sẽ bị kiểm tra bởi `TimeWindowEvaluationStrategy`.
 *   **Trigger:** IoT Module gửi event `FaceRecognizedEvent`.

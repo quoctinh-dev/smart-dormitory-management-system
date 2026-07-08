@@ -16,3 +16,7 @@ Thumbs.db
 *.bak
 *.tmp
 *.temp
+# Environment & Secrets
+.env
+.env.*
+!.env.example

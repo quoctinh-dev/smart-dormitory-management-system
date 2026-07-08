@@ -117,6 +117,17 @@ function LoginPage() {
             >
               {loading ? <CircularProgress size={24} color="inherit" /> : 'Đăng nhập hệ thống'}
             </Button>
+            
+            <Box sx={{ mt: 2, textAlign: 'center' }}>
+              <Button 
+                variant="text" 
+                color="primary" 
+                onClick={() => window.location.href = '/admin/forgot-password'}
+                sx={{ textTransform: 'none', fontWeight: 500 }}
+              >
+                Bạn quên mật khẩu?
+              </Button>
+            </Box>
           </Box>
         </CardContent>
       </Card>

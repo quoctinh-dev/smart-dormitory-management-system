@@ -75,7 +75,7 @@ const DocumentUploadBox = ({
     <Box
       sx={{
         border: '2px dashed',
-        borderColor: (theme) => (isUploaded ? 'success.main' : 'divider'),
+        borderColor: () => (isUploaded ? 'success.main' : 'divider'),
         borderStyle: isUploaded ? 'solid' : 'dashed',
         borderRadius: 4,
         p: 3,

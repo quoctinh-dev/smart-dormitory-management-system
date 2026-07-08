@@ -154,6 +154,9 @@ export default function EligibilityManagerDialog({
                         CCCD / CMND
                       </TableCell>
                       <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>
+                        Mã sinh viên
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>
                         Họ và tên
                       </TableCell>
                       <TableCell
@@ -182,6 +185,9 @@ export default function EligibilityManagerDialog({
                           {/* CHUẨN HÓA LOGIC: Tính số thứ tự tăng tiến chuẩn theo trang */}
                           <TableCell>{index + 1 + page * size}</TableCell>
                           <TableCell>{row.cccd}</TableCell>
+                          <TableCell sx={{ color: 'primary.main', fontWeight: 500 }}>
+                            {row.studentCode || 'N/A'}
+                          </TableCell>
                           <TableCell sx={{ fontWeight: 500 }}>{row.fullName}</TableCell>
                           <TableCell align="center">
                             <IconButton

@@ -46,6 +46,9 @@ public class DormitoryApplication extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String fullName;
 
+    @Column(length = 20)
+    private String studentCode;
+
     @Column(nullable = false)
     private LocalDate dob;
 

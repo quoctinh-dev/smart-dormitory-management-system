@@ -8,6 +8,8 @@ import { wrap } from '@/utils/routeUtils';
 
 // Lazy-loaded admin pages
 const LoginPage = lazy(() => import('@/pages/admin/LoginPage'));
+const ForgotPasswordPage = lazy(() => import('@/pages/admin/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('@/pages/admin/ResetPasswordPage'));
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 const RegistrationPeriodManager = lazy(() => import('@/pages/admin/RegistrationPeriodManager'));
 const ApplicationReviewQueue = lazy(() => import('@/pages/admin/ApplicationReviewQueue'));
@@ -21,9 +23,12 @@ const IntegratedReviewPage = lazy(() => import('@/pages/admin/IntegratedReviewPa
 const ExtensionManagementPage = lazy(() => import('@/pages/admin/StayExtensionManagement'));
 const CheckoutManagementPage = lazy(() => import('@/pages/admin/CheckoutManagement'));
 const SmartAccessManagement = lazy(() => import('@/pages/admin/SmartAccessManagement'));
+const AccountManagementPage = lazy(() => import('@/pages/admin/AccountManagementPage'));
 
 // Wrapped components for suspense
 const LoginLazy = wrap(LoginPage);
+const ForgotPasswordLazy = wrap(ForgotPasswordPage);
+const ResetPasswordLazy = wrap(ResetPasswordPage);
 const AdminDashboardLazy = wrap(AdminDashboard);
 const RegistrationPeriodManagerLazy = wrap(RegistrationPeriodManager);
 const ApplicationReviewQueueLazy = wrap(ApplicationReviewQueue);
@@ -37,12 +42,17 @@ const ExtensionManagementLazy = wrap(ExtensionManagementPage);
 const CheckoutManagementLazy = wrap(CheckoutManagementPage);
 const RoomManagementLazy = wrap(RoomManagementPage);
 const SmartAccessManagementLazy = wrap(SmartAccessManagement);
+const AccountManagementLazy = wrap(AccountManagementPage);
 
 export const adminRoutes: RouteObject[] = [
   // Auth layout for admin login
   {
     element: <AuthLayout />,
-    children: [{ path: 'admin/login', element: <LoginLazy /> }],
+    children: [
+      { path: 'admin/login', element: <LoginLazy /> },
+      { path: 'admin/forgot-password', element: <ForgotPasswordLazy /> },
+      { path: 'admin/reset-password', element: <ResetPasswordLazy /> }
+    ],
   },
   // Admin routes protected by RequireAdmin
   {
@@ -52,6 +62,7 @@ export const adminRoutes: RouteObject[] = [
         element: <AdminLayout />,
         children: [
           { path: 'admin', element: <AdminDashboardLazy /> },
+          { path: 'admin/accounts', element: <AccountManagementLazy /> },
           { path: 'admin/registration-periods', element: <RegistrationPeriodManagerLazy /> },
           { path: 'admin/review', element: <IntegratedReviewPageLazy /> },
           { path: 'admin/applications/review', element: <ApplicationReviewQueueLazy /> },

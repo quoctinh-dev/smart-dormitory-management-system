@@ -13,7 +13,7 @@ Mã nguồn Backend tại `sdms-backend/src/main/java/com/sdms/backend/`. Bộ t
 Business Baseline v1.0 — Frozen after final audit 2026-07-04.
 
 ## Contents
-Bộ tài liệu gồm 10 files:
+Bộ tài liệu gồm 11 files:
 
 | # | File | Mô tả |
 |---|---|---|
@@ -27,6 +27,7 @@ Bộ tài liệu gồm 10 files:
 | 8 | `BUSINESS_DECISIONS.md` | Quyết định kiến trúc và nghiệp vụ (ADR) |
 | 9 | `BUSINESS_ASSUMPTIONS.md` | Giả định thực tế được phản ánh trong code |
 | 10 | `BUSINESS_FAQ.md` | Hỏi đáp nghiệp vụ nhanh |
+| 11 | `application_workflow_updates.md` | Changelog lịch sử gỡ lỗi nghiệp vụ Đơn đăng ký và Giường |
 
 ## Reading Order
 1. **DOMAIN SPECIFICATION** — Bức tranh tổng thể.

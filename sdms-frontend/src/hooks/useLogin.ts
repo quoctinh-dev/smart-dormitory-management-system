@@ -56,8 +56,15 @@ export const useLogin = () => {
 
       navigate('/admin', { replace: true });
     } catch (err: any) {
-      const errorCode = err.errorCode;
-      setError(getAuthErrorMessage(errorCode));
+      const errorCode = err?.errorCode;
+      const backendMessage = err?.message;
+
+      // Ưu tiên hiển thị thông báo chi tiết từ Backend (VD: Lỗi khóa 15 phút do Brute-force)
+      if (errorCode === 'ACCOUNT_LOCKED' && backendMessage) {
+        setError(backendMessage);
+      } else {
+        setError(getAuthErrorMessage(errorCode));
+      }
     } finally {
       setLoading(false);
     }

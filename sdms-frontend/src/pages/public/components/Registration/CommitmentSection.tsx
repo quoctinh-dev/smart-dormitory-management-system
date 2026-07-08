@@ -202,7 +202,7 @@ export default function CommitmentSection({
           p: 2,
           borderRadius: 3,
           border: '2px dashed',
-          borderColor: (theme) => (isCommitted ? 'success.main' : 'text.disabled'),
+          borderColor: () => (isCommitted ? 'success.main' : 'text.disabled'),
           bgcolor: (theme) =>
             isCommitted ? alpha(theme.palette.success.main, 0.05) : 'transparent',
           borderStyle: isCommitted ? 'solid' : 'dashed',

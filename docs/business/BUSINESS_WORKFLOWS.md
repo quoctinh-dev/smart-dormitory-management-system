@@ -54,11 +54,12 @@ Controllers, Services, Application Events, Event Listeners, Schedulers.
 *   **Trigger:** Sinh viên muốn sử dụng cửa Face ID.
 *   **Steps:**
     1. Student upload ảnh → `FaceProfile` = `PENDING`.
-    2. Admin duyệt → Hệ thống gửi ảnh lên AI Server → Trích xuất Vector → lưu `FaceEmbedding` → `FaceProfile` = `APPROVED`.
+    2. Admin duyệt → Hệ thống gọi API sang AI Server → AI chạy thuật toán MTCNN để phát hiện khuôn mặt → Trích xuất Vector 512 chiều (InceptionResnetV1) → lưu `FaceEmbedding` (pgvector) → `FaceProfile` = `APPROVED`.
     3. Student xác thực được tại cổng.
-*   **Alternative Flow (Từ chối):** Admin từ chối ảnh không đủ chất lượng → `REJECTED` → Student upload lại → `PENDING`.
+*   **Alternative Flow (AI Báo lỗi):** Trong quá trình Admin duyệt, nếu AI không tìm thấy khuôn mặt trong ảnh, AI Server trả về HTTP 400 → Spring Boot ném `FaceAiExtractionException` → Luồng duyệt bị Rollback → Báo lỗi cho Admin → `FaceProfile` vẫn giữ nguyên `PENDING` [Rule: BR-I03].
+*   **Alternative Flow (Từ chối):** Admin tự nhìn bằng mắt và từ chối ảnh không đủ chất lượng → `REJECTED` → Student upload lại → `PENDING`.
 *   **Exception Flow (Thu hồi):** Admin phát hiện vi phạm sau khi `APPROVED` → Thu hồi → `REVOKED`.
-*   **Evidence:** `FaceStudentController`, `FaceAdminController`, `FaceProfileApprovedEvent`, `FaceProfileRejectedEvent`, `FaceProfileRevokedEvent`, `FaceSyncReadyEvent`.
+*   **Evidence:** `FaceStudentController`, `FaceAdminController`, `FaceAiOrchestratorImpl`, `FaceProfileApprovedEvent`, `FaceProfileRejectedEvent`, `FaceProfileRevokedEvent`, `FaceSyncReadyEvent`.
 
 ---
 

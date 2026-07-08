@@ -35,7 +35,7 @@ Mô hình dữ liệu của module được xây dựng theo cấu trúc phân c
 Module `Room` có vai trò trung tâm và tương tác chặt chẽ với các module khác:
 
 *   **Module `Application` (Đầu vào):**
-    *   **Lắng nghe sự kiện `ApplicationApprovedEvent`:** Khi một đơn được duyệt, module `Room` sẽ nhận được thông tin và kích hoạt quy trình giữ chỗ (reservation).
+    *   **Lắng nghe sự kiện `ApplicationSubmittedEvent`:** Khi sinh viên nộp đơn thành công, module `Room` sẽ nhận được thông tin và kích hoạt quy trình giữ chỗ dự kiến (provisional reservation) ngay lập tức.
 *   **Module `Payment` (Điều kiện):**
     *   **Lắng nghe sự kiện `PaymentSuccessEvent`:** Khi sinh viên thanh toán thành công, module `Room` sẽ xác nhận việc giữ chỗ và cho phép sinh viên check-in.
     *   **Lắng nghe sự kiện `PaymentExpiredEvent`:** Nếu sinh viên không thanh toán đúng hạn, module `Room` sẽ hủy việc giữ chỗ và giải phóng giường.
@@ -48,4 +48,4 @@ Module `Room` có vai trò trung tâm và tương tác chặt chẽ với các m
 
 *   **CRUD APIs:** Các controllers như `BuildingController`, `FloorController`, `RoomController`, `BedController` và các service tương ứng đã được triển khai đầy đủ, cung cấp các endpoint cho Admin quản lý cơ sở vật chất.
 *   **Service Phân phòng:** `HousingAssignmentService` đã có các phương thức quan trọng như `reserveBed`, `cancelReservation`, `completeCheckIn`.
-*   **Listeners (Lỗ hổng):** Tương tự như các module khác, các lớp `Listener` để xử lý sự kiện từ module `Application` và `Payment` (ví dụ: `RoomAllocationListener`, `PaymentResultListener`) **chưa được triển khai**. Điều này làm cho quy trình giữ chỗ và hủy chỗ tự động không hoạt động, đòi hỏi Admin phải can thiệp thủ công.
+*   **Listeners (Tích hợp chặt chẽ):** Đã triển khai đầy đủ `RoomAllocationListener` (bắt sự kiện nộp đơn để xếp phòng) và `PaymentWorkflowListener` (bắt sự kiện thanh toán để check-in/hủy phòng) giúp toàn bộ quy trình được tự động hóa.

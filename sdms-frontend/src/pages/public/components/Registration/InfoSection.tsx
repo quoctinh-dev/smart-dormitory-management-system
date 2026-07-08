@@ -34,13 +34,7 @@ interface InfoSectionProps {
   targetGroup: string;
 }
 
-export default function InfoSection({
-  formData,
-  error,
-  setFormData,
-  period,
-  targetGroup,
-}: InfoSectionProps) {
+export default function InfoSection({ formData, error, setFormData }: InfoSectionProps) {
   const handleFieldChange =
     (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setFormData((prev: IRegistrationFormData) => ({ ...prev, [field]: e.target.value }));

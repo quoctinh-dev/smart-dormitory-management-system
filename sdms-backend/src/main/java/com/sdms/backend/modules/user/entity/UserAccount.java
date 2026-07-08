@@ -42,6 +42,8 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "user_accounts")
+@org.hibernate.annotations.SQLDelete(sql = "UPDATE user_accounts SET is_deleted = true WHERE account_id=?")
+@org.hibernate.annotations.SQLRestriction("is_deleted = false")
 @Getter
 @Setter
 public class UserAccount extends BaseEntity implements UserDetails {
@@ -80,6 +82,13 @@ public class UserAccount extends BaseEntity implements UserDetails {
 
     @Column(name = "reset_password_expiry")
     private LocalDateTime resetPasswordExpiry;
+
+    // --- NEW FIELDS FOR BRUTE-FORCE PROTECTION ---
+    @Column(name = "failed_login_attempts", nullable = false)
+    private Integer failedLoginAttempts = 0;
+
+    @Column(name = "lock_time")
+    private LocalDateTime lockTime;
     // -------------------------------------
 
     // --- Removed Activation Token fields as per new flow ---

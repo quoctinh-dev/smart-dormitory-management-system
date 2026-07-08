@@ -36,7 +36,6 @@ export default function ApplicationReviewDetail() {
   const navigate = useNavigate();
 
   const {
-    admin,
     app,
     loading,
     dialogs,
@@ -47,7 +46,6 @@ export default function ApplicationReviewDetail() {
     toggleDialog,
     handleNoteChange,
     handleApprove,
-    handleConfirmPayment,
     handleRejectSubmit,
     handleRequestRevision,
     handleVerifyDocument,
@@ -110,8 +108,9 @@ export default function ApplicationReviewDetail() {
 
       {app.status === 'WAITING_LIST' && (
         <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
-          <strong>Lưu ý:</strong> Hồ sơ này đang nằm trong <strong>Danh sách chờ</strong> do hệ thống đã hết phòng trống. 
-          Bạn không thể duyệt hồ sơ lúc này. Khi có giường trống, hệ thống sẽ tự động chuyển hồ sơ về trạng thái Chờ duyệt.
+          <strong>Lưu ý:</strong> Hồ sơ này đang nằm trong <strong>Danh sách chờ</strong> do hệ
+          thống đã hết phòng trống. Bạn không thể duyệt hồ sơ lúc này. Khi có giường trống, hệ thống
+          sẽ tự động chuyển hồ sơ về trạng thái Chờ duyệt.
         </Alert>
       )}
 
@@ -235,7 +234,7 @@ export default function ApplicationReviewDetail() {
                             variant="outlined"
                             sx={{
                               borderRadius: 2,
-                              borderColor: (theme) =>
+                              borderColor: () =>
                                 isValid ? 'success.main' : isInvalid ? 'error.main' : 'divider',
                             }}
                           >

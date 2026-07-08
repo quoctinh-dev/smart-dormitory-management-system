@@ -36,7 +36,7 @@ export interface User {
   username: string;
   email: string;
   campusId: string;
-  role: 'Admin' | 'SuperAdmin';
+  role: 'STUDENT' | 'STAFF' | 'ADMIN';
   createdAt: string;
   updatedAt: string;
 }

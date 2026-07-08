@@ -71,4 +71,4 @@ Hệ thống sẽ tự động tạo ra 2 file PDF khi sinh viên nộp đơn th
 
 ### Lưu trữ PDF
 *   Để tránh làm phình to bảng `DormitoryApplication`, các đường dẫn đến file PDF được lưu trong một bảng riêng là `ApplicationGeneratedDocument`.
-*   **Đối chiếu code:** Logic tạo và lưu trữ PDF **chưa được triển khai** trong các service của module `application`. Đây là một "khoảng trống" lớn cần được lấp đầy. `ApplicationPdfService` cần được tạo ra để xử lý nghiệp vụ này một cách bất đồng bộ.
+*   **Đối chiếu code:** Logic tạo và lưu trữ PDF **đã được triển khai** thành công trong `ApplicationPdfService`. Dịch vụ này xử lý bất đồng bộ việc tạo PDF (Phiếu đăng ký, Bản cam kết) và đẩy lên Cloud Storage ngay khi sinh viên nộp đơn.

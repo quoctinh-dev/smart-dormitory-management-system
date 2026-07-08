@@ -31,8 +31,8 @@ Module này chịu trách nhiệm quản lý toàn bộ cơ sở vật chất (t
 
 ### Nhóm [FR-ROOM-ASSIGN]: Quản lý Vòng đời Cư trú
 - **[FR-ROOM-010] Tự động Giữ chỗ (Reservation):**
-    - **Mô tả:** Hệ thống **Phải** tự động tìm một giường trống phù hợp và tạo một bản ghi `StudentHousingAssignment` khi nhận được sự kiện `ApplicationApprovedEvent`.
-    - **Tiền điều kiện:** Một sự kiện `ApplicationApprovedEvent` được phát ra. Có giường trống phù hợp với giới tính và các tiêu chí khác.
+    - **Mô tả:** Hệ thống **Phải** tự động tìm một giường trống phù hợp và tạo một bản ghi `StudentHousingAssignment` khi nhận được sự kiện `ApplicationSubmittedEvent`.
+    - **Tiền điều kiện:** Một sự kiện `ApplicationSubmittedEvent` được phát ra (ngay khi sinh viên nộp đơn). Có giường trống phù hợp với giới tính và các tiêu chí khác.
     - **Hậu điều kiện:**
         1. Một bản ghi `StudentHousingAssignment` được tạo với trạng thái `RESERVED`.
         2. Trạng thái của `Bed` tương ứng được chuyển thành `RESERVED`.

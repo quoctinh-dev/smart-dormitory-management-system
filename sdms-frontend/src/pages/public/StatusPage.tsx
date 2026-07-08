@@ -142,16 +142,18 @@ export default function StatusPage() {
                   {/* THÔNG BÁO CHO DANH SÁCH CHỜ */}
                   {application.status === 'WAITING_LIST' && (
                     <Alert severity="info" sx={{ mb: 3, borderRadius: 2 }}>
-                      <strong>Thông báo:</strong> Hiện tại ký túc xá đang tạm thời hết phòng trống theo cấu hình phân bổ. 
-                      Hồ sơ của bạn đã được hệ thống tự động đưa vào <strong>Danh sách chờ</strong>. 
-                      Ngay khi có sinh viên khác hủy đơn hoặc trả phòng, hệ thống sẽ tự động xếp phòng cho bạn theo thứ tự ưu tiên và cập nhật trạng thái tại đây.
+                      <strong>Thông báo:</strong> Hiện tại ký túc xá đang tạm thời hết phòng trống
+                      theo cấu hình phân bổ. Hồ sơ của bạn đã được hệ thống tự động đưa vào{' '}
+                      <strong>Danh sách chờ</strong>. Ngay khi có sinh viên khác hủy đơn hoặc trả
+                      phòng, hệ thống sẽ tự động xếp phòng cho bạn theo thứ tự ưu tiên và cập nhật
+                      trạng thái tại đây.
                     </Alert>
                   )}
 
                   {/* THÔNG BÁO KHI BỊ TỪ CHỐI */}
                   {application.status === 'REJECTED' && (
                     <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-                      <strong>Hồ sơ của bạn đã bị từ chối với lý do: </strong> 
+                      <strong>Hồ sơ của bạn đã bị từ chối với lý do: </strong>
                       {application.reviewNote || 'Không có lý do cụ thể.'}
                     </Alert>
                   )}

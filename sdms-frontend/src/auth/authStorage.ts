@@ -50,7 +50,7 @@ export const authStorage = {
   hasSession(): boolean {
     try {
       return !!localStorage.getItem(ACCESS_TOKEN) && !!localStorage.getItem(REFRESH_TOKEN);
-    } catch (error) {
+    } catch {
       return false;
     }
   },

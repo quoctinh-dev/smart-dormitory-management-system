@@ -40,14 +40,15 @@ public class FaceProfileServiceImpl implements FaceProfileService {
 
         if (existingOpt.isPresent()) {
             FaceProfile profile = existingOpt.get();
-            if (profile.getStatus() == FaceProfileStatus.APPROVED || profile.getStatus() == FaceProfileStatus.PENDING) {
-                throw new FaceAlreadyRegisteredException("Student already has an active or pending face profile.");
+            if (profile.getStatus() == FaceProfileStatus.APPROVED) {
+                throw new FaceAlreadyRegisteredException("Student already has an active face profile. Please use replacement request instead.");
             }
             if (profile.getPendingFaceImageUrl() != null) {
                 throw new FaceAlreadyRegisteredException("Student already has a replacement request pending.");
             }
 
-            // Re-registration flow for REJECTED or REVOKED profiles
+            // Re-registration flow for PENDING, REJECTED or REVOKED profiles
+            // Allow overwriting PENDING profile to optimize UX when student realizes they uploaded a bad photo
             profile.setFaceImageUrl(faceImageUrl);
             profile.setStatus(FaceProfileStatus.PENDING);
             profile.setRejectionReason(null);
@@ -68,6 +69,11 @@ public class FaceProfileServiceImpl implements FaceProfileService {
         FaceProfile profile = faceProfileRepository.findById(profileId)
                 .orElseThrow(() -> new FaceProfileNotFoundException("Face profile not found: " + profileId));
 
+        if (profile.getPendingFaceImageUrl() != null) {
+            approveReplacement(profileId, adminId);
+            return;
+        }
+
         if (profile.getStatus() != FaceProfileStatus.PENDING) {
             throw new InvalidFaceProfileStateException("Profile must be PENDING to be approved.");
         }
@@ -85,6 +91,11 @@ public class FaceProfileServiceImpl implements FaceProfileService {
     public void rejectFace(UUID profileId, String rejectionReason) {
         FaceProfile profile = faceProfileRepository.findById(profileId)
                 .orElseThrow(() -> new FaceProfileNotFoundException("Face profile not found: " + profileId));
+
+        if (profile.getPendingFaceImageUrl() != null) {
+            rejectReplacement(profileId, rejectionReason);
+            return;
+        }
 
         if (profile.getStatus() != FaceProfileStatus.PENDING) {
             throw new InvalidFaceProfileStateException("Profile must be PENDING to be rejected.");
@@ -190,14 +201,31 @@ public class FaceProfileServiceImpl implements FaceProfileService {
     @Override
     @Transactional(readOnly = true)
     public com.sdms.backend.modules.face.dto.response.FaceProfileDetailResponse getMyFaceProfile(UUID studentId) {
-        // DTO Mapping layer to be implemented
-        return null;
+        return faceProfileRepository.findByStudentId(studentId)
+                .map(profile -> new com.sdms.backend.modules.face.dto.response.FaceProfileDetailResponse(
+                        profile.getProfileId(),
+                        profile.getStudentId(),
+                        profile.getFaceImageUrl(),
+                        profile.getStatus(),
+                        profile.getRejectionReason(),
+                        profile.getPendingFaceImageUrl(),
+                        profile.getReplacementRequestedAt(),
+                        profile.getCreatedAt(),
+                        profile.getUpdatedAt()
+                ))
+                .orElseThrow(() -> new FaceProfileNotFoundException("No face profile found for student: " + studentId));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<com.sdms.backend.modules.face.dto.response.FaceProfileSummaryResponse> searchPendingProfiles(Pageable pageable) {
-        // DTO Mapping layer to be implemented
-        return Page.empty();
+        return faceProfileRepository.findByStatusOrPendingFaceImageUrlIsNotNull(FaceProfileStatus.PENDING, pageable)
+                .map(profile -> new com.sdms.backend.modules.face.dto.response.FaceProfileSummaryResponse(
+                        profile.getProfileId(),
+                        profile.getStudentId(),
+                        profile.getPendingFaceImageUrl() != null ? profile.getPendingFaceImageUrl() : profile.getFaceImageUrl(),
+                        profile.getStatus(),
+                        profile.getCreatedAt()
+                ));
     }
 }

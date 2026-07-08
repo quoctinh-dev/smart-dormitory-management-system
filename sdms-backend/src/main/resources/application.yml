@@ -59,3 +59,8 @@ management:
   health:
     redis:
       enabled: false
+
+ai:
+  face:
+    engine:
+      url: http://localhost:8000/api/v1/faces/extract

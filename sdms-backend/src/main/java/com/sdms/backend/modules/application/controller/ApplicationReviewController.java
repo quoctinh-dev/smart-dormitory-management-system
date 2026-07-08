@@ -65,18 +65,7 @@ public class ApplicationReviewController {
         return ResponseEntity.ok(ApiResponse.success("Phê duyệt đơn thành công (Chờ nộp phí)"));
     }
 
-    @Operation(summary = "Xác nhận sinh viên nộp tiền mặt tại quầy")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Xác nhận thu tiền thành công")
-    @PatchMapping("/{applicationId}/confirm-payment")
-    public ResponseEntity<ApiResponse<Void>> confirmCashPayment(
-            @PathVariable UUID applicationId,
-            @Valid @RequestBody AdminReviewRequest request,
-            @AuthenticationPrincipal UserAccount userAccount
-    ) {
-        UUID adminUserId = getAccountIdSafely(userAccount);
-        reviewService.confirmCashPayment(applicationId, request.getNote(), adminUserId);
-        return ResponseEntity.ok(ApiResponse.success("Xác nhận thu tiền thành công, đã xếp phòng chính thức"));
-    }
+
 
     @Operation(summary = "Từ chối đơn đăng ký nội trú")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Từ chối đơn thành công")

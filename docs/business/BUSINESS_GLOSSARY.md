@@ -58,7 +58,7 @@ Tên Class (Entity, DTO, Enum) trong mã nguồn Java.
 |---|---|---|
 | **FaceProfile** | Hồ sơ lưu ảnh khuôn mặt gốc của sinh viên. Chỉ 1 profile active/sinh viên. | Entity `FaceProfile` |
 | **FaceProfileStatus** | Vòng đời: `PENDING`, `APPROVED`, `REJECTED`, `REVOKED`. | Enum `FaceProfileStatus` |
-| **FaceEmbedding** | Vector 192 chiều trích xuất từ ảnh gốc, lưu dạng `pgvector`. Dùng để AI đối chiếu. | Entity `FaceEmbedding`, Migration `V22_01` |
+| **FaceEmbedding** | Vector 512 chiều trích xuất từ ảnh gốc (InceptionResnetV1), lưu dạng `pgvector`. Dùng để AI đối chiếu. | Entity `FaceEmbedding`, Migration `V22_01` |
 | **FaceVerificationAttempt** | Lịch sử một lần thử xác thực khuôn mặt tại cổng. | Entity `FaceVerificationAttempt` |
 | **CurfewPolicy** | Chính sách giới nghiêm: quy định giờ cấm ra/vào. Loại: `STRICT` (chặn cứng), `SOFT_WARNING` (cảnh báo). | Entity `CurfewPolicy`, Enum `CurfewType` |
 | **TimeWindowPolicy** | Chính sách khung giờ cổng hoạt động (mở/đóng theo lịch). | Entity `TimeWindowPolicy` |

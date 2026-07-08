@@ -23,10 +23,15 @@ export const useSmartAccess = () => {
     severity: 'success' | 'error' | 'warning' | 'info';
   }>({ open: false, message: '', severity: 'success' });
 
-  const fetchHistory = useCallback(async (page: number, size: number) => {
+  const fetchHistory = useCallback(async (page: number, size: number, searchStudentId?: string) => {
     try {
       setLoading(true);
-      const res = (await smartAccessApi.getAccessHistory({ page, size })) as any;
+      let res;
+      if (searchStudentId && searchStudentId.trim() !== '') {
+        res = (await smartAccessApi.getAccessHistoryByStudent(searchStudentId.trim(), { page, size })) as any;
+      } else {
+        res = (await smartAccessApi.getAccessHistory({ page, size })) as any;
+      }
       setHistory(res.content || []);
       setTotalElements(res.totalElements || 0);
     } catch (error: any) {
@@ -58,24 +63,24 @@ export const useSmartAccess = () => {
     }
   };
 
-  const handleEmergencyOverride = async (
-    actionType: string,
-    reason: string,
-    buildingId?: string
-  ) => {
+  const handleEmergencyOverride = async (actionType: string, reason: string, buildingId?: string) => {
     try {
+      setLoading(true);
       await smartAccessApi.emergencyOverride(actionType, reason, buildingId);
       setSnackbar({
         open: true,
-        message: `Lệnh khẩn cấp [${actionType}] đã được kích hoạt!`,
+        message: 'Đã kích hoạt Lệnh Khẩn Cấp thành công!',
         severity: 'warning',
       });
+      fetchHistory(0, 10, ''); // Refresh history
     } catch (error: any) {
       setSnackbar({
         open: true,
         message: `Thao tác khẩn cấp thất bại: ${error.response?.data?.message || error.message}`,
         severity: 'error',
       });
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -11,6 +11,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import PaymentIcon from '@mui/icons-material/Payment';
 import RoomPreferencesIcon from '@mui/icons-material/RoomPreferences';
 import SensorsIcon from '@mui/icons-material/Sensors';
+import PeopleIcon from '@mui/icons-material/People';
 import {
   AppBar,
   Toolbar,
@@ -34,59 +35,72 @@ import NotificationBell from '@/components/common/NotificationBell';
 const DRAWER_WIDTH = 260;
 
 const MENU_ITEMS = [
-  { text: 'Dashboard', path: '/admin', icon: <DashboardIcon /> },
+  { text: 'Dashboard', path: '/admin', icon: <DashboardIcon />, roles: ['ADMIN'] },
+  { text: 'Quản lý tài khoản', path: '/admin/accounts', icon: <PeopleIcon />, roles: ['ADMIN'] },
   {
     text: 'Quản lý đợt đăng ký',
     path: '/admin/registration-periods',
     icon: <DateRangeIcon />,
+    roles: ['ADMIN'],
   },
   {
     text: 'Kiểm duyệt hồ sơ',
     path: '/admin/applications/review',
     icon: <AssignmentTurnedInIcon />,
+    roles: ['ADMIN', 'STAFF'],
   },
   {
     text: 'Kiểm duyệt khuôn mặt',
     path: '/admin/faces/approve',
     icon: <FaceIcon />,
+    roles: ['ADMIN', 'STAFF'],
   },
   {
     text: 'Smart Access & IoT',
     path: '/admin/smart-access',
     icon: <SensorsIcon />,
+    roles: ['ADMIN'],
   },
-  { text: 'Quản lý giường & phòng', path: '/admin/rooms', icon: <BedIcon /> },
+  { text: 'Quản lý giường & phòng', path: '/admin/rooms', icon: <BedIcon />, roles: ['ADMIN', 'STAFF'] },
   {
     text: 'Quản lý thanh toán',
     path: '/admin/payments',
     icon: <PaymentIcon />,
+    roles: ['ADMIN'],
   },
   {
     text: 'Lễ tân check-in',
     path: '/admin/check-in',
     icon: <RoomPreferencesIcon />,
+    roles: ['ADMIN', 'STAFF'],
   },
   {
     text: 'Quản lý gia hạn',
     path: '/admin/extension-requests',
     icon: <EventRepeat />,
+    roles: ['ADMIN', 'STAFF'],
   },
   {
     text: 'Quản lý trả phòng',
     path: '/admin/checkout-requests',
     icon: <ExitToAppIcon />,
+    roles: ['ADMIN', 'STAFF'],
   },
   {
     text: 'Lịch sử thông báo',
     path: '/admin/notifications',
     icon: <NotificationsIcon />,
+    roles: ['ADMIN'],
   },
 ];
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { admin, logout } = useAuth();
+  
+  const userRole = admin?.role?.toUpperCase() || '';
+  const filteredMenu = MENU_ITEMS.filter(item => item.roles.includes(userRole));
 
   return (
     <Box
@@ -151,7 +165,7 @@ export default function AdminLayout() {
       >
         <Toolbar />
         <List sx={{ px: 2, mt: 2 }}>
-          {MENU_ITEMS.map((item) => {
+          {filteredMenu.map((item) => {
             const isSelected =
               location.pathname === item.path ||
               (item.path !== '/admin' && location.pathname.startsWith(item.path));

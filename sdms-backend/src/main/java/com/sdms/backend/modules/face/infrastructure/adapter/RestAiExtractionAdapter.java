@@ -15,6 +15,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @Slf4j
 @Component
@@ -23,7 +26,7 @@ public class RestAiExtractionAdapter implements AiExtractionPort {
 
     private final RestTemplate restTemplate;
 
-    @Value("${ai.face.engine.url:http://localhost:8000/api/v1/extract}")
+    @Value("${ai.face.engine.url:http://localhost:8000/api/v1/faces/extract}")
     private String aiEngineUrl;
 
     @Override
@@ -47,6 +50,8 @@ public class RestAiExtractionAdapter implements AiExtractionPort {
         log.info("Extracting vector directly from MultipartFile: {}", file.getOriginalFilename());
         try {
             return extractFromBytes(file.getBytes(), file.getOriginalFilename());
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error reading bytes from MultipartFile: {}", e.getMessage());
             throw new RuntimeException("Failed to read file for extraction", e);
@@ -78,7 +83,7 @@ public class RestAiExtractionAdapter implements AiExtractionPort {
             AiResponse aiResponse = response.getBody();
             if (aiResponse != null && aiResponse.isSuccess() && aiResponse.getData() != null) {
                 float[] vector = aiResponse.getData().getVector();
-                if (vector == null || vector.length != 192) {
+                if (vector == null || vector.length != 512) {
                     log.warn("AI Engine returned vector of unexpected length: {}", vector != null ? vector.length : "null");
                 }
                 return vector;
@@ -86,6 +91,9 @@ public class RestAiExtractionAdapter implements AiExtractionPort {
                 String errorMsg = aiResponse != null ? aiResponse.getMessage() : "No response body";
                 throw new RuntimeException("AI Engine Error: " + errorMsg);
             }
+        } catch (HttpClientErrorException.BadRequest e) {
+            log.warn("AI Engine rejected image: {}", e.getResponseBodyAsString());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No face detected in the image");
         } catch (Exception e) {
             log.error("AI Engine connection error: {}", e.getMessage());
             throw new RuntimeException("Failed to extract face vector from external AI Engine", e);

@@ -25,12 +25,15 @@ import {
   FormControl,
   InputLabel,
   Stack,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useSmartAccess } from '@/hooks/useSmartAccess';
+import roomApi from '@/api/roomApi';
 
 export default function SmartAccessManagement() {
   const {
@@ -58,10 +61,41 @@ export default function SmartAccessManagement() {
   // Emergency Form
   const [actionType, setActionType] = useState('GLOBAL_LOCKDOWN');
   const [reason, setReason] = useState('');
+  const [confirmEmergency, setConfirmEmergency] = useState(false);
+  const [targetBuilding, setTargetBuilding] = useState('ALL');
+  const [buildings, setBuildings] = useState<any[]>([]);
+
+  // Fetch Buildings for Scoped Actions
+  useEffect(() => {
+    const fetchBuildings = async () => {
+      try {
+        const res = await roomApi.getBuildings();
+        // axiosClient interceptor đã unwrap data, nên res chính là mảng kết quả
+        setBuildings(Array.isArray(res) ? res : res?.data || []);
+      } catch (err) {
+        console.error('Failed to load buildings', err);
+      }
+    };
+    fetchBuildings();
+  }, []);
+
+  // Search State
+  const [searchStudentId, setSearchStudentId] = useState('');
 
   useEffect(() => {
-    fetchHistory(page, rowsPerPage);
+    fetchHistory(page, rowsPerPage, searchStudentId);
   }, [fetchHistory, page, rowsPerPage]);
+
+  const handleSearchClick = () => {
+    setPage(0); // Reset về trang 1 khi search
+    fetchHistory(0, rowsPerPage, searchStudentId);
+  };
+
+  const handleClearSearch = () => {
+    setSearchStudentId('');
+    setPage(0);
+    fetchHistory(0, rowsPerPage, '');
+  };
 
   const onRemoteUnlockSubmit = async () => {
     if (!gateId) return;
@@ -72,7 +106,8 @@ export default function SmartAccessManagement() {
 
   const onEmergencySubmit = async () => {
     if (!reason) return;
-    await handleEmergencyOverride(actionType, reason);
+    const finalBuildingId = targetBuilding === 'ALL' ? undefined : targetBuilding;
+    await handleEmergencyOverride(actionType, reason, finalBuildingId);
     setEmergencyDialogOpen(false);
     setReason('');
   };
@@ -95,6 +130,18 @@ export default function SmartAccessManagement() {
             startIcon={<LockOpenIcon />}
             onClick={() => setUnlockDialogOpen(true)}
             disableElevation
+            sx={{
+              borderRadius: 3,
+              textTransform: 'none',
+              fontWeight: 'bold',
+              px: 3,
+              boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 20px rgba(0,118,255,0.23)',
+              },
+            }}
           >
             Mở Cổng Từ Xa
           </Button>
@@ -102,13 +149,52 @@ export default function SmartAccessManagement() {
             variant="contained"
             color="error"
             startIcon={<WarningAmberIcon />}
-            onClick={() => setEmergencyDialogOpen(true)}
+            onClick={() => {
+              setConfirmEmergency(false);
+              setEmergencyDialogOpen(true);
+            }}
             disableElevation
+            sx={{
+              borderRadius: 3,
+              textTransform: 'none',
+              fontWeight: 'bold',
+              px: 3,
+              animation: 'pulseWarning 2s infinite',
+              transition: 'all 0.2s ease-in-out',
+              '@keyframes pulseWarning': {
+                '0%': { boxShadow: '0 0 0 0 rgba(211, 47, 47, 0.7)' },
+                '70%': { boxShadow: '0 0 0 10px rgba(211, 47, 47, 0)' },
+                '100%': { boxShadow: '0 0 0 0 rgba(211, 47, 47, 0)' },
+              },
+              '&:hover': {
+                transform: 'translateY(-2px)',
+              },
+            }}
           >
             Tác Động Khẩn Cấp
           </Button>
         </Stack>
       </Box>
+
+      {/* Tầng Search (Targeted View cho Admin) */}
+      <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Tra cứu cá nhân:</Typography>
+        <TextField
+          size="small"
+          placeholder="Nhập ID Sinh viên (UUID)..."
+          value={searchStudentId}
+          onChange={(e) => setSearchStudentId(e.target.value)}
+          sx={{ width: 350 }}
+        />
+        <Button variant="contained" onClick={handleSearchClick} disabled={loading}>
+          Tìm kiếm
+        </Button>
+        {searchStudentId && (
+          <Button variant="outlined" color="secondary" onClick={handleClearSearch} disabled={loading}>
+            Xóa Lọc
+          </Button>
+        )}
+      </Paper>
 
       <Paper variant="outlined" sx={{ borderRadius: 3, mb: 4, overflow: 'hidden' }}>
         <Typography
@@ -136,7 +222,8 @@ export default function SmartAccessManagement() {
                   <TableCell sx={{ fontWeight: 'bold' }}>Cổng (Gate)</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Phương Thức</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Trạng Thái</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Lý Do</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Lý Do / Chẩn Đoán</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Hỗ trợ Quyết định</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -177,7 +264,52 @@ export default function SmartAccessManagement() {
                         sx={{ fontWeight: 'bold', minWidth: 80 }}
                       />
                     </TableCell>
-                    <TableCell>{row.denialReason || '-'}</TableCell>
+                    <TableCell>
+                      {row.denialReason ? (
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color:
+                              row.denialReason === 'UNAUTHORIZED_OR_INACTIVE'
+                                ? 'error.main'
+                                : 'warning.main',
+                            fontWeight: 'medium',
+                          }}
+                        >
+                          {row.denialReason === 'CURFEW_VIOLATION'
+                            ? 'Vi phạm giờ giới nghiêm'
+                            : row.denialReason === 'OUTSIDE_TIME_WINDOW'
+                              ? 'Sai khung giờ quy định'
+                              : row.denialReason === 'UNAUTHORIZED_OR_INACTIVE'
+                                ? 'Tài khoản không hợp lệ'
+                                : row.denialReason}
+                        </Typography>
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {row.decision === 'DENIED' &&
+                      (row.denialReason === 'CURFEW_VIOLATION' ||
+                        row.denialReason === 'OUTSIDE_TIME_WINDOW') ? (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          color="primary"
+                          onClick={() => {
+                            setGateId(row.gateId);
+                            setUnlockDialogOpen(true);
+                          }}
+                        >
+                          Mở Cổng Hỗ Trợ
+                        </Button>
+                      ) : row.decision === 'DENIED' &&
+                        row.denialReason === 'UNAUTHORIZED_OR_INACTIVE' ? (
+                        <Typography variant="caption" color="error">
+                          Yêu cầu xuất trình thẻ
+                        </Typography>
+                      ) : null}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -234,55 +366,93 @@ export default function SmartAccessManagement() {
         onClose={() => setEmergencyDialogOpen(false)}
         maxWidth="xs"
         fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            border: '2px solid',
+            borderColor: 'error.main',
+            boxShadow: '0 8px 32px rgba(211,47,47,0.2)',
+          },
+        }}
       >
-        <DialogTitle
-          sx={{
-            fontWeight: 'bold',
-            color: 'error.main',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-          }}
-        >
-          <WarningAmberIcon /> Tác Động Khẩn Cấp
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
-            Lệnh khẩn cấp sẽ ghi đè mọi Policy (giờ giới nghiêm, vân vân) trên toàn bộ hệ thống
-            Edge.
+        <Box sx={{ bgcolor: 'error.main', color: 'white', p: 2, textAlign: 'center' }}>
+          <WarningAmberIcon sx={{ fontSize: 48, mb: 1 }} />
+          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+            CHẾ ĐỘ KHẨN CẤP
+          </Typography>
+        </Box>
+        <DialogContent sx={{ pt: 3 }}>
+          <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary', textAlign: 'center' }}>
+            ⚠️ Cảnh báo: Lệnh này sẽ ghi đè mọi Policy (giờ giới nghiêm, vân vân) trên toàn bộ hệ thống Edge. Chỉ sử dụng trong tình huống nguy hiểm thực sự.
           </Typography>
 
-          <FormControl fullWidth sx={{ mb: 2, mt: 1 }}>
-            <InputLabel>Loại lệnh</InputLabel>
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>Phạm vi áp dụng (Scope)</InputLabel>
+            <Select
+              value={targetBuilding}
+              label="Phạm vi áp dụng (Scope)"
+              onChange={(e) => setTargetBuilding(e.target.value)}
+              sx={{ fontWeight: 'bold' }}
+            >
+              <MenuItem value="ALL" sx={{ fontWeight: 'bold' }}>🌐 TOÀN BỘ KÝ TÚC XÁ (Campus-wide)</MenuItem>
+              {buildings.map((b) => (
+                <MenuItem key={b.buildingId} value={b.buildingId}>
+                  🏢 Chỉ áp dụng cho: {b.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mb: 3 }}>
+            <InputLabel>Loại lệnh kích hoạt</InputLabel>
             <Select
               value={actionType}
-              label="Loại lệnh"
+              label="Loại lệnh kích hoạt"
               onChange={(e) => setActionType(e.target.value)}
+              sx={{ fontWeight: 'bold', color: actionType === 'GLOBAL_LOCKDOWN' ? 'error.main' : 'success.main' }}
             >
-              <MenuItem value="GLOBAL_LOCKDOWN">Khóa Toàn Bộ Cửa (Lockdown)</MenuItem>
-              <MenuItem value="GLOBAL_UNLOCK">Mở Toàn Bộ Cửa (Evacuation)</MenuItem>
+              <MenuItem value="GLOBAL_LOCKDOWN" sx={{ color: 'error.main', fontWeight: 'bold' }}>🔴 LOCKDOWN (Khóa toàn bộ cửa)</MenuItem>
+              <MenuItem value="GLOBAL_UNLOCK" sx={{ color: 'success.main', fontWeight: 'bold' }}>🟢 EVACUATION (Mở toàn bộ cửa)</MenuItem>
             </Select>
           </FormControl>
 
           <TextField
-            margin="dense"
-            label="Lý do kích hoạt (Bắt buộc)"
+            label="Lý do phát lệnh (Bắt buộc)"
             fullWidth
             multiline
             rows={2}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
+            sx={{ mb: 2 }}
           />
+
+          <Box sx={{ bgcolor: 'grey.50', p: 1.5, borderRadius: 2, border: '1px dashed grey' }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={confirmEmergency}
+                  onChange={(e) => setConfirmEmergency(e.target.checked)}
+                  color="error"
+                />
+              }
+              label={
+                <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'error.main' }}>
+                  Tôi xác nhận tự chịu trách nhiệm pháp lý cho lệnh này.
+                </Typography>
+              }
+            />
+          </Box>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setEmergencyDialogOpen(false)}>Hủy</Button>
+        <DialogActions sx={{ px: 3, pb: 3, justifyContent: 'space-between' }}>
+          <Button onClick={() => setEmergencyDialogOpen(false)} sx={{ fontWeight: 'bold' }}>Hủy Bỏ</Button>
           <Button
             onClick={onEmergencySubmit}
             variant="contained"
             color="error"
-            disabled={!reason.trim()}
+            disabled={!reason.trim() || !confirmEmergency}
+            sx={{ px: 4, fontWeight: 'bold', borderRadius: 2 }}
           >
-            Phát Lệnh {actionType === 'GLOBAL_LOCKDOWN' ? 'Lockdown' : 'Unlock'}
+            PHÁT LỆNH NGAY
           </Button>
         </DialogActions>
       </Dialog>

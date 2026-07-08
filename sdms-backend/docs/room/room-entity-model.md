@@ -28,7 +28,7 @@ Trạng thái của `Bed` là yếu tố cốt lõi để quản lý việc phâ
 | Trạng thái | Mô tả | Chuyển đổi |
 | :--- | :--- | :--- |
 | `AVAILABLE` | **Trống:** Giường đang có sẵn, có thể được gán cho sinh viên. | Đây là trạng thái mặc định của giường mới, hoặc khi một sinh viên check-out. |
-| `RESERVED` | **Đã giữ chỗ:** Giường đã được hệ thống giữ lại cho một sinh viên đã được duyệt đơn nhưng chưa thanh toán. Giường này không thể được gán cho người khác. | Chuyển từ `AVAILABLE` khi `RoomAllocationListener` xử lý sự kiện `ApplicationApprovedEvent`. |
+| `RESERVED` | **Đã giữ chỗ dự kiến:** Giường đã được hệ thống tạm giữ cho sinh viên ngay khi vừa nộp đơn thành công. Giường này không thể được gán cho người khác trừ khi đơn bị hủy. | Chuyển từ `AVAILABLE` khi `RoomAllocationListener` xử lý sự kiện `ApplicationSubmittedEvent`. |
 | `OCCUPIED` | **Đang ở:** Sinh viên đã hoàn tất thanh toán và check-in. Giường đang có người ở. | Chuyển từ `RESERVED` khi `CheckInService` xử lý việc check-in. |
 | `MAINTENANCE` | **Đang bảo trì:** Giường đang trong quá trình sửa chữa, không thể sử dụng. | Admin có thể chuyển một giường sang trạng thái này thủ công. |
 
@@ -63,7 +63,6 @@ Trạng thái của `Assignment` theo dõi vòng đời cư trú của sinh viê
 
 *   **Thực thể và Trạng thái:** Các thực thể `Building`, `Floor`, `Room`, `Bed`, `StudentHousingAssignment` và các Enum trạng thái tương ứng đã được định nghĩa đầy đủ và chính xác trong code (`com.sdms.backend.modules.room.entity` và `com.sdms.backend.modules.room.enums`).
 *   **Service Logic:** Các service như `BuildingService`, `RoomService`, `BedService` đã triển khai tốt các logic CRUD. `HousingAssignmentService` cũng đã có các phương thức nền tảng.
-*   **Tự động hóa (Lỗ hổng):**
-    *   **Tạo `Assignment` tự động:** Cần có `RoomAllocationListener` để lắng nghe `ApplicationApprovedEvent` và tự động gọi `housingAssignmentService.reserveBed(...)`. Nếu không, Admin sẽ phải thực hiện việc này thủ công.
-    *   **Hủy `Assignment` tự động:** Cần có một listener hoặc job để theo dõi các hóa đơn quá hạn (`PaymentExpiredEvent`) và tự động gọi `housingAssignmentService.cancelReservation(...)` để giải phóng giường. `HousingJobScheduler` đã có nhưng cần đảm bảo nó được kích hoạt đúng cách.
-    *   **Kết thúc `Assignment`:** Cần có một quy trình check-out rõ ràng (có thể là một API cho Admin) để chuyển trạng thái `Assignment` thành `TERMINATED` và `Bed` thành `AVAILABLE`.
+*   **Tự động hóa (Đã hoàn thiện):**
+    *   **Tạo `Assignment` tự động:** `RoomAllocationListener` đã được tích hợp để lắng nghe `ApplicationSubmittedEvent` và tự động giữ giường dự kiến.
+    *   **Thay đổi trạng thái:** `PaymentWorkflowListener` tự động cập nhật trạng thái khi thanh toán thành công hoặc quá hạn.

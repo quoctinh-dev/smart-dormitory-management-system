@@ -106,9 +106,31 @@ public class AuthService {
             throw new AppException(ErrorCode.ACCOUNT_LOCKED);
         }
 
+        // --- TÍNH NĂNG CHỐNG BRUTE-FORCE ---
+        if (account.getLockTime() != null) {
+            if (account.getLockTime().isAfter(LocalDateTime.now())) {
+                throw new AppException(ErrorCode.ACCOUNT_LOCKED, "Tài khoản bị khóa tạm thời do sai mật khẩu quá nhiều lần. Vui lòng thử lại sau.");
+            } else {
+                account.setFailedLoginAttempts(0);
+                account.setLockTime(null);
+            }
+        }
+
         if (!passwordEncoder.matches(request.getPassword(), account.getPassword())) {
+            int attempts = account.getFailedLoginAttempts() != null ? account.getFailedLoginAttempts() + 1 : 1;
+            account.setFailedLoginAttempts(attempts);
+            if (attempts >= 5) {
+                account.setLockTime(LocalDateTime.now().plusMinutes(15));
+                userAccountRepository.save(account);
+                throw new AppException(ErrorCode.ACCOUNT_LOCKED, "Tài khoản đã bị khóa 15 phút do sai mật khẩu quá 5 lần.");
+            }
+            userAccountRepository.save(account);
             throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
+
+        // Reset if success
+        account.setFailedLoginAttempts(0);
+        account.setLockTime(null);
 
         return generateAndSaveTokens(account);
     }
@@ -315,18 +337,18 @@ public class AuthService {
                 </head>
                 <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
                     <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                        <h2 style="color: #333333; text-align: center;">Reset Your Password</h2>
+                        <h2 style="color: #333333; text-align: center;">Khôi phục mật khẩu của bạn</h2>
                         <p style="color: #555555; font-size: 16px; line-height: 1.5;">
-                            We received a request to reset your password. Click the button below to choose a new one.
+                            Chúng tôi đã nhận được yêu cầu khôi phục mật khẩu từ bạn. Vui lòng nhấn vào nút bên dưới để tiến hành đổi mật khẩu mới.
                         </p>
                         <div style="text-align: center; margin: 30px 0;">
                             <a href="%s" style="background-color: #007bff; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px;">
-                                Reset Password
+                                Đặt lại Mật khẩu
                             </a>
                         </div>
                         <p style="color: #777777; font-size: 14px; text-align: center;">
-                            This link will expire in <strong>15 minutes</strong>.<br>
-                            If you did not request a password reset, please ignore this email.
+                            Đường link này sẽ tự động hết hạn sau <strong>15 phút</strong>.<br>
+                            Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này để đảm bảo an toàn.
                         </p>
                     </div>
                 </body>
