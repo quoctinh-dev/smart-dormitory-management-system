@@ -59,6 +59,10 @@ public class BuildingService {
         building.setDescription(request.getDescription());
         building.setStatus(request.getStatus());
 
+        if (request.getGender() != null) {
+            building.setGender(request.getGender());
+        }
+
         return buildingMapper.toResponse(buildingRepository.save(building));
     }
 

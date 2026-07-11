@@ -5,6 +5,7 @@ import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -13,8 +14,9 @@ import java.util.UUID;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping("/api/v1/public/room")
+@RequestMapping("/api/v1/student/room-result")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
 public class PublicRoomController {
 
     private final StudentHousingAssignmentRepository assignmentRepository;

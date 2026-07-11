@@ -25,6 +25,12 @@ public enum AssignmentStatus {
     CHECKED_OUT,
 
     /**
+     * Sinh viên đã chuyển sang phòng/giường khác (Đổi phòng hoặc Di dời bảo trì).
+     * Trạng thái này giúp phân biệt với CHECKED_OUT (Rời KTX) để thống kê chính xác.
+     */
+    TRANSFERRED,
+
+    /**
      * Đơn phân bổ bị hủy thủ công hoặc sinh viên từ chối nhận chỗ.
      */
     CANCELLED,

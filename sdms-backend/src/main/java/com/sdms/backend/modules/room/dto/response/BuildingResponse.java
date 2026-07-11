@@ -27,5 +27,7 @@ public class BuildingResponse {
 
     private BuildingStatus status;
 
+    private com.sdms.backend.modules.room.enums.BuildingGender gender;
+
     private LocalDateTime createdAt;
 }

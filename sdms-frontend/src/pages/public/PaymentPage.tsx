@@ -22,20 +22,20 @@ export default function PaymentPage() {
   const {
     bill,
     application,
-    paymentInstructions, // Get payment instructions from the hook
+    paymentInstructions,
     loading,
-
     paying,
-
     handleMockPayment,
-  } = usePayment(applicationId);
+  } = usePayment(applicationId || '');
 
   if (loading) return <CustomSkeleton type="dashboard" count={1} />;
 
   // Construct transfer content
-  const transferContent = paymentInstructions?.contentPrefix
-    ? `${paymentInstructions.contentPrefix}${application?.cccd}`
-    : application?.cccd;
+  const transferContent =
+    typeof (paymentInstructions as any)?.contentPrefix === 'string' &&
+    typeof application?.cccd === 'string'
+      ? `${(paymentInstructions as any).contentPrefix}${application.cccd}`
+      : application?.cccd ?? '';
 
   return (
     <Container maxWidth="sm" sx={{ py: 8 }}>

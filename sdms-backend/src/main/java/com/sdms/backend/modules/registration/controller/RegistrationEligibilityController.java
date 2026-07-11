@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.registration.controller;
 
 import com.sdms.backend.common.response.ApiResponse;
+import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.registration.dto.response.EligibilityImportResponse;
 import com.sdms.backend.modules.registration.dto.response.EligibilityResponse;
 import com.sdms.backend.modules.registration.service.RegistrationEligibilityService;
@@ -45,15 +46,16 @@ public class RegistrationEligibilityController {
 
     @Operation(summary = "Xem danh sách sinh viên đủ điều kiện của một đợt (Có phân trang)")
     @GetMapping("/{periodId}/eligibilities")
-    public ResponseEntity<ApiResponse<Page<EligibilityResponse>>> getEligibilities(
+    public ResponseEntity<ApiResponse<PageResponse<EligibilityResponse>>> getEligibilities(
             @PathVariable UUID periodId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
+        Page<EligibilityResponse> pageData = service.getEligibilities(periodId, pageable);
         return ResponseEntity.ok(
-                new ApiResponse<>(true, "Lấy danh sách thành công", service.getEligibilities(periodId, pageable))
+                new ApiResponse<>(true, "Lấy danh sách thành công", PageResponse.of(pageData))
         );
     }
 

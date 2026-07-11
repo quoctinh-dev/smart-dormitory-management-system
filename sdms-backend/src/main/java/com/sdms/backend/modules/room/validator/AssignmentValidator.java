@@ -4,6 +4,7 @@ import com.sdms.backend.common.exception.AppException;
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import com.sdms.backend.modules.system.service.SystemConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -22,9 +23,11 @@ import java.util.UUID;
 public class AssignmentValidator {
 
     private final StudentHousingAssignmentRepository assignmentRepository;
+    private final SystemConfigService systemConfigService;
 
     private static final List<AssignmentStatus> ACTIVE_STATUSES = List.of(
             AssignmentStatus.RESERVED,
+            AssignmentStatus.PENDING_CHECKIN,
             AssignmentStatus.OCCUPIED
     );
 
@@ -63,9 +66,9 @@ public class AssignmentValidator {
      * Chỉ cho phép luồng chuyển dịch: RESERVED -> OCCUPIED.
      */
     public void validateCheckIn(StudentHousingAssignment assignment) {
-        if (assignment.getStatus() != AssignmentStatus.RESERVED) {
+        if (assignment.getStatus() != AssignmentStatus.PENDING_CHECKIN) {
             throw new AppException(
-                    "Lifecycle error. Only assignments with 'RESERVED' status (Payment Success) are eligible for Check-In.",
+                    "Lifecycle error. Only assignments with 'PENDING_CHECKIN' status (Payment Success) are eligible for Check-In.",
                     HttpStatus.BAD_REQUEST
             );
         }
@@ -98,7 +101,7 @@ public class AssignmentValidator {
     }
 
     /**
-     * VALIDATION 6: PAYMENT EXPIRE VALIDATION (Payment Window 3 ngày)
+     * VALIDATION 6: PAYMENT EXPIRE VALIDATION (Payment Window)
      * Kiểm tra mốc thời gian giữ chỗ an toàn.
      */
     public void validateReservationExpired(StudentHousingAssignment assignment) {
@@ -106,10 +109,12 @@ public class AssignmentValidator {
             throw new AppException("Only reserved assignments can expire.", HttpStatus.BAD_REQUEST);
         }
 
-        // Kiểm tra khung thời gian 3 ngày cấu hình hệ thống
-        if (LocalDateTime.now().isBefore(assignment.getReservedAt().plusDays(3))) {
+        int deadlineDays = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_DEADLINE_DAYS", "3"));
+
+        // Kiểm tra khung thời gian cấu hình hệ thống
+        if (LocalDateTime.now().isBefore(assignment.getReservedAt().plusDays(deadlineDays))) {
             throw new AppException(
-                    "Operational restriction. The 3-day payment window for this reservation has not expired yet.",
+                    "Operational restriction. The " + deadlineDays + "-day payment window for this reservation has not expired yet.",
                     HttpStatus.BAD_REQUEST
             );
         }

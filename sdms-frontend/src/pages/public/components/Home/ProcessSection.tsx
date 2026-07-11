@@ -7,6 +7,7 @@ import {
   Step,
   StepLabel,
   StepContent,
+  Stack,
 } from '@mui/material';
 
 const REGISTRATION_STEPS = [
@@ -61,27 +62,39 @@ export default function ProcessSection() {
             background: 'linear-gradient(to bottom right, #ffffff, #f8fafc)',
           }}
         >
-          <Stepper orientation="vertical">
+          <Stepper orientation="vertical" sx={{ '& .MuiStepConnector-root': { ml: 1.4 } }}>
             {REGISTRATION_STEPS.map((step, index) => (
               <Step key={step.label} active={true}>
                 <StepLabel
+                  StepIconComponent={() => (
+                    <Box
+                      sx={(theme) => ({
+                        width: 34,
+                        height: 34,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: theme.palette.primary.main,
+                        color: 'common.white',
+                        fontWeight: 700,
+                        fontSize: '0.95rem',
+                      })}
+                    >
+                      {index + 1}
+                    </Box>
+                  )}
                   sx={{
-                    '& .MuiStepIcon-root.Mui-active': {
-                      color: 'primary.main',
-                      fontSize: '2rem',
-                    },
                     '& .MuiStepLabel-label': {
                       mt: 0.5,
                     },
                   }}
                 >
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.dark' }}>
-                    Bước {index + 1}: {step.label}
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.dark' }}>
+                    {step.label}
                   </Typography>
                 </StepLabel>
-                <StepContent
-                  sx={{ ml: 2.2, borderLeft: '2px dashed', borderColor: 'primary.light' }}
-                >
+                <StepContent sx={{ ml: 2.2, borderLeft: '2px dashed', borderColor: 'primary.light' }}>
                   <Typography
                     variant="body1"
                     sx={{
@@ -89,7 +102,7 @@ export default function ProcessSection() {
                       mb: 4,
                       mt: 1,
                       fontSize: '1.05rem',
-                      lineHeight: 1.6,
+                      lineHeight: 1.7,
                     }}
                   >
                     {step.description}

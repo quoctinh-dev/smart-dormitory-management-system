@@ -5,6 +5,8 @@ import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.Lock;
+import jakarta.persistence.LockModeType;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -19,8 +21,9 @@ public interface StudentHousingAssignmentRepository extends JpaRepository<Studen
 
     Optional<StudentHousingAssignment> findByApplication_ApplicationId(UUID applicationId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select a from StudentHousingAssignment a where a.assignmentId = :id")
-    Optional<StudentHousingAssignment> findByIdForUpdate(UUID id);
+    Optional<StudentHousingAssignment> findByIdForUpdate(@Param("id") UUID id);
     
     Optional<StudentHousingAssignment> findByAssignmentId(UUID assignmentId);
 
@@ -65,6 +68,68 @@ public interface StudentHousingAssignmentRepository extends JpaRepository<Studen
             "WHERE s.cccd = :cccd AND a.status = :status")
     Optional<StudentHousingAssignment> findForCheckInByCccdAndStatus(
             @Param("cccd") String cccd,
+            @Param("status") AssignmentStatus status
+    );
+
+    @Query("SELECT a FROM StudentHousingAssignment a " +
+            "JOIN FETCH a.student s " +
+            "JOIN FETCH a.bed b " +
+            "JOIN FETCH b.room r " +
+            "JOIN FETCH r.floor f " +
+            "JOIN FETCH f.building bd " +
+            "WHERE s.rfidCode = :rfidCode AND a.status = :status")
+    Optional<StudentHousingAssignment> findByStudentRfidAndStatusOptimized(
+            @Param("rfidCode") String rfidCode,
+            @Param("status") AssignmentStatus status
+    );
+
+    @Query("SELECT a FROM StudentHousingAssignment a " +
+            "JOIN FETCH a.student s " +
+            "JOIN FETCH a.bed b " +
+            "JOIN FETCH b.room r " +
+            "JOIN FETCH r.floor f " +
+            "JOIN FETCH f.building bd " +
+            "WHERE s.studentId = :studentId AND a.status = :status")
+    Optional<StudentHousingAssignment> findByStudentIdAndStatusOptimized(
+            @Param("studentId") UUID studentId,
+            @Param("status") AssignmentStatus status
+    );
+
+    @Query(value = "SELECT a FROM StudentHousingAssignment a " +
+            "JOIN FETCH a.student s " +
+            "JOIN FETCH a.bed b " +
+            "JOIN FETCH b.room r " +
+            "JOIN FETCH r.floor f " +
+            "JOIN FETCH f.building bd " +
+            "WHERE (:status IS NULL OR a.status = :status) " +
+            "AND (:keyword IS NULL OR LOWER(s.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR s.studentCode LIKE CONCAT('%', :keyword, '%'))",
+            countQuery = "SELECT COUNT(a) FROM StudentHousingAssignment a " +
+                    "JOIN a.student s " +
+                    "WHERE (:status IS NULL OR a.status = :status) " +
+                    "AND (:keyword IS NULL OR LOWER(s.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR s.studentCode LIKE CONCAT('%', :keyword, '%'))")
+    org.springframework.data.domain.Page<StudentHousingAssignment> searchForAudit(
+            @Param("status") AssignmentStatus status,
+            @Param("keyword") String keyword,
+            org.springframework.data.domain.Pageable pageable
+    );
+    /**
+     * Xác thực mã PIN cửa phòng.
+     * Logic: PIN thuộc về PHÒNG (r.roomPinCode), không phải sinh viên.
+     * SV đổi phòng → tự động dùng PIN của phòng mới (không cần migration).
+     * Query: Tìm assignment OCCUPIED của sinh viên ở đúng phòng có Gate đó và PIN đúng.
+     */
+    @Query("SELECT a FROM StudentHousingAssignment a " +
+            "JOIN FETCH a.student s " +
+            "JOIN FETCH a.bed b " +
+            "JOIN FETCH b.room r " +
+            "JOIN FETCH r.floor f " +
+            "JOIN FETCH f.building bd " +
+            "WHERE r.roomPinCode = :pinCode " +
+            "AND a.status = :status " +
+            "AND r.roomId = (SELECT g.room.roomId FROM com.sdms.backend.modules.smartaccess.domain.entity.Gate g WHERE g.gateId = :gateId AND g.isActive = true)")
+    Optional<StudentHousingAssignment> findByPinCodeAndGateIdAndStatus(
+            @Param("pinCode") String pinCode,
+            @Param("gateId") UUID gateId,
             @Param("status") AssignmentStatus status
     );
 }

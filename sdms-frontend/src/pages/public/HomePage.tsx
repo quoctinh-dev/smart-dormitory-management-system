@@ -1,7 +1,8 @@
 // 📄 File: src/pages/public/HomePage.jsx
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import SearchIcon from '@mui/icons-material/Search';
+import AppRegistrationRoundedIcon from '@mui/icons-material/AppRegistrationRounded';
+import FactCheckRoundedIcon from '@mui/icons-material/FactCheckRounded';
+import VerifiedUserRoundedIcon from '@mui/icons-material/VerifiedUserRounded';
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import {
   Box,
   Container,
@@ -15,6 +16,7 @@ import {
   DialogContent,
   DialogActions,
   Alert,
+  Chip,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useMemo } from 'react';
@@ -63,6 +65,19 @@ export default function HomePage() {
         }}
       >
         <Container maxWidth="md">
+          <Chip
+            label="Portal đăng ký nội trú STU"
+            sx={{
+              mb: 2.5,
+              px: 1.5,
+              py: 0.8,
+              borderRadius: 999,
+              bgcolor: 'rgba(255,255,255,0.16)',
+              color: 'common.white',
+              border: '1px solid rgba(255,255,255,0.22)',
+              fontWeight: 700,
+            }}
+          />
           <Typography variant="h2" sx={{ mb: 2, fontWeight: 800, letterSpacing: '-1px' }}>
             Hệ thống Quản lý Ký túc xá Thông minh
           </Typography>
@@ -81,6 +96,7 @@ export default function HomePage() {
               maxWidth: 640,
               mx: 'auto',
               bgcolor: 'background.paper',
+              boxShadow: '0 15px 40px rgba(15, 23, 42, 0.16)',
             }}
           >
             <TextField
@@ -95,7 +111,7 @@ export default function HomePage() {
                 disableUnderline: true,
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon color="action" />
+                    <SearchRoundedIcon color="action" />
                   </InputAdornment>
                 ),
               }}
@@ -104,7 +120,7 @@ export default function HomePage() {
               variant="contained"
               onClick={handleCheckEligibility}
               disabled={loading}
-              sx={{ borderRadius: 3, px: 4, py: 1.5, fontWeight: 'bold', minWidth: '120px' }}
+              sx={{ borderRadius: 3, px: 4, py: 1.5, fontWeight: 700, minWidth: '120px' }}
             >
               {loading ? 'Đang xử lý...' : 'Kiểm tra'}
             </Button>
@@ -117,7 +133,7 @@ export default function HomePage() {
         <Grid container spacing={4} justifyContent="center">
           <Grid size={{ xs: 12, md: 4 }}>
             <FeatureCard
-              icon={<AssignmentIndIcon sx={{ fontSize: 48, color: 'primary.main' }} />}
+              icon={<AppRegistrationRoundedIcon sx={{ fontSize: 32 }} />}
               title="Đăng ký lưu trú"
               description="Tiếp nhận hồ sơ đăng ký nội trú trực tuyến đối với sinh viên đủ điều kiện."
               buttonText="Tiến hành nộp hồ sơ"
@@ -126,7 +142,7 @@ export default function HomePage() {
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <FeatureCard
-              icon={<CheckCircleOutlineIcon sx={{ fontSize: 48, color: 'secondary.main' }} />}
+              icon={<FactCheckRoundedIcon sx={{ fontSize: 32 }} />}
               title="Tra cứu tiến độ"
               description="Theo dõi quy trình xét duyệt, cập nhật trạng thái thanh toán và thông tin phòng."
               buttonText="Tra cứu hồ sơ"
@@ -136,7 +152,7 @@ export default function HomePage() {
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <FeatureCard
-              icon={<CheckCircleOutlineIcon sx={{ fontSize: 48, color: 'success.main' }} />}
+              icon={<VerifiedUserRoundedIcon sx={{ fontSize: 32 }} />}
               title="Kích hoạt định danh"
               description="Khởi tạo tài khoản hệ thống dành cho sinh viên đã hoàn tất thủ tục lưu trú."
               buttonText="Thực hiện kích hoạt"

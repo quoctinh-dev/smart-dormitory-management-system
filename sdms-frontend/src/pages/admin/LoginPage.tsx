@@ -11,10 +11,12 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 import { useLogin } from '@/hooks/useLogin';
 
 function LoginPage() {
+  const navigate = useNavigate();
   const { formData, showPassword, loading, error, handleChange, toggleShowPassword, handleSubmit } =
     useLogin();
 
@@ -28,7 +30,7 @@ function LoginPage() {
       }}
     >
       {/* TỐI ƯU: Loại bỏ sx borderRadius và boxShadow vì MuiCard styleOverrides ở theme đã lo phần này */}
-      <Card sx={{ width: '100%' }}>
+      <Card sx={{ width: '100%', maxWidth: 460, mx: 'auto' }}>
         <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
           {' '}
           {/* TỐI ƯU: Responsive padding cho thiết bị di động */}
@@ -51,7 +53,11 @@ function LoginPage() {
             <Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>
               Hệ thống Quản trị KTX
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mt: 0.5, textAlign: 'center' }}
+            >
               Đăng nhập để tiếp tục vào phân hệ Admin
             </Typography>
           </Box>
@@ -75,6 +81,7 @@ function LoginPage() {
               value={formData.usernameOrEmail}
               onChange={handleChange}
               disabled={loading}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
             />
 
             <TextField
@@ -89,21 +96,28 @@ function LoginPage() {
               value={formData.password}
               onChange={handleChange}
               disabled={loading}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               slotProps={{
                 input: {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        aria-label="Chuyển đổi hiển thị mật khẩu"
+                        aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
                         onClick={toggleShowPassword}
                         edge="end"
                         disabled={loading}
+                        size="small"
                       >
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
                   ),
                 },
+              }}
+              inputProps={{
+                autoComplete: 'current-password',
+                'data-form-type': 'other',
+                'data-lpignore': 'true',
               }}
             />
 
@@ -113,16 +127,16 @@ function LoginPage() {
               variant="contained"
               size="large"
               disabled={loading}
-              sx={{ mt: 3, py: 1.2, borderRadius: 2 }} // TỐI ƯU: Giảm lề mt tránh đẩy form lệch khung hình
+              sx={{ mt: 3, py: 1.2, borderRadius: 2 }}
             >
               {loading ? <CircularProgress size={24} color="inherit" /> : 'Đăng nhập hệ thống'}
             </Button>
-            
+
             <Box sx={{ mt: 2, textAlign: 'center' }}>
-              <Button 
-                variant="text" 
-                color="primary" 
-                onClick={() => window.location.href = '/admin/forgot-password'}
+              <Button
+                variant="text"
+                color="primary"
+                onClick={() => navigate('/admin/forgot-password')}
                 sx={{ textTransform: 'none', fontWeight: 500 }}
               >
                 Bạn quên mật khẩu?

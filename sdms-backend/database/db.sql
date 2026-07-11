@@ -566,10 +566,25 @@ TRUNCATE TABLE registration_periods CASCADE;
 TRUNCATE TABLE shedlock CASCADE;
 
 
-SELECT * FROM user_accounts;
+SELECT * FROM students;
+
+UPDATE students SET rfid_code= '032F33FA' WHERE student_id='91b2145f-69cb-44c2-a37c-0aa7ba03b285';
 
 
 
-
+INSERT INTO gates (gate_id, building_id, created_at, gate_type, is_active, is_deleted, mac_address, name, updated_at)
+VALUES (
+           '123e4567-e89b-12d3-a456-426614174000',
+           (SELECT building_id FROM buildings LIMIT 1),
+           NOW(),
+           'BUILDING_GATE',
+           true,
+           false,
+           'ESP32_CAM_001',
+           'Cổng Chính Tòa A',
+           NOW()
+       )
+ON CONFLICT (gate_id) DO UPDATE
+    SET is_active = true, is_deleted = false;
 
 

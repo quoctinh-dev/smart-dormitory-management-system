@@ -1,20 +1,20 @@
-import { LocationOn, Apartment, Security } from '@mui/icons-material';
+import { LocationOnOutlined, ApartmentOutlined, SecurityOutlined } from '@mui/icons-material';
 import { Box, Container, Typography, Paper } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
 const FEATURES_DATA = [
   {
-    icon: <LocationOn color="primary" sx={{ fontSize: 48 }} />,
+    icon: <LocationOnOutlined sx={{ fontSize: 28 }} />,
     title: 'Vị trí Đắc địa',
     desc: 'Nằm ngay trong khuôn viên trường (180 Cao Lỗ, Phường 4, Quận 8, TP.HCM). Cực kỳ thuận tiện di chuyển đến phòng học, thư viện, khu thể thao.',
   },
   {
-    icon: <Apartment color="primary" sx={{ fontSize: 48 }} />,
+    icon: <ApartmentOutlined sx={{ fontSize: 28 }} />,
     title: 'Cơ sở Vật chất Hiện đại',
     desc: 'Phòng ốc trang bị đầy đủ giường, tủ cá nhân, bàn học, máy lạnh. Hệ thống Wi-Fi miễn phí và không gian sinh hoạt chung rộng rãi.',
   },
   {
-    icon: <Security color="primary" sx={{ fontSize: 48 }} />,
+    icon: <SecurityOutlined sx={{ fontSize: 28 }} />,
     title: 'An ninh 24/7',
     desc: 'Đội ngũ bảo vệ túc trực 24/7, hệ thống kiểm soát ra vào thông minh đảm bảo an toàn tuyệt đối cho sinh viên lưu trú.',
   },
@@ -53,7 +53,22 @@ export default function AboutSection() {
                   },
                 }}
               >
-                <Box sx={{ mb: 3 }}>{item.icon}</Box>
+                <Box
+                  sx={(theme) => ({
+                    mb: 3,
+                    width: 56,
+                    height: 56,
+                    mx: 'auto',
+                    borderRadius: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    bgcolor: `${theme.palette.primary.main}14`,
+                    color: 'primary.main',
+                  })}
+                >
+                  {item.icon}
+                </Box>
                 <Typography variant="h5" sx={{ fontWeight: 'bold' }} gutterBottom>
                   {item.title}
                 </Typography>

@@ -29,6 +29,7 @@ import Grid from '@mui/material/Grid2';
 import { alpha } from '@mui/material/styles';
 import { useParams, useNavigate } from 'react-router-dom';
 
+import DocumentPreview from '@/components/common/DocumentPreview';
 import { useApplicationReview } from '@/hooks/useApplicationReview';
 
 export default function ApplicationReviewDetail() {
@@ -177,31 +178,23 @@ export default function ApplicationReviewDetail() {
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
 
-                {/* 🌟 FIX TẠI ĐÂY: Check chính xác 2 trường URL độc lập từ Backend nhả về */}
+                {/* 🌟 FIX TẠI ĐÂY: Sử dụng DocumentPreview để xem trước PDF trực tiếp */}
                 {app.registrationFormPdfUrl || app.commitmentFormPdfUrl ? (
-                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     {app.registrationFormPdfUrl && (
-                      <Button
-                        variant="contained"
-                        color="error"
-                        href={app.registrationFormPdfUrl}
-                        target="_blank"
-                        startIcon={<PictureAsPdf />}
-                      >
-                        Mở Phiếu Đăng Ký (PDF)
-                      </Button>
+                      <DocumentPreview
+                        url={app.registrationFormPdfUrl}
+                        title="Phiếu Đăng Ký (PDF)"
+                        height={420}
+                      />
                     )}
 
                     {app.commitmentFormPdfUrl && (
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        href={app.commitmentFormPdfUrl}
-                        target="_blank"
-                        startIcon={<PictureAsPdf />}
-                      >
-                        Mở Bản Cam Kết (PDF)
-                      </Button>
+                      <DocumentPreview
+                        url={app.commitmentFormPdfUrl}
+                        title="Bản Cam Kết (PDF)"
+                        height={420}
+                      />
                     )}
                   </Box>
                 ) : (
@@ -240,26 +233,15 @@ export default function ApplicationReviewDetail() {
                           >
                             <Box
                               sx={{
-                                height: 150,
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
+                                p: 1.5,
                                 bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04),
-                                overflow: 'hidden',
                               }}
                             >
-                              <img
-                                src={
-                                  doc.fileUrl?.startsWith('http')
-                                    ? doc.fileUrl
-                                    : `${import.meta.env.VITE_API_URL}${doc.fileUrl}`
-                                }
-                                alt={doc.documentType}
-                                style={{
-                                  maxWidth: '100%',
-                                  maxHeight: '100%',
-                                  objectFit: 'contain',
-                                }}
+                              <DocumentPreview
+                                url={doc.fileUrl}
+                                title={doc.documentType}
+                                height={240}
+                                compact
                               />
                             </Box>
                             <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>

@@ -32,6 +32,7 @@ public interface RoomRepository extends JpaRepository<Room, UUID>, JpaSpecificat
 
     List<Room> findByStatus(RoomStatus status);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT r FROM Room r WHERE r.roomId = :roomId")
     Optional<Room> findByIdForUpdate(@Param("roomId") UUID roomId);
 

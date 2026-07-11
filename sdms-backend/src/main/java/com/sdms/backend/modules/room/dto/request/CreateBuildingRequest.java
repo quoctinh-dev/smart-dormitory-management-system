@@ -25,4 +25,6 @@ public class CreateBuildingRequest {
 
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
+
+    private com.sdms.backend.modules.room.enums.BuildingGender gender = com.sdms.backend.modules.room.enums.BuildingGender.MIXED;
 }

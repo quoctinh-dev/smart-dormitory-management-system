@@ -4,36 +4,12 @@ import { NavigateFunction } from 'react-router-dom';
 import applicationApi from '@/api/applicationApi';
 import { useAuth } from '@/auth';
 
-export interface IDocument {
-  documentId?: string;
-  documentName?: string;
-  fileUrl?: string;
-  status?: string;
-  remarks?: string;
-  [key: string]: any;
-}
-
-export interface IApplicationDetail {
-  applicationId: string;
-  fullName: string;
-  studentId: string;
-  dob: string;
-  gender: string;
-  email: string;
-  phone: string;
-  cccd: string;
-  priorityCategories?: any[];
-  registrationFormPdfUrl?: string;
-  commitmentFormPdfUrl?: string;
-  documents?: IDocument[];
-  status: string;
-  [key: string]: any;
-}
+import { ApplicationResponse } from '@/types/application';
 
 export const useApplicationReview = (id: string | undefined, navigate: NavigateFunction) => {
   const { admin } = useAuth();
 
-  const [app, setApp] = useState<IApplicationDetail | null>(null);
+  const [app, setApp] = useState<ApplicationResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [dialogs, setDialogs] = useState({
@@ -68,6 +44,7 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
 
   // 🌟 TỐI ƯU TẠI ĐÂY: Gọi đích danh API lấy chi tiết thay vì quét mảng 100 phần tử
   const fetchApp = useCallback(async () => {
+    if (!id) return;
     try {
       setLoading(true);
       // Giả định hàm lấy chi tiết của bạn tên là getDetail hoặc getById
@@ -75,10 +52,10 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
       const res = await applicationApi.getById(id);
 
       // Unwrap data theo chuẩn của axiosClient của bạn
-      const data = res?.data ? res.data : res;
+      const data = (res as any)?.data ? (res as any).data : res;
 
       if (data) {
-        setApp(data);
+        setApp(data as ApplicationResponse);
       } else {
         setSnackbar({
           open: true,
@@ -100,6 +77,7 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
   }, [id, fetchApp]);
 
   const handleApprove = async () => {
+    if (!id) return;
     try {
       await applicationApi.approve(id, 'Được duyệt trên Hệ thống Web Admin');
       setSnackbar({ open: true, message: 'Phê duyệt hồ sơ thành công!', severity: 'success' });
@@ -114,6 +92,7 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
   };
 
   const handleConfirmPayment = async () => {
+    if (!id) return;
     try {
       await applicationApi.confirmPayment(id, 'Đã thu tiền mặt');
       setSnackbar({
@@ -132,7 +111,7 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
   };
 
   const handleRejectSubmit = async () => {
-    if (!notes.reject.trim()) return;
+    if (!id || !notes.reject.trim()) return;
     try {
       await applicationApi.reject(id, notes.reject.trim());
       toggleDialog('reject', false);
@@ -148,6 +127,7 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
   };
 
   const handleRequestRevision = async () => {
+    if (!id) return;
     try {
       await applicationApi.requestRevision(id, notes.revision, deadlineDays);
       toggleDialog('revision', false);
@@ -187,7 +167,7 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
   };
 
   const handleInvalidDocSubmit = async () => {
-    if (!notes.doc.trim()) return;
+    if (!selectedDocId || !notes.doc.trim()) return;
     try {
       await applicationApi.verifyDocument(selectedDocId, 'INVALID', notes.doc.trim());
       toggleDialog('docVerify', false);

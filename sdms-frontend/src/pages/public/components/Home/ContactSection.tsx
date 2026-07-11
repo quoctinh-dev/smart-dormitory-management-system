@@ -1,20 +1,20 @@
-import { Phone, Email, SupportAgent } from '@mui/icons-material';
+import { PhoneOutlined, EmailOutlined, SupportAgentOutlined } from '@mui/icons-material';
 import { Box, Container, Typography, Paper, Stack } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
 const CONTACT_METHODS = [
   {
-    icon: <SupportAgent sx={{ fontSize: 40 }} />,
+    icon: <SupportAgentOutlined sx={{ fontSize: 28 }} />,
     label: 'Phòng Hành chính - Quản trị',
     value: '(028) 38.505.520 (Máy lẻ: 115 / 116)',
   },
   {
-    icon: <Phone sx={{ fontSize: 40 }} />,
+    icon: <PhoneOutlined sx={{ fontSize: 28 }} />,
     label: 'Hotline Hỗ trợ KTX',
     value: '0902.992.306',
   },
   {
-    icon: <Email sx={{ fontSize: 40 }} />,
+    icon: <EmailOutlined sx={{ fontSize: 28 }} />,
     label: 'Email Chăm sóc Sinh viên',
     value: 'ktx@stu.edu.vn',
   },
@@ -53,12 +53,27 @@ export default function ContactSection() {
                     alignItems="center"
                     spacing={2}
                     sx={{
-                      bgcolor: 'rgba(255, 255, 255, 0.1)',
+                      bgcolor: 'rgba(255, 255, 255, 0.12)',
                       p: 3,
                       borderRadius: 3,
+                      border: '1px solid rgba(255,255,255,0.16)',
                     }}
                   >
-                    {method.icon}
+                    <Box
+                      sx={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 2.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: 'rgba(255,255,255,0.16)',
+                        color: 'common.white',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {method.icon}
+                    </Box>
                     <Box>
                       <Typography variant="body2" sx={{ opacity: 0.8 }}>
                         {method.label}

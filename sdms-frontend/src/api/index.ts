@@ -10,3 +10,4 @@ export { default as faceApi } from './faceApi';
 export { default as roomApi } from './roomApi';
 export * from './smartAccessApi';
 export { default as paymentApi } from './paymentApi';
+export { changeRoomApi } from './changeRoomApi';

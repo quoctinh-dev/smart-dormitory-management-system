@@ -4,10 +4,13 @@ import applicationApi from '@/api/applicationApi';
 import paymentApi from '@/api/paymentApi';
 import { snackbar } from '@/utils/snackbar';
 
-export const usePayment = (applicationId: any) => {
-  const [bill, setBill] = useState<any>(null);
-  const [application, setApplication] = useState<any>(null);
-  const [paymentInstructions, setPaymentInstructions] = useState<any>(null);
+import type { BillResponse, PaymentInstruction } from '@/types/payment';
+import type { ApplicationResponse } from '@/types/application';
+
+export const usePayment = (applicationId: string) => {
+  const [bill, setBill] = useState<BillResponse | null>(null);
+  const [application, setApplication] = useState<ApplicationResponse | null>(null);
+  const [paymentInstructions, setPaymentInstructions] = useState<PaymentInstruction | null>(null);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
 
@@ -28,9 +31,9 @@ export const usePayment = (applicationId: any) => {
         ]);
 
         if (isMounted) {
-          setApplication(appRes.data || appRes);
-          setBill(billRes.data || billRes);
-          setPaymentInstructions(instructionsRes.data || instructionsRes);
+          setApplication((appRes as any).data || appRes);
+          setBill((billRes as any).data || billRes);
+          setPaymentInstructions((instructionsRes as any).data || instructionsRes);
           setLoading(false);
         }
       } catch (err: any) {
@@ -52,7 +55,7 @@ export const usePayment = (applicationId: any) => {
     };
   }, [applicationId]);
 
-  const handleMockPayment = async (onSuccessCallback: any) => {
+  const handleMockPayment = async (onSuccessCallback: () => void) => {
     setPaying(true);
     try {
       await paymentApi.mockPaymentSuccess(applicationId);

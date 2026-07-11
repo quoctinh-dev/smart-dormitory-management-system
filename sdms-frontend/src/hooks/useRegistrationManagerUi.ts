@@ -36,6 +36,8 @@ export function useRegistrationManagerUi() {
   const [eligibilityDialogOpen, setEligibilityDialogOpen] = useState(false);
   const [selectedPeriodForEligibility, setSelectedPeriodForEligibility] =
     useState<IRegistrationPeriod | null>(null);
+  const [activationConfirmOpen, setActivationConfirmOpen] = useState(false);
+  const [activationTargetId, setActivationTargetId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [snackbar, setSnackbar] = useState<{
@@ -127,6 +129,27 @@ export function useRegistrationManagerUi() {
     setSelectedPeriodForEligibility(null);
   }, []);
 
+  const handleCloseActivationConfirm = useCallback(() => {
+    setActivationConfirmOpen(false);
+    setActivationTargetId(null);
+  }, []);
+
+  const handleConfirmActivation = useCallback(async () => {
+    if (!activationTargetId) return;
+
+    try {
+      setIsSubmitting(true);
+      await adminRegistrationApi.activatePeriod(activationTargetId);
+      showSnackbar('Kích hoạt đợt đăng ký thành công!', 'success');
+      fetchPeriods();
+    } catch (err: any) {
+      showSnackbar(err.message || err || 'Cập nhật trạng thái thất bại.', 'error');
+    } finally {
+      setIsSubmitting(false);
+      handleCloseActivationConfirm();
+    }
+  }, [activationTargetId, fetchPeriods, handleCloseActivationConfirm, showSnackbar]);
+
   // Xử lý tạo mới / cập nhật đợt
   const handleSubmitPeriod = useCallback(async () => {
     try {
@@ -161,14 +184,9 @@ export function useRegistrationManagerUi() {
           await adminRegistrationApi.deactivatePeriod(id);
           showSnackbar('Đã tạm dừng đợt đăng ký thành công!', 'success');
         } else {
-          // CHỐT CHẶN UX: Cảnh báo Admin trước khi kích hoạt
-          const confirm = window.confirm(
-            'Hành động này sẽ TẮT TẤT CẢ các đợt đăng ký đang hoạt động khác ngay lập tức. Bạn có chắc chắn muốn kích hoạt đợt này?'
-          );
-          if (!confirm) return;
-
-          await adminRegistrationApi.activatePeriod(id);
-          showSnackbar('Kích hoạt đợt đăng ký thành công!', 'success');
+          setActivationTargetId(id);
+          setActivationConfirmOpen(true);
+          return;
         }
         fetchPeriods();
       } catch (err: any) {
@@ -189,11 +207,14 @@ export function useRegistrationManagerUi() {
     snackbar,
     eligibilityDialogOpen,
     selectedPeriodForEligibility,
+    activationConfirmOpen,
     handleOpenCreate,
     handleOpenEdit,
     handleOpenEligibility,
     handleCloseDialog,
     handleCloseEligibility,
+    handleCloseActivationConfirm,
+    handleConfirmActivation,
     handleFormChange,
     handleCloseSnackbar,
     handleSubmitPeriod,

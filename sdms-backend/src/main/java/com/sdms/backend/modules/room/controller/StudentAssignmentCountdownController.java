@@ -2,7 +2,9 @@ package com.sdms.backend.modules.room.controller;
 
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import com.sdms.backend.modules.system.service.SystemConfigService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,8 +21,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/student/assignments")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('STUDENT')")
 public class StudentAssignmentCountdownController {
     private final StudentHousingAssignmentRepository assignmentRepository;
+    private final SystemConfigService systemConfigService;
     
     @GetMapping("/countdown")
     @Cacheable(value = "assignmentCountdown", key = "#assignmentId")
@@ -30,7 +34,8 @@ public class StudentAssignmentCountdownController {
             return ResponseEntity.notFound().build();
         }
         
-        LocalDateTime deadline = assignment.getReservedAt().plusDays(3);
+        int deadlineDays = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_DEADLINE_DAYS", "3"));
+        LocalDateTime deadline = assignment.getReservedAt().plusDays(deadlineDays);
         Duration duration = Duration.between(LocalDateTime.now(), deadline);
         long hoursLeft = duration.toHours();
         
@@ -39,10 +44,10 @@ public class StudentAssignmentCountdownController {
         response.put("hoursLeft", hoursLeft);
         if (hoursLeft <= 0) {
             response.put("status", "EXPIRED");
-            response.put("message", "QuÃ¡ háº¡n thanh toÃ¡n giá»¯ chá»—, há»‡ thá»‘ng sáº½ tá»± Ä‘á»™ng há»§y.");
+            response.put("message", "Quá hạn thanh toán giữ chỗ, hệ thống sẽ tự động hủy.");
         } else {
             response.put("status", "ACTIVE");
-            response.put("message", "Vui lÃ²ng thanh toÃ¡n trÆ°á»›c háº¡n chÃ³t.");
+            response.put("message", "Vui lòng thanh toán trước hạn chót.");
         }
         
         return ResponseEntity.ok(response);

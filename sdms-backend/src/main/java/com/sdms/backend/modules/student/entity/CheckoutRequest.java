@@ -11,7 +11,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "checkout_requests")
+@Table(
+    name = "checkout_requests",
+    indexes = {
+        @Index(name = "idx_checkout_student", columnList = "student_id"),
+        @Index(name = "idx_checkout_status", columnList = "status")
+    }
+)
 @Getter
 @Setter
 public class CheckoutRequest extends BaseEntity {

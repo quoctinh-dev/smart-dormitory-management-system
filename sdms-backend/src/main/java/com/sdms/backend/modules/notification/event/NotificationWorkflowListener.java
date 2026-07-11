@@ -142,4 +142,36 @@ public class NotificationWorkflowListener {
             log.error("Failed to send checkin notification: {}", e.getMessage(), e);
         }
     }
+    @Async("taskExecutor")
+    @EventListener
+    public void handleRoomPinChangedEvent(com.sdms.backend.modules.smartaccess.event.RoomPinChangedEvent event) {
+        log.info("[Notification] Processing RoomPinChangedEvent for roomId: {}", event.getRoomId());
+        try {
+            List<StudentHousingAssignment> assignments = assignmentRepository.findByBed_Room_RoomIdAndStatus(event.getRoomId(), AssignmentStatus.OCCUPIED);
+            for (StudentHousingAssignment assignment : assignments) {
+                if (assignment.getStudent() != null) {
+                    Map<String, Object> vars = new HashMap<>();
+                    vars.put("studentName", assignment.getStudent().getFullName());
+                    vars.put("message", "Mã PIN phòng " + event.getRoomCode() + " của bạn đã được khởi tạo/cập nhật mới.");
+                    vars.put("pinCode", event.getNewPin());
+
+                    NotificationPayload payload = NotificationPayload.builder()
+                            .eventId(UUID.randomUUID().toString())
+                            .studentId(assignment.getStudent().getStudentId())
+                            .title("Cập nhật mã PIN phòng " + event.getRoomCode())
+                            .inAppMessage("Mã PIN phòng " + event.getRoomCode() + " đã được thay đổi. Mã mới của bạn là: " + event.getNewPin())
+                            .type(NotificationType.ROOM)
+                            .channels(Set.of(NotificationChannel.IN_APP, NotificationChannel.EMAIL))
+                            .templateName("pin-changed")
+                            .templateVariables(vars)
+                            .actionUrl("/student/room")
+                            .build();
+
+                    notificationRouter.route(payload);
+                }
+            }
+        } catch (Exception e) {
+            log.error("[Notification] Error sending RoomPinChanged notification: {}", e.getMessage(), e);
+        }
+    }
 }

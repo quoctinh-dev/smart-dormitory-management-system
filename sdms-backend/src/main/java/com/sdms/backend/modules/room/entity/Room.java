@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.UUID;
+import java.util.List;
 
 /**
  * DOMAIN ROLE: Đại diện cho phòng ở trong KTX.
@@ -48,6 +49,15 @@ public class Room extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "floor_id", nullable = false)
     private Floor floor;
+
+    /**
+     * SECURITY: Mã PIN mở cửa phòng (4-6 chữ số).
+     * - Được sinh tự động khi phòng được tạo.
+     * - Admin có thể reset hàng loạt bất cứ lúc nào.
+     * - Khi SV đổi phòng, họ tự động dùng PIN của phòng mới (không cần migration).
+     */
+    @Column(name = "room_pin_code", length = 10)
+    private String roomPinCode;
 
     @Version
     @Column(name = "version")

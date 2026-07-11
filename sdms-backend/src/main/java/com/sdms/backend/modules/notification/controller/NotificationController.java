@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.sdms.backend.modules.notification.dto.IssueReportRequest;
 
+import com.sdms.backend.common.response.ApiResponse;
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -23,30 +26,30 @@ public class NotificationController {
     private final InAppNotificationService inAppNotificationService;
 
     @GetMapping
-    public ResponseEntity<List<NotificationResponse>> getUserNotifications() {
-        return ResponseEntity.ok(inAppNotificationService.getUserNotifications());
+    public ResponseEntity<ApiResponse<List<NotificationResponse>>> getUserNotifications() {
+        return ResponseEntity.ok(ApiResponse.success(inAppNotificationService.getUserNotifications()));
     }
 
     @GetMapping("/unread-count")
-    public ResponseEntity<Long> getUnreadCount() {
-        return ResponseEntity.ok(inAppNotificationService.getUnreadCount());
+    public ResponseEntity<ApiResponse<Long>> getUnreadCount() {
+        return ResponseEntity.ok(ApiResponse.success(inAppNotificationService.getUnreadCount()));
     }
 
     @PatchMapping("/{id}/read")
-    public ResponseEntity<Void> markAsRead(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable Long id) {
         inAppNotificationService.markAsRead(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.success("Đã đánh dấu đã đọc"));
     }
 
     @PatchMapping("/read-all")
-    public ResponseEntity<Void> markAllAsRead() {
+    public ResponseEntity<ApiResponse<Void>> markAllAsRead() {
         inAppNotificationService.markAllAsRead();
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.success("Đã đánh dấu tất cả đã đọc"));
     }
 
     @PostMapping("/issues")
-    public ResponseEntity<Void> reportIssue(@RequestBody IssueReportRequest request) {
-        // Xử lý tạo Issue Report dạng một Notification đặc biệt gửi cho Admin
-        return ResponseEntity.ok().build();
+    public ResponseEntity<ApiResponse<Void>> reportIssue(@Valid @RequestBody IssueReportRequest request) {
+        inAppNotificationService.reportIssue(request);
+        return ResponseEntity.ok(ApiResponse.success("Đã gửi báo cáo vấn đề thành công"));
     }
 }

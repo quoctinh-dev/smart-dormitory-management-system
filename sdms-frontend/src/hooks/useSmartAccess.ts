@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { smartAccessApi } from '@/api';
 
 export interface IAccessHistory {
-  historyId: string;
+  id: string;
   studentId: string;
   gateId: string;
   buildingId: string;

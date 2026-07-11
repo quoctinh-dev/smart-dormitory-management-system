@@ -13,4 +13,5 @@ public class StudentEligibilitySnapshot {
     private String status; // ACTIVE, LOCKED, EXPELLED, CHECKED_OUT
     private ResidentType residentType;
     private UUID buildingId;
+    private UUID roomId;
 }

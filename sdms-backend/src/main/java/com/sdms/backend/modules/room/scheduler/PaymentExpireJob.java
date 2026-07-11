@@ -7,6 +7,7 @@ import com.sdms.backend.modules.room.service.HousingAssignmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import com.sdms.backend.modules.system.service.SystemConfigService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,14 +19,13 @@ public class PaymentExpireJob {
 
     private final StudentHousingAssignmentRepository assignmentRepository;
     private final HousingAssignmentService housingAssignmentService;
-
-    @org.springframework.beans.factory.annotation.Value("${application.payment.deadline-days:3}")
-    private int deadlineDays;
+    private final SystemConfigService systemConfigService;
 
     public void execute() {
         log.info("[PaymentExpireJob] Starting job to scan and expire assignments exceeding payment deadline...");
         
         try {
+            int deadlineDays = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_DEADLINE_DAYS", "3"));
             LocalDateTime threshold = LocalDateTime.now().minusDays(deadlineDays);
             List<StudentHousingAssignment> expiredAssignments = assignmentRepository.findByStatusAndReservedAtBefore(
                     AssignmentStatus.RESERVED, 

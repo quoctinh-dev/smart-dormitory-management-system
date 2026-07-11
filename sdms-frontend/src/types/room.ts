@@ -1,80 +1,96 @@
-// 📄 File: src/types/room.ts
+// src/types/room.ts
+// ⚠️ SOURCE OF TRUTH: Map 1-1 với Backend DTO. KHÔNG tự ý sửa enum/field mà không kiểm tra Backend trước.
 
-export type BuildingStatus = 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE';
-export type RoomStatus = 'AVAILABLE' | 'OCCUPIED' | 'MAINTENANCE' | 'UNAVAILABLE';
-export type BedStatus = 'AVAILABLE' | 'OCCUPIED' | 'MAINTENANCE';
+// ─── ENUMS (phải khớp chính xác với Java Enum trong backend) ─────────────────
+export type BuildingStatus = 'ACTIVE' | 'MAINTENANCE' | 'CLOSED';
+export type BuildingGender = 'MALE' | 'FEMALE' | 'MIXED';
+// RoomStatus: AVAILABLE, FULL, MAINTENANCE, CLOSED (đã có FULL từ HousingAssignmentService)
+export type RoomStatus = 'AVAILABLE' | 'FULL' | 'MAINTENANCE' | 'CLOSED';
+// BedStatus: AVAILABLE, RESERVED, OCCUPIED, MAINTENANCE (từ BedStatus.java)
+export type BedStatus = 'AVAILABLE' | 'RESERVED' | 'OCCUPIED' | 'MAINTENANCE';
+export type AssignmentStatus =
+  | 'RESERVED'
+  | 'PENDING_CHECKIN'
+  | 'OCCUPIED'
+  | 'CANCELLED'
+  | 'EXPIRED'
+  | 'CHECKED_OUT';
 
-export interface Building {
-  id: string;
+// ─── BUILDING (khớp BuildingResponse.java) ───────────────────────────────────
+export interface BuildingResponse {
+  buildingId: string;   // UUID
+  code: string;
   name: string;
-  gender: 'MALE' | 'FEMALE' | 'MIXED';
+  description?: string;
   status: BuildingStatus;
-  floors: Floor[];
+  gender: BuildingGender;
+  createdAt: string;
 }
 
-export interface Floor {
-  id: string;
-  name: string;
+// ─── FLOOR (khớp FloorResponse.java) ─────────────────────────────────────────
+export interface FloorResponse {
+  floorId: string;      // UUID
+  floorNumber: number;
+  gender?: string;
   buildingId: string;
-  rooms: Room[];
+  buildingCode: string;
+  buildingName: string;
 }
 
-export interface Room {
-  id: string;
-  name: string;
-  floorId: string;
+// ─── ROOM (khớp RoomResponse.java) ───────────────────────────────────────────
+export interface RoomResponse {
+  roomId: string;       // UUID
+  roomCode: string;
   capacity: number;
-  status: RoomStatus;
-  beds: Bed[];
-  occupancy: number;
-}
-
-export interface Bed {
-  id: string;
-  name: string;
-  roomId: string;
-  status: BedStatus;
-}
-
-export interface RoomAssignment {
-  id: string;
-  student: {
-    id: string;
-    fullName: string;
-    studentId: string;
-  };
-  room: {
-    id: string;
-    name: string;
-    floor: {
-      id: string;
-      name: string;
-      building: {
-        id: string;
-        name: string;
-      };
-    };
-  };
-  bed: {
-    id: string;
-    name: string;
-  };
-  startDate: string;
-  endDate: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'PENDING_CHECKOUT';
-}
-
-export interface OccupancyAnalytics {
-  totalBeds: number;
   occupiedBeds: number;
   availableBeds: number;
-  occupancyRate: number;
+  status: RoomStatus;
+  floorId: string;
+  floorNumber: number;
+  buildingId: string;
+  buildingCode: string;
+  buildingName: string;
+  roomPinCode?: string;
 }
 
-export interface EmergencyRelocationOption {
+// ─── BED (khớp BedResponse.java) ─────────────────────────────────────────────
+export interface BedResponse {
+  bedId: string;        // UUID
+  bedCode: string;
+  status: BedStatus;
+  note?: string;
   roomId: string;
-  roomName: string;
-  availableBeds: number;
-  floorName: string;
+  roomCode: string;
+  floorId: string;
+  floorNumber: number;
+  buildingId: string;
+  buildingCode: string;
+}
+
+// ─── COMPOSITE (dùng trong Dashboard - gộp Room + Beds) ──────────────────────
+export interface RoomWithBeds extends RoomResponse {
+  beds: BedResponse[];
+}
+
+// ─── STUDENT INFO (trả về khi bấm vào giường đang ở - Bed Drill-down) ────────
+export interface StudentInfo {
+  studentId: string;
+  studentCode: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string;
+}
+
+// ─── ACTIVE ASSIGNMENT (khớp với endpoint GET /housing-assignments/active/bed/{bedId}) ──
+export interface ActiveAssignmentResponse {
+  assignmentId: string;
+  status: AssignmentStatus;
+  reservedAt?: string;
+  checkInAt?: string;
+  expectedCheckOutAt?: string;
+  student?: StudentInfo;
+  bedId: string;
+  bedCode: string;
+  roomCode: string;
   buildingName: string;
 }

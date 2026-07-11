@@ -22,4 +22,6 @@ public class UpdateBuildingRequest {
     private String description;
 
     private BuildingStatus status;
+
+    private com.sdms.backend.modules.room.enums.BuildingGender gender;
 }

@@ -215,8 +215,8 @@ export default function EligibilityManagerDialog({
                   rowsPerPage={size}
                   onRowsPerPageChange={handleChangeRowsPerPage}
                   rowsPerPageOptions={[5, 10, 20, 50]}
-                  labelRowsPerPage="Số dòng mỗi trang:"
-                  labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count}`}
+                  labelRowsPerPage="Số dòng/trang:"
+                  labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`}
                   sx={{ borderTop: 'none', mt: 1 }}
                 />
               )}

@@ -10,9 +10,9 @@ import com.sdms.backend.modules.application.repository.DormitoryApplicationRepos
 import com.sdms.backend.modules.application.repository.DormitoryApplicationStatusHistoryRepository;
 import com.sdms.backend.modules.application.repository.VerificationDocumentRepository;
 import com.sdms.backend.common.service.EmailService;
+import com.sdms.backend.modules.system.service.SystemConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -40,9 +40,7 @@ public class ApplicationReviewService {
     private final ApplicationEventPublisher eventPublisher;
     private final com.sdms.backend.modules.payment.service.PaymentService paymentService;
     private final com.sdms.backend.modules.room.service.HousingAssignmentService housingAssignmentService;
-
-    @Value("${application.payment.deadline-days:3}")
-    private int paymentDeadlineDays;
+    private final SystemConfigService systemConfigService;
 
     @Transactional
     public void startReview(UUID applicationId, UUID adminUserId) {
@@ -134,6 +132,7 @@ public class ApplicationReviewService {
         application.setReviewedByUserId(adminUserId);
         application.setReviewNote(note);
         application.setApprovedAt(LocalDateTime.now());
+        int paymentDeadlineDays = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_DEADLINE_DAYS", "3"));
         application.setPaymentDeadline(LocalDateTime.now().plusDays(paymentDeadlineDays));
 
         // Cập nhật trạng thái đơn sang WAITING_PAYMENT và lưu lịch sử

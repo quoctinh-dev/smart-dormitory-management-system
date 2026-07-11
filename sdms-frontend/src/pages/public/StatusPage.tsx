@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'; // 🌟 BỔ SUNG: Để điều
 import { paymentApi } from '@/api';
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useApplicationStatus } from '@/hooks/useApplicationStatus';
+import { snackbar } from '@/utils/snackbar';
 import ApplicationInfo from '@/pages/public/components/Status/ApplicationInfo';
 import AssignmentInfo from '@/pages/public/components/Status/AssignmentInfo';
 import StatusIndicator from '@/pages/public/components/Status/StatusIndicator';
@@ -45,13 +46,13 @@ export default function StatusPage() {
     setPaymentLoading(true);
     try {
       await paymentApi.mockPaymentSuccess(application.applicationId);
-      alert(
+      snackbar.success(
         'Thanh toán giả lập thành công! Giường và hóa đơn của bạn đã được chuyển sang trạng thái CHÍNH THỨC.'
       );
       fetchStatus(cccd.trim());
     } catch (err: any) {
       console.error(err);
-      alert(
+      snackbar.error(
         'Lỗi hệ thống khi thanh toán thử nghiệm: ' + (err.response?.data?.message || err.message)
       );
     } finally {

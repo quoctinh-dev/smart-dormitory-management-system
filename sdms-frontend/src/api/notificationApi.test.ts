@@ -42,6 +42,7 @@ describe('notificationApi', () => {
       title: 'System maintenance',
       message: 'The portal will be unavailable tonight.',
       targetAudience: 'ALL',
+      type: 'ANNOUNCEMENT',
     };
 
     const response = {

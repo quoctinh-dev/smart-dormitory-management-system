@@ -1,44 +1,30 @@
+// src/hooks/useRoomDashboard.ts
 import { useState, useEffect, useCallback } from 'react';
-
 import roomApi from '@/api/roomApi';
-import { IRoom } from '@/pages/admin/RoomManagement/DashboardView';
-
-export interface IBuilding {
-  id?: string;
-  buildingId?: string;
-  _id?: string;
-  name?: string;
-  [key: string]: any;
-}
-
-export interface IFloor {
-  id?: string;
-  floorId?: string;
-  _id?: string;
-  floorNumber?: string | number;
-  name?: string;
-  [key: string]: any;
-}
+import type { BuildingResponse, FloorResponse, RoomWithBeds, RoomResponse, BedResponse } from '@/types/room';
 
 export function useRoomDashboard() {
-  const [buildings, setBuildings] = useState<IBuilding[]>([]);
-  const [floors, setFloors] = useState<IFloor[]>([]);
-  const [roomsWithBeds, setRoomsWithBeds] = useState<IRoom[]>([]);
-
-  const [selectedBuilding, setSelectedBuilding] = useState('');
-  const [selectedFloor, setSelectedFloor] = useState('');
+  const [buildings, setBuildings] = useState<BuildingResponse[]>([]);
+  const [floors, setFloors] = useState<FloorResponse[]>([]);
+  const [roomsWithBeds, setRoomsWithBeds] = useState<RoomWithBeds[]>([]);
+  const [selectedBuilding, setSelectedBuilding] = useState<string>('');
+  const [selectedFloor, setSelectedFloor] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Giai đoạn 1: Lấy toàn bộ danh sách Tòa nhà khi khởi tạo
+  // ── Giai đoạn 1: Tải toàn bộ Tòa nhà khi mount ──────────────────────────
   useEffect(() => {
     const fetchBuildings = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
         const res = await roomApi.getBuildings();
-        const data = (res as any)?.data || res;
-        setBuildings((data as IBuilding[]) || []);
-      } catch (error: any) {
-        console.error('Lỗi khi tải danh sách tòa nhà:', error);
+        // axiosClient interceptor unwrap ApiResponse → data là mảng trực tiếp
+        const data = (res as any)?.data ?? res;
+        setBuildings(Array.isArray(data) ? (data as BuildingResponse[]) : []);
+      } catch (err: any) {
+        setError('Không thể tải danh sách tòa nhà.');
+        console.error('[useRoomDashboard] fetchBuildings:', err);
       } finally {
         setLoading(false);
       }
@@ -46,7 +32,7 @@ export function useRoomDashboard() {
     fetchBuildings();
   }, []);
 
-  // Giai đoạn 2: Tải danh sách Tầng tương ứng khi đổi Tòa nhà
+  // ── Giai đoạn 2: Tải Tầng khi đổi Tòa nhà ───────────────────────────────
   useEffect(() => {
     if (!selectedBuilding) {
       setFloors([]);
@@ -54,17 +40,18 @@ export function useRoomDashboard() {
       setRoomsWithBeds([]);
       return;
     }
-
     const fetchFloors = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
         const res = await roomApi.getFloorsByBuilding(selectedBuilding);
-        const data = (res as any)?.data || res;
-        setFloors((data as IFloor[]) || []);
-        setSelectedFloor(''); // Khử vết tầng cũ để tránh lỗi bẻ khóa giao diện
+        const data = (res as any)?.data ?? res;
+        setFloors(Array.isArray(data) ? (data as FloorResponse[]) : []);
+        setSelectedFloor('');
         setRoomsWithBeds([]);
-      } catch (error: any) {
-        console.error('Lỗi khi tải danh sách tầng:', error);
+      } catch (err: any) {
+        setError('Không thể tải danh sách tầng.');
+        console.error('[useRoomDashboard] fetchFloors:', err);
       } finally {
         setLoading(false);
       }
@@ -72,51 +59,46 @@ export function useRoomDashboard() {
     fetchFloors();
   }, [selectedBuilding]);
 
-  // Giai đoạn 3: Tổng hợp song song dữ liệu Phòng kèm Giường (Xử lý dứt điểm lỗi undefined ID)
-  const fetchRoomsAndBedsDetails = useCallback(async (floorId: string) => {
+  // ── Giai đoạn 3: Tải Phòng + Giường song song khi chọn Tầng ─────────────
+  const fetchRoomsAndBeds = useCallback(async (floorId: string) => {
     if (!floorId) return;
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
       const roomsRes = await roomApi.getRoomsByFloor(floorId);
-      const roomsData = (roomsRes as any)?.data || roomsRes || [];
+      const roomsData: RoomResponse[] = (roomsRes as any)?.data ?? roomsRes ?? [];
 
-      // Đồng bộ nạp dữ liệu giường thông qua Promise.all
-      const fullHierarchyData = await Promise.all(
-        roomsData.map(async (room: any) => {
+      // Promise.all để gọi beds song song — tối ưu hiệu năng
+      const roomsWithBedsList: RoomWithBeds[] = await Promise.all(
+        roomsData.map(async (room) => {
           try {
-            // 🌟 GIẢI PHÁP: Quét kiểm tra an toàn cả hai thuộc tính định danh id hoặc roomId từ Backend
-            const rId = room.id || room.roomId;
-
-            if (!rId) {
-              console.warn('Phát hiện một cấu trúc Phòng thiếu ID định danh hợp lệ:', room);
-              return { ...room, beds: [] };
-            }
-
-            const bedsData = await roomApi.getBedsByRoom(rId);
-            return { ...room, beds: bedsData || [] };
-          } catch (error: any) {
-            console.error(`Lỗi tải danh sách giường của phòng:`, error);
+            const bedsRes = await roomApi.getBedsByRoom(room.roomId);
+            // axiosClient đã unwrap → bedsRes là BedResponse[]
+            const beds: BedResponse[] = (bedsRes as any)?.data ?? bedsRes ?? [];
+            return { ...room, beds: Array.isArray(beds) ? beds : [] };
+          } catch (err) {
+            console.error(`[useRoomDashboard] getBedsByRoom(${room.roomId}):`, err);
             return { ...room, beds: [] };
           }
         })
       );
 
-      setRoomsWithBeds(fullHierarchyData);
-    } catch (error: any) {
-      console.error('Lỗi trong quá trình gộp dữ liệu phòng & giường:', error);
+      setRoomsWithBeds(roomsWithBedsList);
+    } catch (err: any) {
+      setError('Không thể tải danh sách phòng.');
+      console.error('[useRoomDashboard] fetchRoomsAndBeds:', err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Theo dõi cập nhật danh sách phòng/giường khi chọn Tầng xong
   useEffect(() => {
     if (selectedFloor) {
-      fetchRoomsAndBedsDetails(selectedFloor);
+      fetchRoomsAndBeds(selectedFloor);
     } else {
       setRoomsWithBeds([]);
     }
-  }, [selectedFloor, fetchRoomsAndBedsDetails]);
+  }, [selectedFloor, fetchRoomsAndBeds]);
 
   return {
     buildings,
@@ -127,6 +109,7 @@ export function useRoomDashboard() {
     selectedFloor,
     setSelectedFloor,
     loading,
-    refresh: () => fetchRoomsAndBedsDetails(selectedFloor),
+    error,
+    refresh: () => { if (selectedFloor) fetchRoomsAndBeds(selectedFloor); },
   };
 }

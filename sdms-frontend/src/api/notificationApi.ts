@@ -32,6 +32,7 @@ export interface BroadcastRequest {
   title: string;
   message: string;
   targetAudience: string;
+  type: string;
 }
 
 export interface BroadcastResponse {
@@ -39,6 +40,43 @@ export interface BroadcastResponse {
   recipientCount: number;
   message: string;
 }
+
+const normalizePageResponse = <T>(payload: any): PageResponse<T> => {
+  const source = payload?.data ?? payload;
+  const content = Array.isArray(source?.content)
+    ? source.content
+    : Array.isArray(source?.items)
+      ? source.items
+      : Array.isArray(source?.data?.content)
+        ? source.data.content
+        : [];
+
+  const totalElements =
+    typeof source?.totalElements === 'number'
+      ? source.totalElements
+      : typeof source?.total === 'number'
+        ? source.total
+        : typeof source?.count === 'number'
+          ? source.count
+          : typeof source?.totalCount === 'number'
+            ? source.totalCount
+            : typeof source?.data?.totalElements === 'number'
+              ? source.data.totalElements
+              : content.length;
+
+  const totalPages =
+    typeof source?.totalPages === 'number'
+      ? source.totalPages
+      : typeof source?.data?.totalPages === 'number'
+        ? source.data.totalPages
+        : Math.max(1, Math.ceil(totalElements / 20));
+
+  return {
+    content: content as T[],
+    totalElements,
+    totalPages,
+  };
+};
 
 export const notificationApi = {
   async getNotifications(): Promise<NotificationResponse[]> {
@@ -61,14 +99,21 @@ export const notificationApi = {
 
   async getDeliveryLogs(
     page: number = 0,
-    size: number = 20
+    size: number = 20,
+    keyword?: string,
+    type?: string,
+    isBroadcast?: boolean
   ): Promise<PageResponse<NotificationDeliveryLog>> {
-    const data = await axiosClient.get<PageResponse<NotificationDeliveryLog>>(
-      '/v1/admin/notifications/delivery-logs',
-      { params: { page, size } }
-    );
+    const params: Record<string, any> = { page, size };
+    if (keyword) params.keyword = keyword;
+    if (type) params.type = type;
+    if (isBroadcast !== undefined) params.isBroadcast = isBroadcast;
 
-    return data as unknown as PageResponse<NotificationDeliveryLog>;
+    const data = await axiosClient.get<any>(
+      '/v1/admin/notifications/delivery-logs',
+      { params }
+    );
+    return normalizePageResponse<NotificationDeliveryLog>(data);
   },
 
   async broadcastNotification(request: BroadcastRequest): Promise<BroadcastResponse> {

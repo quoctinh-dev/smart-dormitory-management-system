@@ -44,4 +44,12 @@ public class RoomSpecification {
             return spec.toPredicate(root, query, criteriaBuilder);
         };
     }
+    
+    public static Specification<Room> hasBuildingId(UUID buildingId) {
+        return (root, query, cb) -> cb.equal(root.get("floor").get("building").get("buildingId"), buildingId);
+    }
+
+    public static Specification<Room> hasFloorId(UUID floorId) {
+        return (root, query, cb) -> cb.equal(root.get("floor").get("floorId"), floorId);
+    }
 }

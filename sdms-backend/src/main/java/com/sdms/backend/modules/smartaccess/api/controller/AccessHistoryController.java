@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.sdms.backend.common.response.ApiResponse;
+import com.sdms.backend.common.response.PageResponse;
 import org.springframework.web.bind.annotation.*;
 import com.sdms.backend.modules.smartaccess.domain.entity.AccessHistory;
 import com.sdms.backend.modules.smartaccess.domain.repository.AccessHistoryRepository;
@@ -28,8 +30,9 @@ public class AccessHistoryController {
      */
     @GetMapping
     @PreAuthorize(SmartAccessPermissions.VIEW_ACCESS_HISTORY)
-    public ResponseEntity<Page<AccessHistory>> getAllHistory(Pageable pageable) {
-        return ResponseEntity.ok(accessHistoryRepository.findAll(pageable));
+    public ResponseEntity<ApiResponse<PageResponse<AccessHistory>>> getAllHistory(Pageable pageable) {
+        Page<AccessHistory> page = accessHistoryRepository.findAll(pageable);
+        return ResponseEntity.ok(ApiResponse.success(PageResponse.of(page)));
     }
 
     /**
@@ -37,10 +40,11 @@ public class AccessHistoryController {
      */
     @GetMapping("/student/{studentId}")
     @PreAuthorize(SmartAccessPermissions.VIEW_ACCESS_HISTORY)
-    public ResponseEntity<Page<AccessHistory>> getHistoryByStudent(
+    public ResponseEntity<ApiResponse<PageResponse<AccessHistory>>> getHistoryByStudent(
             @PathVariable UUID studentId,
             Pageable pageable) {
-        return ResponseEntity.ok(accessHistoryRepository.findByStudentId(studentId, pageable));
+        Page<AccessHistory> page = accessHistoryRepository.findByStudentId(studentId, pageable);
+        return ResponseEntity.ok(ApiResponse.success(PageResponse.of(page)));
     }
 
     /**
@@ -49,14 +53,15 @@ public class AccessHistoryController {
      */
     @GetMapping("/me")
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<Page<AccessHistory>> getMyHistory(
+    public ResponseEntity<ApiResponse<PageResponse<AccessHistory>>> getMyHistory(
             @AuthenticationPrincipal UserAccount currentUser,
             Pageable pageable) {
         if (currentUser.getStudent() == null) {
             throw new AppException("Tài khoản chưa được liên kết với hồ sơ sinh viên.", HttpStatus.FORBIDDEN);
         }
         UUID studentId = currentUser.getStudent().getStudentId();
-        return ResponseEntity.ok(accessHistoryRepository.findByStudentId(studentId, pageable));
+        Page<AccessHistory> page = accessHistoryRepository.findByStudentId(studentId, pageable);
+        return ResponseEntity.ok(ApiResponse.success(PageResponse.of(page)));
     }
 }
 

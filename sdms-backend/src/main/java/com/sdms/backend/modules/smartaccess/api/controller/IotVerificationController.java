@@ -11,6 +11,7 @@ import com.sdms.backend.modules.smartaccess.domain.enums.AccessDecision;
 import com.sdms.backend.modules.smartaccess.application.service.AccessEvaluationService;
 import com.sdms.backend.modules.smartaccess.application.service.EligibilityEvaluationService;
 import com.sdms.backend.modules.face.service.FaceVerificationService;
+import com.sdms.backend.common.response.ApiResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
@@ -30,7 +31,7 @@ public class IotVerificationController {
      * Endpoint for IoT ESP32 to send RFID card verification requests.
      */
     @PostMapping("/verify/card")
-    public ResponseEntity<Map<String, String>> verifyCard(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> verifyCard(@RequestBody Map<String, String> payload) {
         String rfidCode = payload.get("rfid");
         String gateIdStr = payload.get("gateId");
 
@@ -40,9 +41,11 @@ public class IotVerificationController {
         var eligibilityOpt = eligibilityEvaluationService.evaluateEligibilityByRfid(rfidCode);
         if (eligibilityOpt.isEmpty()) {
             log.warn("[IoT] RFID verification failed for card: {}. Not found or inactive.", rfidCode);
-            return ResponseEntity.ok(Map.of(
-                    "status", "DENIED",
-                    "message", "Card not recognized or inactive"
+            return ResponseEntity.ok(new ApiResponse<>(
+                    false,
+                    "Card not recognized or inactive",
+                    Map.of("status", "DENIED"),
+                    "IOT_CARD_NOT_FOUND"
             ));
         }
 
@@ -57,10 +60,9 @@ public class IotVerificationController {
                 VerificationMethod.RFID
         ));
 
-        return ResponseEntity.ok(Map.of(
-                "status", "PROCESSING",
-                "message", "Verification request received and event dispatched",
-                "eventId", eventId
+        return ResponseEntity.ok(ApiResponse.success(
+                "Verification request received and event dispatched",
+                Map.of("status", "PROCESSING", "eventId", eventId)
         ));
     }
 
@@ -68,14 +70,13 @@ public class IotVerificationController {
      * Endpoint for IoT ESP32 to download the RFID whitelist for offline fallback mode.
      */
     @GetMapping("/rfid-whitelist")
-    public ResponseEntity<Map<String, Object>> getRfidWhitelist() {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getRfidWhitelist() {
         log.info("[IoT] Fetching RFID Whitelist for offline mode sync");
         java.util.List<String> rfids = eligibilityEvaluationService.getActiveRfidWhitelists();
         
-        return ResponseEntity.ok(Map.of(
-            "status", "SUCCESS",
-            "count", rfids.size(),
-            "data", rfids
+        return ResponseEntity.ok(ApiResponse.success(
+            "Whitelist fetched successfully",
+            Map.of("count", rfids.size(), "data", rfids)
         ));
     }
 
@@ -84,7 +85,7 @@ public class IotVerificationController {
      * Synchronous processing: Wait for AI response and access policy evaluation.
      */
     @PostMapping("/verify/face")
-    public ResponseEntity<Map<String, Object>> verifyFace(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> verifyFace(
             @RequestParam("file") MultipartFile file,
             @RequestParam("gateId") String gateIdStr) {
             
@@ -101,29 +102,87 @@ public class IotVerificationController {
                 
                 // 3. Return immediate result to ESP32 to trigger Relay
                 if (decision == AccessDecision.GRANTED) {
-                    return ResponseEntity.ok(Map.of(
-                        "status", "GRANTED",
-                        "message", "Face match and policy allowed",
-                        "profileId", result.matchedProfileId(),
-                        "confidence", result.confidenceScore()
+                    return ResponseEntity.ok(ApiResponse.success(
+                        "Face match and policy allowed",
+                        Map.of("status", "GRANTED", "profileId", result.matchedProfileId(), "confidence", result.confidenceScore())
                     ));
                 } else {
-                    return ResponseEntity.ok(Map.of(
-                        "status", "DENIED",
-                        "message", "Face matched but access denied by policy"
+                    return ResponseEntity.ok(new ApiResponse<>(
+                        false,
+                        "Face matched but access denied by policy",
+                        Map.of("status", "DENIED"),
+                        "IOT_ACCESS_DENIED_POLICY"
                     ));
                 }
             } else {
-                return ResponseEntity.ok(Map.of(
-                    "status", "DENIED",
-                    "message", "Face not recognized"
+                return ResponseEntity.ok(new ApiResponse<>(
+                    false,
+                    "Face not recognized",
+                    Map.of("status", "DENIED"),
+                    "IOT_FACE_UNRECOGNIZED"
                 ));
             }
         } catch (Exception e) {
             log.error("[IoT] Exception during face verification: {}", e.getMessage());
-            return ResponseEntity.status(500).body(Map.of(
-                "status", "ERROR",
-                "message", "AI Engine Down or Internal Error"
+            return ResponseEntity.status(500).body(new ApiResponse<>(
+                false,
+                "AI Engine Down or Internal Error",
+                Map.of("status", "ERROR"),
+                "IOT_INTERNAL_SERVER_ERROR"
+            ));
+        }
+    }
+
+    /**
+     * Endpoint for IoT ESP32 DevKit V1 (Room Door) to verify PIN code.
+     * Used by keypad-based room door devices.
+     */
+    @PostMapping("/verify/pin")
+    public ResponseEntity<ApiResponse<Map<String, String>>> verifyPin(@RequestBody Map<String, String> payload) {
+        String pinCode = payload.get("pinCode");
+        String gateIdStr = payload.get("gateId");
+
+        log.info("[IoT] Received PIN verification request: gateId={}", gateIdStr);
+
+        if (pinCode == null || pinCode.isBlank()) {
+            return ResponseEntity.ok(new ApiResponse<>(
+                false, "PIN code is required", Map.of("status", "DENIED"), "IOT_INVALID_PIN"
+            ));
+        }
+
+        UUID gateId;
+        try {
+            gateId = UUID.fromString(gateIdStr);
+        } catch (Exception e) {
+            return ResponseEntity.ok(new ApiResponse<>(
+                false, "Invalid gate ID", Map.of("status", "DENIED"), "UNREGISTERED_OR_INACTIVE_GATE"
+            ));
+        }
+
+        // Evaluate PIN against the room's assigned students
+        var eligibilityOpt = eligibilityEvaluationService.evaluateEligibilityByPin(pinCode, gateId);
+        if (eligibilityOpt.isEmpty()) {
+            log.warn("[IoT] PIN verification failed for gateId={}. No matching active student.", gateIdStr);
+            return ResponseEntity.ok(new ApiResponse<>(
+                false, "Incorrect PIN or no active assignment for this room",
+                Map.of("status", "DENIED"), "IOT_PIN_NOT_FOUND"
+            ));
+        }
+
+        UUID studentId = eligibilityOpt.get().getStudentId();
+        AccessDecision decision = accessEvaluationService.evaluateAccessSync(studentId, gateId, VerificationMethod.PIN);
+
+        if (decision == AccessDecision.GRANTED) {
+            log.info("[IoT] PIN GRANTED for studentId={} at gateId={}", studentId, gateIdStr);
+            return ResponseEntity.ok(ApiResponse.success(
+                "PIN verified and access granted",
+                Map.of("status", "GRANTED", "studentId", studentId.toString())
+            ));
+        } else {
+            log.warn("[IoT] PIN matched but ACCESS DENIED by policy for studentId={}", studentId);
+            return ResponseEntity.ok(new ApiResponse<>(
+                false, "Access denied by security policy",
+                Map.of("status", "DENIED"), "IOT_ACCESS_DENIED_POLICY"
             ));
         }
     }

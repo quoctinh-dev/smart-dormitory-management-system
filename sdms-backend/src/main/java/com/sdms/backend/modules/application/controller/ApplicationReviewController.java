@@ -2,9 +2,11 @@ package com.sdms.backend.modules.application.controller;
 
 import com.sdms.backend.common.exception.AppException;
 import com.sdms.backend.common.response.ApiResponse;
+import com.sdms.backend.modules.application.dto.request.AdminRequestRevisionRequest;
 import com.sdms.backend.modules.application.dto.request.AdminReviewRequest;
 import com.sdms.backend.modules.application.dto.request.VerifyDocumentRequest;
 import com.sdms.backend.modules.application.service.ApplicationReviewService;
+import com.sdms.backend.modules.payment.service.PaymentService;
 import com.sdms.backend.modules.user.entity.UserAccount;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,6 +28,7 @@ import java.util.UUID;
 public class ApplicationReviewController {
 
     private final ApplicationReviewService reviewService;
+    private final PaymentService paymentService;
 
     @Operation(summary = "Bắt đầu duyệt hồ sơ (Chuyển sang UNDER_REVIEW)")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Bắt đầu xét duyệt thành công")
@@ -91,6 +94,20 @@ public class ApplicationReviewController {
         UUID adminUserId = getAccountIdSafely(userAccount);
         reviewService.requestRevision(applicationId, request.getNote(), request.getDeadlineDays(), adminUserId);
         return ResponseEntity.ok(ApiResponse.success("Đã gửi email yêu cầu nộp lại minh chứng thành công"));
+    }
+
+    @Operation(summary = "Xác nhận thu tiền giữ chỗ trực tiếp (Tiền mặt)")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Xác nhận thu tiền thành công")
+    @PatchMapping("/{applicationId}/confirm-payment")
+    public ResponseEntity<ApiResponse<Void>> confirmPayment(
+            @PathVariable UUID applicationId,
+            @RequestBody(required = false) AdminReviewRequest request,
+            @AuthenticationPrincipal UserAccount userAccount
+    ) {
+        UUID adminUserId = getAccountIdSafely(userAccount);
+        // We use mockPaymentSuccess as it inherently marks the application's bill as PAID
+        paymentService.mockPaymentSuccess(applicationId);
+        return ResponseEntity.ok(ApiResponse.success("Đã xác nhận thu tiền giữ chỗ thành công"));
     }
 
     private UUID getAccountIdSafely(UserAccount userAccount) {

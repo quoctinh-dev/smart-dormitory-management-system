@@ -228,7 +228,8 @@ export default function CheckoutManagement() {
             setRowsPerPage(parseInt(e.target.value, 10));
             setPage(0);
           }}
-          labelRowsPerPage="Số dòng:"
+          labelRowsPerPage="Số dòng/trang:"
+          labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`}
         />
       </Paper>
 

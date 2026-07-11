@@ -22,21 +22,39 @@ export default function FeatureCard({
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        border: '1px solid',
+        borderColor: 'divider',
+        boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
+        transition: 'all 0.25s ease',
         '&:hover': {
-          transform: 'translateY(-8px)',
+          transform: 'translateY(-6px)',
           boxShadow: (theme) =>
-            `0 12px 24px -10px ${alpha((theme.palette as any)[color].main, 0.3)}`,
+            `0 16px 32px -12px ${alpha((theme.palette as any)[color].main, 0.28)}`,
         },
       }}
     >
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>{icon}</Box>
+      <Box
+        sx={(theme) => ({
+          mb: 2.5,
+          width: 60,
+          height: 60,
+          borderRadius: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: alpha((theme.palette as any)[color].main, 0.1),
+          color: (theme.palette as any)[color].main,
+          mx: 'auto',
+        })}
+      >
+        {icon}
+      </Box>
 
       <Typography variant="h5" sx={{ fontWeight: 700, textAlign: 'center' }} gutterBottom>
         {title}
       </Typography>
 
-      <Typography color="text.secondary" sx={{ textAlign: 'center', mb: 4, flexGrow: 1 }}>
+      <Typography color="text.secondary" sx={{ textAlign: 'center', mb: 4, flexGrow: 1, lineHeight: 1.7 }}>
         {description}
       </Typography>
 
@@ -48,7 +66,7 @@ export default function FeatureCard({
           size="large"
           component={RouterLink}
           to={to}
-          sx={{ borderRadius: 3, fontWeight: 'bold' }}
+          sx={{ borderRadius: 3, fontWeight: 700 }}
         >
           {buttonText}
         </Button>

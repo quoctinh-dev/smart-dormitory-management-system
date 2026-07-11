@@ -36,6 +36,7 @@ services:
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
       SERVER_PORT: 8080
+      SDMS_MQTT_URL: tcp://mosquitto:1883
     ports:
       - "8080:8080"
 
@@ -50,5 +51,18 @@ services:
     ports:
       - "5173:80"
 
+  mosquitto:
+    image: eclipse-mosquitto:2.0.15
+    container_name: sdms-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - sdms-mosquitto-data:/mosquitto/data
+      - sdms-mosquitto-log:/mosquitto/log
+
 volumes:
   sdms-postgres-data:
+  sdms-mosquitto-data:
+  sdms-mosquitto-log:

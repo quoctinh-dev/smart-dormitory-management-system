@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.controller;
 
 import com.sdms.backend.common.response.ApiResponse;
+import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.room.dto.request.CreateRoomRequest;
 import com.sdms.backend.modules.room.dto.request.UpdateRoomRequest;
 import com.sdms.backend.modules.room.dto.response.RoomResponse;
@@ -72,7 +73,7 @@ public class RoomController {
     @Operation(summary = "Tìm kiếm và lọc danh sách phòng")
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Page<RoomResponse>>> searchRooms(
+    public ResponseEntity<ApiResponse<PageResponse<RoomResponse>>> searchRooms(
             @RequestParam(required = false) UUID buildingId,
             @RequestParam(required = false) UUID floorId,
             @RequestParam(required = false) RoomStatus status,
@@ -82,9 +83,8 @@ public class RoomController {
             @RequestParam(defaultValue = "roomCode") String sortBy
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return ResponseEntity.ok(ApiResponse.success(
-                roomService.searchRooms(buildingId, floorId, status, policy, pageable)
-        ));
+        Page<RoomResponse> roomPage = roomService.searchRooms(buildingId, floorId, status, policy, pageable);
+        return ResponseEntity.ok(ApiResponse.success(PageResponse.of(roomPage)));
     }
 
     @Operation(summary = "Thống kê tỷ lệ lấp đầy phòng (Dashboard)")

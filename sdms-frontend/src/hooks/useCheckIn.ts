@@ -36,7 +36,7 @@ export const useCheckIn = () => {
 
     try {
       const res = await checkInApi.searchStudent(cleanCccd);
-      setStudentData(res.data || res);
+      setStudentData(res as unknown as ICheckInStudentData);
     } catch (err: any) {
       setError(
         err.response?.data?.message || 'Không tìm thấy dữ liệu xếp phòng của sinh viên này.'
@@ -54,7 +54,7 @@ export const useCheckIn = () => {
 
     try {
       // Gọi API sang Backend
-      const res = (await checkInApi.confirmCheckIn(studentData.assignmentId)) as any;
+      const res = await checkInApi.confirmCheckIn(studentData.assignmentId);
 
       // 🌟 ĐỒNG BỘ CHUẨN: Bốc đúng trường "message" từ Map.of Backend trả về
       const msg = res?.message || `Sinh viên ${studentData.studentName} đã nhận phòng thành công!`;

@@ -51,10 +51,6 @@ logging:
   level:
     com.sdms.backend: DEBUG
 
-application:
-  payment:
-    deadline-days: 3
-
 management:
   health:
     redis:

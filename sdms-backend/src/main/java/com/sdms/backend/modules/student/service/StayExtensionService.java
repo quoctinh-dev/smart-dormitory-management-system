@@ -32,6 +32,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.sdms.backend.modules.payment.repository.BillRepository;
+import com.sdms.backend.modules.payment.enums.BillStatus;
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +45,7 @@ public class StayExtensionService {
     private final StudentRepository studentRepository;
     private final StudentHousingAssignmentRepository assignmentRepository;
     private final UserAccountRepository userAccountRepository;
+    private final BillRepository billRepository;
     private final ApplicationPdfService pdfService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -70,6 +74,12 @@ public class StayExtensionService {
         // 3. Kiểm tra xem sinh viên đã nộp đơn gia hạn chưa
         if (stayExtensionRepository.existsByStudent_StudentId(student.getStudentId())) {
             throw new AppException("Sinh viên đã nộp đơn xin gia hạn trước đó", HttpStatus.BAD_REQUEST);
+        }
+
+        // 3.5. KIỂM TRA NỢ ĐỌNG: Luật luận văn chặt chẽ
+        boolean hasDebts = billRepository.existsByStudentIdAndStatusIn(student.getStudentId(), Arrays.asList(BillStatus.UNPAID, BillStatus.OVERDUE));
+        if (hasDebts) {
+            throw new AppException("Không thể gia hạn: Bạn đang có hóa đơn tiền phòng hoặc điện nước chưa thanh toán. Vui lòng hoàn tất nghĩa vụ tài chính trước.", HttpStatus.BAD_REQUEST);
         }
 
         // 4. Lấy thông tin phòng/giường hiện tại của sinh viên

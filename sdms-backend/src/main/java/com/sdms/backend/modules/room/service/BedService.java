@@ -55,6 +55,46 @@ public class BedService {
         return bedMapper.toResponse(bedRepository.save(bed));
     }
 
+    /**
+     * Tự động sinh giường cho phòng dựa trên sức chứa (Capacity).
+     * Điểm sáng luận văn: Sinh hàng loạt an toàn, tuân thủ nghiêm ngặt Bulk Generation Validator.
+     */
+    public List<BedResponse> autoGenerateBeds(UUID roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new AppException("Room not found", HttpStatus.NOT_FOUND));
+
+        long currentBedCount = bedRepository.countByRoom_RoomId(roomId);
+        int missingBeds = room.getCapacity() - (int) currentBedCount;
+
+        if (missingBeds <= 0) {
+            throw new AppException("Room already has maximum number of beds based on capacity.", HttpStatus.BAD_REQUEST);
+        }
+
+        // ROOM-04 STEP 03.4: Đảm bảo số lượng sinh thêm không vượt quá giới hạn
+        roomValidator.validateCanGenerateBeds(room, missingBeds);
+
+        // Sinh tự động danh sách giường (VD: A101-B01, A101-B02)
+        for (int i = 1; i <= missingBeds; i++) {
+            // Tìm số thứ tự tiếp theo chưa được dùng để tránh trùng mã (Unique constraint)
+            long nextIndex = currentBedCount + i;
+            String bedCode = String.format("%s-B%02d", room.getRoomCode(), nextIndex);
+            
+            // Đảm bảo không đụng độ mã cũ nếu có ai xóa giường bằng tay trước đó
+            while (bedRepository.existsByRoom_RoomIdAndBedCode(roomId, bedCode)) {
+                nextIndex++;
+                bedCode = String.format("%s-B%02d", room.getRoomCode(), nextIndex);
+            }
+
+            Bed bed = new Bed();
+            bed.setRoom(room);
+            bed.setBedCode(bedCode);
+            bed.setStatus(BedStatus.AVAILABLE);
+            bedRepository.save(bed);
+        }
+
+        return getBedsByRoom(roomId);
+    }
+
     public BedResponse updateBed(UUID bedId, UpdateBedRequest request) {
         Bed bed = findById(bedId);
 

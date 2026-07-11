@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@org.springframework.transaction.annotation.Transactional(readOnly = true)
 public class EligibilityEvaluationService {
 
     private final StudentQueryPort studentQueryPort;
@@ -40,6 +41,21 @@ public class EligibilityEvaluationService {
         StudentEligibilitySnapshot snapshot = snapshotOpt.get();
         if (!"ACTIVE".equals(snapshot.getStatus())) {
             return Optional.empty(); 
+        }
+
+        return Optional.of(snapshot);
+    }
+
+    public Optional<StudentEligibilitySnapshot> evaluateEligibilityByPin(String pinCode, UUID gateId) {
+        Optional<StudentEligibilitySnapshot> snapshotOpt = studentQueryPort.getEligibilityByPin(pinCode, gateId);
+
+        if (snapshotOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        StudentEligibilitySnapshot snapshot = snapshotOpt.get();
+        if (!"ACTIVE".equals(snapshot.getStatus())) {
+            return Optional.empty();
         }
 
         return Optional.of(snapshot);

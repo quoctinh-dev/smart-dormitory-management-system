@@ -1,29 +1,20 @@
-import { AttachMoney, FlashOn, ReceiptLong } from '@mui/icons-material';
-import {
-  Box,
-  Container,
-  Typography,
-  Paper,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from '@mui/material';
+import { PaymentsOutlined, BoltOutlined, ReceiptLongOutlined } from '@mui/icons-material';
+import { Box, Container, Typography, Paper, Stack } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
 const COST_ITEMS = [
   {
-    icon: <AttachMoney color="success" sx={{ fontSize: 32 }} />,
+    icon: <PaymentsOutlined sx={{ fontSize: 24 }} />,
     title: 'Lệ phí phòng: ~ 350.000 VNĐ/tháng',
     desc: 'Thu theo đợt (thường vài tháng/lần tùy thông báo). Mức giá có thể điều chỉnh nhẹ theo năm học.',
   },
   {
-    icon: <FlashOn color="warning" sx={{ fontSize: 32 }} />,
+    icon: <BoltOutlined sx={{ fontSize: 24 }} />,
     title: 'Tiền điện sinh hoạt',
     desc: 'Chưa bao gồm trong giá phòng. Sinh viên tự thanh toán hàng tháng dựa trên chỉ số đồng hồ điện riêng.',
   },
   {
-    icon: <ReceiptLong color="primary" sx={{ fontSize: 32 }} />,
+    icon: <ReceiptLongOutlined sx={{ fontSize: 24 }} />,
     title: 'Thanh toán Tiền mặt',
     desc: 'Hiện tại hệ thống thanh toán trực tuyến đang nâng cấp. Sinh viên vui lòng nộp phí lưu trú bằng tiền mặt tại Văn phòng KTX.',
   },
@@ -46,24 +37,37 @@ export default function CostSection() {
               sinh hoạt và học tập cho sinh viên.
             </Typography>
 
-            <List sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Stack spacing={2}>
               {COST_ITEMS.map((item, index) => (
-                <ListItem
-                  key={index}
-                  sx={{ bgcolor: 'background.default', borderRadius: 3, p: 2 }} // TỐI ƯU: Thay '#f8fafc' bằng token hệ thống
-                >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Typography sx={{ fontWeight: 'bold' }} variant="h6">
+                <Paper key={index} elevation={0} sx={{ p: 2.25, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.default' }}>
+                  <Stack direction="row" spacing={2.2} alignItems="flex-start">
+                    <Box
+                      sx={(theme) => ({
+                        width: 44,
+                        height: 44,
+                        borderRadius: 2.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: `${theme.palette.primary.main}14`,
+                        color: 'primary.main',
+                        flexShrink: 0,
+                      })}
+                    >
+                      {item.icon}
+                    </Box>
+                    <Box>
+                      <Typography sx={{ fontWeight: 700 }} variant="h6">
                         {item.title}
                       </Typography>
-                    }
-                    secondary={item.desc}
-                  />
-                </ListItem>
+                      <Typography sx={{ color: 'text.secondary', lineHeight: 1.7, mt: 0.3 }}>
+                        {item.desc}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Paper>
               ))}
-            </List>
+            </Stack>
 
             <Typography
               variant="body2"

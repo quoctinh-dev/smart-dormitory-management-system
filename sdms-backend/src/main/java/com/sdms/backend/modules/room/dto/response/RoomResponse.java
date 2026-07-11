@@ -42,4 +42,6 @@ public class RoomResponse implements Serializable {
     private String buildingCode;
 
     private String buildingName;
+
+    private String roomPinCode;
 }

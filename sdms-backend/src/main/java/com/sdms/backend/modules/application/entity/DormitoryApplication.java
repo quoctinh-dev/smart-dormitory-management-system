@@ -25,8 +25,15 @@ import java.util.UUID;
             name = "uk_period_cccd",
             columnNames = {"period_id", "cccd"}
         )
+    },
+    indexes = {
+        @Index(name = "idx_app_status", columnList = "status"),
+        @Index(name = "idx_app_code", columnList = "applicationCode"),
+        @Index(name = "idx_app_student_code", columnList = "studentCode")
     }
 )
+@org.hibernate.annotations.SQLDelete(sql = "UPDATE dormitory_applications SET is_deleted = true WHERE application_id=? AND version=?")
+@org.hibernate.annotations.SQLRestriction("is_deleted = false")
 @Getter
 @Setter
 public class DormitoryApplication extends BaseEntity {

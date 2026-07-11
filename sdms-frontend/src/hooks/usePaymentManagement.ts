@@ -2,20 +2,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 
 import { paymentApi } from '@/api';
 
-export interface IBillAdmin {
-  billId: string;
-  billCode: string;
-  studentName: string;
-  amount: number;
-  status: string;
-  billType: string;
-  dueDate: string;
-  createdAt?: string;
-  [key: string]: any;
-}
+import type { BillAdminResponse } from '@/types/payment';
 
 export const usePaymentManagement = () => {
-  const [bills, setBills] = useState<IBillAdmin[]>([]);
+  const [bills, setBills] = useState<BillAdminResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Trạng thái bộ lọc dữ liệu trên giao diện
@@ -26,7 +16,7 @@ export const usePaymentManagement = () => {
   // Trạng thái điều khiển Dialogs
   const [confirmDialog, setConfirmDialog] = useState(false);
   const [detailsDialog, setDetailsDialog] = useState(false);
-  const [selectedBill, setSelectedBill] = useState<IBillAdmin | null>(null);
+  const [selectedBill, setSelectedBill] = useState<BillAdminResponse | null>(null);
 
   // Trạng thái thông báo hệ thống
   const [snackbar, setSnackbar] = useState<{
@@ -39,8 +29,9 @@ export const usePaymentManagement = () => {
     try {
       setLoading(true);
       const res = await paymentApi.getAllBills();
-      const data = (res as any)?.data || res;
-      setBills((data as IBillAdmin[]) || []);
+      // axiosClient unwraps ApiResponse.data -> which is PageResponse<BillAdminResponse>
+      const data = res?.content || (res as any)?.data?.content || [];
+      setBills(data);
     } catch (err: any) {
       console.error('Failed to fetch bills:', err);
       setSnackbar({
@@ -110,12 +101,12 @@ export const usePaymentManagement = () => {
     });
   }, [bills, currentTab, billTypeFilter, searchQuery]);
 
-  const openDetails = useCallback((bill: IBillAdmin) => {
+  const openDetails = useCallback((bill: BillAdminResponse) => {
     setSelectedBill(bill);
     setDetailsDialog(true);
   }, []);
 
-  const openConfirm = useCallback((bill: IBillAdmin) => {
+  const openConfirm = useCallback((bill: BillAdminResponse) => {
     setSelectedBill(bill);
     setConfirmDialog(true);
   }, []);

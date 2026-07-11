@@ -1,4 +1,4 @@
-import { GavelRounded } from '@mui/icons-material';
+import { GavelRounded, ShieldOutlined, ChecklistRounded } from '@mui/icons-material';
 import {
   Box,
   Typography,
@@ -8,6 +8,7 @@ import {
   Paper,
   Divider,
   Chip,
+  Stack,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 
@@ -15,76 +16,76 @@ const COMMITMENT_CLAUSES = [
   {
     id: 1,
     content:
-      'Không mua bán, tàng trữ và sử dụng ma túy; không hút thuốc lá trong ký túc xá; không xăm mình.',
+      'Cam kết không sử dụng ma túy, không hút thuốc lá và không thực hiện hành vi làm ảnh hưởng xấu đến môi trường sống trong ký túc xá.',
     penalty: 'BUỘC RA KHỎI KÝ TÚC XÁ',
     severe: true,
   },
   {
     id: 2,
     content:
-      'Không nấu ăn, đốt lửa trong phòng ở, hành lang, lan can và những nơi công cộng; không tàng trữ, sử dụng các dụng cụ đun nấu bằng điện, các chất dễ nổ, dễ cháy (pháo, xăng, dầu, cồn, than, củi, hóa chất).',
+      'Cam kết không tự ý nấu ăn, đốt lửa hoặc sử dụng chất dễ cháy, thiết bị gia nhiệt nguy hiểm trong phòng và khu vực chung.',
     penalty: 'BUỘC RA KHỎI KÝ TÚC XÁ',
     severe: true,
   },
   {
     id: 3,
     content:
-      'Không chứa chấp người lưu trú trái quy định của KTX, tiếp người thân và bạn bè tại phòng khách (tầng trệt).',
+      'Cam kết không tiếp người ngoài ở lại trái quy định và không vi phạm các quy định về chỗ ở, khách đến thăm.',
     penalty: 'BUỘC RA KHỎI KÝ TÚC XÁ',
     severe: true,
   },
   {
     id: 4,
-    content: 'Không nghịch phá hệ thống PCCC hoặc báo động giả trong KTX.',
+    content: 'Cam kết không phá hoại hệ thống phòng cháy chữa cháy, không làm giả báo động hoặc gây mất an toàn.',
     penalty: 'BUỘC RA KHỎI KÝ TÚC XÁ',
     severe: true,
   },
   {
     id: 5,
     content:
-      'Không uống rượu bia, đánh bài, cá độ, ghi và chơi số đề; không tàng trữ, sử dụng và phát tán các tài liệu phim ảnh đồi trụy, phản động hoặc truy cập các trang WEB có nội dung xấu; không tàng trữ, sử dụng và phát tán các loại hung khí; không làm mất an ninh trật tự, làm mất vệ sinh môi trường.',
+      'Cam kết không uống rượu bia, đánh bạc, lưu trữ hoặc phát tán tài liệu trái phép và không gây mất trật tự an ninh.',
     penalty: 'BUỘC RA KHỎI KÝ TÚC XÁ',
     severe: true,
   },
   {
     id: 6,
     content:
-      'Không đóng đinh, đục lỗ, viết, vẽ, dán giấy, tranh ảnh làm bẩn tường, trần nhà; ăn mặc lịch sự (không mặc quần cụt), tóc chải gọn gàng, quan hệ nam nữ lành mạnh. Sinh viên nam không lên khu vực của sinh viên nữ (lầu 1).',
+      'Cam kết giữ gìn vệ sinh, không làm bẩn tường, trần nhà, giữ thái độ ứng xử phù hợp và ăn mặc đúng quy định.',
     penalty: 'Xử lý theo Quy chế lưu trú',
     severe: false,
   },
   {
     id: 7,
     content:
-      'Bảo quản tài sản, thiết bị của KTX, sử dụng đúng mục đích, đúng theo chức năng, mọi hư hỏng đều phải đền bù theo nguyên trạng.',
+      'Cam kết bảo quản tài sản và thiết bị của ký túc xá đúng mục đích; nếu có hư hỏng, chịu trách nhiệm bồi thường theo quy định.',
     penalty: 'Xử lý theo Quy chế lưu trú',
     severe: false,
   },
   {
     id: 8,
     content:
-      'Không xâm phạm trái phép khu vực kho tàng, phòng làm việc, phòng SV khác, khu vực cấm người không có phận sự. Báo ngay cho BQL KTX khi phát hiện người lạ mặt hoặc hành vi phá hoại tài sản KTX.',
+      'Cam kết không tự ý vào các khu vực cấm, không để người lạ xâm nhập và báo ngay cho ban quản lý khi phát hiện việc đáng ngờ.',
     penalty: 'Xử lý theo Quy chế lưu trú',
     severe: false,
   },
   {
     id: 9,
     content:
-      'Giữ trật tự và tắt chuông điện thoại sau 22h00. Vệ sinh phòng theo lịch phân công và đổ rác đúng nơi quy định.',
+      'Cam kết giữ trật tự sau 22 giờ, tắt chuông điện thoại và thực hiện vệ sinh theo lịch phân công.',
     penalty: 'Xử lý theo Quy chế lưu trú',
     severe: false,
   },
   {
     id: 10,
     content:
-      'Có nghĩa vụ và trách nhiệm thực hiện Quy chế lưu trú KTX; chấp hành việc sắp xếp chỗ ở theo quy định của KTX. Sinh viên tự chịu trách nhiệm và bảo quản tài sản cá nhân có giá trị (tiền, laptop, điện thoại, đồ trang sức...).',
+      'Cam kết chấp hành quy chế lưu trú, thực hiện đúng phân công chỗ ở và tự bảo quản tài sản cá nhân có giá trị.',
     penalty: 'Xử lý theo Quy chế lưu trú',
     severe: false,
   },
   {
     id: 11,
     content:
-      'Đeo thẻ lưu trú KTX trước khi ra vào KTX để tránh tình trạng người lạ xâm nhập vào KTX, sinh viên vi phạm sẽ bị xử lý theo quy chế.',
+      'Cam kết đeo thẻ lưu trú khi ra vào ký túc xá để đảm bảo an ninh và quản lý nội bộ.',
     penalty: 'BUỘC RA KHỎI KÝ TÚC XÁ',
     severe: true,
   },
@@ -110,41 +111,73 @@ export default function CommitmentSection({
   };
 
   return (
-    <Box
-      sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 800, mx: 'auto', mt: 2 }}
-    >
-      {/* Tiêu đề */}
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 860, mx: 'auto', mt: 2 }}>
       <Box sx={{ textAlign: 'center' }}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-          BẢN CAM KẾT LƯU TRÚ KÝ TÚC XÁ
-        </Typography>
+        <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" sx={{ mb: 1 }}>
+          <ShieldOutlined color="primary" />
+          <Typography variant="h5" sx={{ fontWeight: 800 }}>
+            BẢN CAM KẾT LƯU TRÚ KÝ TÚC XÁ
+          </Typography>
+        </Stack>
         <Typography variant="subtitle2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
           (V/v thực hiện các nội quy, quy định tại Ký túc xá STU)
         </Typography>
       </Box>
 
-      <Alert severity="warning" icon={<GavelRounded />} sx={{ borderRadius: 2 }}>
-        Vui lòng <b>đọc kỹ toàn bộ</b> 11 điều khoản bên dưới trước khi xác nhận cam kết. Hệ thống
-        sẽ sinh file PDF Bản Cam Kết tự động sau khi bạn xác nhận.
+      <Alert
+        severity="warning"
+        icon={<GavelRounded />}
+        sx={{
+          borderRadius: 2,
+          py: 1.25,
+          boxShadow: 0,
+          border: '1px solid',
+          borderColor: 'warning.light',
+          '& .MuiAlert-message': { width: '100%' },
+        }}
+      >
+        <Typography variant="body2">
+          Vui lòng <b>đọc kỹ toàn bộ</b> 11 điều khoản bên dưới trước khi xác nhận cam kết. Hệ thống
+          sẽ sinh file PDF Bản Cam Kết tự động sau khi bạn xác nhận.
+        </Typography>
       </Alert>
 
-      {/* Nội dung cam kết */}
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
-        <Box sx={{ bgcolor: 'primary.main', px: 3, py: 1.5 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'white' }}>
-            11 Điều khoản cam kết thực hiện nghiêm chỉnh
-          </Typography>
+      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden', boxShadow: 1 }}>
+        <Box sx={{ bgcolor: 'primary.main', px: 3, py: 1.6 }}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <ChecklistRounded sx={{ color: 'white' }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'white' }}>
+              11 Điều khoản cam kết thực hiện nghiêm chỉnh
+            </Typography>
+          </Stack>
         </Box>
 
-        <Box sx={{ maxHeight: 450, overflowY: 'auto', px: 3, py: 2 }}>
+        <Box sx={{ maxHeight: 460, overflowY: 'auto', px: { xs: 2, sm: 3 }, py: 2.2 }}>
           {COMMITMENT_CLAUSES.map((clause) => (
-            <Box key={clause.id} sx={{ mb: 2.5 }}>
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+            <Box
+              key={clause.id}
+              sx={{
+                mb: 2.3,
+                p: 1.25,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                bgcolor: 'background.paper',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.2 }}>
                 <Chip
                   label={`Điều ${clause.id}`}
                   size="small"
-                  color={clause.severe ? 'error' : 'default'}
-                  sx={{ fontWeight: 'bold', minWidth: 70, mt: 0.3 }}
+                  variant="outlined"
+                  color="primary"
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 72,
+                    mt: 0.25,
+                    borderColor: (theme) => alpha(theme.palette.primary.main, 0.25),
+                    color: 'primary.main',
+                  }}
                 />
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="body2" sx={{ textAlign: 'justify', lineHeight: 1.7 }}>
@@ -154,8 +187,8 @@ export default function CommitmentSection({
                     variant="caption"
                     sx={{
                       fontStyle: 'italic',
-                      fontWeight: 'bold',
-                      color: clause.severe ? 'error.main' : 'text.secondary',
+                      fontWeight: 700,
+                      color: 'text.secondary',
                       display: 'block',
                       mt: 0.5,
                     }}
@@ -164,49 +197,43 @@ export default function CommitmentSection({
                   </Typography>
                 </Box>
               </Box>
-              {clause.id < COMMITMENT_CLAUSES.length && <Divider sx={{ mt: 2 }} />}
+              {clause.id < COMMITMENT_CLAUSES.length && <Divider sx={{ mt: 1.8, borderColor: 'divider' }} />}
             </Box>
           ))}
         </Box>
       </Paper>
 
-      {/* Đoạn cam đoan cuối */}
       <Paper
         variant="outlined"
         sx={{
-          p: 2.5,
+          p: 2.4,
           borderRadius: 2,
-          bgcolor: (theme) => alpha(theme.palette.warning.main, 0.08),
-          borderColor: (theme) => alpha(theme.palette.warning.main, 0.4),
+          bgcolor: (theme) => alpha(theme.palette.info.main, 0.06),
+          borderColor: (theme) => alpha(theme.palette.info.main, 0.25),
         }}
       >
-        <Typography
-          variant="body2"
-          sx={{ textAlign: 'justify', fontStyle: 'italic', color: 'text.secondary' }}
-        >
+        <Typography variant="body2" sx={{ textAlign: 'justify', lineHeight: 1.8, color: 'text.secondary' }}>
           Tôi xin cam đoan đã đọc kỹ, hiểu rõ toàn bộ nội dung trên và cam kết thực hiện nghiêm
           chỉnh. Nếu vi phạm bất kỳ điều khoản nào, tôi xin hoàn toàn chịu các hình thức kỷ luật cao
-          nhất từ Ban Quản lý Ký túc xá và Nhà trường, bao gồm cả việc buộc ra khỏi Ký túc xá ngay
-          lập tức mà không khiếu nại.
+          nhất từ Ban Quản lý Ký túc xá và Nhà trường.
         </Typography>
       </Paper>
 
       {error && <Alert severity="error">{error}</Alert>}
 
-      {/* Nút xác nhận */}
       <Box
         sx={{
           display: 'flex',
           justifyContent: 'center',
-          mt: 1,
-          p: 2,
+          mt: 0.5,
+          p: 2.2,
           borderRadius: 3,
-          border: '2px dashed',
-          borderColor: () => (isCommitted ? 'success.main' : 'text.disabled'),
+          border: '2px solid',
+          borderColor: isCommitted ? 'success.main' : 'divider',
           bgcolor: (theme) =>
-            isCommitted ? alpha(theme.palette.success.main, 0.05) : 'transparent',
-          borderStyle: isCommitted ? 'solid' : 'dashed',
-          transition: 'all 0.3s ease',
+            isCommitted ? alpha(theme.palette.success.main, 0.07) : alpha(theme.palette.grey[500], 0.04),
+          transition: 'all 0.25s ease',
+          boxShadow: isCommitted ? 1 : 0,
         }}
       >
         <FormControlLabel
@@ -219,9 +246,7 @@ export default function CommitmentSection({
             />
           }
           label={
-            <Typography
-              sx={{ fontWeight: 'bold', color: isCommitted ? 'success.main' : 'text.primary' }}
-            >
+            <Typography sx={{ fontWeight: 700, color: isCommitted ? 'success.main' : 'text.primary' }}>
               Tôi xin cam đoan đã đọc kỹ, hiểu rõ toàn bộ nội quy và cam kết thực hiện nghiêm chỉnh
               tất cả 11 điều khoản trên.
             </Typography>

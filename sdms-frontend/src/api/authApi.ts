@@ -13,6 +13,13 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+import { 
+  ChangePasswordData, 
+  ForgotPasswordData, 
+  ResetPasswordData, 
+  ActivateData 
+} from '../types/auth';
+
 export interface UserProfile {
   id: string;
   accountId: string;
@@ -49,28 +56,28 @@ export const authApi = {
   /**
    * Đổi mật khẩu cho người dùng đang đăng nhập
    */
-  changePassword(data: any): Promise<void> {
+  changePassword(data: ChangePasswordData): Promise<void> {
     return axiosClient.post(`${AUTH_PREFIX}/change-password`, data);
   },
 
   /**
    * Yêu cầu khôi phục mật khẩu qua Email khi quên mật khẩu
    */
-  forgotPassword(data: any): Promise<void> {
+  forgotPassword(data: ForgotPasswordData): Promise<void> {
     return axiosClient.post(`${AUTH_PREFIX}/forgot-password`, data);
   },
 
   /**
    * Đặt lại mật khẩu mới thông qua Token bảo mật được gửi về Email
    */
-  resetPassword(data: any): Promise<void> {
+  resetPassword(data: ResetPasswordData): Promise<void> {
     return axiosClient.post(`${AUTH_PREFIX}/reset-password`, data);
   },
 
   /**
    * Kích hoạt tài khoản cư dân sinh viên lần đầu tiên vào App
    */
-  activate(data: any): Promise<AuthTokens> {
+  activate(data: ActivateData): Promise<AuthTokens> {
     return axiosClient.post(`${AUTH_PREFIX}/activate`, {
       email: data.email,
       tempPassword: data.tempPassword,

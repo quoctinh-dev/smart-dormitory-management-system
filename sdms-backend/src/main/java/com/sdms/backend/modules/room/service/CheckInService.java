@@ -40,7 +40,7 @@ public class CheckInService {
     public CheckInSearchResponse searchStudentForCheckIn(String cccd) {
         StudentHousingAssignment assignment = assignmentRepository
                 .findForCheckInByCccdAndStatus(cccd.trim(), AssignmentStatus.PENDING_CHECKIN)
-                .orElseThrow(() -> new AppException("Không tìm thấy dữ liệu xếp phòng hợp lệ, hoặc sinh viên chưa hoàn tất đóng lệ phí phòng.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(com.sdms.backend.common.exception.ErrorCode.STUDENT_NOT_ELIGIBLE, "Không tìm thấy dữ liệu xếp phòng hợp lệ, hoặc sinh viên chưa hoàn tất đóng lệ phí phòng."));
 
         // Lấy thực thể Floor và Building để tránh gọi chuỗi get quá dài dễ gây rối
         Floor floor = assignment.getBed().getRoom().getFloor();

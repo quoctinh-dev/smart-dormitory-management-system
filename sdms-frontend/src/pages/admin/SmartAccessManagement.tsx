@@ -71,7 +71,7 @@ export default function SmartAccessManagement() {
       try {
         const res = await roomApi.getBuildings();
         // axiosClient interceptor đã unwrap data, nên res chính là mảng kết quả
-        setBuildings(Array.isArray(res) ? res : res?.data || []);
+        setBuildings(Array.isArray(res) ? res : (res as any)?.data || []);
       } catch (err) {
         console.error('Failed to load buildings', err);
       }
@@ -228,7 +228,7 @@ export default function SmartAccessManagement() {
               </TableHead>
               <TableBody>
                 {history.map((row) => (
-                  <TableRow key={row.historyId} hover>
+                  <TableRow key={row.id} hover>
                     <TableCell>{new Date(row.eventTimestamp).toLocaleString('vi-VN')}</TableCell>
                     <TableCell>
                       <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
@@ -326,7 +326,8 @@ export default function SmartAccessManagement() {
             setRowsPerPage(parseInt(e.target.value, 10));
             setPage(0);
           }}
-          labelRowsPerPage="Số dòng:"
+          labelRowsPerPage="Số dòng/trang:"
+          labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`}
         />
       </Paper>
 

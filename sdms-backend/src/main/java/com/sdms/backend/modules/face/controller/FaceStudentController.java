@@ -8,6 +8,8 @@ import com.sdms.backend.modules.face.service.FaceProfileService;
 import com.sdms.backend.modules.face.service.FaceVerificationService;
 import com.sdms.backend.modules.upload.service.CloudinaryService;
 import com.sdms.backend.common.response.ApiResponse;
+import com.sdms.backend.common.response.PageResponse;
+import com.sdms.backend.modules.user.entity.UserAccount;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,10 +35,12 @@ public class FaceStudentController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<ApiResponse<UUID>> registerFace(
-            @RequestHeader("X-Student-Id") UUID studentId,
+            @AuthenticationPrincipal UserAccount currentUser,
             @RequestParam("file") MultipartFile file) {
         
+        UUID studentId = currentUser.getStudent().getStudentId();
         // 1. Upload ảnh lên Cloudinary
         String imageUrl = cloudinaryService.uploadFile(file, "sdms/faces");
         
@@ -46,10 +52,12 @@ public class FaceStudentController {
 
     @PostMapping(value = "/replacements", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
+    @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<ApiResponse<Void>> requestReplacement(
-            @RequestHeader("X-Student-Id") UUID studentId,
+            @AuthenticationPrincipal UserAccount currentUser,
             @RequestParam("file") MultipartFile file) {
         
+        UUID studentId = currentUser.getStudent().getStudentId();
         // Upload ảnh thay thế lên Cloudinary
         String imageUrl = cloudinaryService.uploadFile(file, "sdms/faces");
         
@@ -60,20 +68,26 @@ public class FaceStudentController {
     }
 
     @GetMapping
-    public FaceProfileDetailResponse getMyProfile(
-            @RequestHeader("X-Student-Id") UUID studentId) {
-        return faceProfileService.getMyFaceProfile(studentId);
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<ApiResponse<FaceProfileDetailResponse>> getMyProfile(
+            @AuthenticationPrincipal UserAccount currentUser) {
+        UUID studentId = currentUser.getStudent().getStudentId();
+        FaceProfileDetailResponse profile = faceProfileService.getMyFaceProfile(studentId);
+        return ResponseEntity.ok(ApiResponse.success("Lấy hồ sơ khuôn mặt thành công", profile));
     }
 
     @GetMapping("/verifications")
-    public Page<VerificationAttemptSummaryResponse> getMyVerifications(
-            @RequestHeader("X-Student-Id") UUID studentId,
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<ApiResponse<PageResponse<VerificationAttemptSummaryResponse>>> getMyVerifications(
+            @AuthenticationPrincipal UserAccount currentUser,
             Pageable pageable) {
+        UUID studentId = currentUser.getStudent().getStudentId();
         // Resolve profileId from studentId
         FaceProfileDetailResponse profile = faceProfileService.getMyFaceProfile(studentId);
         if (profile == null) {
-            return Page.empty();
+            return ResponseEntity.ok(ApiResponse.success("Chưa có hồ sơ", PageResponse.of(Page.empty())));
         }
-        return faceVerificationService.viewVerificationAttempts(profile.profileId(), pageable);
+        Page<VerificationAttemptSummaryResponse> page = faceVerificationService.viewVerificationAttempts(profile.profileId(), pageable);
+        return ResponseEntity.ok(ApiResponse.success("Lấy lịch sử xác thực thành công", PageResponse.of(page)));
     }
 }

@@ -39,6 +39,13 @@ public class BedController {
         return ResponseEntity.ok(ApiResponse.success(bedService.getBedsByRoom(roomId)));
     }
 
+    @Operation(summary = "Tự động sinh giường cho phòng dựa trên sức chứa (Capacity)")
+    @PostMapping("/room/{roomId}/auto-generate")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<BedResponse>>> autoGenerateBeds(@PathVariable UUID roomId) {
+        return ResponseEntity.ok(ApiResponse.success("Beds generated successfully", bedService.autoGenerateBeds(roomId)));
+    }
+
     @Operation(summary = "Cập nhật trạng thái giường", description = "Chỉ được chuyển AVAILABLE <-> MAINTENANCE")
     @PatchMapping("/{bedId}/status")
     @PreAuthorize("hasRole('ADMIN')")

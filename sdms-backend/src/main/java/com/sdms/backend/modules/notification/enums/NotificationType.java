@@ -9,5 +9,6 @@ public enum NotificationType {
     SMART_ACCESS,
     SYSTEM,
     WARNING,
-    ANNOUNCEMENT
+    ANNOUNCEMENT,
+    MAINTENANCE
 }

@@ -13,7 +13,9 @@ import {
 import Grid from '@mui/material/Grid2';
 import { useState } from 'react';
 
+import DocumentPreview from '@/components/common/DocumentPreview';
 import applicationApi from '@/api/applicationApi';
+import { snackbar } from '@/utils/snackbar';
 
 export default function ApplicationInfo({ application, documents, fetchStatus }: any) {
   const [uploadingDocId, setUploadingDocId] = useState<string | null>(null);
@@ -26,14 +28,14 @@ export default function ApplicationInfo({ application, documents, fetchStatus }:
       const formData = new FormData();
       formData.append('file', file);
       const uploadRes = await applicationApi.uploadFileToCloud(formData);
-      const fileUrl = uploadRes.data;
+      const fileUrl = uploadRes.url;
 
       // Gọi API resubmit
       await applicationApi.resubmitDocument(application.applicationId, docId, fileUrl);
-      alert('Nộp lại tài liệu thành công!');
+      snackbar.success('Nộp lại tài liệu thành công!');
       if (fetchStatus) fetchStatus(application.cccd); // Reload
     } catch (err: any) {
-      alert('Lỗi khi nộp lại: ' + (err.response?.data?.message || err.message));
+      snackbar.error('Lỗi khi nộp lại: ' + (err.response?.data?.message || err.message));
     } finally {
       setUploadingDocId(null);
     }
@@ -102,30 +104,22 @@ export default function ApplicationInfo({ application, documents, fetchStatus }:
       {(application.registrationFormPdfUrl || application.commitmentFormPdfUrl) && (
         <Box mb={3}>
           <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            Tài liệu hệ thống tự sinh (Vui lòng tải về và lưu trữ):
+            Tài liệu hệ thống tự sinh (Vui lòng xem trước và tải về):
           </Typography>
-          <Box display="flex" gap={2} flexWrap="wrap">
+          <Box display="grid" gap={2}>
             {application.registrationFormPdfUrl && (
-              <Button
-                variant="contained"
-                color="primary"
-                href={application.registrationFormPdfUrl}
-                target="_blank"
-                size="small"
-              >
-                Tải Đơn Đăng Ký (PDF)
-              </Button>
+              <DocumentPreview
+                url={application.registrationFormPdfUrl}
+                title="Đơn đăng ký lưu trú"
+                height={420}
+              />
             )}
             {application.commitmentFormPdfUrl && (
-              <Button
-                variant="outlined"
-                color="primary"
-                href={application.commitmentFormPdfUrl}
-                target="_blank"
-                size="small"
-              >
-                Tải Bản Cam Kết (PDF)
-              </Button>
+              <DocumentPreview
+                url={application.commitmentFormPdfUrl}
+                title="Bản cam kết lưu trú"
+                height={420}
+              />
             )}
           </Box>
         </Box>

@@ -50,11 +50,14 @@ export default function RegistrationPeriodManager() {
     snackbar,
     eligibilityDialogOpen,
     selectedPeriodForEligibility,
+    activationConfirmOpen,
     handleOpenCreate,
     handleOpenEdit,
     handleOpenEligibility,
     handleCloseDialog,
     handleCloseEligibility,
+    handleCloseActivationConfirm,
+    handleConfirmActivation,
     handleFormChange,
     handleCloseSnackbar,
     handleSubmitPeriod,
@@ -292,6 +295,25 @@ export default function RegistrationPeriodManager() {
         onClose={handleCloseEligibility}
         period={selectedPeriodForEligibility}
       />
+
+      <Dialog open={activationConfirmOpen} onClose={handleCloseActivationConfirm} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 700 }}>Kích hoạt đợt đăng ký</DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body1">
+            Kích hoạt đợt này sẽ tự động dừng các đợt đăng ký khác đang mở để đảm bảo chỉ có
+            một đợt hoạt động.
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Bạn có muốn tiếp tục không?
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={handleCloseActivationConfirm}>Hủy</Button>
+          <Button onClick={handleConfirmActivation} variant="contained" color="success" disabled={isSubmitting}>
+            {isSubmitting ? <CircularProgress size={20} color="inherit" /> : 'Kích hoạt'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar
         open={snackbar.open}

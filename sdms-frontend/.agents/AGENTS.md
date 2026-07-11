@@ -96,3 +96,13 @@ At the end of every task, provide the user with a summary containing:
 ## DETAILED TESTING GUIDANCE RULE (LUẬT HƯỚNG DẪN KIỂM THỬ CHI TIẾT)
 - **Detailed Scenarios:** When instructing a user to perform an End-to-End (E2E) or Integration test, the Agent MUST provide concrete, step-by-step actions.
 - **Log Monitoring & Troubleshooting:** The Agent MUST specify exactly which logs or serial monitors to observe, what the expected success output looks like, and provide troubleshooting steps for common failures. Do not just say "test it".
+
+## STEP-BY-STEP REVIEW & CONFIRMATION RULE (LUẬT LÀM TỪNG BƯỚC VÀ CHỜ XÁC NHẬN)
+- **Mandatory Breakdown:** Every complex task MUST be broken down into small, manageable steps.
+- **Wait for Confirmation:** After completing a single step, the Agent MUST STOP, send a review/summary to the user, and EXPLICITLY ask for confirmation before proceeding to the next step.
+- **Enforcement:** Never execute multiple major changes across different domains or modules without the user's step-by-step approval.
+
+## API RESPONSE ENVELOPE PATTERN RULE (LUẬT CẤU TRÚC PHẢN HỒI API)
+- **Mandatory Pattern:** The system MUST strictly use the "Envelope Pattern" for all API responses (`ApiResponse<T>`). The structure MUST be exactly: `{ "success": boolean, "message": string, "data": object/null, "errorCode": string/null }`.
+- **No Over-Engineering:** DO NOT nest error objects (e.g., creating an `ApiError` class with `path`, `timestamp`, `httpStatus` inside `ApiResponse`). HTTP Status Codes (200, 400, 404, 500) and Server Logs are sufficient for routing and debugging.
+- **Enforcement:** AI Agents MUST NOT refactor or modify this core `ApiResponse` structure under any circumstances, as it will break the Mobile App's JSON parsing (Retrofit/Gson) and Web Frontend's form validation logic, which rely on the flat `data` and `errorCode` fields.

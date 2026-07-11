@@ -3,6 +3,7 @@ package com.sdms.backend.modules.upload.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CloudinaryService {
@@ -55,10 +57,12 @@ public class CloudinaryService {
                             "folder", folder,
                             "public_id", fileName.replace(".pdf", ""),
                             "resource_type", "raw",
-                            "format", "pdf"
+                            "access_mode", "public"
                     )
             );
-            return uploadResult.get("secure_url").toString();
+            String url = uploadResult.get("secure_url").toString();
+            log.info("Successfully uploaded PDF to Cloudinary. URL: {}", url);
+            return url;
         } catch (IOException e) {
             throw new RuntimeException("Upload PDF to Cloudinary failed", e);
         }

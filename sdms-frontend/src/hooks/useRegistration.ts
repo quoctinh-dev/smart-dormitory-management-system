@@ -169,7 +169,7 @@ export const useRegistration = () => {
       setLoading(true);
       try {
         const payload = {
-          periodId: period?.periodId,
+          periodId: period?.periodId || '',
           fullName: formData.fullName.trim(),
           dob: formData.dob,
           gender: formData.gender,
@@ -233,7 +233,7 @@ export const useRegistration = () => {
       }
       setLoading(true);
       try {
-        await applicationApi.submit(appId);
+        await applicationApi.submit(appId!);
         setActiveStep(4); // Hoàn thành toàn bộ quy trình nộp đơn
       } catch (err: any) {
         setError(err.message || err || 'Lỗi xác nhận nộp hồ sơ.');
@@ -266,7 +266,7 @@ export const useRegistration = () => {
       const fileUrl = uploadRes.url;
 
       // Ghi nhận liên kết URL của tệp tin vào hồ sơ đơn đăng ký dưới Database
-      await applicationApi.uploadDocument(appId, type, fileUrl);
+      await applicationApi.uploadDocument(appId!, type, fileUrl);
 
       // Cập nhật tên file lên UI để hiển thị trạng thái đã upload thành công
       setUploadedDocs((prev) => ({ ...prev, [type]: file.name }));

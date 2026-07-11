@@ -1,36 +1,44 @@
-// 📄 File: src/types/payment.ts
+export type BillStatus = 'UNPAID' | 'PARTIAL' | 'PAID' | 'OVERDUE' | 'CANCELLED';
+export type BillType = 'ACCOMMODATION_FEE' | 'UTILITY_WATER' | 'UTILITY_ELECTRICITY' | 'DAMAGE_FEE' | 'OTHER';
 
-export interface Bill {
-  id: string;
-  applicationId: string;
+export interface BillResponse {
+  billId: string;
+  billType: BillType;
   amount: number;
-  status: 'PENDING' | 'PAID' | 'CANCELLED';
-  type: 'REGISTRATION_FEE' | 'DEPOSIT' | 'OTHER';
-  createdAt: string;
-  payment: Payment | null;
-  student: {
-    id: string;
-    fullName: string;
-    cccd: string;
-  };
+  paidAmount: number;
+  remainingAmount: number;
+  status: BillStatus;
+  dueDate: string;
+  description?: string;
+  assignmentId?: string;
+  roomCode?: string;
+  bedCode?: string;
 }
 
-export interface Payment {
-  id: string;
+export interface BillAdminResponse {
   billId: string;
+  billCode: string;
+  studentName: string;
   amount: number;
-  method: 'CASH' | 'ONLINE';
-  status: 'PENDING' | 'SUCCESS' | 'FAILED';
-  transactionCode: string | null;
-  paidAt: string;
+  status: BillStatus;
+  billType: BillType;
+  dueDate: string;
+  applicationId?: string;
 }
 
 export interface PaymentInstruction {
-  id: string;
   bankName: string;
   accountNumber: string;
   accountHolder: string;
-  qrCodeUrl: string;
-  content: string;
-  isEnabled: boolean;
+  qrCodeUrl?: string;
+  contentPrefix?: string;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
 }

@@ -5,6 +5,7 @@ import com.sdms.backend.modules.room.dto.response.CheckInSearchResponse;
 import com.sdms.backend.modules.room.service.CheckInService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/admin/check-in")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*") // 🌟 Bổ sung để tránh lỗi chặn CORS khi Frontend gọi sang Backend
+@PreAuthorize("hasRole('ADMIN')")
 public class CheckInController {
 
     private final CheckInService checkInService;
@@ -23,8 +25,8 @@ public class CheckInController {
      * Frontend gọi qua: checkInApi.searchStudent(cccd)
      */
     @GetMapping("/search")
-    public ResponseEntity<CheckInSearchResponse> searchStudent(@RequestParam("cccd") String cccd) {
-        return ResponseEntity.ok(checkInService.searchStudentForCheckIn(cccd));
+    public ResponseEntity<com.sdms.backend.common.response.ApiResponse<CheckInSearchResponse>> searchStudent(@RequestParam("cccd") String cccd) {
+        return ResponseEntity.ok(com.sdms.backend.common.response.ApiResponse.success("Tìm thấy thông tin sinh viên", checkInService.searchStudentForCheckIn(cccd)));
     }
 
     /**
@@ -32,10 +34,8 @@ public class CheckInController {
      * Frontend gọi qua: checkInApi.confirmCheckIn(assignmentId)
      */
     @PostMapping("/{assignmentId}")
-    public ResponseEntity<Map<String, String>> confirmCheckIn(@PathVariable("assignmentId") UUID assignmentId) {
+    public ResponseEntity<com.sdms.backend.common.response.ApiResponse<Void>> confirmCheckIn(@PathVariable("assignmentId") UUID assignmentId) {
         checkInService.confirmCheckIn(assignmentId);
-
-        // Trả về chuỗi JSON phẳng {"message": "..."} đúng cấu trúc Frontend đang đợi để bốc tách dữ liệu
-        return ResponseEntity.ok(Map.of("message", "Thủ tục nhận phòng hoàn tất thành công."));
+        return ResponseEntity.ok(com.sdms.backend.common.response.ApiResponse.success("Thủ tục nhận phòng hoàn tất thành công.", null));
     }
 }

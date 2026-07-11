@@ -13,7 +13,14 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "bills")
+@Table(
+    name = "bills",
+    indexes = {
+        @Index(name = "idx_bill_student", columnList = "student_id"),
+        @Index(name = "idx_bill_status", columnList = "status"),
+        @Index(name = "idx_bill_application", columnList = "application_id")
+    }
+)
 public class Bill extends BaseEntity {
 
     @Id

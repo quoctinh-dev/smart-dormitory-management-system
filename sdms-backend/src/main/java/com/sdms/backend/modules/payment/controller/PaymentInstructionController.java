@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sdms.backend.common.response.ApiResponse;
+
 @RestController
 @RequestMapping("/v1/public/payment-instructions")
 @RequiredArgsConstructor
@@ -16,7 +18,7 @@ public class PaymentInstructionController {
     private final PaymentInstructionService paymentInstructionService;
 
     @GetMapping
-    public ResponseEntity<PaymentInstructionResponse> getPaymentInstructions() {
-        return ResponseEntity.ok(paymentInstructionService.getPaymentInstructions());
+    public ResponseEntity<ApiResponse<PaymentInstructionResponse>> getPaymentInstructions() {
+        return ResponseEntity.ok(ApiResponse.success(paymentInstructionService.getPaymentInstructions()));
     }
 }

@@ -117,7 +117,48 @@ export const createCustomTheme = (mode: PaletteMode): ThemeOptions =>
         },
       },
       MuiAlert: {
-        styleOverrides: { root: { borderRadius: 12 } },
+        styleOverrides: {
+          root: {
+            borderRadius: 14,
+            border: '1px solid',
+            boxShadow: '0 8px 20px -10px rgba(15, 23, 42, 0.18)',
+            '& .MuiAlert-icon': {
+              fontSize: '1.2rem',
+            },
+          },
+          standardSuccess: {
+            borderColor: '#86efac',
+            backgroundColor: '#f0fdf4',
+            color: '#166534',
+          },
+          standardError: {
+            borderColor: '#fda4af',
+            backgroundColor: '#fef2f2',
+            color: '#b91c1c',
+          },
+          standardWarning: {
+            borderColor: '#fdba74',
+            backgroundColor: '#fff7ed',
+            color: '#9a2c00',
+          },
+          standardInfo: {
+            borderColor: '#93c5fd',
+            backgroundColor: '#eff6ff',
+            color: '#1d4ed8',
+          },
+          filledSuccess: {
+            backgroundColor: '#2e7d32',
+          },
+          filledError: {
+            backgroundColor: '#c62828',
+          },
+          filledWarning: {
+            backgroundColor: '#ed6c02',
+          },
+          filledInfo: {
+            backgroundColor: '#1565c0',
+          },
+        },
       },
     },
   });

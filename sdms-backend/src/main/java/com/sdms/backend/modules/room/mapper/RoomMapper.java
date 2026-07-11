@@ -20,6 +20,7 @@ public class RoomMapper {
                 .buildingId(room.getFloor().getBuilding().getBuildingId())
                 .buildingCode(room.getFloor().getBuilding().getCode())
                 .buildingName(room.getFloor().getBuilding().getName())
+                .roomPinCode(room.getRoomPinCode())
                 .build();
     }
 }

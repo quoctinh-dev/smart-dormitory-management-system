@@ -65,6 +65,11 @@ public class RoomService {
         room.setOccupiedBeds(0);
         room.setStatus(RoomStatus.AVAILABLE);
 
+        // Sinh mã PIN ngẫu nhiên 6 chữ số cho phòng
+        java.security.SecureRandom random = new java.security.SecureRandom();
+        int pin = 100000 + random.nextInt(900000);
+        room.setRoomPinCode(String.valueOf(pin));
+
         return roomMapper.toResponse(roomRepository.save(room));
     }
 

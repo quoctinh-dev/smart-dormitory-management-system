@@ -1,5 +1,8 @@
 package com.sdms.backend.modules.smartaccess.infrastructure.adapter;
 
+import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
+import com.sdms.backend.modules.room.enums.AssignmentStatus;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import com.sdms.backend.modules.smartaccess.application.port.out.StudentEligibilitySnapshot;
 import com.sdms.backend.modules.smartaccess.application.port.out.StudentQueryPort;
 import com.sdms.backend.modules.smartaccess.domain.enums.ResidentType;
@@ -18,28 +21,34 @@ import java.util.stream.Collectors;
 public class StudentQueryAdapter implements StudentQueryPort {
 
     private final StudentRepository studentRepository;
+    private final StudentHousingAssignmentRepository assignmentRepository;
 
     @Override
     public Optional<StudentEligibilitySnapshot> getStudentEligibility(UUID studentId) {
-        // Keeping the original stub behavior for getStudentEligibility to avoid breaking face verify
-        return Optional.of(StudentEligibilitySnapshot.builder()
-                .studentId(studentId)
-                .status("ACTIVE")
-                .residentType(ResidentType.BOARDING)
-                .buildingId(UUID.randomUUID())
-                .build());
+        return assignmentRepository.findByStudentIdAndStatusOptimized(studentId, AssignmentStatus.OCCUPIED)
+                .map(this::mapToSnapshot);
     }
 
     @Override
     public Optional<StudentEligibilitySnapshot> getEligibilityByRfid(String rfidCode) {
-        return studentRepository.findByRfidCode(rfidCode).map(student -> 
-            StudentEligibilitySnapshot.builder()
-                .studentId(student.getStudentId())
-                .status(student.getStatus().name())
-                .residentType(ResidentType.BOARDING) // Stubbed building/type for now
-                .buildingId(UUID.randomUUID())
-                .build()
-        );
+        return assignmentRepository.findByStudentRfidAndStatusOptimized(rfidCode, AssignmentStatus.OCCUPIED)
+                .map(this::mapToSnapshot);
+    }
+
+    private StudentEligibilitySnapshot mapToSnapshot(StudentHousingAssignment assignment) {
+        return StudentEligibilitySnapshot.builder()
+                .studentId(assignment.getStudent().getStudentId())
+                .status(assignment.getStudent().getStatus().name())
+                .residentType(ResidentType.BOARDING)
+                .buildingId(assignment.getBed().getRoom().getFloor().getBuilding().getBuildingId())
+                .roomId(assignment.getBed().getRoom().getRoomId())
+                .build();
+    }
+
+    @Override
+    public Optional<StudentEligibilitySnapshot> getEligibilityByPin(String pinCode, UUID gateId) {
+        return assignmentRepository.findByPinCodeAndGateIdAndStatus(pinCode, gateId, AssignmentStatus.OCCUPIED)
+                .map(this::mapToSnapshot);
     }
 
     @Override

@@ -10,9 +10,12 @@ import com.sdms.backend.modules.smartaccess.application.strategy.CurfewResolutio
 import com.sdms.backend.modules.smartaccess.application.strategy.TimeWindowEvaluationStrategy;
 import com.sdms.backend.modules.smartaccess.domain.entity.AccessHistory;
 import com.sdms.backend.modules.smartaccess.domain.enums.AccessDecision;
+import com.sdms.backend.modules.smartaccess.domain.enums.GateType;
 import com.sdms.backend.modules.smartaccess.domain.enums.ResidentType;
 import com.sdms.backend.modules.smartaccess.domain.enums.VerificationMethod;
+import com.sdms.backend.modules.smartaccess.domain.entity.Gate;
 import com.sdms.backend.modules.smartaccess.domain.repository.AccessHistoryRepository;
+import com.sdms.backend.modules.smartaccess.domain.repository.GateRepository;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -29,6 +32,7 @@ public class AccessEvaluationService {
     private final CurfewResolutionStrategy curfewResolutionStrategy;
     private final TimeWindowEvaluationStrategy timeWindowEvaluationStrategy;
     private final AccessHistoryRepository accessHistoryRepository;
+    private final GateRepository gateRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -53,6 +57,32 @@ public class AccessEvaluationService {
         boolean isAllowed;
         String denialReason = null;
 
+        // Check Gate Configuration
+        Optional<Gate> gateOpt = gateRepository.findById(gateId);
+        if (gateOpt.isEmpty() || !gateOpt.get().isActive()) {
+            log.warn("Access DENIED for student {}. Reason: UNREGISTERED_OR_INACTIVE_GATE ({})", studentId, gateId);
+            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "UNREGISTERED_OR_INACTIVE_GATE", method);
+            return;
+        }
+        Gate gate = gateOpt.get();
+
+        // Structural Gate vs Room Door validation
+        if (gate.getGateType() == GateType.ROOM_DOOR) {
+            if (gate.getRoom() == null || !gate.getRoom().getRoomId().equals(snapshot.getRoomId())) {
+                log.warn("Access DENIED for student {}. Reason: NOT_ASSIGNED_TO_ROOM", studentId);
+                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_ROOM", method);
+                return;
+            }
+        } else {
+            // Building Gate Validation
+            if (gate.getBuilding() != null && !gate.getBuilding().getBuildingId().equals(snapshot.getBuildingId())) {
+                log.warn("Access DENIED for student {}. Reason: NOT_ASSIGNED_TO_BUILDING (Gate Building: {}, Student Building: {})", 
+                        studentId, gate.getBuilding().getBuildingId(), snapshot.getBuildingId());
+                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_BUILDING", method);
+                return;
+            }
+        }
+
         // Strategy selection
         if (snapshot.getResidentType() == ResidentType.BOARDING) {
             isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);
@@ -64,11 +94,13 @@ public class AccessEvaluationService {
 
         // Execute DB write (Append Only Constraint)
         if (isAllowed) {
+            log.info("Access GRANTED for student {} at gate {}. Publishing UNLOCK MQTT command.", studentId, gateId);
             recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.GRANTED, null, method);
-            // eventPublisher.publishEvent(...) will trigger IoT module via AFTER_COMMIT
+            eventPublisher.publishEvent(new com.sdms.backend.modules.smartaccess.event.GateCommandEvent(gateId, "UNLOCK", "Access Granted"));
         } else {
+            log.warn("Access DENIED for student {} at gate {}. Reason: {}", studentId, gateId, denialReason);
             recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, denialReason, method);
-            // eventPublisher.publishEvent(...) will trigger IoT feedback
+            // Optional: Publish a deny event if IoT needs to buzz or display an error
         }
     }
 
@@ -86,6 +118,28 @@ public class AccessEvaluationService {
         StudentEligibilitySnapshot snapshot = eligibilityOpt.get();
         boolean isAllowed;
         String denialReason = null;
+
+        // Check Gate Configuration
+        Optional<Gate> gateOpt = gateRepository.findById(gateId);
+        if (gateOpt.isEmpty() || !gateOpt.get().isActive()) {
+            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "UNREGISTERED_OR_INACTIVE_GATE", method);
+            return AccessDecision.DENIED;
+        }
+        Gate gate = gateOpt.get();
+
+        // Structural Gate vs Room Door validation
+        if (gate.getGateType() == GateType.ROOM_DOOR) {
+            if (gate.getRoom() == null || !gate.getRoom().getRoomId().equals(snapshot.getRoomId())) {
+                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_ROOM", method);
+                return AccessDecision.DENIED;
+            }
+        } else {
+            // Building Gate Validation
+            if (gate.getBuilding() != null && !gate.getBuilding().getBuildingId().equals(snapshot.getBuildingId())) {
+                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_BUILDING", method);
+                return AccessDecision.DENIED;
+            }
+        }
 
         if (snapshot.getResidentType() == ResidentType.BOARDING) {
             isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);

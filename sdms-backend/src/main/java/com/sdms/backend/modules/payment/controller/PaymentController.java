@@ -75,6 +75,7 @@ public class PaymentController {
      * MOCK PAYMENT SUCCESS for testing event-driven flow.
      * This endpoint is for development/testing purposes only.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/mock-success/{applicationId}")
     public ApiResponse<PaymentResponse> mockPaymentSuccess(@PathVariable UUID applicationId) {
         PaymentResponse response = paymentService.mockPaymentSuccess(applicationId);

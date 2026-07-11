@@ -18,6 +18,7 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Vui lòng đăng nhập để tiếp tục"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền truy cập tài nguyên này"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy tài nguyên yêu cầu"),
+    STUDENT_NOT_ELIGIBLE(HttpStatus.NOT_FOUND, "Sinh viên này đã hoàn tất nhận phòng trước đó hoặc chưa đóng lệ phí."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Đã có lỗi xảy ra trong hệ thống");
 
     private final HttpStatus status;

@@ -1,36 +1,69 @@
-// 📄 File: src/types/application.ts
+export type ApplicationStatus = 'PENDING' | 'UNDER_REVIEW' | 'REQUEST_REVISION' | 'WAITING_PAYMENT' | 'APPROVED' | 'REJECTED' | 'WAITING_LIST' | 'EXPIRED';
+export type DocumentStatus = 'PENDING' | 'VALID' | 'INVALID';
 
-export type DocumentType =
-  | 'PROFILE_PICTURE'
-  | 'CCCD_FRONT'
-  | 'CCCD_BACK'
-  | 'HEALTH_CERTIFICATE'
-  | 'STUDENT_CARD'
-  | 'FAMILY_CERTIFICATE'
-  | 'PRIORITY_CERTIFICATE';
-
-export interface ApplicationDocument {
-  id: string;
-  type: DocumentType;
-  url: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  rejectionReason: string | null;
-  createdAt: string;
-  updatedAt: string;
+export interface DocumentResponse {
+  documentId: string;
+  documentType: string;
+  documentName: string;
+  fileUrl: string;
+  status: DocumentStatus;
+  remarks: string;
 }
 
-export interface Application {
-  id: string;
-  studentId: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSING' | 'COMPLETED';
-  rejectionReason: string | null;
-  priorityType:
-    'NONE' | 'POOR_HOUSEHOLD' | 'NEAR_POOR_HOUSEHOLD' | 'DISADVANTAGED' | 'ETHNIC_MINORITY';
-  submittedAt: string;
-  documents: ApplicationDocument[];
-  student: {
-    id: string;
-    fullName: string;
-    cccd: string;
-  };
+export interface AssignmentInfo {
+  buildingName: string;
+  floorName: string;
+  roomName: string;
+  bedName: string;
+}
+
+export interface ApplicationResponse {
+  applicationId: string;
+  applicationCode: string;
+  fullName: string;
+  cccd: string;
+  email: string;
+  phone: string;
+  dob: string;
+  gender: string;
+  permanentAddress: string;
+  contactAddress: string;
+  priorityCategories: string[];
+  documents: DocumentResponse[];
+  status: ApplicationStatus;
+  priorityScore: number;
+  registrationFormPdfUrl?: string;
+  commitmentFormPdfUrl?: string;
+  reviewNote?: string;
+  submittedAt?: string;
+  revisionDeadline?: string;
+  assignment?: AssignmentInfo;
+}
+
+export interface ApplicationCreateRequest {
+  periodId: string;
+  fullName: string;
+  dob: string;
+  gender: string;
+  cccd: string;
+  email: string;
+  phone: string;
+  permanentAddress: string;
+  contactAddress: string;
+  issueDate?: string | null;
+  issuePlace: string;
+  pob: string;
+  ethnic: string;
+  religion: string;
+  faculty: string;
+  fatherName: string;
+  fatherYob?: number | null;
+  fatherJob: string;
+  fatherPhone: string;
+  motherName: string;
+  motherYob?: number | null;
+  motherJob: string;
+  motherPhone: string;
+  familyContact: string;
+  priorityCategories: string[];
 }
