@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pdb
+*.pyc
+.pytest_cache/
+.python-version
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Debug files
+debug_failed/
+
+# Packages
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Runtime
+pip-selfcheck.json
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+*.orig
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example

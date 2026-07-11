@@ -1,0 +1,34 @@
+### 1. Đăng nhập để lấy Token (Sinh viên)
+# Thay email và password bằng dữ liệu có thật trong DB của bạn
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "student@ktx.edu.vn",
+  "password": "password123"
+}
+
+> {%
+    client.global.set("auth_token", response.body.data.accessToken);
+%}
+
+###
+
+### 2. Upload Ảnh Đăng Ký Khuôn Mặt
+# Yêu cầu file ảnh (JPG/PNG) rõ mặt
+POST http://localhost:8080/api/v1/students/me/face
+Authorization: Bearer {{auth_token}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="my_face.jpg"
+Content-Type: image/jpeg
+
+< ./my_face.jpg
+--WebAppBoundary--
+
+###
+
+### 3. Xem Trạng Thái Profile Khuôn Mặt
+GET http://localhost:8080/api/v1/students/me/face
+Authorization: Bearer {{auth_token}}

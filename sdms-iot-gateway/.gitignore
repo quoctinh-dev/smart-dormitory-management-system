@@ -1,0 +1,32 @@
+# Arduino / C++ Build output
+build/
+*.bin
+*.elf
+*.hex
+*.uf2
+*.map
+
+# Arduino core cache
+.arduino-IDE/
+.arduino15/
+*.ino.bin
+*.ino.elf
+*.ino.hex
+
+# OS Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+*.ipr
+*.iml
+*.iws
+
+# Logs
+*.log
+*.tmp
+*.bak

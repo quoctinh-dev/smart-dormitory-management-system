@@ -1,0 +1,107 @@
+# Tài liệu Tích hợp Nghiệp vụ Gia hạn (Stay Extension) và Trả phòng (Checkout)
+
+Tài liệu này mô tả chi tiết luồng nghiệp vụ và danh sách API cho hai tính năng: **Gia hạn lưu trú (Stay Extension)** và **Trả phòng (Checkout)** dành cho Sinh viên (App Student) và Quản lý (Web Admin).
+_Lưu ý: Các tính năng này yêu cầu tài khoản sinh viên đã đăng nhập và đang cư trú tại KTX (Status = ACTIVE). Web Public không hỗ trợ nghiệp vụ này._
+
+---
+
+## 1. Nghiệp vụ Gia hạn lưu trú (Stay Extension)
+
+### 1.1 Luồng nghiệp vụ (Workflow)
+1. **Kiểm tra đợt đăng ký**: Hệ thống chỉ cho phép nộp đơn gia hạn khi đang có một Đợt đăng ký (Registration Period) mở với loại `CURRENT_RESIDENT` (Gia hạn nội trú).
+2. **Sinh viên nộp đơn**: Sinh viên nộp đơn gia hạn kèm lý do. Hệ thống kiểm tra sinh viên phải đang lưu trú (`ACTIVE` và có giường `OCCUPIED`).
+3. **Chờ duyệt**: Đơn gia hạn được tạo ở trạng thái `PENDING`.
+4. **Admin xét duyệt**: 
+   - Nếu `APPROVED`: Hệ thống cập nhật thời gian dự kiến trả phòng (`expectedCheckOutAt`) trong hợp đồng hiện tại bằng với ngày kết thúc đợt lưu trú (`stayEndDate`). 
+   - Hệ thống tự động **Sinh file PDF** quyết định gia hạn và bắn sự kiện `ExtensionApprovedEvent` để tạo Hóa đơn mới và gửi email thông báo.
+   - Nếu `REJECTED`: Đơn bị từ chối kèm lý do, sinh viên sẽ checkout theo đúng lịch cũ.
+
+### 1.2 Danh sách API - App Student
+*Base URL: `/api/v1/students/extensions` (Yêu cầu JWT Token - Role: STUDENT)*
+
+- **Nộp đơn gia hạn mới**
+  - **Endpoint**: `POST /`
+  - **Body**: 
+    ```json
+    {
+      "reason": "Lý do gia hạn",
+      "description": "Mô tả chi tiết"
+    }
+    ```
+  - **Quy tắc**: Sinh viên chỉ được nộp nếu chưa có đơn nào khác, và đang ở trong thời gian mở form gia hạn nội trú.
+
+- **Xem đơn gia hạn của tôi**
+  - **Endpoint**: `GET /my-application`
+  - **Response**: Trả về chi tiết đơn (bao gồm trạng thái, lý do từ chối (nếu có), link tải file PDF quyết định (nếu đã duyệt)).
+
+### 1.3 Danh sách API - Web Admin
+*Base URL: `/api/v1/admin/extensions` (Yêu cầu JWT Token - Role: ADMIN, STAFF)*
+
+- **Lấy danh sách toàn bộ đơn gia hạn**
+  - **Endpoint**: `GET /?page=0&size=10`
+  - **Mô tả**: Sử dụng cho bảng DataGrid ở trang quản lý đơn gia hạn.
+
+- **Xét duyệt đơn (Duyệt/Từ chối)**
+  - **Endpoint**: `PUT /{extensionId}/status`
+  - **Body**:
+    ```json
+    {
+      "status": "APPROVED", // hoặc "REJECTED"
+      "rejectReason": "Lý do từ chối (bắt buộc nếu REJECTED)"
+    }
+    ```
+
+---
+
+## 2. Nghiệp vụ Trả phòng (Checkout Request)
+
+### 2.1 Luồng nghiệp vụ (Workflow)
+1. **Sinh viên nộp đơn trả phòng**: Cung cấp ngày dự kiến rời đi, thông tin tài khoản ngân hàng (để hoàn tiền cọc nếu có).
+2. **Ràng buộc kiểm tra**: 
+   - Sinh viên không được nợ tiền phòng hay điện nước (Hệ thống sẽ quét các bill `UNPAID` hoặc `OVERDUE`). Nếu có nợ, chặn nộp đơn.
+   - Sinh viên phải đang có phòng `OCCUPIED`.
+3. **Chờ duyệt**: Đơn chuyển sang trạng thái `PENDING`.
+4. **Admin xét duyệt**:
+   - Nếu `APPROVED`: Hệ thống tiến hành **trả giường** thực tế (`housingAssignmentService.checkOut`). 
+   - Bắn sự kiện `StudentCheckedOutEvent` để các module khác (như Smart Access Face ID) thu hồi quyền ra vào.
+   - Nếu `REJECTED`: Đơn bị từ chối kèm lý do.
+
+### 2.2 Danh sách API - App Student
+*Base URL: `/api/v1/students/checkout-requests` (Yêu cầu JWT Token - Role: STUDENT)*
+
+- **Nộp đơn trả phòng**
+  - **Endpoint**: `POST /`
+  - **Body**:
+    ```json
+    {
+      "intendedCheckoutDate": "2026-12-31T00:00:00Z",
+      "reason": "Lý do trả phòng",
+      "bankAccountNumber": "0123456789",
+      "bankName": "Vietcombank"
+    }
+    ```
+  
+- **Lấy danh sách đơn trả phòng của tôi**
+  - **Endpoint**: `GET /`
+  - **Response**: Mảng danh sách các đơn đã nộp (thường là 1 đơn) và lịch sử trả phòng.
+
+### 2.3 Danh sách API - Web Admin
+*Base URL: `/api/v1/admin/checkout-requests` (Yêu cầu JWT Token - Role: ADMIN)*
+
+- **Lấy danh sách toàn bộ đơn trả phòng**
+  - **Endpoint**: `GET /?status=PENDING&page=0&size=10`
+  - **Mô tả**: Liệt kê các đơn trả phòng. Có thể lọc theo tham số `status` (PENDING, APPROVED, REJECTED).
+
+- **Xét duyệt đơn trả phòng**
+  - **Endpoint**: `POST /{requestId}/review`
+  - **Body**:
+    ```json
+    {
+      "status": "APPROVED", // hoặc "REJECTED"
+      "rejectReason": "Lý do từ chối (nếu REJECTED)"
+    }
+    ```
+
+---
+
+
