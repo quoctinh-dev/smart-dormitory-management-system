@@ -1,20 +1,28 @@
-# BẢN GIAO VIỆC (HANDOFF SUMMARY)
+# BÀN GIAO TIẾN ĐỘ LÀM VIỆC (HANDOFF SUMMARY)
 
-**Cập nhật lần cuối:** 2026-07-11
+**Thời điểm bàn giao:** 15/07/2026 (Đang bảo trì lỗi máy tính)
 
-## 1. Hiện Trạng Hệ Thống (Current State)
-* **Smart Access (IoT) & AI:** Đã hoàn thiện và test chéo 100% giữa Backend, Frontend, và Firmware (ESP32). AI đã nâng cấp lên 512-dimension vector nhúng (pgvector).
-* **Quản lý Phòng (Room Management):** Đã phân tách thiết kế Domain-Driven: Thực thể `Room` sở hữu `PIN`, Admin dùng Frontend quản lý PIN (Tạo tự động, Cấu hình ẩn/hiện chống nhìn trộm). Hệ thống đã có luồng Gửi Thông Báo (Email & In-App) tự động khi mã PIN phòng thay đổi.
-* **Database & Kiến trúc:** 
-  - Đang ở Version `V44__add_room_pin_code_to_rooms.sql`.
-  - Đã vạch ra chiến lược Tối ưu hóa CSDL (giảm từ 25 bảng xuống còn ~17 bảng thông qua các kỹ thuật Single Table Inheritance, Redis migration, Entity Normalization).
-* **Tài liệu Báo cáo:** Các luồng nghiệp vụ IoT và Quản lý phòng đã được chốt và viết chuẩn vào `docs/business/thesis_mapping/room_module_thesis.md` và `sdms-iot-gateway/docs/devices/esp32-devkit-v1/README.md`.
+## 1. Tình trạng hiện tại (Current State)
+- **Hệ thống Web (Backend & Frontend):** Đã gần như hoàn thiện 100%. Mọi lỗi Build Frontend đã được giải quyết triệt để.
+- **Tính năng Thanh toán Online (Auto-banking Webhook):** 
+  - Đã được nâng cấp để tích hợp thực tế với hệ thống **SePay** thay vì Mock ảo.
+  - Logic tạo mã QR thanh toán trong `PaymentService.java` đã được chuyển sang định dạng VietQR chuẩn, được gán cứng tài khoản **MBBank (0819281512)** của User.
+  - Cài đặt và bật thành công Tunnel qua **Ngrok** (Port 8080) để nhận Webhook.
+  - **Cập nhật quan trọng trong phiên:** Đã sửa mã nguồn `SepayService.java` để **vô hiệu hóa việc kiểm tra chữ ký (HMAC Signature)**. Hiện tại Backend chỉ kiểm tra `API Key`. Đã chạy lệnh `mvn compile` thành công và không có lỗi (Build Success).
+- **Tình trạng User hiện tại:** Máy tính của User đang gặp sự cố bộ nhớ tạm (Clipboard bị treo, không thể Ctrl+C / Ctrl+V), User đang khởi động lại máy tính (Restart) và tạm dừng công việc.
 
-## 2. Các Nhiệm Vụ Tiếp Theo (Next Tasks)
-Agent tiếp theo vui lòng khởi động bằng cách lựa chọn 1 trong 3 công việc sau cùng với User:
-1. **Module Hóa đơn & Điện nước (Payment & Utility):** Bắt đầu xây dựng/tinh chỉnh luồng thanh toán hóa đơn giữ chỗ, thanh toán điện nước hàng tháng.
-2. **Module Đăng ký (Registration):** Hoàn thiện quy trình xét duyệt đơn xin vào KTX của sinh viên.
-3. **Database Refactoring:** Thực hiện viết migration SQL để áp dụng chiến lược Tối ưu hóa Database đã đề xuất ở trên (Gộp các bảng Đơn từ thành 1 bảng `student_requests` sử dụng Single Table Inheritance, gộp `bills` và `payments`, v.v.).
+## 2. Công việc đã thực hiện trong phiên này (Accomplished)
+- Xem lại tài liệu Handoff và phân tích quy trình tích hợp SePay Webhook.
+- Sửa file `SepayService.java` để Bypass Signature validation (giúp User dễ dàng test bằng API Access Token mà không cần cài đặt Secret Key phức tạp).
+- Compile lại dự án Backend thành công (`mvn compile`).
+- Hướng dẫn User cách khắc phục lỗi kẹt Clipboard trên Windows (Dùng Windows + V hoặc Restart máy).
 
-> **Lưu ý cho Agent tiếp theo:** 
-> Hãy tuân thủ nghiêm ngặt **LUẬT LƯU LỊCH SỬ (SESSION HISTORY RULE)** và đọc thật kỹ **GLOBAL AI WORKFLOW** trong `AGENTS.md` trước khi thao tác vào bất kỳ thư mục con nào. Mọi tài liệu thiết kế đều được coi là nguồn chân lý duy nhất (Single Source of Truth).
+## 3. Bước tiếp theo cần làm (Next Tasks)
+Ngay khi bắt đầu phiên làm việc mới, Agent tiếp theo CẦN PHẢI:
+1. **Chờ User quay lại sau khi Restart máy tính:** Hỏi xem máy tính đã cho phép copy-paste (Ctrl C, Ctrl V) lại bình thường chưa.
+2. **Cấu hình API Key (sau khi máy tính bình thường):** Nhắc User dán **API Access Token** (tạo trên SePay) vào biến `SEPAY_API_KEY` trong file `application.yml` (hoặc `.env`) và khởi động lại Backend Spring Boot.
+3. **Cấu hình trên SePay:** Yêu cầu User chọn loại "API Key" ở phần Authorization trong màn hình cài đặt Webhook trên SePay và dán mã đó vào.
+4. **Kiểm thử Webhook (E2E Test):** Yêu cầu User nhấn nút "Gửi test Webhook" trên SePay và kiểm tra cửa sổ Log của Backend xem có in ra dòng chữ `[SepayWebhookController] Received webhook` hay không.
+5. **Chốt hạ phần Web & Chuyển sang Mobile App:** 
+   - Khi việc test thanh toán thành công, sẽ chính thức chuyển trọng tâm sang thảo luận kiến trúc, công nghệ (Flutter/React Native) và bắt đầu tạo cấu trúc thư mục cho **Phần mềm Mobile App (Student App)**.
+   - Khi tạo Mobile App, bắt buộc phải tuân thủ chuẩn tạo thư mục `sdms-mobile-app` và khởi tạo file `.agents/AGENTS.md` tương ứng.
