@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.room.dto.request.CreateFloorRequest;
 import com.sdms.backend.modules.room.dto.request.UpdateFloorRequest;
 import com.sdms.backend.modules.room.dto.response.FloorResponse;
@@ -35,23 +36,23 @@ public class FloorService {
 
     public FloorResponse createFloor(CreateFloorRequest request) {
         Building building = buildingRepository.findById(request.getBuildingId())
-                .orElseThrow(() -> new AppException("Building not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy tòa nhà"));
 
         if (floorRepository.existsByBuilding_BuildingIdAndFloorNumber(request.getBuildingId(), request.getFloorNumber())) {
-            throw new AppException("Floor number already exists in building", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Số tầng đã tồn tại trong tòa nhà");
         }
 
         Gender targetGender = request.getGender();
         if (building.getGender() != BuildingGender.MIXED) {
             Gender expectedGender = Gender.valueOf(building.getGender().name());
             if (targetGender != null && targetGender != expectedGender) {
-                throw new AppException("Building gender restricts floor gender to " + expectedGender, HttpStatus.BAD_REQUEST);
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Giới tính của tòa nhà giới hạn giới tính tầng là " + expectedGender);
             }
             targetGender = expectedGender;
         }
 
         if (targetGender == null) {
-            throw new AppException("Floor gender cannot be null", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Giới tính của tầng không được để trống");
         }
 
         Floor floor = new Floor();
@@ -70,13 +71,13 @@ public class FloorService {
         if (building.getGender() != BuildingGender.MIXED) {
             Gender expectedGender = Gender.valueOf(building.getGender().name());
             if (targetGender != null && targetGender != expectedGender) {
-                throw new AppException("Cannot change floor gender because the building is strictly " + expectedGender, HttpStatus.BAD_REQUEST);
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Không thể đổi giới tính tầng vì tòa nhà chỉ dành cho " + expectedGender);
             }
             targetGender = expectedGender;
         }
 
         if (targetGender == null) {
-            throw new AppException("Floor gender cannot be null", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Giới tính của tầng không được để trống");
         }
 
         // Kiểm tra xem chính sách có thay đổi không
@@ -102,6 +103,6 @@ public class FloorService {
 
     private Floor findById(UUID id) {
         return floorRepository.findById(id)
-                .orElseThrow(() -> new AppException("Floor not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy tầng"));
     }
 }

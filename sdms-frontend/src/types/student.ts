@@ -1,34 +1,35 @@
 // 📄 File: src/types/student.ts
 
-export interface Student {
-  id: string;
+export interface StudentProfileResponse {
+  studentId: string;
+  studentCode: string;
   fullName: string;
   cccd: string;
-  studentId: string;
-  gender: 'Male' | 'Female' | 'Other';
-  dateOfBirth: string;
-  placeOfBirth: string;
-  permanentAddress: string;
-  major: string;
-  faculty: string;
-  university: string;
-  class: string;
-  intake: number;
-  graduated: boolean;
-  phoneNumber: string;
   email: string;
-  parentName: string;
-  parentPhoneNumber: string;
-  profilePicture: string;
-  assignment: {
-    id: string;
-    room: {
-      id: string;
-      name: string;
-      building: {
-        id: string;
-        name: string;
-      };
-    };
-  } | null;
+  phone: string;
+  faculty: string;
+  academicYear: string;
+  fatherName: string;
+  fatherPhone: string;
+  motherName: string;
+  motherPhone: string;
+  emergencyContact: string;
+  permanentAddress: string;
+  avatarUrl: string;
+  status: string;
+
+  dob: string;
+  gender: string;
+  issueDate: string;
+  issuePlace: string;
+  pob: string;
+  ethnic: string;
+  religion: string;
+  cohort: string;
+  contactAddress: string;
+  fatherYob: number;
+  fatherJob: string;
+  motherYob: number;
+  motherJob: string;
+  familyContact: string;
 }

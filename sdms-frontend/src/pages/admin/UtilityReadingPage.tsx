@@ -1,4 +1,6 @@
-import React, { useState, useEffect, SyntheticEvent } from 'react';
+import BoltIcon from '@mui/icons-material/Bolt';
+import SaveIcon from '@mui/icons-material/Save';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import {
   Box,
   Typography,
@@ -19,24 +21,23 @@ import {
   Paper,
   CircularProgress,
   Tabs,
-  Tab
+  Tab,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { utilityApi, RoomUtilityResponse } from '@/api/utilityApi';
+import React, { useState, useEffect, SyntheticEvent } from 'react';
+
 import roomApi from '@/api/roomApi';
+import { utilityApi, RoomUtilityResponse } from '@/api/utilityApi';
 import { BuildingResponse, FloorResponse } from '@/types/room';
-import SaveIcon from '@mui/icons-material/Save';
-import BoltIcon from '@mui/icons-material/Bolt';
-import WaterDropIcon from '@mui/icons-material/WaterDrop';
 
 export default function UtilityReadingPage() {
   const { enqueueSnackbar } = useSnackbar();
   const currentDate = new Date();
-  
+
   const [month, setMonth] = useState<number>(currentDate.getMonth() + 1);
   const [year, setYear] = useState<number>(currentDate.getFullYear());
   const [utilityType, setUtilityType] = useState<'ELECTRICITY' | 'WATER'>('ELECTRICITY');
-  
+
   // Filters
   const [buildings, setBuildings] = useState<BuildingResponse[]>([]);
   const [floors, setFloors] = useState<FloorResponse[]>([]);
@@ -50,6 +51,7 @@ export default function UtilityReadingPage() {
 
   useEffect(() => {
     fetchBuildings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -60,17 +62,19 @@ export default function UtilityReadingPage() {
       setFloors([]);
       setSelectedFloorId('');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedBuildingId]);
 
   useEffect(() => {
     fetchRooms();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [month, year, utilityType, selectedBuildingId, selectedFloorId]);
 
   const fetchBuildings = async () => {
     try {
       const res = await roomApi.getBuildings();
       setBuildings(res);
-    } catch (error) {
+    } catch {
       enqueueSnackbar('Lỗi tải danh sách tòa nhà', { variant: 'error' });
     }
   };
@@ -79,7 +83,7 @@ export default function UtilityReadingPage() {
     try {
       const res = await roomApi.getFloorsByBuilding(buildingId);
       setFloors(res);
-    } catch (error) {
+    } catch {
       enqueueSnackbar('Lỗi tải danh sách tầng', { variant: 'error' });
     }
   };
@@ -88,14 +92,14 @@ export default function UtilityReadingPage() {
     try {
       setLoading(true);
       const res = await utilityApi.getRoomsForRecording(
-        month, 
-        year, 
-        utilityType, 
-        selectedBuildingId || undefined, 
+        month,
+        year,
+        utilityType,
+        selectedBuildingId || undefined,
         selectedFloorId || undefined
       );
       setRooms(res);
-      
+
       const initialReadings: Record<string, number> = {};
       const initialOldReadings: Record<string, number> = {};
       res.forEach((room: RoomUtilityResponse) => {
@@ -108,7 +112,7 @@ export default function UtilityReadingPage() {
       });
       setReadings(initialReadings);
       setOldReadings(initialOldReadings);
-    } catch (error) {
+    } catch {
       enqueueSnackbar('Lỗi khi tải danh sách phòng', { variant: 'error' });
     } finally {
       setLoading(false);
@@ -121,41 +125,49 @@ export default function UtilityReadingPage() {
 
   const handleReadingChange = (roomId: string, value: string) => {
     const numValue = parseInt(value, 10);
-    setReadings(prev => ({
+    setReadings((prev) => ({
       ...prev,
-      [roomId]: isNaN(numValue) ? 0 : numValue
+      [roomId]: isNaN(numValue) ? 0 : numValue,
     }));
   };
 
   const handleOldReadingChange = (roomId: string, value: string) => {
     const numValue = parseInt(value, 10);
-    setOldReadings(prev => ({
+    setOldReadings((prev) => ({
       ...prev,
-      [roomId]: isNaN(numValue) ? 0 : numValue
+      [roomId]: isNaN(numValue) ? 0 : numValue,
     }));
   };
 
   const handleSave = async (room: RoomUtilityResponse) => {
     const newReading = readings[room.roomId];
     const actualOldReading = room.isFirstRecord ? oldReadings[room.roomId] : room.oldReading;
-    
+
     if (newReading === undefined || newReading === null) {
       enqueueSnackbar('Vui lòng nhập chỉ số mới', { variant: 'warning' });
       return;
     }
-    
+
     if (room.isFirstRecord && (actualOldReading === undefined || actualOldReading === null)) {
-      enqueueSnackbar('Vui lòng nhập chỉ số cũ cho phòng này (lần đầu ghi)', { variant: 'warning' });
+      enqueueSnackbar('Vui lòng nhập chỉ số cũ cho phòng này (lần đầu ghi)', {
+        variant: 'warning',
+      });
       return;
     }
-    
+
     if (newReading < actualOldReading) {
-      enqueueSnackbar(`Chỉ số mới không được nhỏ hơn chỉ số cũ (${actualOldReading})`, { variant: 'error' });
+      enqueueSnackbar(`Chỉ số mới không được nhỏ hơn chỉ số cũ (${actualOldReading})`, {
+        variant: 'error',
+      });
       return;
     }
 
     const unit = utilityType === 'ELECTRICITY' ? 'kWh' : 'm3';
-    if (!window.confirm(`Xác nhận chốt ${newReading - actualOldReading} ${unit} cho phòng ${room.roomCode}?`)) {
+    if (
+      !window.confirm(
+        `Xác nhận chốt ${newReading - actualOldReading} ${unit} cho phòng ${room.roomCode}?`
+      )
+    ) {
       return;
     }
 
@@ -166,7 +178,7 @@ export default function UtilityReadingPage() {
         month,
         year,
         newReading,
-        ...(room.isFirstRecord && { oldReading: actualOldReading })
+        ...(room.isFirstRecord && { oldReading: actualOldReading }),
       });
       enqueueSnackbar('Lưu chỉ số thành công!', { variant: 'success' });
       fetchRooms();
@@ -191,19 +203,19 @@ export default function UtilityReadingPage() {
       {/* Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tabs value={utilityType} onChange={handleTabChange} aria-label="utility tabs">
-          <Tab 
-            icon={<BoltIcon />} 
-            iconPosition="start" 
-            label="Chốt Số Điện" 
-            value="ELECTRICITY" 
-            sx={{ fontWeight: 'bold' }} 
+          <Tab
+            icon={<BoltIcon />}
+            iconPosition="start"
+            label="Chốt Số Điện"
+            value="ELECTRICITY"
+            sx={{ fontWeight: 'bold' }}
           />
-          <Tab 
-            icon={<WaterDropIcon />} 
-            iconPosition="start" 
-            label="Chốt Số Nước" 
-            value="WATER" 
-            sx={{ fontWeight: 'bold' }} 
+          <Tab
+            icon={<WaterDropIcon />}
+            iconPosition="start"
+            label="Chốt Số Nước"
+            value="WATER"
+            sx={{ fontWeight: 'bold' }}
           />
         </Tabs>
       </Box>
@@ -219,9 +231,13 @@ export default function UtilityReadingPage() {
                 label="Tòa nhà"
                 onChange={(e) => setSelectedBuildingId(e.target.value)}
               >
-                <MenuItem value=""><em>Tất cả</em></MenuItem>
-                {buildings.map(b => (
-                  <MenuItem key={b.buildingId} value={b.buildingId}>{b.name}</MenuItem>
+                <MenuItem value="">
+                  <em>Tất cả</em>
+                </MenuItem>
+                {buildings.map((b) => (
+                  <MenuItem key={b.buildingId} value={b.buildingId}>
+                    {b.name}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -235,9 +251,13 @@ export default function UtilityReadingPage() {
                 onChange={(e) => setSelectedFloorId(e.target.value)}
                 disabled={!selectedBuildingId}
               >
-                <MenuItem value=""><em>Tất cả</em></MenuItem>
-                {floors.map(f => (
-                  <MenuItem key={f.floorId} value={f.floorId}>Tầng {f.floorNumber}</MenuItem>
+                <MenuItem value="">
+                  <em>Tất cả</em>
+                </MenuItem>
+                {floors.map((f) => (
+                  <MenuItem key={f.floorId} value={f.floorId}>
+                    Tầng {f.floorNumber}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -250,8 +270,10 @@ export default function UtilityReadingPage() {
                 label="Tháng"
                 onChange={(e) => setMonth(Number(e.target.value))}
               >
-                {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-                  <MenuItem key={m} value={m}>Tháng {m}</MenuItem>
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                  <MenuItem key={m} value={m}>
+                    Tháng {m}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -259,13 +281,15 @@ export default function UtilityReadingPage() {
           <Grid item xs={12} sm={4} md={2}>
             <FormControl fullWidth size="small">
               <InputLabel>Năm</InputLabel>
-              <Select
-                value={year}
-                label="Năm"
-                onChange={(e) => setYear(Number(e.target.value))}
-              >
-                {[currentDate.getFullYear() - 1, currentDate.getFullYear(), currentDate.getFullYear() + 1].map(y => (
-                  <MenuItem key={y} value={y}>Năm {y}</MenuItem>
+              <Select value={year} label="Năm" onChange={(e) => setYear(Number(e.target.value))}>
+                {[
+                  currentDate.getFullYear() - 1,
+                  currentDate.getFullYear(),
+                  currentDate.getFullYear() + 1,
+                ].map((y) => (
+                  <MenuItem key={y} value={y}>
+                    Năm {y}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -308,16 +332,24 @@ export default function UtilityReadingPage() {
               </TableRow>
             ) : (
               rooms.map((room) => {
-                const actualOldReading = room.isFirstRecord ? (oldReadings[room.roomId] || 0) : room.oldReading;
+                const actualOldReading = room.isFirstRecord
+                  ? oldReadings[room.roomId] || 0
+                  : room.oldReading;
                 const newReading = readings[room.roomId];
                 const value = newReading !== undefined ? newReading : '';
                 const isError = value !== '' && Number(value) < actualOldReading;
-                const isValid = newReading !== undefined && newReading >= actualOldReading && (!room.isFirstRecord || oldReadings[room.roomId] !== undefined);
-                
+                const isValid =
+                  newReading !== undefined &&
+                  newReading >= actualOldReading &&
+                  (!room.isFirstRecord || oldReadings[room.roomId] !== undefined);
+
                 return (
                   <TableRow
                     key={room.roomId}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, bgcolor: room.isFirstRecord ? 'info.50' : 'inherit' }}
+                    sx={{
+                      '&:last-child td, &:last-child th': { border: 0 },
+                      bgcolor: room.isFirstRecord ? 'info.50' : 'inherit',
+                    }}
                   >
                     <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
                       {room.roomCode}
@@ -332,7 +364,9 @@ export default function UtilityReadingPage() {
                         <TextField
                           size="small"
                           type="number"
-                          value={oldReadings[room.roomId] !== undefined ? oldReadings[room.roomId] : ''}
+                          value={
+                            oldReadings[room.roomId] !== undefined ? oldReadings[room.roomId] : ''
+                          }
                           disabled={room.isSettled}
                           onChange={(e) => handleOldReadingChange(room.roomId, e.target.value)}
                           placeholder="Chỉ số đầu kỳ"
@@ -350,7 +384,7 @@ export default function UtilityReadingPage() {
                         disabled={room.isSettled}
                         onChange={(e) => handleReadingChange(room.roomId, e.target.value)}
                         error={isError}
-                        helperText={isError ? "Không hợp lệ" : ""}
+                        helperText={isError ? 'Không hợp lệ' : ''}
                         inputProps={{ min: actualOldReading }}
                         sx={{ minWidth: 150 }}
                       />

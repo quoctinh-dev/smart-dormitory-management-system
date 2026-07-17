@@ -1,3 +1,8 @@
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import SearchIcon from '@mui/icons-material/Search';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
   Box,
   Typography,
@@ -18,23 +23,19 @@ import {
   InputLabel,
   TablePagination,
   CircularProgress,
-  Snackbar,
-  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Stack,
 } from '@mui/material';
-import LockIcon from '@mui/icons-material/Lock';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import SearchIcon from '@mui/icons-material/Search';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import React, { useState, useEffect } from 'react';
 import { alpha } from '@mui/material/styles';
+import React, { useState, useEffect } from 'react';
+
 import axiosClient from '@/api/axiosClient';
 import CustomSkeleton from '@/components/common/CustomSkeleton';
+import { snackbar } from '@/utils/snackbar';
+import { validatePassword } from '@/utils/validate';
 
 interface UserAccount {
   accountId: string;
@@ -48,20 +49,19 @@ interface UserAccount {
 export default function AccountManagementPage() {
   const [accounts, setAccounts] = useState<UserAccount[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   // Lọc và Tìm kiếm
   const [keyword, setKeyword] = useState('');
   const [role, setRole] = useState('');
   const [status, setStatus] = useState('');
-  
+
   // Phân trang
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalElements, setTotalElements] = useState(0);
-  
-  // Thông báo
-  const [message, setMessage] = useState('');
-  
+
+
+
   // Create Staff State
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [newStaff, setNewStaff] = useState({ username: '', email: '', password: '' });
@@ -78,15 +78,21 @@ export default function AccountManagementPage() {
     try {
       const res: any = await axiosClient.get(`/v1/admin/accounts/${accountId}/student-profile`);
       setSelectedProfile(res);
-    } catch (err) {
-      setMessage('Không thể lấy thông tin hồ sơ sinh viên');
+    } catch (error: any) {
+      snackbar.error('Không thể lấy thông tin hồ sơ sinh viên');
       setOpenProfileModal(false);
     } finally {
       setLoadingProfile(false);
     }
   };
 
-  const fetchAccounts = async (currentPage: number, currentSize: number, currentKeyword: string, currentRole: string, currentStatus: string) => {
+  const fetchAccounts = async (
+    currentPage: number,
+    currentSize: number,
+    currentKeyword: string,
+    currentRole: string,
+    currentStatus: string
+  ) => {
     setLoading(true);
     try {
       const response: any = await axiosClient.get('/v1/admin/accounts', {
@@ -95,14 +101,14 @@ export default function AccountManagementPage() {
           role: currentRole || undefined,
           status: currentStatus || undefined,
           page: currentPage,
-          size: currentSize
-        }
+          size: currentSize,
+        },
       });
       setAccounts(response.content || []);
       setTotalElements(response.totalElements || 0);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      setMessage('Lỗi khi tải danh sách tài khoản');
+      snackbar.error('Lỗi khi tải danh sách tài khoản');
     } finally {
       setLoading(false);
     }
@@ -110,6 +116,7 @@ export default function AccountManagementPage() {
 
   useEffect(() => {
     fetchAccounts(page, rowsPerPage, keyword, role, status);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage]);
 
   const handleSearchClick = () => {
@@ -128,29 +135,33 @@ export default function AccountManagementPage() {
   const handleToggleLock = async (id: string) => {
     try {
       await axiosClient.put(`/v1/admin/accounts/${id}/toggle-lock`);
-      setMessage('Cập nhật trạng thái thành công!');
+      snackbar.success('Cập nhật trạng thái thành công!');
       fetchAccounts(page, rowsPerPage, keyword, role, status);
-    } catch (error) {
-      setMessage('Lỗi khi cập nhật trạng thái');
+    } catch (error: any) {
+      snackbar.error('Lỗi khi cập nhật trạng thái');
     }
   };
 
   const handleCreateStaff = async () => {
     if (!newStaff.username || !newStaff.email || !newStaff.password) {
-      setMessage('Lỗi: Vui lòng nhập đủ thông tin!');
+      snackbar.error('Lỗi: Vui lòng nhập đủ thông tin!');
+      return;
+    }
+    if (!validatePassword(newStaff.password)) {
+      snackbar.error('Mật khẩu phải từ 8-50 ký tự, có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.');
       return;
     }
     setCreating(true);
     try {
       await axiosClient.post('/v1/admin/accounts/staff', newStaff);
-      setMessage('Tạo tài khoản Staff thành công!');
+      snackbar.success('Tạo tài khoản Staff thành công!');
       setOpenCreateModal(false);
       setNewStaff({ username: '', email: '', password: '' });
       fetchAccounts(0, rowsPerPage, keyword, role, status);
       setPage(0);
     } catch (error: any) {
       console.error(error);
-      setMessage(error?.message || 'Lỗi khi tạo Staff');
+      snackbar.error(error?.message || 'Lỗi khi tạo Staff');
     } finally {
       setCreating(false);
     }
@@ -193,8 +204,21 @@ export default function AccountManagementPage() {
       </Box>
 
       {/* Tầng Search (Targeted View) */}
-      <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 3, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Tra cứu tài khoản:</Typography>
+      <Paper
+        variant="outlined"
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: 3,
+          display: 'flex',
+          gap: 2,
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
+        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+          Tra cứu tài khoản:
+        </Typography>
         <TextField
           size="small"
           placeholder="Tên đăng nhập hoặc Email..."
@@ -220,11 +244,23 @@ export default function AccountManagementPage() {
             <MenuItem value="PENDING_ACTIVATION">Chờ kích hoạt</MenuItem>
           </Select>
         </FormControl>
-        <Button variant="contained" startIcon={<SearchIcon />} onClick={handleSearchClick} disabled={loading} sx={{ fontWeight: 'bold' }}>
+        <Button
+          variant="contained"
+          startIcon={<SearchIcon />}
+          onClick={handleSearchClick}
+          disabled={loading}
+          sx={{ fontWeight: 'bold' }}
+        >
           Tìm kiếm
         </Button>
         {(keyword || role || status) && (
-          <Button variant="outlined" color="secondary" onClick={handleClearSearch} disabled={loading} sx={{ fontWeight: 'bold' }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleClearSearch}
+            disabled={loading}
+            sx={{ fontWeight: 'bold' }}
+          >
             Xóa Lọc
           </Button>
         )}
@@ -245,7 +281,9 @@ export default function AccountManagementPage() {
           </Box>
         ) : accounts.length === 0 ? (
           <Box sx={{ p: 5, textAlign: 'center' }}>
-            <Typography sx={{ color: 'text.secondary' }}>Không tìm thấy tài khoản nào phù hợp.</Typography>
+            <Typography sx={{ color: 'text.secondary' }}>
+              Không tìm thấy tài khoản nào phù hợp.
+            </Typography>
           </Box>
         ) : (
           <TableContainer>
@@ -257,7 +295,9 @@ export default function AccountManagementPage() {
                   <TableCell sx={{ fontWeight: 'bold' }}>Vai trò</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Đăng nhập lần cuối</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>Thao tác Hỗ trợ</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                    Thao tác Hỗ trợ
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -274,31 +314,56 @@ export default function AccountManagementPage() {
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Chip 
-                        label={account.role} 
-                        color={account.role === 'ADMIN' ? 'error' : account.role === 'STAFF' ? 'warning' : 'primary'} 
-                        size="small" 
+                      <Chip
+                        label={account.role}
+                        color={
+                          account.role === 'ADMIN'
+                            ? 'error'
+                            : account.role === 'STAFF'
+                              ? 'warning'
+                              : 'primary'
+                        }
+                        size="small"
                         variant="outlined"
                         sx={{ fontWeight: 'bold' }}
                       />
                     </TableCell>
                     <TableCell>
-                      <Chip 
-                        label={account.status === 'ACTIVE' ? 'Hoạt động' : account.status === 'LOCKED' ? 'Đã Khóa' : 'Chờ kích hoạt'} 
-                        color={account.status === 'ACTIVE' ? 'success' : account.status === 'LOCKED' ? 'error' : 'default'} 
-                        size="small" 
+                      <Chip
+                        label={
+                          account.status === 'ACTIVE'
+                            ? 'Hoạt động'
+                            : account.status === 'LOCKED'
+                              ? 'Đã Khóa'
+                              : 'Chờ kích hoạt'
+                        }
+                        color={
+                          account.status === 'ACTIVE'
+                            ? 'success'
+                            : account.status === 'LOCKED'
+                              ? 'error'
+                              : 'default'
+                        }
+                        size="small"
                         sx={{ fontWeight: 'bold' }}
                       />
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        {account.lastLogin ? new Date(account.lastLogin).toLocaleString('vi-VN') : 'Chưa đăng nhập'}
+                        {account.lastLogin
+                          ? new Date(account.lastLogin).toLocaleString('vi-VN')
+                          : 'Chưa đăng nhập'}
                       </Typography>
                     </TableCell>
                     <TableCell align="center">
                       <Stack direction="row" spacing={1} justifyContent="center">
                         {account.role === 'STUDENT' && (
-                          <IconButton size="small" color="info" title="Xem hồ sơ Sinh viên" onClick={() => handleViewProfile(account.accountId)}>
+                          <IconButton
+                            size="small"
+                            color="info"
+                            title="Xem hồ sơ Sinh viên"
+                            onClick={() => handleViewProfile(account.accountId)}
+                          >
                             <VisibilityIcon fontSize="small" />
                           </IconButton>
                         )}
@@ -335,16 +400,17 @@ export default function AccountManagementPage() {
       </Paper>
 
       {/* Modal Thêm Staff */}
-      <Dialog 
-        open={openCreateModal} 
-        onClose={() => setOpenCreateModal(false)} 
-        maxWidth="sm" 
+      <Dialog
+        open={openCreateModal}
+        onClose={() => setOpenCreateModal(false)}
+        maxWidth="sm"
         fullWidth
       >
         <DialogTitle sx={{ fontWeight: 'bold' }}>Tạo tài khoản Nhân viên (Staff)</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
-            Tài khoản mới sẽ có quyền STAFF, cho phép quản lý nội dung ký túc xá nhưng không có quyền cấu hình hệ thống.
+            Tài khoản mới sẽ có quyền STAFF, cho phép quản lý nội dung ký túc xá nhưng không có
+            quyền cấu hình hệ thống.
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}>
             <TextField
@@ -371,10 +437,12 @@ export default function AccountManagementPage() {
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setOpenCreateModal(false)} sx={{ fontWeight: 'bold' }}>Hủy bỏ</Button>
-          <Button 
-            onClick={handleCreateStaff} 
-            variant="contained" 
+          <Button onClick={() => setOpenCreateModal(false)} sx={{ fontWeight: 'bold' }}>
+            Hủy bỏ
+          </Button>
+          <Button
+            onClick={handleCreateStaff}
+            variant="contained"
             disabled={creating || !newStaff.username || !newStaff.email || !newStaff.password}
             sx={{ fontWeight: 'bold', px: 3, borderRadius: 2 }}
           >
@@ -384,13 +452,15 @@ export default function AccountManagementPage() {
       </Dialog>
 
       {/* Modal Xem Hồ sơ Sinh viên */}
-      <Dialog 
-        open={openProfileModal} 
-        onClose={() => setOpenProfileModal(false)} 
-        maxWidth="md" 
+      <Dialog
+        open={openProfileModal}
+        onClose={() => setOpenProfileModal(false)}
+        maxWidth="md"
         fullWidth
       >
-        <DialogTitle sx={{ fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}>Hồ sơ Sinh viên</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}>
+          Hồ sơ Sinh viên
+        </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
           {loadingProfile ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
@@ -398,47 +468,66 @@ export default function AccountManagementPage() {
             </Box>
           ) : selectedProfile ? (
             <Stack spacing={2} sx={{ mt: 1 }}>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                <Typography variant="body1"><strong>Mã sinh viên:</strong> {selectedProfile.studentCode}</Typography>
-                <Typography variant="body1"><strong>Họ và tên:</strong> {selectedProfile.fullName}</Typography>
-                <Typography variant="body1"><strong>Ngày sinh:</strong> {selectedProfile.dateOfBirth}</Typography>
-                <Typography variant="body1"><strong>Giới tính:</strong> {selectedProfile.gender === 'MALE' ? 'Nam' : 'Nữ'}</Typography>
-                <Typography variant="body1"><strong>Email:</strong> {selectedProfile.email}</Typography>
-                <Typography variant="body1"><strong>Số điện thoại:</strong> {selectedProfile.phone}</Typography>
-                <Typography variant="body1"><strong>CCCD:</strong> {selectedProfile.nationalId}</Typography>
-                <Typography variant="body1"><strong>Dân tộc:</strong> {selectedProfile.ethnicity}</Typography>
-                <Typography variant="body1"><strong>Họ tên Cha:</strong> {selectedProfile.fatherName || 'N/A'}</Typography>
-                <Typography variant="body1"><strong>SĐT Cha:</strong> {selectedProfile.fatherPhone || 'N/A'}</Typography>
-                <Typography variant="body1"><strong>Họ tên Mẹ:</strong> {selectedProfile.motherName || 'N/A'}</Typography>
-                <Typography variant="body1"><strong>SĐT Mẹ:</strong> {selectedProfile.motherPhone || 'N/A'}</Typography>
-                <Typography variant="body1"><strong>Liên hệ khẩn cấp:</strong> {selectedProfile.emergencyContact || 'N/A'}</Typography>
-                <Typography variant="body1"><strong>Mã thẻ RFID:</strong> {selectedProfile.rfidCode || 'Chưa gán'}</Typography>
+              <Box
+                sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}
+              >
+                <Typography variant="body1">
+                  <strong>Mã sinh viên:</strong> {selectedProfile.studentCode}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Họ và tên:</strong> {selectedProfile.fullName}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Ngày sinh:</strong> {selectedProfile.dateOfBirth}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Giới tính:</strong> {selectedProfile.gender === 'MALE' ? 'Nam' : 'Nữ'}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Email:</strong> {selectedProfile.email}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Số điện thoại:</strong> {selectedProfile.phone}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>CCCD:</strong> {selectedProfile.nationalId}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Dân tộc:</strong> {selectedProfile.ethnicity}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Họ tên Cha:</strong> {selectedProfile.fatherName || 'N/A'}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>SĐT Cha:</strong> {selectedProfile.fatherPhone || 'N/A'}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Họ tên Mẹ:</strong> {selectedProfile.motherName || 'N/A'}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>SĐT Mẹ:</strong> {selectedProfile.motherPhone || 'N/A'}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Liên hệ khẩn cấp:</strong> {selectedProfile.emergencyContact || 'N/A'}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Mã thẻ RFID:</strong> {selectedProfile.rfidCode || 'Chưa gán'}
+                </Typography>
               </Box>
-              <Typography variant="body1"><strong>Địa chỉ thường trú:</strong> {selectedProfile.permanentAddress}</Typography>
+              <Typography variant="body1">
+                <strong>Địa chỉ thường trú:</strong> {selectedProfile.permanentAddress}
+              </Typography>
             </Stack>
           ) : (
             <Typography color="error">Không có dữ liệu</Typography>
           )}
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setOpenProfileModal(false)} variant="contained">Đóng</Button>
+          <Button onClick={() => setOpenProfileModal(false)} variant="contained">
+            Đóng
+          </Button>
         </DialogActions>
       </Dialog>
-
-      <Snackbar 
-        open={!!message} 
-        autoHideDuration={4000} 
-        onClose={() => setMessage('')} 
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert 
-          severity={message.includes('Lỗi') ? 'error' : 'success'} 
-          variant="filled"
-          sx={{ width: '100%', borderRadius: 2 }}
-        >
-          {message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

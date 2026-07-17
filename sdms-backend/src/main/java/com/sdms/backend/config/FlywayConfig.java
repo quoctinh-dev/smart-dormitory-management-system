@@ -4,18 +4,28 @@ import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Lớp cấu hình can thiệp vào vòng đời (Lifecycle) của công cụ quản lý cơ sở dữ liệu Flyway.
+ * Đảm bảo quá trình cập nhật cấu trúc bảng (Schema Migration) diễn ra trơn tru.
+ */
 @Configuration
 public class FlywayConfig {
 
+    /**
+     * Điều chỉnh chiến lược khởi chạy Flyway mặc định của Spring Boot.
+     *
+     * @return Chiến lược thực thi Flyway tùy chỉnh (FlywayMigrationStrategy)
+     */
     @Bean
     public FlywayMigrationStrategy flywayMigrationStrategy() {
         return flyway -> {
-            // Lifecycle Hook: Thực thi căn chỉnh và kiểm định schema lịch sử.
-            // Tính toán lại Checksum của các file migration vật lý và cập nhật bảng flyway_schema_history.
+            // Tự động sửa chữa (Repair) lịch sử Flyway trước khi chạy Migration.
+            // Đồng bộ hóa lại checksum của các tệp SQL trong trường hợp có thay đổi thủ công,
+            // tránh lỗi "checksum mismatch" gây treo hệ thống ở pha khởi động.
             flyway.repair();
 
-            // Core Migration Pipeline: Kích hoạt tiến trình dịch chuyển schema.
-            // Thực thi tuần tự các script DDL/DML chưa được áp dụng vào Database.
+            // Thực thi quá trình dịch chuyển (Migrate) cấu trúc cơ sở dữ liệu.
+            // Tự động chạy các kịch bản DDL/DML mới chưa được áp dụng.
             flyway.migrate();
         };
     }

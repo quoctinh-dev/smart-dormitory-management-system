@@ -1,5 +1,4 @@
 // src/pages/admin/RoomManagement/components/BuildingFormDialog.tsx
-import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -13,9 +12,11 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+
 import roomApi from '@/api/roomApi';
-import { snackbar } from '@/utils/snackbar';
 import type { BuildingResponse, BuildingStatus } from '@/types/room';
+import { snackbar } from '@/utils/snackbar';
 
 export interface BuildingFormDialogProps {
   open: boolean;
@@ -24,7 +25,12 @@ export interface BuildingFormDialogProps {
   onSuccess: () => void;
 }
 
-export default function BuildingFormDialog({ open, onClose, building, onSuccess }: BuildingFormDialogProps) {
+export default function BuildingFormDialog({
+  open,
+  onClose,
+  building,
+  onSuccess,
+}: BuildingFormDialogProps) {
   const isEdit = Boolean(building);
   const [code, setCode] = useState('');
   const [name, setName] = useState('');

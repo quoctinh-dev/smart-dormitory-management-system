@@ -13,7 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,18 +34,16 @@ public class RegistrationEligibilityController {
             value = "/{periodId}/eligibilities/import",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public ResponseEntity<ApiResponse<EligibilityImportResponse>> importEligibility(
+    public ApiResponse<EligibilityImportResponse> importEligibility(
             @PathVariable UUID periodId,
             @RequestParam("file") MultipartFile file
     ) throws IOException {
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, "Import thành công", service.importEligibility(periodId, file))
-        );
+        return ApiResponse.success("Import thành công", service.importEligibility(periodId, file));
     }
 
     @Operation(summary = "Xem danh sách sinh viên đủ điều kiện của một đợt (Có phân trang)")
     @GetMapping("/{periodId}/eligibilities")
-    public ResponseEntity<ApiResponse<PageResponse<EligibilityResponse>>> getEligibilities(
+    public ApiResponse<PageResponse<EligibilityResponse>> getEligibilities(
             @PathVariable UUID periodId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -54,20 +51,16 @@ public class RegistrationEligibilityController {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<EligibilityResponse> pageData = service.getEligibilities(periodId, pageable);
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, "Lấy danh sách thành công", PageResponse.of(pageData))
-        );
+        return ApiResponse.success("Lấy danh sách thành công", PageResponse.of(pageData));
     }
 
     @Operation(summary = "Xóa một sinh viên khỏi danh sách đủ điều kiện")
     @DeleteMapping("/{periodId}/eligibilities/{eligibilityId}")
-    public ResponseEntity<ApiResponse<Void>> deleteEligibility(
+    public ApiResponse<Void> deleteEligibility(
             @PathVariable UUID periodId,
             @PathVariable UUID eligibilityId
     ) {
         service.deleteEligibility(periodId, eligibilityId);
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, "Xóa thành công", null)
-        );
+        return ApiResponse.success("Xóa thành công");
     }
 }

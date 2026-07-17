@@ -10,6 +10,7 @@ import com.sdms.backend.modules.smartaccess.application.strategy.CurfewResolutio
 import com.sdms.backend.modules.smartaccess.application.strategy.TimeWindowEvaluationStrategy;
 import com.sdms.backend.modules.smartaccess.domain.entity.AccessHistory;
 import com.sdms.backend.modules.smartaccess.domain.enums.AccessDecision;
+import com.sdms.backend.modules.smartaccess.domain.enums.GateDirection;
 import com.sdms.backend.modules.smartaccess.domain.enums.GateType;
 import com.sdms.backend.modules.smartaccess.domain.enums.ResidentType;
 import com.sdms.backend.modules.smartaccess.domain.enums.VerificationMethod;
@@ -36,7 +37,7 @@ public class AccessEvaluationService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public void evaluateAccess(String eventId, UUID studentId, UUID gateId, VerificationMethod method) {
+    public void evaluateAccess(String eventId, UUID studentId, UUID gateId, VerificationMethod method, String snapshotUrl) {
         // Idempotency execution immediately halts duplicate processing
         if (idempotencyService.isDuplicateOrRegister(eventId, "FACE_MODULE")) {
             log.info("Duplicate internal application event detected, dropping silently: {}", eventId);
@@ -49,7 +50,7 @@ public class AccessEvaluationService {
         // Facade delegation to Anti-Corruption Layer
         Optional<StudentEligibilitySnapshot> eligibilityOpt = eligibilityEvaluationService.evaluateEligibility(studentId);
         if (eligibilityOpt.isEmpty()) {
-            recordAccess(studentId, gateId, null, now, AccessDecision.DENIED, "UNAUTHORIZED_OR_INACTIVE", method);
+            recordAccess(studentId, gateId, null, now, AccessDecision.DENIED, "UNAUTHORIZED_OR_INACTIVE", method, snapshotUrl);
             return;
         }
 
@@ -61,7 +62,7 @@ public class AccessEvaluationService {
         Optional<Gate> gateOpt = gateRepository.findById(gateId);
         if (gateOpt.isEmpty() || !gateOpt.get().isActive()) {
             log.warn("Access DENIED for student {}. Reason: UNREGISTERED_OR_INACTIVE_GATE ({})", studentId, gateId);
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "UNREGISTERED_OR_INACTIVE_GATE", method);
+            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "UNREGISTERED_OR_INACTIVE_GATE", method, snapshotUrl);
             return;
         }
         Gate gate = gateOpt.get();
@@ -70,7 +71,7 @@ public class AccessEvaluationService {
         if (gate.getGateType() == GateType.ROOM_DOOR) {
             if (gate.getRoom() == null || !gate.getRoom().getRoomId().equals(snapshot.getRoomId())) {
                 log.warn("Access DENIED for student {}. Reason: NOT_ASSIGNED_TO_ROOM", studentId);
-                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_ROOM", method);
+                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_ROOM", method, snapshotUrl);
                 return;
             }
         } else {
@@ -78,7 +79,7 @@ public class AccessEvaluationService {
             if (gate.getBuilding() != null && !gate.getBuilding().getBuildingId().equals(snapshot.getBuildingId())) {
                 log.warn("Access DENIED for student {}. Reason: NOT_ASSIGNED_TO_BUILDING (Gate Building: {}, Student Building: {})", 
                         studentId, gate.getBuilding().getBuildingId(), snapshot.getBuildingId());
-                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_BUILDING", method);
+                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_BUILDING", method, snapshotUrl);
                 return;
             }
         }
@@ -95,11 +96,11 @@ public class AccessEvaluationService {
         // Execute DB write (Append Only Constraint)
         if (isAllowed) {
             log.info("Access GRANTED for student {} at gate {}. Publishing UNLOCK MQTT command.", studentId, gateId);
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.GRANTED, null, method);
+            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.GRANTED, null, method, snapshotUrl);
             eventPublisher.publishEvent(new com.sdms.backend.modules.smartaccess.event.GateCommandEvent(gateId, "UNLOCK", "Access Granted"));
         } else {
             log.warn("Access DENIED for student {} at gate {}. Reason: {}", studentId, gateId, denialReason);
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, denialReason, method);
+            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, denialReason, method, snapshotUrl);
             // Optional: Publish a deny event if IoT needs to buzz or display an error
         }
     }
@@ -111,7 +112,7 @@ public class AccessEvaluationService {
 
         Optional<StudentEligibilitySnapshot> eligibilityOpt = eligibilityEvaluationService.evaluateEligibility(studentId);
         if (eligibilityOpt.isEmpty()) {
-            recordAccess(studentId, gateId, null, now, AccessDecision.DENIED, "UNAUTHORIZED_OR_INACTIVE", method);
+            recordAccess(studentId, gateId, null, now, AccessDecision.DENIED, "UNAUTHORIZED_OR_INACTIVE", method, null);
             return AccessDecision.DENIED;
         }
 
@@ -122,7 +123,7 @@ public class AccessEvaluationService {
         // Check Gate Configuration
         Optional<Gate> gateOpt = gateRepository.findById(gateId);
         if (gateOpt.isEmpty() || !gateOpt.get().isActive()) {
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "UNREGISTERED_OR_INACTIVE_GATE", method);
+            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "UNREGISTERED_OR_INACTIVE_GATE", method, null);
             return AccessDecision.DENIED;
         }
         Gate gate = gateOpt.get();
@@ -130,13 +131,13 @@ public class AccessEvaluationService {
         // Structural Gate vs Room Door validation
         if (gate.getGateType() == GateType.ROOM_DOOR) {
             if (gate.getRoom() == null || !gate.getRoom().getRoomId().equals(snapshot.getRoomId())) {
-                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_ROOM", method);
+                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_ROOM", method, null);
                 return AccessDecision.DENIED;
             }
         } else {
             // Building Gate Validation
             if (gate.getBuilding() != null && !gate.getBuilding().getBuildingId().equals(snapshot.getBuildingId())) {
-                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_BUILDING", method);
+                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_BUILDING", method, null);
                 return AccessDecision.DENIED;
             }
         }
@@ -150,17 +151,28 @@ public class AccessEvaluationService {
         }
 
         if (isAllowed) {
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.GRANTED, null, method);
+            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.GRANTED, null, method, null);
             return AccessDecision.GRANTED;
         } else {
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, denialReason, method);
+            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, denialReason, method, null);
             return AccessDecision.DENIED;
         }
     }
 
-    private void recordAccess(UUID studentId, UUID gateId, UUID buildingId, LocalDateTime eventTimestamp, AccessDecision decision, String reason, VerificationMethod method) {
+    private void recordAccess(UUID studentId, UUID gateId, UUID buildingId, LocalDateTime eventTimestamp, AccessDecision decision, String reason, VerificationMethod method, String snapshotUrl) {
         UUID finalBuildingId = buildingId != null ? buildingId : UUID.fromString("00000000-0000-0000-0000-000000000000");
         
+        // Determine Direction (Toggle state)
+        GateDirection currentDirection = GateDirection.UNKNOWN;
+        if (decision == AccessDecision.GRANTED) {
+            String lastDirection = accessHistoryRepository.findLastDirectionForStudent(studentId);
+            if ("IN".equals(lastDirection)) {
+                currentDirection = GateDirection.OUT;
+            } else {
+                currentDirection = GateDirection.IN;
+            }
+        }
+
         AccessHistory history = AccessHistory.builder()
                 .studentId(studentId)
                 .gateId(gateId)
@@ -169,6 +181,8 @@ public class AccessEvaluationService {
                 .decision(decision)
                 .denialReason(reason)
                 .method(method)
+                .direction(currentDirection)
+                .snapshotUrl(snapshotUrl)
                 .build();
 
         accessHistoryRepository.save(history);

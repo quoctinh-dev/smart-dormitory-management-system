@@ -4,10 +4,10 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -22,13 +22,13 @@ public class CloudinaryService {
     public String uploadFile(MultipartFile file, String folder) {
         // 1. Kiểm tra file có rỗng không
         if (file == null || file.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File is empty or null");
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Tệp tin tải lên bị rỗng hoặc không hợp lệ");
         }
 
         // 2. Kiểm tra định dạng (chỉ cho phép ảnh)
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
-            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Only image files are allowed");
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Định dạng tệp không được hỗ trợ (chỉ chấp nhận tệp hình ảnh)");
         }
 
         try {
@@ -41,13 +41,13 @@ public class CloudinaryService {
             );
             return uploadResult.get("secure_url").toString();
         } catch (IOException e) {
-            throw new RuntimeException("Upload failed", e);
+            throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR, "Tải tệp lên Cloudinary thất bại: " + e.getMessage());
         }
     }
 
     public String uploadPdfBytes(byte[] pdfBytes, String folder, String fileName) {
         if (pdfBytes == null || pdfBytes.length == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PDF byte array is empty or null");
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Dữ liệu tệp PDF bị rỗng");
         }
 
         try {
@@ -64,7 +64,7 @@ public class CloudinaryService {
             log.info("Successfully uploaded PDF to Cloudinary. URL: {}", url);
             return url;
         } catch (IOException e) {
-            throw new RuntimeException("Upload PDF to Cloudinary failed", e);
+            throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR, "Tải tệp PDF lên Cloudinary thất bại: " + e.getMessage());
         }
     }
 }

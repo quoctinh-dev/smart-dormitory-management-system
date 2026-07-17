@@ -7,8 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateProfileRequest {
-    @Email(message = "Invalid email format")
-    private String email;
     private String phone;
     private String fatherName;
     private String fatherPhone;

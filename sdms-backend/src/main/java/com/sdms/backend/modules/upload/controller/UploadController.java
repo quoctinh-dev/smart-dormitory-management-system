@@ -10,20 +10,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/uploads")
 @RequiredArgsConstructor
-@Tag(name = "Upload Controller", description = "API endpoint để quản lý việc upload tệp tin lên Cloudinary")
+@Tag(name = "Quản lý Tải lên (Upload)", description = "API endpoint để quản lý việc upload tệp tin lên Cloudinary")
 public class UploadController {
 
     private final CloudinaryService cloudinaryService;
 
     @Operation(
-            summary = "Upload Avatar",
+            summary = "Tải lên ảnh đại diện",
             description = "Upload một tệp hình ảnh làm ảnh đại diện. Hệ thống sẽ tự động lưu vào thư mục 'avatars' trên Cloudinary."
     )
     @ApiResponses(value = {
@@ -36,7 +35,7 @@ public class UploadController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ApiResponse<UploadResponse>> uploadAvatar(
+    public ApiResponse<UploadResponse> uploadAvatar(
             @Parameter(
                     description = "Tệp hình ảnh cần upload (jpg, png, v.v.)",
                     required = true,
@@ -47,10 +46,6 @@ public class UploadController {
 
         String url = cloudinaryService.uploadFile(file, "avatars");
 
-        return ResponseEntity.ok(new ApiResponse<>(
-                true,
-                "Avatar uploaded successfully",
-                new UploadResponse(url)
-        ));
+        return ApiResponse.success("Tải ảnh đại diện lên thành công", new UploadResponse(url));
     }
 }

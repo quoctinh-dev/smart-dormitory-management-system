@@ -162,8 +162,8 @@ public class NotificationWorkflowListener {
                             .inAppMessage("Mã PIN phòng " + event.getRoomCode() + " đã được thay đổi. Mã mới của bạn là: " + event.getNewPin())
                             .type(NotificationType.ROOM)
                             .channels(Set.of(NotificationChannel.IN_APP, NotificationChannel.EMAIL))
-                            .templateName("pin-changed")
-                            .templateVariables(vars)
+                            .emailTemplateName("pin-changed")
+                            .templateData(vars)
                             .actionUrl("/student/room")
                             .build();
 

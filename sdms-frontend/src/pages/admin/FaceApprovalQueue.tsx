@@ -14,8 +14,6 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Snackbar,
-  Alert,
   CircularProgress,
   IconButton,
   Tooltip,
@@ -32,14 +30,12 @@ export default function FaceApprovalQueue() {
     profiles,
     loading,
     actionLoading,
-    snackbar,
     rejectTarget,
     reason,
     setReason,
     setRejectTarget,
     handleApprove,
     handleRejectSubmit,
-    closeSnackbar,
     fetchPendingFaces,
   } = useFaceApproval();
 
@@ -237,22 +233,6 @@ export default function FaceApprovalQueue() {
           )}
         </DialogContent>
       </Dialog>
-
-      {/* SNACKBAR THÔNG BÁO TIẾN ĐỘ */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: '100%', borderRadius: 2 }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

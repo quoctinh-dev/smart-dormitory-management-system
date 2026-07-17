@@ -41,7 +41,10 @@ public class StayExtension extends BaseEntity {
     private Bed currentBed;
 
     @Column(columnDefinition = "TEXT")
-    private String pdfUrl;
+    private String contractPdfUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String commitmentPdfUrl;
 
     @Column(columnDefinition = "TEXT")
     private String description;

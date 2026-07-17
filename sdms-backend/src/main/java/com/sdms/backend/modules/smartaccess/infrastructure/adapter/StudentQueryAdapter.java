@@ -16,6 +16,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Mục tiêu/Nghiệp vụ: Cung cấp dữ liệu sinh viên (trạng thái, phòng, thẻ RFID) cho module Smart Access.
+ * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Áp dụng Adapter Pattern thuộc lớp Infrastructure trong Hexagonal Architecture. 
+ * Lưu ý Kiến thức (Dành cho phản biện): 
+ * - Đây là một Adapter thực thi Port (StudentQueryPort) được định nghĩa ở tầng Application.
+ * - Nhờ kiến trúc này, module Smart Access hoàn toàn mù (không phụ thuộc trực tiếp) vào module Student. Nếu sau này hệ thống thay đổi cơ sở dữ liệu hoặc cấu trúc của module Student, chỉ cần sửa file Adapter này, không làm vỡ logic của Smart Access.
+ */
 @Component
 @RequiredArgsConstructor
 public class StudentQueryAdapter implements StudentQueryPort {
@@ -48,6 +55,16 @@ public class StudentQueryAdapter implements StudentQueryPort {
     @Override
     public Optional<StudentEligibilitySnapshot> getEligibilityByPin(String pinCode, UUID gateId) {
         return assignmentRepository.findByPinCodeAndGateIdAndStatus(pinCode, gateId, AssignmentStatus.OCCUPIED)
+                .stream()
+                .sorted((a1, a2) -> {
+                    // Ưu tiên ROOM_LEADER > DEPUTY_LEADER > MEMBER
+                    if (a1.getRoomRole() == com.sdms.backend.modules.room.enums.RoomRole.ROOM_LEADER) return -1;
+                    if (a2.getRoomRole() == com.sdms.backend.modules.room.enums.RoomRole.ROOM_LEADER) return 1;
+                    if (a1.getRoomRole() == com.sdms.backend.modules.room.enums.RoomRole.DEPUTY_LEADER) return -1;
+                    if (a2.getRoomRole() == com.sdms.backend.modules.room.enums.RoomRole.DEPUTY_LEADER) return 1;
+                    return 0;
+                })
+                .findFirst()
                 .map(this::mapToSnapshot);
     }
 

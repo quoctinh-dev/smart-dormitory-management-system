@@ -67,39 +67,40 @@ public class UserAccount extends BaseEntity implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private AccountStatus status = AccountStatus.ACTIVE; // Default to ACTIVE as per new flow
+    private AccountStatus status = AccountStatus.ACTIVE;
 
     private LocalDateTime lastLogin;
 
+    /**
+     * Access Token Refresh mechanism
+     */
     @Column(length = 500)
     private String refreshToken;
 
     private LocalDateTime refreshTokenExpiry;
 
-    // --- NEW FIELDS FOR PASSWORD RESET ---
+    /**
+     * Password Reset Flow (Phase 5)
+     */
     @Column(name = "reset_password_token")
     private String resetPasswordToken;
 
     @Column(name = "reset_password_expiry")
     private LocalDateTime resetPasswordExpiry;
 
-    // --- NEW FIELDS FOR BRUTE-FORCE PROTECTION ---
+    /**
+     * Brute-Force Protection Mechanism
+     */
     @Column(name = "failed_login_attempts", nullable = false)
     private Integer failedLoginAttempts = 0;
 
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
-    // -------------------------------------
-
-    // --- Removed Activation Token fields as per new flow ---
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", unique = true)
     private Student student;
 
-    // =================================================
-    // USERDETAILS IMPLEMENTATION
-    // =================================================
 
     /**
      * Chuyển đổi Role của hệ thống thành GrantedAuthority của Spring Security.

@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.payment.event;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.application.enums.ApplicationStatus;
 import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
@@ -32,7 +33,7 @@ public class PaymentIntegrationListener {
 
         try {
             DormitoryApplication application = applicationRepository.findById(event.getApplicationId())
-                    .orElseThrow(() -> new AppException("Application not found with ID: " + event.getApplicationId(), HttpStatus.NOT_FOUND));
+                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đơn đăng ký với ID: " + event.getApplicationId()));
 
             if (application.getStatus() == ApplicationStatus.WAITING_PAYMENT) {
                 application.setStatus(ApplicationStatus.APPROVED);
@@ -41,7 +42,7 @@ public class PaymentIntegrationListener {
 
                 // Chỉ cập nhật assignment nếu application được cập nhật thành công
                 StudentHousingAssignment assignment = assignmentRepository.findById(event.getAssignmentId())
-                        .orElseThrow(() -> new AppException("Housing assignment not found with ID: " + event.getAssignmentId(), HttpStatus.NOT_FOUND));
+                        .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy quyết định xếp phòng với ID: " + event.getAssignmentId()));
 
                 if (assignment.getStatus() == AssignmentStatus.RESERVED) {
                     assignment.setStatus(AssignmentStatus.PENDING_CHECKIN);

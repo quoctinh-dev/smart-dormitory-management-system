@@ -37,8 +37,6 @@ public class ChangeRoomRequest extends BaseEntity {
     @JoinColumn(name = "current_assignment_id", nullable = false)
     private StudentHousingAssignment currentAssignment;
 
-    // Sinh viên có thể không biết cụ thể phòng nào, chỉ ghi mong muốn, 
-    // hoặc có thể chọn thẳng 1 phòng trống. Cho phép null.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_room_id", nullable = true)
     private Room targetRoom;

@@ -2,6 +2,7 @@ package com.sdms.backend.modules.room.service;
 
 import com.sdms.backend.common.enums.Gender;
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.room.entity.*;
 import com.sdms.backend.modules.room.enums.*;
@@ -45,7 +46,7 @@ public class HousingAssignmentService {
                 List.of(AssignmentStatus.RESERVED, AssignmentStatus.PENDING_CHECKIN, AssignmentStatus.OCCUPIED)
         );
         if (exists) {
-            throw new AppException("Application already has an active housing assignment", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Đơn đăng ký đã có quyết định xếp phòng");
         }
     }
 
@@ -60,14 +61,14 @@ public class HousingAssignmentService {
 
         for (Room room : rooms) {
             Room lockedRoom = roomRepository.findByIdForUpdate(room.getRoomId())
-                    .orElseThrow(() -> new AppException("Room not found for update", HttpStatus.NOT_FOUND));
+                    .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy phòng để cập nhật"));
 
             List<Bed> beds = bedRepository.findAvailableBeds(lockedRoom.getRoomId(), BedStatus.AVAILABLE);
             if (!beds.isEmpty()) {
                 return reserveBedInternal(applicationId, lockedRoom, beds.get(0));
             }
         }
-        throw new AppException("No available rooms for the current policy", HttpStatus.CONFLICT);
+        throw new AppException(ErrorCode.DATA_CONFLICT, "Không có phòng trống phù hợp với chính sách hiện tại");
     }
 
     private StudentHousingAssignment reserveBedInternal(UUID applicationId, Room lockedRoom, Bed bed) {
@@ -176,7 +177,7 @@ public class HousingAssignmentService {
         bedRepository.save(bed);
 
         Room lockedRoom = roomRepository.findByIdForUpdate(bed.getRoom().getRoomId())
-                .orElseThrow(() -> new AppException("Room not found for update", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy phòng để cập nhật"));
         lockedRoom.setOccupiedBeds(Math.max(0, lockedRoom.getOccupiedBeds() - 1));
 
         recalculateRoomStatus(lockedRoom);
@@ -186,7 +187,7 @@ public class HousingAssignmentService {
 
     private StudentHousingAssignment findAssignment(UUID assignmentId) {
         return assignmentRepository.findById(assignmentId)
-                .orElseThrow(() -> new AppException("Assignment not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hợp đồng lưu trú"));
     }
 
     @Transactional(readOnly = true)
@@ -197,7 +198,7 @@ public class HousingAssignmentService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void reconcileRoomOccupancy(UUID roomId) {
         Room lockedRoom = roomRepository.findByIdForUpdate(roomId)
-                .orElseThrow(() -> new AppException("Room not found for reconciliation", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy phòng để đối soát"));
 
         List<Bed> beds = bedRepository.findByRoom_RoomId(roomId);
 
@@ -211,7 +212,7 @@ public class HousingAssignmentService {
             } catch (org.springframework.dao.IncorrectResultSizeDataAccessException | jakarta.persistence.NonUniqueResultException e) {
                 log.error("[ROOM_RECONCILIATION] [CRITICAL_DATA_CORRUPTION] Critical integrity violation: Bed code {} in room {} has multiple active assignments! Human intervention required.",
                         bed.getBedCode(), lockedRoom.getRoomCode(), e);
-                throw new AppException("Critical data corruption: Bed has multiple active assignments", HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR, "Lỗi dữ liệu nghiêm trọng: Giường có nhiều quyết định xếp phòng đang hoạt động");
             }
 
             StudentHousingAssignment activeAssignment = activeAssignmentOpt.orElse(null);

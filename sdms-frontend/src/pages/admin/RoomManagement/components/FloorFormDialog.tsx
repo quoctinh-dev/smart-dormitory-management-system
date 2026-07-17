@@ -1,5 +1,4 @@
 // src/pages/admin/RoomManagement/components/FloorFormDialog.tsx
-import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -13,9 +12,11 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+
 import roomApi from '@/api/roomApi';
-import { snackbar } from '@/utils/snackbar';
 import type { FloorResponse, BuildingResponse } from '@/types/room';
+import { snackbar } from '@/utils/snackbar';
 
 export interface FloorFormDialogProps {
   open: boolean;
@@ -26,14 +27,22 @@ export interface FloorFormDialogProps {
   onSuccess: () => void;
 }
 
-export default function FloorFormDialog({ open, onClose, buildingId, currentBuilding, floor, onSuccess }: FloorFormDialogProps) {
+export default function FloorFormDialog({
+  open,
+  onClose,
+  buildingId,
+  currentBuilding,
+  floor,
+  onSuccess,
+}: FloorFormDialogProps) {
   const isEdit = Boolean(floor);
   const [floorNumber, setFloorNumber] = useState<number | ''>('');
   const [gender, setGender] = useState('MALE');
   const [loading, setLoading] = useState(false);
 
   // Xem tòa nhà có bị gò bó giới tính không
-  const isBuildingStrict = currentBuilding?.gender === 'MALE' || currentBuilding?.gender === 'FEMALE';
+  const isBuildingStrict =
+    currentBuilding?.gender === 'MALE' || currentBuilding?.gender === 'FEMALE';
   const strictGender = isBuildingStrict ? currentBuilding.gender : null;
 
   useEffect(() => {

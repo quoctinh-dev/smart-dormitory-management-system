@@ -20,10 +20,11 @@ import React, { useState } from 'react';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useRoomDashboard } from '@/hooks/useRoomDashboard';
-import DashboardView from './DashboardView';
-import CreateRoomDialog from './components/CreateRoomDialog';
+
 import BuildingFormDialog from './components/BuildingFormDialog';
+import CreateRoomDialog from './components/CreateRoomDialog';
 import FloorFormDialog from './components/FloorFormDialog';
+import DashboardView from './DashboardView';
 
 export default function RoomManagementPage() {
   const [createRoomOpen, setCreateRoomOpen] = useState(false);
@@ -41,7 +42,6 @@ export default function RoomManagementPage() {
     selectedFloor,
     setSelectedFloor,
     loading,
-    error,
     refresh,
   } = useRoomDashboard();
 
@@ -52,7 +52,7 @@ export default function RoomManagementPage() {
   const totalCapacity = roomsWithBeds.reduce((sum, room) => sum + (room.capacity || 0), 0);
   const occupiedBeds = roomsWithBeds.reduce((sum, room) => sum + (room.occupiedBeds || 0), 0);
   const availableRooms = roomsWithBeds.filter(
-    (room) => (room.capacity || 0) > (room.occupiedBeds || 0),
+    (room) => (room.capacity || 0) > (room.occupiedBeds || 0)
   ).length;
   const occupancyRate = totalCapacity > 0 ? Math.round((occupiedBeds / totalCapacity) * 100) : 0;
 
@@ -91,16 +91,14 @@ export default function RoomManagementPage() {
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
         <Chip label={`Tổng phòng: ${totalRooms}`} color="primary" variant="outlined" />
         <Chip label={`Còn trống: ${availableRooms}`} color="success" variant="outlined" />
-        <Chip label={`Đang dùng: ${occupiedBeds}/${totalCapacity}`} color="info" variant="outlined" />
+        <Chip
+          label={`Đang dùng: ${occupiedBeds}/${totalCapacity}`}
+          color="info"
+          variant="outlined"
+        />
         <Chip label={`Tỷ lệ sử dụng: ${occupancyRate}%`} color="secondary" variant="outlined" />
       </Box>
 
-      {/* ── Error Alert ──────────────────────────────── */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => {}}>
-          {error}
-        </Alert>
-      )}
 
       {/* ── Thanh lọc Cascade + Nút Thêm phòng ─────── */}
       <Stack
@@ -207,37 +205,43 @@ export default function RoomManagementPage() {
           </Box>
         </Box>
 
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={async () => {
-                if (!window.confirm('Hệ thống sẽ tự động tạo mã PIN cho TẤT CẢ các phòng hiện chưa có PIN. Bạn có chắc chắn không?')) return;
-                try {
-                  const { default: roomPinApi } = await import('@/api/roomPinApi');
-                  const { snackbar } = await import('@/utils/snackbar');
-                  const res = await roomPinApi.bulkGeneratePins();
-                  snackbar.success(`Đã tạo thành công PIN cho ${res.generatedCount} phòng.`);
-                  refresh();
-                } catch (err: any) {
-                  const { snackbar } = await import('@/utils/snackbar');
-                  snackbar.error(err?.response?.data?.message || 'Lỗi khi tạo PIN hàng loạt');
-                }
-              }}
-              sx={{ whiteSpace: 'nowrap', borderRadius: '12px', textTransform: 'none', px: 2 }}
-            >
-              Tạo PIN hàng loạt
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              disabled={!selectedFloor}
-              sx={{ whiteSpace: 'nowrap', borderRadius: '12px', textTransform: 'none', px: 3 }}
-              onClick={() => setCreateRoomOpen(true)}
-            >
-              Thêm Phòng
-            </Button>
-          </Box>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={async () => {
+              if (
+                !window.confirm(
+                  'Hệ thống sẽ tự động tạo mã PIN cho TẤT CẢ các phòng hiện chưa có PIN. Bạn có chắc chắn không?'
+                )
+              )
+                return;
+              try {
+                const { default: roomPinApi } = await import('@/api/roomPinApi');
+                const { snackbar } = await import('@/utils/snackbar');
+                const res = await roomPinApi.bulkGeneratePins();
+                snackbar.success(`Đã tạo thành công PIN cho ${res.generatedCount} phòng.`);
+                refresh();
+              } catch (err: unknown) {
+                const { snackbar } = await import('@/utils/snackbar');
+                const { getErrorMessage } = await import('@/types/api');
+                snackbar.error(getErrorMessage(err, 'Lỗi khi tạo PIN hàng loạt'));
+              }
+            }}
+            sx={{ whiteSpace: 'nowrap', borderRadius: '12px', textTransform: 'none', px: 2 }}
+          >
+            Tạo PIN hàng loạt
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            disabled={!selectedFloor}
+            sx={{ whiteSpace: 'nowrap', borderRadius: '12px', textTransform: 'none', px: 3 }}
+            onClick={() => setCreateRoomOpen(true)}
+          >
+            Thêm Phòng
+          </Button>
+        </Box>
       </Stack>
 
       {/* ── Nội dung chính ───────────────────────────── */}

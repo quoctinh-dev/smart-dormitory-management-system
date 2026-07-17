@@ -5,6 +5,8 @@ import com.sdms.backend.modules.payment.service.SepayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,20 +19,21 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/webhooks/sepay")
 @RequiredArgsConstructor
+@Tag(name = "Webhook SePay (Auto-banking)", description = "Webhook nhận dữ liệu từ SePay")
 public class SepayWebhookController {
 
     private final SepayService sepayService;
 
+    @Operation(summary = "Nhận webhook từ SePay")
     @PostMapping
     public ResponseEntity<Map<String, Boolean>> handleWebhook(
             @RequestHeader(value = "Authorization", required = false) String authorization,
-            @RequestHeader(value = "X-SePay-Signature", required = false) String signature,
             @RequestBody String rawPayload) {
         
         log.info("[SepayWebhookController] Received webhook");
 
         try {
-            sepayService.processWebhook(rawPayload, authorization, signature);
+            sepayService.processWebhook(rawPayload, authorization);
             return ResponseEntity.ok(Map.of("success", true));
         } catch (Exception e) {
             log.error("[SepayWebhookController] Error processing webhook: {}", e.getMessage());

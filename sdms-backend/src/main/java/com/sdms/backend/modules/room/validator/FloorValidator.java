@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.validator;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +30,7 @@ public class FloorValidator {
                 .existsByBed_Room_Floor_FloorIdAndStatusIn(floorId, activeStatuses);
 
         if (hasActiveResidents) {
-            throw new AppException(
-                    "Cannot alter floor gender policy. Active reservations or residents exist on this floor.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Cannot alter floor gender policy. Active reservations or residents exist on this floor.");
         }
     }
 }

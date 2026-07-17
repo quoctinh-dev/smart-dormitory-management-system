@@ -3,6 +3,7 @@ package com.sdms.backend.modules.room.entity;
 import com.sdms.backend.common.entity.BaseEntity;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
+import com.sdms.backend.modules.room.enums.RoomRole;
 import com.sdms.backend.modules.student.entity.Student;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -68,6 +69,13 @@ public class StudentHousingAssignment extends BaseEntity {
     private AssignmentStatus status;
 
     /**
+     * Vai trò của sinh viên trong phòng (Trưởng phòng, phó phòng, thành viên).
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "room_role", length = 30)
+    private RoomRole roomRole = RoomRole.MEMBER;
+
+    /**
      * Thời điểm giữ chỗ (Dùng để tính toán hạn chót thanh toán 3 ngày).
      */
     private LocalDateTime reservedAt;
@@ -97,6 +105,9 @@ public class StudentHousingAssignment extends BaseEntity {
         }
         if (this.reservedAt == null) {
             this.reservedAt = LocalDateTime.now();
+        }
+        if (this.roomRole == null) {
+            this.roomRole = RoomRole.MEMBER;
         }
     }
 }

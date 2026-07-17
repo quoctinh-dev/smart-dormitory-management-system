@@ -2,12 +2,23 @@
 import BedOutlinedIcon from '@mui/icons-material/BedOutlined';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { Card, CardContent, Typography, Box, Stack, Chip, Divider, IconButton } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Stack,
+  Chip,
+  Divider,
+  IconButton,
+} from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import React, { useState } from 'react';
+
 import type { RoomWithBeds, BedResponse } from '@/types/room';
-import RoomActionMenu from './RoomActionMenu';
+
 import BedIcon from './BedIcon';
+import RoomActionMenu from './RoomActionMenu';
 
 export interface RoomCardProps {
   room: RoomWithBeds;
@@ -31,10 +42,17 @@ const STATUS_LABEL: Record<string, string> = {
   CLOSED: 'Đã đóng',
 };
 
-export default function RoomCard({ room, onBedClick, onChangeStatus, onEditRoom, onRefresh }: RoomCardProps) {
+export default function RoomCard({
+  room,
+  onBedClick,
+  onChangeStatus,
+  onEditRoom,
+  onRefresh,
+}: RoomCardProps) {
   const [showPin, setShowPin] = useState(false);
 
-  const occupancyPercent = room.capacity > 0 ? Math.round((room.occupiedBeds / room.capacity) * 100) : 0;
+  const occupancyPercent =
+    room.capacity > 0 ? Math.round((room.occupiedBeds / room.capacity) * 100) : 0;
   const isFull = occupancyPercent >= 100;
   const hasSeats = occupancyPercent < 100;
 
@@ -69,7 +87,11 @@ export default function RoomCard({ room, onBedClick, onChangeStatus, onEditRoom,
                   onClick={() => setShowPin(!showPin)}
                   sx={{ p: 0.25, color: 'primary.main' }}
                 >
-                  {showPin ? <VisibilityOff sx={{ fontSize: 14 }} /> : <Visibility sx={{ fontSize: 14 }} />}
+                  {showPin ? (
+                    <VisibilityOff sx={{ fontSize: 14 }} />
+                  ) : (
+                    <Visibility sx={{ fontSize: 14 }} />
+                  )}
                 </IconButton>
               )}
             </Stack>
@@ -122,7 +144,9 @@ export default function RoomCard({ room, onBedClick, onChangeStatus, onEditRoom,
             />
           </Box>
           <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: 'block' }}>
-            {isFull ? 'Phòng đã đầy, không còn chỗ.' : `Còn ${room.capacity - room.occupiedBeds} giường trống.`}
+            {isFull
+              ? 'Phòng đã đầy, không còn chỗ.'
+              : `Còn ${room.capacity - room.occupiedBeds} giường trống.`}
           </Typography>
         </Box>
 
@@ -144,11 +168,7 @@ export default function RoomCard({ room, onBedClick, onChangeStatus, onEditRoom,
           <Grid container spacing={1}>
             {(room.beds ?? []).map((bed, idx) => (
               <Grid key={bed.bedId}>
-                <BedIcon
-                  bed={bed}
-                  index={idx}
-                  onClick={(b) => onBedClick(b, room)}
-                />
+                <BedIcon bed={bed}  onClick={(b) => onBedClick(b, room)} />
               </Grid>
             ))}
           </Grid>

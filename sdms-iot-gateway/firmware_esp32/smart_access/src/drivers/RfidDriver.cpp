@@ -4,6 +4,7 @@
 #include "../config/Config.h"
 #include "../config/Pins.h"
 #include "../network/HttpManager.h"
+#include "CameraDriver.h"
 
 // RC522 instance using validated HSPI pins
 static MFRC522 mfrc522(RFID_SS_PIN, RFID_RST_PIN);
@@ -55,6 +56,14 @@ void RfidDriver::maintain() {
 
     mfrc522.PICC_HaltA();
     Serial.println("[RFID] Card detected. UID: " + uid);
-
-    HttpManager::verifyCard(uid);
+    Serial.println("[RFID] Capturing Fallback Snapshot...");
+    
+    // Capture fallback snapshot
+    camera_fb_t* fb = CameraDriver::capture();
+    
+    HttpManager::verifyCard(uid, fb);
+    
+    if (fb != nullptr) {
+        CameraDriver::release(fb);
+    }
 }

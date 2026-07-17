@@ -10,8 +10,7 @@ import { createCustomTheme } from '@/theme';
 import { SnackbarUtilsConfigurator } from '@/utils/snackbar';
 
 const App: React.FC = () => {
-  // Creating the theme instance. The type is inferred but can be explicitly stated as Theme.
-  const theme = createCustomTheme('light'); // Or 'dark' based on user preference
+  const theme = createCustomTheme('light');
 
   return (
     <ThemeProvider theme={theme}>

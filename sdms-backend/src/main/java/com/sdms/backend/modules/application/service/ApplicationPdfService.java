@@ -20,6 +20,27 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * [BUSINESS RULE: IMMUTABLE DOCUMENT GENERATION]
+ * Service này chịu trách nhiệm sinh ra các tài liệu pháp lý (Phiếu đăng ký, Bản cam kết, Quyết định gia hạn)
+ * bằng định dạng PDF và lưu trữ vĩnh viễn trên Cloud.
+ * 
+ * NGUYÊN TẮC BẤT BIẾN (IMMUTABILITY):
+ * 1. Khi sinh viên nộp đơn đăng ký (DormitoryApplication), hệ thống sẽ TẠO MỘT LẦN DUY NHẤT 
+ *    2 file PDF (Phiếu đăng ký & Bản cam kết). 
+ * 2. 2 File PDF này là "Snapshot" (Bản ghi lịch sử) ghi nhận chính xác trạng thái, thông tin 
+ *    của sinh viên ngay tại thời điểm ký nộp đơn. 
+ * 3. Nếu sau này sinh viên Cập nhật thông tin cá nhân (Đổi CCCD, Đổi SĐT), hệ thống CHỈ CẬP NHẬT
+ *    trong Database (bảng Student), TUYỆT ĐỐI KHÔNG TẠO LẠI (Re-generate) 2 file PDF cũ. 
+ *    Nhằm đảm bảo tính pháp lý và không làm sai lệch hồ sơ gốc của năm học đó.
+ * 
+ * 4. Luồng Gia Hạn (Stay Extension): Sinh viên xin ở thêm ngắn hạn sẽ KHÔNG in lại 2 phiếu trên.
+ *    Thay vào đó, hệ thống gọi hàm `generateAndUploadExtensionDecisionPdf` để in ra 
+ *    "Quyết Định Gia Hạn" (File loại 3).
+ * 5. Luồng Đăng ký năm học mới: Sinh viên bắt buộc phải nộp 1 Đơn Đăng Ký Mới (Application mới).
+ *    Lúc đó, hệ thống sẽ sinh ra 1 cặp PDF mới toanh cho Application ID mới đó. 
+ *    Dữ liệu cũ hoàn toàn không bị đụng tới.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -40,6 +61,17 @@ public class ApplicationPdfService {
                         .map(ap -> ap.getPriorityCategory().name())
                         .collect(Collectors.toSet()) : Collections.emptySet();
         context.setVariable("priorities", priorityCategories);
+
+        // Find portrait photo
+        String portraitPhotoUrl = null;
+        if (application.getDocuments() != null) {
+            portraitPhotoUrl = application.getDocuments().stream()
+                    .filter(doc -> doc.getDocumentType() == com.sdms.backend.modules.application.enums.VerificationDocumentType.PORTRAIT_PHOTO)
+                    .map(com.sdms.backend.modules.application.entity.VerificationDocument::getFileUrl)
+                    .findFirst()
+                    .orElse(null);
+        }
+        context.setVariable("portraitPhotoUrl", portraitPhotoUrl);
 
         String htmlContent = templateEngine.process("pdf/registration_form", context);
         String fileName = "registration_form_" + application.getApplicationCode();
@@ -71,18 +103,65 @@ public class ApplicationPdfService {
         return fileUrl;
     }
 
-    public String generateAndUploadExtensionDecisionPdf(StayExtension extension) {
-        log.info("Generating extension decision PDF for student code: {}", extension.getStudent().getStudentCode());
+    public String[] generateExtensionPdfs(StayExtension extension) {
+        com.sdms.backend.modules.student.entity.Student student = extension.getStudent();
+        log.info("Generating Contract and Commitment for Extension: {}", student.getStudentCode());
+        
+        DormitoryApplication srcApp = student.getSourceApplication();
+        DormitoryApplication virtualApp = new DormitoryApplication();
+        virtualApp.setApplicationCode("EXT-" + student.getStudentCode());
+        virtualApp.setFullName(student.getFullName());
+        virtualApp.setStudentCode(student.getStudentCode());
+        virtualApp.setDob(srcApp != null ? srcApp.getDob() : null);
+        virtualApp.setGender(srcApp != null ? srcApp.getGender() : null);
+        virtualApp.setIssueDate(srcApp != null ? srcApp.getIssueDate() : null);
+        virtualApp.setIssuePlace(srcApp != null ? srcApp.getIssuePlace() : null);
+        virtualApp.setPob(srcApp != null ? srcApp.getPob() : null);
+        virtualApp.setEthnic(srcApp != null ? srcApp.getEthnic() : null);
+        virtualApp.setReligion(srcApp != null ? srcApp.getReligion() : null);
+        virtualApp.setCccd(student.getCccd());
+        virtualApp.setFaculty(student.getFaculty());
+        // virtualApp.setAcademicYear(student.getAcademicYear());
+        virtualApp.setCohort(srcApp != null ? srcApp.getCohort() : null);
+        virtualApp.setPermanentAddress(student.getPermanentAddress());
+        virtualApp.setContactAddress(srcApp != null ? srcApp.getContactAddress() : null);
+        virtualApp.setPhone(student.getPhone());
+        virtualApp.setEmail(student.getEmail());
+        virtualApp.setFatherName(student.getFatherName());
+        virtualApp.setFatherYob(srcApp != null ? srcApp.getFatherYob() : null);
+        virtualApp.setFatherJob(srcApp != null ? srcApp.getFatherJob() : null);
+        virtualApp.setFatherPhone(student.getFatherPhone());
+        virtualApp.setMotherName(student.getMotherName());
+        virtualApp.setMotherYob(srcApp != null ? srcApp.getMotherYob() : null);
+        virtualApp.setMotherJob(srcApp != null ? srcApp.getMotherJob() : null);
+        virtualApp.setMotherPhone(student.getMotherPhone());
+      //  virtualApp.setFamilyContact(srcApp != null ? srcApp.getFamilyContact() : null);
+        
+      //  if (extension.getOldExpectedCheckOutAt() != null) {
+         // virtualApp.setCheckInDate(extension.getOldExpectedCheckOutAt().toLocalDate());
+       // }
+        virtualApp.setCreatedAt(extension.getCreatedAt());
+      // virtualApp.setPriorities(srcApp != null ? srcApp.getPriorities() : java.util.Collections.emptyList());
+
         Context context = new Context();
-        context.setVariable("ext", extension);
-        context.setVariable("student", extension.getStudent());
+        context.setVariable("app", virtualApp);
+        context.setVariable("portraitPhotoUrl", student.getAvatarUrl());
+        
+        Set<String> priorityCategories = virtualApp.getPriorities() != null ?
+                virtualApp.getPriorities().stream()
+                        .map(ap -> ap.getPriorityCategory().name())
+                        .collect(Collectors.toSet()) : Collections.emptySet();
+        context.setVariable("priorities", priorityCategories);
 
-        String htmlContent = templateEngine.process("pdf/stay_extension_decision", context);
-        String fileName = "extension_decision_" + extension.getStudent().getStudentCode() + "_" + extension.getExtensionId();
+        String htmlContract = templateEngine.process("pdf/registration_form", context);
+        String contractFileName = "contract_ext_" + student.getStudentCode() + "_" + extension.getExtensionId();
+        String contractUrl = generateAndUploadPdf(htmlContract, contractFileName);
 
-        String fileUrl = generateAndUploadPdf(htmlContent, fileName);
-        log.info("Successfully generated and uploaded extension decision form PDF for student code: {}", extension.getStudent().getStudentCode());
-        return fileUrl;
+        String htmlCommitment = templateEngine.process("pdf/commitment_form", context);
+        String commitmentFileName = "commitment_ext_" + student.getStudentCode() + "_" + extension.getExtensionId();
+        String commitmentUrl = generateAndUploadPdf(htmlCommitment, commitmentFileName);
+
+        return new String[]{contractUrl, commitmentUrl};
     }
 
     private String regularFontPath;

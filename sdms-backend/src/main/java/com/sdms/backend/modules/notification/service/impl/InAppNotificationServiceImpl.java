@@ -50,7 +50,7 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
     @Transactional
     public void markAsRead(Long notificationId) {
         Notification notification = notificationRepository.findByIdAndUserId(notificationId, getCurrentUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Notification not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy thông báo"));
 
         if (!notification.isRead()) {
             notification.setRead(true);
@@ -76,7 +76,7 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
     private UUID getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
+            throw new AppException(ErrorCode.UNAUTHORIZED, "Vui lòng đăng nhập để thực hiện chức năng này");
         }
 
         Object principal = authentication.getPrincipal();
@@ -84,7 +84,7 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
             return account.getAccountId();
         }
 
-        throw new AppException(ErrorCode.UNAUTHORIZED);
+        throw new AppException(ErrorCode.UNAUTHORIZED, "Vui lòng đăng nhập để thực hiện chức năng này");
     }
 
     private NotificationResponse mapToResponse(Notification notification) {

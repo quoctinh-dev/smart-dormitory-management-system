@@ -127,7 +127,7 @@ public interface StudentHousingAssignmentRepository extends JpaRepository<Studen
             "WHERE r.roomPinCode = :pinCode " +
             "AND a.status = :status " +
             "AND r.roomId = (SELECT g.room.roomId FROM com.sdms.backend.modules.smartaccess.domain.entity.Gate g WHERE g.gateId = :gateId AND g.isActive = true)")
-    Optional<StudentHousingAssignment> findByPinCodeAndGateIdAndStatus(
+    List<StudentHousingAssignment> findByPinCodeAndGateIdAndStatus(
             @Param("pinCode") String pinCode,
             @Param("gateId") UUID gateId,
             @Param("status") AssignmentStatus status

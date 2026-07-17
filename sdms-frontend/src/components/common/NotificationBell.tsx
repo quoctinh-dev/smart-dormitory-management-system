@@ -34,7 +34,9 @@ export default function NotificationBell() {
   const [notifications, setNotifications] = useState<NotificationResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [filterType, setFilterType] = useState<string | null>(null);
-  const [selectedNotification, setSelectedNotification] = useState<NotificationResponse | null>(null);
+  const [selectedNotification, setSelectedNotification] = useState<NotificationResponse | null>(
+    null
+  );
 
   useEffect(() => {
     if (!admin) return;
@@ -202,50 +204,58 @@ export default function NotificationBell() {
               )}
             </Stack>
           </Stack>
-          
-          <Box sx={{ mt: 1.5, overflowX: 'auto', pb: 0.5, '&::-webkit-scrollbar': { height: 4 }, '&::-webkit-scrollbar-thumb': { bgcolor: 'divider', borderRadius: 2 } }}>
+
+          <Box
+            sx={{
+              mt: 1.5,
+              overflowX: 'auto',
+              pb: 0.5,
+              '&::-webkit-scrollbar': { height: 4 },
+              '&::-webkit-scrollbar-thumb': { bgcolor: 'divider', borderRadius: 2 },
+            }}
+          >
             <Stack direction="row" spacing={1} sx={{ width: 'max-content' }}>
-              <Chip 
-                label="Tất cả" 
-                size="small" 
+              <Chip
+                label="Tất cả"
+                size="small"
                 color={!filterType ? 'primary' : 'default'}
                 variant={!filterType ? 'filled' : 'outlined'}
-                onClick={() => setFilterType(null)} 
+                onClick={() => setFilterType(null)}
               />
-              <Chip 
-                label="Báo hỏng" 
-                size="small" 
+              <Chip
+                label="Báo hỏng"
+                size="small"
                 color={filterType === 'MAINTENANCE' ? 'error' : 'default'}
                 variant={filterType === 'MAINTENANCE' ? 'filled' : 'outlined'}
-                onClick={() => setFilterType('MAINTENANCE')} 
+                onClick={() => setFilterType('MAINTENANCE')}
               />
-              <Chip 
-                label="Đăng ký" 
-                size="small" 
+              <Chip
+                label="Đăng ký"
+                size="small"
                 color={filterType === 'APPLICATION' ? 'info' : 'default'}
                 variant={filterType === 'APPLICATION' ? 'filled' : 'outlined'}
-                onClick={() => setFilterType('APPLICATION')} 
+                onClick={() => setFilterType('APPLICATION')}
               />
-              <Chip 
-                label="Thanh toán" 
-                size="small" 
+              <Chip
+                label="Thanh toán"
+                size="small"
                 color={filterType === 'PAYMENT' ? 'success' : 'default'}
                 variant={filterType === 'PAYMENT' ? 'filled' : 'outlined'}
-                onClick={() => setFilterType('PAYMENT')} 
+                onClick={() => setFilterType('PAYMENT')}
               />
-              <Chip 
-                label="Cảnh báo" 
-                size="small" 
+              <Chip
+                label="Cảnh báo"
+                size="small"
                 color={filterType === 'WARNING' ? 'warning' : 'default'}
                 variant={filterType === 'WARNING' ? 'filled' : 'outlined'}
-                onClick={() => setFilterType('WARNING')} 
+                onClick={() => setFilterType('WARNING')}
               />
-              <Chip 
-                label="Hệ thống" 
-                size="small" 
+              <Chip
+                label="Hệ thống"
+                size="small"
                 color={filterType === 'SYSTEM' ? 'primary' : 'default'}
                 variant={filterType === 'SYSTEM' ? 'filled' : 'outlined'}
-                onClick={() => setFilterType('SYSTEM')} 
+                onClick={() => setFilterType('SYSTEM')}
               />
             </Stack>
           </Box>
@@ -258,8 +268,8 @@ export default function NotificationBell() {
           </Box>
         ) : (
           (() => {
-            const filteredNotifications = filterType 
-              ? notifications.filter((n) => n.type === filterType) 
+            const filteredNotifications = filterType
+              ? notifications.filter((n) => n.type === filterType)
               : notifications;
 
             if (filteredNotifications.length === 0) {
@@ -272,54 +282,56 @@ export default function NotificationBell() {
             }
 
             return filteredNotifications.map((notification) => (
-            <MenuItem
-              key={notification.id}
-              onClick={() => handleNotificationClick(notification)}
-              sx={{
-                p: 2,
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-                bgcolor: notification.isRead ? 'transparent' : 'action.hover',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 1.25,
-                whiteSpace: 'normal',
-                '&:hover': {
-                  bgcolor: notification.isRead ? 'action.hover' : 'action.selected',
-                },
-              }}
-            >
-              {!notification.isRead && (
-                <CircleIcon sx={{ fontSize: 10, color: 'primary.main', mt: 0.8, flexShrink: 0 }} />
-              )}
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight={notification.isRead ? 500 : 700}
-                  sx={{ mb: 0.4 }}
-                >
-                  {notification.title}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    mt: 0.3,
-                    mb: 0.6,
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {notification.message}
-                </Typography>
-                <Typography variant="caption" color="text.disabled">
-                  {new Date(notification.createdAt).toLocaleString('vi-VN')}
-                </Typography>
-              </Box>
-            </MenuItem>
-            ))
+              <MenuItem
+                key={notification.id}
+                onClick={() => handleNotificationClick(notification)}
+                sx={{
+                  p: 2,
+                  borderBottom: '1px solid',
+                  borderColor: 'divider',
+                  bgcolor: notification.isRead ? 'transparent' : 'action.hover',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 1.25,
+                  whiteSpace: 'normal',
+                  '&:hover': {
+                    bgcolor: notification.isRead ? 'action.hover' : 'action.selected',
+                  },
+                }}
+              >
+                {!notification.isRead && (
+                  <CircleIcon
+                    sx={{ fontSize: 10, color: 'primary.main', mt: 0.8, flexShrink: 0 }}
+                  />
+                )}
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={notification.isRead ? 500 : 700}
+                    sx={{ mb: 0.4 }}
+                  >
+                    {notification.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      mt: 0.3,
+                      mb: 0.6,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {notification.message}
+                  </Typography>
+                  <Typography variant="caption" color="text.disabled">
+                    {new Date(notification.createdAt).toLocaleString('vi-VN')}
+                  </Typography>
+                </Box>
+              </MenuItem>
+            ));
           })()
         )}
       </Menu>
@@ -330,15 +342,14 @@ export default function NotificationBell() {
         fullWidth
         maxWidth="xs"
       >
-        <DialogTitle sx={{ fontWeight: 700 }}>
-          {selectedNotification?.title}
-        </DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700 }}>{selectedNotification?.title}</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ color: 'text.primary', whiteSpace: 'pre-wrap' }}>
             {selectedNotification?.message}
           </DialogContentText>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
-            {selectedNotification && new Date(selectedNotification.createdAt).toLocaleString('vi-VN')}
+            {selectedNotification &&
+              new Date(selectedNotification.createdAt).toLocaleString('vi-VN')}
           </Typography>
         </DialogContent>
         <DialogActions>

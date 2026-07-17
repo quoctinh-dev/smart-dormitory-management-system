@@ -1,18 +1,18 @@
 package com.sdms.backend.modules.face.enums;
 
 /**
- * Outcome of an IoT gate verification attempt processed by the AI Engine.
+ * Kết quả của lần thử xác thực cổng IoT được xử lý bởi AI Engine.
  *
- * <p>Stored in {@link com.sdms.backend.modules.face.entity.FaceVerificationAttempt}
- * for audit and diagnostic purposes.
+ * <p>Được lưu trữ trong {@link com.sdms.backend.modules.face.entity.FaceVerificationAttempt}
+ * cho mục đích kiểm toán và chẩn đoán.
  */
 public enum FaceVerificationResult {
-    /** AI Engine matched the frame to a student above the cosine similarity threshold. */
+    /** AI Engine khớp khung hình với sinh viên trên ngưỡng cosine similarity. */
     SUCCESS,
 
-    /** AI Engine found no match above the cosine similarity threshold. */
+    /** AI Engine không tìm thấy khớp nào trên ngưỡng cosine similarity. */
     FAIL,
 
-    /** AI Engine was unreachable or timed out. Circuit breaker was triggered. */
+    /** AI Engine không thể truy cập hoặc hết hạn. Circuit breaker đã được kích hoạt. */
     AI_TIMEOUT
 }

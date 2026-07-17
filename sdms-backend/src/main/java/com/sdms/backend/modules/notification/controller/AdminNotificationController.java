@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.notification.controller;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.common.response.ApiResponse;
 import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.notification.entity.Notification;
@@ -17,8 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,14 +37,16 @@ import java.util.UUID;
 @RequestMapping("/api/v1/admin/notifications")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+@Tag(name = "Admin - Quản lý thông báo", description = "Quản lý lịch sử và gửi thông báo hàng loạt")
 public class AdminNotificationController {
 
     private final NotificationDeliveryHistoryRepository historyRepository;
     private final NotificationRepository notificationRepository;
     private final UserAccountRepository userAccountRepository;
 
+    @Operation(summary = "Lấy lịch sử gửi thông báo")
     @GetMapping("/delivery-logs")
-    public ResponseEntity<ApiResponse<PageResponse<NotificationDeliveryHistory>>> getDeliveryLogs(
+    public ApiResponse<PageResponse<NotificationDeliveryHistory>> getDeliveryLogs(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) NotificationType type,
             @RequestParam(required = false) Boolean isBroadcast,
@@ -53,18 +56,19 @@ public class AdminNotificationController {
                 com.sdms.backend.modules.notification.repository.NotificationHistorySpecification.filter(keyword, type, isBroadcast), 
                 pageable
         );
-        return ResponseEntity.ok(ApiResponse.success(PageResponse.of(page)));
+        return ApiResponse.success("Lấy lịch sử thông báo thành công", PageResponse.of(page));
     }
 
+    @Operation(summary = "Gửi thông báo hàng loạt")
     @PostMapping("/broadcast")
     @Transactional
-    public ResponseEntity<ApiResponse<BroadcastResponse>> broadcastNotification(@RequestBody BroadcastRequest request) {
+    public ApiResponse<BroadcastResponse> broadcastNotification(@RequestBody BroadcastRequest request) {
         String title = request.title() == null ? "" : request.title().trim();
         String message = request.message() == null ? "" : request.message().trim();
         String targetAudience = request.targetAudience() == null ? "ALL" : request.targetAudience().trim().toUpperCase();
 
         if (title.isEmpty() || message.isEmpty()) {
-            throw new AppException("Broadcast title and message must not be blank", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Tiêu đề và nội dung thông báo không được để trống");
         }
 
         List<UserAccount> recipients = findRecipients(targetAudience);
@@ -99,13 +103,11 @@ public class AdminNotificationController {
         notificationRepository.saveAll(notifications);
         historyRepository.saveAll(histories);
 
-        return ResponseEntity.ok(
-                ApiResponse.success(new BroadcastResponse(
-                        eventId,
-                        recipients.size(),
-                        "Broadcast notification created successfully."
-                ))
-        );
+        return ApiResponse.success("Gửi thông báo hàng loạt thành công", new BroadcastResponse(
+                eventId,
+                recipients.size(),
+                "Tạo thông báo hàng loạt thành công."
+        ));
     }
 
     private List<UserAccount> findRecipients(String targetAudience) {
@@ -114,7 +116,7 @@ public class AdminNotificationController {
             case "ADMIN" -> userAccountRepository.findByRole(Role.ADMIN);
             case "STAFF" -> userAccountRepository.findByRole(Role.STAFF);
             case "STUDENT" -> userAccountRepository.findByRole(Role.STUDENT);
-            default -> throw new AppException("Unsupported target audience: " + targetAudience, HttpStatus.BAD_REQUEST);
+            default -> throw new AppException(ErrorCode.VALIDATION_FAILED, "Đối tượng nhận không hợp lệ: " + targetAudience);
         };
     }
 

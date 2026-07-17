@@ -54,3 +54,28 @@ Sau khi xác nhận đã hiểu toàn bộ Backend Contract, mới được phé
 ## DETAILED TESTING GUIDANCE RULE (LUẬT HƯỚNG DẪN KIỂM THỬ CHI TIẾT)
 - **Detailed Scenarios:** When instructing a user to perform an End-to-End (E2E) or Integration test, the Agent MUST provide concrete, step-by-step actions.
 - **Log Monitoring & Troubleshooting:** The Agent MUST specify exactly which logs or serial monitors to observe, what the expected success output looks like, and provide troubleshooting steps for common failures. Do not just say "test it".
+
+## API RESPONSE ENVELOPE PATTERN RULE (LUẬT CẤU TRÚC PHẢN HỒI API DÀNH CHO IOT)
+**Status:** Mandatory
+**Scope:** IoT C++ Firmware (HTTP/MQTT Parsing)
+
+### 1. PURPOSE
+The Java Backend and AI Service all use a strict `ApiResponse<T>` envelope. 
+When the ESP32/IoT module makes HTTP requests to the Backend or receives MQTT JSON payloads, it MUST expect this envelope.
+
+### 2. ApiResponse CONTRACT
+The JSON payload you receive will look like this:
+```json
+{
+    "success": true/false,
+    "message": "...",
+    "errorCode": "...",
+    "data": { ... }
+}
+```
+
+### 3. IOT EXCEPTION FLOW RULE
+When parsing JSON via ArduinoJson:
+✔ You MUST first check if `"success" == true`.
+✔ If `success` is false, read `"errorCode"` to determine the exact hardware action (e.g. `UNAUTHORIZED` -> Blink Red LED, Buzzer alert).
+✔ The core payload is inside `"data"`. Do not assume the payload is at the root of the JSON.

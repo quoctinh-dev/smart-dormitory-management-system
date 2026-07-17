@@ -1,5 +1,4 @@
 // src/pages/admin/RoomManagement/components/UpdateRoomDialog.tsx
-import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,9 +9,11 @@ import {
   CircularProgress,
   Typography,
 } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+
 import roomApi from '@/api/roomApi';
-import { snackbar } from '@/utils/snackbar';
 import type { RoomWithBeds } from '@/types/room';
+import { snackbar } from '@/utils/snackbar';
 
 export interface UpdateRoomDialogProps {
   open: boolean;
@@ -21,7 +22,12 @@ export interface UpdateRoomDialogProps {
   onSuccess: () => void;
 }
 
-export default function UpdateRoomDialog({ open, onClose, room, onSuccess }: UpdateRoomDialogProps) {
+export default function UpdateRoomDialog({
+  open,
+  onClose,
+  room,
+  onSuccess,
+}: UpdateRoomDialogProps) {
   const [capacity, setCapacity] = useState<number | ''>('');
   const [loading, setLoading] = useState(false);
 
@@ -39,7 +45,9 @@ export default function UpdateRoomDialog({ open, onClose, room, onSuccess }: Upd
     // Không cho giảm sức chứa xuống dưới số giường thực tế
     const currentBedsCount = room.beds?.length || 0;
     if (Number(capacity) < currentBedsCount) {
-      snackbar.error(`Sức chứa không được nhỏ hơn số giường vật lý hiện tại (${currentBedsCount} giường).`);
+      snackbar.error(
+        `Sức chứa không được nhỏ hơn số giường vật lý hiện tại (${currentBedsCount} giường).`
+      );
       return;
     }
 
@@ -66,7 +74,8 @@ export default function UpdateRoomDialog({ open, onClose, room, onSuccess }: Upd
         <DialogTitle>Cập nhật Phòng {room.roomCode}</DialogTitle>
         <DialogContent dividers>
           <Typography variant="body2" color="text.secondary" mb={3}>
-            Lưu ý: Mã phòng không được phép thay đổi để đảm bảo tính toàn vẹn dữ liệu định danh của hệ thống và thiết bị IoT.
+            Lưu ý: Mã phòng không được phép thay đổi để đảm bảo tính toàn vẹn dữ liệu định danh của
+            hệ thống và thiết bị IoT.
           </Typography>
 
           <TextField
@@ -79,7 +88,7 @@ export default function UpdateRoomDialog({ open, onClose, room, onSuccess }: Upd
             onChange={(e) => setCapacity(e.target.value ? Number(e.target.value) : '')}
             required
             slotProps={{
-              htmlInput: { min: 1, max: 20 }
+              htmlInput: { min: 1, max: 20 },
             }}
           />
         </DialogContent>

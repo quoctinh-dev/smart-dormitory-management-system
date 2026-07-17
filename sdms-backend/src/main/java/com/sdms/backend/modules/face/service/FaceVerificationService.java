@@ -6,39 +6,39 @@ import org.springframework.data.domain.Pageable;
 import java.util.UUID;
 
 /**
- * Service interface for runtime identity verification.
- * Processes high-throughput requests from IoT gates.
+ * Service interface cho xác thực danh tính thời gian thực.
+ * Xử lý các yêu cầu thông lượng cao từ các cổng IoT.
  *
  * <p>Ownership: Face Module.
- * Manages the FaceVerificationAttempt audit ledger.
+ * Quản lý sổ cái kiểm toán FaceVerificationAttempt.
  */
 public interface FaceVerificationService {
 
     // DTO contracts are now defined in com.sdms.backend.modules.face.dto.response
 
-    // --- COMMANDS ---
+    // --- LỆNH (COMMANDS) ---
 
     /**
-     * Verifies an incoming face verification payload against the approved embeddings pool.
-     * Evaluates distance against the internal governance threshold.
-     * @param verificationPayload Abstract payload from IoT Edge (hides vector serialization details)
-     * @return FaceVerificationResultResponse containing distance, attempt ID, matched profile ID, etc.
+     * Xác thực payload khuôn mặt đến với các vector đã duyệt.
+     * Đánh giá khoảng cách dựa trên ngưỡng quản trị nội bộ.
+     * @param verificationPayload Payload trừu tượng từ IoT Edge (ẩn chi tiết serialize vector)
+     * @return FaceVerificationResultResponse chứa khoảng cách, ID lần thử, ID hồ sơ khớp, v.v.
      */
     com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse verifyFace(String gateDeviceId, com.sdms.backend.modules.face.dto.request.FaceVerificationRequest verificationPayload);
 
     /**
-     * Verifies an incoming face image directly from an IoT gate.
-     * Delegates extraction to the AiExtractionPort.
+     * Xác thực ảnh khuôn mặt đến trực tiếp từ một cổng IoT.
+     * Ủy quyền trích xuất cho AiExtractionPort.
      */
     com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse verifyFace(String gateDeviceId, org.springframework.web.multipart.MultipartFile faceImage);
-    // --- QUERIES ---
+    // --- TRUY VẤN (QUERIES) ---
 
     /**
-     * Retrieves the audit ledger of verification attempts for a specific student profile.
+     * Lấy sổ cái kiểm toán của các lần thử xác thực cho một hồ sơ sinh viên cụ thể.
      *
      * @param profileId The UUID of the FaceProfile
-     * @param pageable  Pagination configuration
-     * @return Paginated placeholder DTOs (VerificationAttemptSummary)
+     * @param pageable Cấu hình phân trang
+     * @return Các DTO tóm tắt phân trang (VerificationAttemptSummary)
      */
     Page<com.sdms.backend.modules.face.dto.response.VerificationAttemptSummaryResponse> viewVerificationAttempts(UUID profileId, Pageable pageable);
 }

@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.payment.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.payment.entity.Bill;
 import com.sdms.backend.modules.payment.enums.BillStatus;
 import com.sdms.backend.modules.payment.enums.BillType;
@@ -41,7 +42,7 @@ public class BillService {
             BigDecimal amount
     ) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new AppException("Invalid bill amount", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Số tiền hóa đơn không hợp lệ");
         }
 
         int deadlineDays = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_DEADLINE_DAYS", "3"));

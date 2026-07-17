@@ -2,6 +2,7 @@
 package com.sdms.backend.modules.room.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.application.enums.ApplicationStatus;
 import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
@@ -40,7 +41,7 @@ public class CheckInService {
     public CheckInSearchResponse searchStudentForCheckIn(String cccd) {
         StudentHousingAssignment assignment = assignmentRepository
                 .findForCheckInByCccdAndStatus(cccd.trim(), AssignmentStatus.PENDING_CHECKIN)
-                .orElseThrow(() -> new AppException(com.sdms.backend.common.exception.ErrorCode.STUDENT_NOT_ELIGIBLE, "Không tìm thấy dữ liệu xếp phòng hợp lệ, hoặc sinh viên chưa hoàn tất đóng lệ phí phòng."));
+                .orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_ELIGIBLE, "Không tìm thấy dữ liệu xếp phòng hợp lệ, hoặc sinh viên chưa hoàn tất đóng lệ phí phòng."));
 
         // Lấy thực thể Floor và Building để tránh gọi chuỗi get quá dài dễ gây rối
         Floor floor = assignment.getBed().getRoom().getFloor();
@@ -51,7 +52,8 @@ public class CheckInService {
                 .studentName(assignment.getStudent().getFullName())
                 .studentCode(assignment.getStudent().getStudentCode())
                 .cccd(assignment.getStudent().getCccd())
-                .gender("N/A") // Giữ nguyên mặc định do Student không lưu giới tính
+                .gender(assignment.getApplication() != null && assignment.getApplication().getGender() != null ? 
+                        assignment.getApplication().getGender().name() : "N/A")
 
                 // Lấy đúng avatarUrl từ entity Student
                 .portraitUrl(assignment.getStudent().getAvatarUrl())
@@ -71,10 +73,10 @@ public class CheckInService {
     @Transactional
     public void confirmCheckIn(UUID assignmentId) {
         StudentHousingAssignment assignment = assignmentRepository.findById(assignmentId)
-                .orElseThrow(() -> new AppException("Bản ghi phân phòng không tồn tại.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Bản ghi phân phòng không tồn tại."));
 
         if (assignment.getStatus() != AssignmentStatus.PENDING_CHECKIN) {
-            throw new AppException("Trạng thái phòng ở không hợp lệ để thực hiện thủ tục nhận phòng.", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Trạng thái phòng ở không hợp lệ để thực hiện thủ tục nhận phòng.");
         }
 
         // 1. Chuyển trạng thái phân giường sang OCCUPIED (Chính thức dọn vào ở)

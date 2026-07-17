@@ -13,8 +13,6 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  Snackbar,
-  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -27,24 +25,41 @@ import {
   Stack,
   FormControlLabel,
   Checkbox,
+  Tabs,
+  Tab,
+  Grid,
+  Avatar,
+  IconButton
 } from '@mui/material';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { alpha } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
 
+import roomApi from '@/api/roomApi';
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useSmartAccess } from '@/hooks/useSmartAccess';
-import roomApi from '@/api/roomApi';
+
+const DENIAL_REASONS_MAP: Record<string, string> = {
+  CURFEW_VIOLATION: 'Vi phạm giờ giới nghiêm',
+  OUTSIDE_TIME_WINDOW: 'Sai khung giờ quy định',
+  UNAUTHORIZED_OR_INACTIVE: 'Tài khoản không hợp lệ/Chưa đăng ký',
+  UNREGISTERED_OR_INACTIVE_GATE: 'Cổng không hợp lệ',
+  NOT_ASSIGNED_TO_ROOM: 'Sai phòng/Không có quyền',
+  NOT_ASSIGNED_TO_BUILDING: 'Sai tòa nhà',
+};
 
 export default function SmartAccessManagement() {
   const {
     history,
     totalElements,
     loading,
-    snackbar,
     fetchHistory,
     handleRemoteUnlock,
     handleEmergencyOverride,
-    closeSnackbar,
+    curfewRequests,
+    totalCurfewRequests,
+    fetchCurfewRequests,
+    updateCurfewRequestStatus,
   } = useSmartAccess();
 
   const [page, setPage] = useState(0);
@@ -57,6 +72,10 @@ export default function SmartAccessManagement() {
   // Unlock Form
   const [gateId, setGateId] = useState('');
   const [buildingId] = useState('00000000-0000-0000-0000-000000000000');
+
+  // Snapshot Viewer
+  const [snapshotViewerOpen, setSnapshotViewerOpen] = useState(false);
+  const [currentSnapshot, setCurrentSnapshot] = useState('');
 
   // Emergency Form
   const [actionType, setActionType] = useState('GLOBAL_LOCKDOWN');
@@ -79,22 +98,50 @@ export default function SmartAccessManagement() {
     fetchBuildings();
   }, []);
 
+  // Tabs State
+  const [activeTab, setActiveTab] = useState(0);
+
   // Search State
   const [searchStudentId, setSearchStudentId] = useState('');
+  const [filterGateId, setFilterGateId] = useState('');
+  const [filterDecision, setFilterDecision] = useState('');
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
 
   useEffect(() => {
-    fetchHistory(page, rowsPerPage, searchStudentId);
+    fetchHistory(page, rowsPerPage, searchStudentId, {
+      gateId: filterGateId,
+      decision: filterDecision,
+      startDate: filterStartDate ? new Date(filterStartDate).toISOString() : undefined,
+      endDate: filterEndDate ? new Date(filterEndDate).toISOString() : undefined
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchHistory, page, rowsPerPage]);
+
+  useEffect(() => {
+    if (activeTab === 1) {
+      fetchCurfewRequests(0, 10);
+    }
+  }, [activeTab, fetchCurfewRequests]);
 
   const handleSearchClick = () => {
     setPage(0); // Reset về trang 1 khi search
-    fetchHistory(0, rowsPerPage, searchStudentId);
+    fetchHistory(0, rowsPerPage, searchStudentId, {
+      gateId: filterGateId,
+      decision: filterDecision,
+      startDate: filterStartDate ? new Date(filterStartDate).toISOString() : undefined,
+      endDate: filterEndDate ? new Date(filterEndDate).toISOString() : undefined
+    });
   };
 
   const handleClearSearch = () => {
     setSearchStudentId('');
+    setFilterGateId('');
+    setFilterDecision('');
+    setFilterStartDate('');
+    setFilterEndDate('');
     setPage(0);
-    fetchHistory(0, rowsPerPage, '');
+    fetchHistory(0, rowsPerPage, '', {});
   };
 
   const onRemoteUnlockSubmit = async () => {
@@ -176,33 +223,95 @@ export default function SmartAccessManagement() {
         </Stack>
       </Box>
 
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={activeTab} onChange={(e, val) => setActiveTab(val)}>
+          <Tab label="Lịch Sử Ra Vào (Audit Log)" />
+          <Tab label="Yêu Cầu Vào Trễ (Curfew Requests)" />
+        </Tabs>
+      </Box>
+
+      {activeTab === 0 && (
+        <>
       {/* Tầng Search (Targeted View cho Admin) */}
-      <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
-        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Tra cứu cá nhân:</Typography>
-        <TextField
-          size="small"
-          placeholder="Nhập ID Sinh viên (UUID)..."
-          value={searchStudentId}
-          onChange={(e) => setSearchStudentId(e.target.value)}
-          sx={{ width: 350 }}
-        />
-        <Button variant="contained" onClick={handleSearchClick} disabled={loading}>
-          Tìm kiếm
-        </Button>
-        {searchStudentId && (
-          <Button variant="outlined" color="secondary" onClick={handleClearSearch} disabled={loading}>
+      <Paper
+        variant="outlined"
+        sx={{ p: 2, mb: 3, borderRadius: 3, display: 'flex', flexDirection: 'column', gap: 2 }}
+      >
+        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+          Tra cứu & Lọc:
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={3}>
+            <TextField
+              size="small"
+              fullWidth
+              label="ID Sinh viên (UUID)"
+              value={searchStudentId}
+              onChange={(e) => setSearchStudentId(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <TextField
+              size="small"
+              fullWidth
+              label="Mã Cổng (Gate ID)"
+              value={filterGateId}
+              onChange={(e) => setFilterGateId(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12} md={2}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Quyết định</InputLabel>
+              <Select
+                value={filterDecision}
+                label="Quyết định"
+                onChange={(e) => setFilterDecision(e.target.value)}
+              >
+                <MenuItem value="">Tất cả</MenuItem>
+                <MenuItem value="GRANTED">Thành công (GRANTED)</MenuItem>
+                <MenuItem value="DENIED">Từ chối (DENIED)</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={2}>
+            <TextField
+              size="small"
+              fullWidth
+              type="datetime-local"
+              label="Từ ngày"
+              InputLabelProps={{ shrink: true }}
+              value={filterStartDate}
+              onChange={(e) => setFilterStartDate(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12} md={2}>
+            <TextField
+              size="small"
+              fullWidth
+              type="datetime-local"
+              label="Đến ngày"
+              InputLabelProps={{ shrink: true }}
+              value={filterEndDate}
+              onChange={(e) => setFilterEndDate(e.target.value)}
+            />
+          </Grid>
+        </Grid>
+        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 1 }}>
+          <Button variant="contained" onClick={handleSearchClick} disabled={loading}>
+            Tìm kiếm
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleClearSearch}
+            disabled={loading}
+          >
             Xóa Lọc
           </Button>
-        )}
+        </Box>
       </Paper>
 
       <Paper variant="outlined" sx={{ borderRadius: 3, mb: 4, overflow: 'hidden' }}>
-        <Typography
-          variant="h6"
-          sx={{ p: 2.5, fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}
-        >
-          Lịch Sử Ra Vào (Audit Log)
-        </Typography>
 
         {loading ? (
           <Box sx={{ p: 3 }}>
@@ -221,9 +330,9 @@ export default function SmartAccessManagement() {
                   <TableCell sx={{ fontWeight: 'bold' }}>Sinh Viên ID</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Cổng (Gate)</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Phương Thức</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Ảnh (Audit)</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Trạng Thái</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Lý Do / Chẩn Đoán</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Hỗ trợ Quyết định</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -256,6 +365,23 @@ export default function SmartAccessManagement() {
                         }
                       />
                     </TableCell>
+                    <TableCell align="center">
+                      {row.snapshotUrl ? (
+                        <IconButton 
+                          color="primary" 
+                          onClick={() => {
+                            setCurrentSnapshot(row.snapshotUrl || '');
+                            setSnapshotViewerOpen(true);
+                          }}
+                        >
+                          <Avatar src={row.snapshotUrl} sx={{ width: 32, height: 32, border: '1px solid #ccc' }}>
+                            <PhotoCameraIcon fontSize="small" />
+                          </Avatar>
+                        </IconButton>
+                      ) : (
+                        <Typography variant="caption" color="text.disabled">Không có</Typography>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Chip
                         label={row.decision}
@@ -270,45 +396,17 @@ export default function SmartAccessManagement() {
                           variant="body2"
                           sx={{
                             color:
-                              row.denialReason === 'UNAUTHORIZED_OR_INACTIVE'
+                              row.denialReason === 'UNAUTHORIZED_OR_INACTIVE' || row.denialReason === 'NOT_ASSIGNED_TO_ROOM'
                                 ? 'error.main'
                                 : 'warning.main',
                             fontWeight: 'medium',
                           }}
                         >
-                          {row.denialReason === 'CURFEW_VIOLATION'
-                            ? 'Vi phạm giờ giới nghiêm'
-                            : row.denialReason === 'OUTSIDE_TIME_WINDOW'
-                              ? 'Sai khung giờ quy định'
-                              : row.denialReason === 'UNAUTHORIZED_OR_INACTIVE'
-                                ? 'Tài khoản không hợp lệ'
-                                : row.denialReason}
+                          {DENIAL_REASONS_MAP[row.denialReason] || row.denialReason}
                         </Typography>
                       ) : (
                         '-'
                       )}
-                    </TableCell>
-                    <TableCell>
-                      {row.decision === 'DENIED' &&
-                      (row.denialReason === 'CURFEW_VIOLATION' ||
-                        row.denialReason === 'OUTSIDE_TIME_WINDOW') ? (
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          color="primary"
-                          onClick={() => {
-                            setGateId(row.gateId);
-                            setUnlockDialogOpen(true);
-                          }}
-                        >
-                          Mở Cổng Hỗ Trợ
-                        </Button>
-                      ) : row.decision === 'DENIED' &&
-                        row.denialReason === 'UNAUTHORIZED_OR_INACTIVE' ? (
-                        <Typography variant="caption" color="error">
-                          Yêu cầu xuất trình thẻ
-                        </Typography>
-                      ) : null}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -327,9 +425,88 @@ export default function SmartAccessManagement() {
             setPage(0);
           }}
           labelRowsPerPage="Số dòng/trang:"
-          labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`}
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`
+          }
         />
       </Paper>
+      </>
+      )}
+
+      {activeTab === 1 && (
+        <Paper variant="outlined" sx={{ borderRadius: 3, mb: 4, overflow: 'hidden' }}>
+          {loading ? (
+            <Box sx={{ p: 3 }}>
+              <CustomSkeleton type="table" count={5} />
+            </Box>
+          ) : curfewRequests.length === 0 ? (
+            <Box sx={{ p: 5, textAlign: 'center' }}>
+              <WarningAmberIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+              <Typography sx={{ color: 'text.secondary' }}>Chưa có yêu cầu vào trễ nào cần xử lý.</Typography>
+            </Box>
+          ) : (
+            <TableContainer>
+              <Table>
+                <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05) }}>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Thời Gian Y/C</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Sinh Viên</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Giờ Dự Kiến Về</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Lý Do</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Trạng Thái</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Thao Tác</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {curfewRequests.map((req) => (
+                    <TableRow key={req.requestId} hover>
+                      <TableCell>{new Date(req.createdAt).toLocaleString('vi-VN')}</TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{req.studentName}</Typography>
+                        <Typography variant="caption" color="text.secondary">{req.studentCode}</Typography>
+                      </TableCell>
+                      <TableCell>
+                        {req.expectedArrivalTime ? new Date(req.expectedArrivalTime).toLocaleString('vi-VN') : 'N/A'}
+                      </TableCell>
+                      <TableCell>{req.reason}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={req.status}
+                          color={req.status === 'APPROVED' ? 'success' : req.status === 'REJECTED' ? 'error' : 'warning'}
+                          size="small"
+                          sx={{ fontWeight: 'bold' }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {req.status === 'PENDING' && (
+                          <Stack direction="row" spacing={1}>
+                            <Button
+                              variant="contained"
+                              color="success"
+                              size="small"
+                              onClick={() => updateCurfewRequestStatus(req.requestId, 'APPROVED')}
+                            >
+                              Duyệt
+                            </Button>
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              size="small"
+                              onClick={() => updateCurfewRequestStatus(req.requestId, 'REJECTED')}
+                            >
+                              Từ Chối
+                            </Button>
+                          </Stack>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Paper>
+      )}
 
       {/* Dialog: Remote Unlock */}
       <Dialog
@@ -361,6 +538,33 @@ export default function SmartAccessManagement() {
         </DialogActions>
       </Dialog>
 
+      {/* Dialog: Snapshot Viewer */}
+      <Dialog
+        open={snapshotViewerOpen}
+        onClose={() => setSnapshotViewerOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 'bold', pb: 1 }}>Hình Ảnh Đối Chứng (Audit Snapshot)</DialogTitle>
+        <DialogContent sx={{ textAlign: 'center', p: 2 }}>
+          {currentSnapshot ? (
+            <img 
+              src={currentSnapshot} 
+              alt="Snapshot" 
+              style={{ maxWidth: '100%', maxHeight: '60vh', borderRadius: '8px', objectFit: 'contain' }} 
+            />
+          ) : (
+            <Typography>Không tải được hình ảnh</Typography>
+          )}
+          <Typography variant="caption" sx={{ display: 'block', mt: 2, color: 'text.secondary' }}>
+            Ảnh chụp từ ESP32-CAM tại thời điểm quẹt thẻ (Fallback Method). Admin vui lòng đối chiếu để phát hiện hành vi mượn thẻ.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setSnapshotViewerOpen(false)} variant="contained">Đóng</Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Dialog: Emergency Override */}
       <Dialog
         open={emergencyDialogOpen}
@@ -384,7 +588,8 @@ export default function SmartAccessManagement() {
         </Box>
         <DialogContent sx={{ pt: 3 }}>
           <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary', textAlign: 'center' }}>
-            ⚠️ Cảnh báo: Lệnh này sẽ ghi đè mọi Policy (giờ giới nghiêm, vân vân) trên toàn bộ hệ thống Edge. Chỉ sử dụng trong tình huống nguy hiểm thực sự.
+            ⚠️ Cảnh báo: Lệnh này sẽ ghi đè mọi Policy (giờ giới nghiêm, vân vân) trên toàn bộ hệ
+            thống Edge. Chỉ sử dụng trong tình huống nguy hiểm thực sự.
           </Typography>
 
           <FormControl fullWidth sx={{ mb: 2 }}>
@@ -395,7 +600,9 @@ export default function SmartAccessManagement() {
               onChange={(e) => setTargetBuilding(e.target.value)}
               sx={{ fontWeight: 'bold' }}
             >
-              <MenuItem value="ALL" sx={{ fontWeight: 'bold' }}>🌐 TOÀN BỘ KÝ TÚC XÁ (Campus-wide)</MenuItem>
+              <MenuItem value="ALL" sx={{ fontWeight: 'bold' }}>
+                🌐 TOÀN BỘ KÝ TÚC XÁ (Campus-wide)
+              </MenuItem>
               {buildings.map((b) => (
                 <MenuItem key={b.buildingId} value={b.buildingId}>
                   🏢 Chỉ áp dụng cho: {b.name}
@@ -410,10 +617,17 @@ export default function SmartAccessManagement() {
               value={actionType}
               label="Loại lệnh kích hoạt"
               onChange={(e) => setActionType(e.target.value)}
-              sx={{ fontWeight: 'bold', color: actionType === 'GLOBAL_LOCKDOWN' ? 'error.main' : 'success.main' }}
+              sx={{
+                fontWeight: 'bold',
+                color: actionType === 'GLOBAL_LOCKDOWN' ? 'error.main' : 'success.main',
+              }}
             >
-              <MenuItem value="GLOBAL_LOCKDOWN" sx={{ color: 'error.main', fontWeight: 'bold' }}>🔴 LOCKDOWN (Khóa toàn bộ cửa)</MenuItem>
-              <MenuItem value="GLOBAL_UNLOCK" sx={{ color: 'success.main', fontWeight: 'bold' }}>🟢 EVACUATION (Mở toàn bộ cửa)</MenuItem>
+              <MenuItem value="GLOBAL_LOCKDOWN" sx={{ color: 'error.main', fontWeight: 'bold' }}>
+                🔴 LOCKDOWN (Khóa toàn bộ cửa)
+              </MenuItem>
+              <MenuItem value="GLOBAL_UNLOCK" sx={{ color: 'success.main', fontWeight: 'bold' }}>
+                🟢 EVACUATION (Mở toàn bộ cửa)
+              </MenuItem>
             </Select>
           </FormControl>
 
@@ -445,7 +659,9 @@ export default function SmartAccessManagement() {
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3, justifyContent: 'space-between' }}>
-          <Button onClick={() => setEmergencyDialogOpen(false)} sx={{ fontWeight: 'bold' }}>Hủy Bỏ</Button>
+          <Button onClick={() => setEmergencyDialogOpen(false)} sx={{ fontWeight: 'bold' }}>
+            Hủy Bỏ
+          </Button>
           <Button
             onClick={onEmergencySubmit}
             variant="contained"
@@ -457,21 +673,6 @@ export default function SmartAccessManagement() {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: '100%', borderRadius: 2 }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

@@ -1,26 +1,34 @@
-import { Box, Typography, TextField, Alert } from '@mui/material';
+import { Box, Typography, TextField, Button } from '@mui/material';
 import React from 'react';
 
 interface EligibilitySectionProps {
-  formData: { cccd: string; [key: string]: any };
+  formData: { email: string; cccd: string; [key: string]: any };
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   error: string | null;
+  otpSent: boolean;
+  otpCode: string;
+  setOtpCode: React.Dispatch<React.SetStateAction<string>>;
+  handleRequestOtp: () => Promise<void>;
+  loading: boolean;
 }
 
 export default function EligibilitySection({
   formData,
   setFormData,
   error,
+  otpSent,
+  otpCode,
+  setOtpCode,
+  handleRequestOtp,
+  loading,
 }: EligibilitySectionProps) {
-  const handleCccdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value;
-    const onlyNums = rawValue.replace(/[^0-9]/g, '');
-
-    setFormData((prev: any) => ({ ...prev, cccd: onlyNums }));
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev: any) => ({ ...prev, email: e.target.value }));
   };
 
-  const currentLength = formData.cccd?.length || 0;
-  const isLengthInvalid = currentLength > 0 && currentLength !== 9 && currentLength !== 12;
+  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOtpCode(e.target.value);
+  };
 
   return (
     <Box
@@ -34,42 +42,59 @@ export default function EligibilitySection({
       }}
     >
       <Typography variant="h6" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-        Kiểm tra điều kiện đăng ký
+        Xác thực Email & Kiểm tra điều kiện
       </Typography>
 
       <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
-        Vui lòng nhập Mã số định danh (CCCD/CMND) để hệ thống đối chiếu điều kiện tham gia đợt tiếp
-        nhận hồ sơ hiện hành.
+        Vui lòng nhập Email (sử dụng Email cá nhân hoặc Email trường cấp) để hệ thống gửi mã xác
+        thực (OTP) trước khi tiến hành tạo đơn đăng ký.
       </Typography>
 
-      {error && (
-        <Alert severity="error" sx={{ borderRadius: 2 }}>
-          {error}
-        </Alert>
-      )}
+      {/* Đã xóa các thẻ <Alert> ở đây để nhường chỗ cho Snackbar */}
 
       <TextField
-        label="Mã số định danh (CCCD/CMND)"
+        label="Địa chỉ Email"
         variant="outlined"
-        value={formData.cccd}
-        onChange={handleCccdChange}
+        type="email"
+        value={formData.email || ''}
+        onChange={handleEmailChange}
         fullWidth
         required
-        autoFocus
-        placeholder="VD: 079200123456"
-        error={isLengthInvalid}
-        helperText={
-          isLengthInvalid
-            ? `Độ dài hiện tại: ${currentLength} số (Mã hợp lệ phải gồm đúng 9 hoặc 12 chữ số).`
-            : 'Hệ thống chấp nhận CMND cũ (9 số) hoặc CCCD mới (12 số).'
-        }
-        slotProps={{
-          htmlInput: {
-            maxLength: 12,
-            inputMode: 'numeric',
-          },
-        }}
+        disabled={otpSent}
+        autoFocus={!otpSent}
+        placeholder="VD: nguyenvana@gmail.com"
       />
+
+      {!otpSent ? (
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={handleRequestOtp}
+          disabled={loading || !formData.email}
+          sx={{ mt: 1 }}
+        >
+          {loading ? 'Đang gửi...' : 'Nhận mã OTP'}
+        </Button>
+      ) : (
+        <TextField
+          label="Mã OTP"
+          variant="outlined"
+          value={otpCode}
+          onChange={handleOtpChange}
+          fullWidth
+          required
+          autoFocus
+          placeholder="Nhập 6 số mã xác thực"
+          error={!!error} // Viền đỏ tự động hiện nếu có lỗi
+          helperText={error ? error : "Bấm 'Tiếp tục' sau khi điền xong OTP."} // Ưu tiên hiện câu báo lỗi, không thì hiện hướng dẫn
+          slotProps={{
+            htmlInput: {
+              maxLength: 6,
+              inputMode: 'numeric',
+            },
+          }}
+        />
+      )}
     </Box>
   );
 }

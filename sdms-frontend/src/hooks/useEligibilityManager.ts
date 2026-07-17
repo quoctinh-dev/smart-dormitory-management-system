@@ -1,23 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { adminRegistrationApi } from '@/api';
+import { snackbar } from '@/utils/snackbar';
 
-import { IRegistrationPeriod } from './useRegistrationManagerUi';
+import { RegistrationPeriodResponse } from '@/types/registration';
 
 export interface IEligibility {
   eligibilityId: string;
   cccd: string;
   fullName: string;
   studentCode?: string;
+  email?: string;
   [key: string]: any;
 }
 
-export const useEligibilityManager = (period: IRegistrationPeriod | null, open: boolean) => {
+export const useEligibilityManager = (period: RegistrationPeriodResponse | null, open: boolean) => {
   const [eligibilities, setEligibilities] = useState<IEligibility[]>([]);
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState('');
 
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
@@ -28,7 +28,7 @@ export const useEligibilityManager = (period: IRegistrationPeriod | null, open: 
   const fetchEligibilities = useCallback(async () => {
     if (!period?.periodId) return;
     setLoading(true);
-    setError(null);
+
     try {
       const res = await adminRegistrationApi.getEligibilities(period?.periodId, page, size);
 
@@ -39,7 +39,7 @@ export const useEligibilityManager = (period: IRegistrationPeriod | null, open: 
         setTotalElements(pageData.totalElements || 0);
       }
     } catch (err: any) {
-      setError('Lỗi khi tải danh sách: ' + (err?.message || 'Không thể kết nối tới server'));
+      snackbar.error('Lỗi khi tải danh sách: ' + (err?.message || 'Không thể kết nối tới server'));
     } finally {
       setLoading(false);
     }
@@ -56,7 +56,7 @@ export const useEligibilityManager = (period: IRegistrationPeriod | null, open: 
     if (!deleteTarget) return;
     try {
       await adminRegistrationApi.deleteEligibility(period?.periodId, deleteTarget);
-      setSuccessMsg('Đã xóa sinh viên khỏi danh sách thành công');
+      snackbar.success('Đã xóa sinh viên khỏi danh sách thành công');
 
       // Nếu xóa dòng duy nhất còn lại của trang hiện tại (và không phải trang 0), lùi về trang trước
       if (eligibilities.length === 1 && page > 0) {
@@ -65,7 +65,7 @@ export const useEligibilityManager = (period: IRegistrationPeriod | null, open: 
         fetchEligibilities();
       }
     } catch (err: any) {
-      setError('Lỗi khi xóa: ' + (err?.message || 'Có lỗi xảy ra'));
+      snackbar.error('Lỗi khi xóa: ' + (err?.message || 'Có lỗi xảy ra'));
     } finally {
       setDeleteTarget(null);
     }
@@ -75,8 +75,7 @@ export const useEligibilityManager = (period: IRegistrationPeriod | null, open: 
   const handleImportExcel = async (file: File) => {
     if (!file) return;
     setImporting(true);
-    setError(null);
-    setSuccessMsg('');
+
 
     try {
       const result = await adminRegistrationApi.importEligibility(period?.periodId, file);
@@ -89,15 +88,13 @@ export const useEligibilityManager = (period: IRegistrationPeriod | null, open: 
         const skipped = data.skipped ?? 0;
         const total = data.total ?? 0;
 
-        setSuccessMsg(
-          `Import thành công! Đã thêm: ${imported}, Bỏ qua: ${skipped} (Tổng: ${total})`
-        );
+        snackbar.success(`Import thành công! Đã thêm: ${imported}, Bỏ qua: ${skipped} (Tổng: ${total})`);
 
         setPage(0);
         fetchEligibilities();
       }
     } catch (err: any) {
-      setError('Lỗi import: ' + (err?.message || 'Có lỗi xảy ra'));
+      snackbar.error('Lỗi import: ' + (err?.message || 'Có lỗi xảy ra'));
     } finally {
       setImporting(false);
     }
@@ -107,8 +104,7 @@ export const useEligibilityManager = (period: IRegistrationPeriod | null, open: 
     eligibilities,
     loading,
     importing,
-    error,
-    successMsg,
+
     deleteTarget,
     page,
     size,
@@ -116,8 +112,7 @@ export const useEligibilityManager = (period: IRegistrationPeriod | null, open: 
     setPage,
     setSize,
     setDeleteTarget,
-    setError,
-    setSuccessMsg,
+
     confirmDelete,
     handleImportExcel,
   };

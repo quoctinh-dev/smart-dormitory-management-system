@@ -14,12 +14,13 @@ import { useMemo } from 'react';
 import { useRegistration } from '@/hooks/useRegistration';
 
 import CommitmentSection from './components/Registration/CommitmentSection';
+import DocumentScanSection from './components/Registration/DocumentScanSection';
 import DocumentUploadSection from './components/Registration/DocumentUploadSection';
 import EligibilitySection from './components/Registration/EligibilitySection';
 import InfoSection from './components/Registration/InfoSection';
 import SuccessSection from './components/Registration/SuccessSection';
 
-const STEP_LABELS = ['Kiểm tra', 'Thông tin', 'Hồ sơ', 'Cam kết', 'Hoàn tất'];
+const STEP_LABELS = ['Kiểm tra', 'Quét giấy tờ', 'Thông tin', 'Hồ sơ', 'Cam kết', 'Hoàn tất'];
 
 // Đưa cấu hình tĩnh ra ngoài scope của component để tiết kiệm RAM khi re-render
 // const PRIORITY_LABELS = {
@@ -38,11 +39,11 @@ const REGISTRATION_TYPE_TEXT = {
 
 // --- Sub-component: Thanh điều hướng (Đảm bảo single-responsibility) ---
 const NavigationControls = ({ activeStep, loading, onNext, onBack }: any) => {
-  const isBackDisabled = activeStep === 0 || loading || activeStep === 4;
+  const isBackDisabled = activeStep === 0 || loading || activeStep === 5;
 
   const nextButtonText = useMemo(() => {
     if (loading) return 'Đang xử lý...';
-    return activeStep === 3 ? 'Hoàn tất nộp hồ sơ' : 'Tiếp tục';
+    return activeStep === 4 ? 'Hoàn tất nộp hồ sơ' : 'Tiếp tục';
   }, [loading, activeStep]);
 
   return (
@@ -60,7 +61,7 @@ const NavigationControls = ({ activeStep, loading, onNext, onBack }: any) => {
         Quay lại
       </Button>
 
-      {activeStep < 4 ? (
+      {activeStep < 5 ? (
         <Button
           variant="contained"
           color="primary"
@@ -93,14 +94,39 @@ export default function RegistrationPage() {
     handleNext,
     handleBack,
     handleUpload,
+    handleScanUpload,
+    otpSent,
+    otpCode,
+    setOtpCode,
+    handleRequestOtp,
   } = useRegistration();
 
   // CHUẨN HÓA LOGIC RENDER: Rút sạch các hàm set hoặc biến không đổi ra khỏi dependency
   const renderStepSection = useMemo(() => {
     switch (activeStep) {
       case 0:
-        return <EligibilitySection formData={formData} setFormData={setFormData} error={error} />;
+        return (
+          <EligibilitySection
+            formData={formData}
+            setFormData={setFormData}
+            error={error}
+            otpSent={otpSent}
+            otpCode={otpCode}
+            setOtpCode={setOtpCode}
+            handleRequestOtp={handleRequestOtp}
+            loading={loading}
+          />
+        );
       case 1:
+        return (
+          <DocumentScanSection
+            uploadedDocs={uploadedDocs}
+            handleUpload={handleScanUpload}
+            loading={loading}
+            error={error}
+          />
+        );
+      case 2:
         return (
           <InfoSection
             period={period}
@@ -110,7 +136,7 @@ export default function RegistrationPage() {
             error={error}
           />
         );
-      case 2:
+      case 3:
         return (
           <DocumentUploadSection
             error={error}
@@ -120,9 +146,9 @@ export default function RegistrationPage() {
             formData={formData}
           />
         );
-      case 3:
-        return <CommitmentSection formData={formData} setFormData={setFormData} error={error} />;
       case 4:
+        return <CommitmentSection formData={formData} setFormData={setFormData} error={error} />;
+      case 5:
         return <SuccessSection />;
       default:
         return null;
@@ -135,8 +161,13 @@ export default function RegistrationPage() {
     targetGroup,
     uploadedDocs,
     handleUpload,
+    handleScanUpload,
     loading,
     setFormData,
+    otpSent,
+    otpCode,
+    setOtpCode,
+    handleRequestOtp,
   ]);
 
   // Caching text header, không tính toán chuỗi rỗng khi điền Form

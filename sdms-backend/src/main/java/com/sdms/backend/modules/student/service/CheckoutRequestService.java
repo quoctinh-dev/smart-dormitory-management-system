@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.student.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
@@ -45,25 +46,25 @@ public class CheckoutRequestService {
     @Transactional
     public CheckoutRequestResponse submitCheckoutRequest(String username, CheckoutRequestSubmitDto request) {
         UserAccount userAccount = userAccountRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException("Không tìm thấy tài khoản người dùng", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy tài khoản người dùng"));
 
         Student student = userAccount.getStudent();
         if (student == null) {
-            throw new AppException("Tài khoản chưa được liên kết với hồ sơ sinh viên", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Tài khoản chưa được liên kết với hồ sơ sinh viên");
         }
 
         if (checkoutRequestRepository.existsByStudent_StudentIdAndStatus(student.getStudentId(), CheckoutStatus.PENDING)) {
-            throw new AppException("Bạn đã có một đơn xin trả phòng đang chờ xử lý", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Bạn đã có một đơn xin trả phòng đang chờ xử lý");
         }
 
         boolean hasDebts = billRepository.existsByStudentIdAndStatusIn(student.getStudentId(), Arrays.asList(BillStatus.UNPAID, BillStatus.OVERDUE));
         if (hasDebts) {
-            throw new AppException("Bạn đang có hóa đơn tiền phòng hoặc điện nước chưa thanh toán. Vui lòng thanh toán toàn bộ nợ trước khi xin trả phòng.", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Bạn đang có hóa đơn tiền phòng hoặc điện nước chưa thanh toán. Vui lòng thanh toán toàn bộ nợ trước khi xin trả phòng.");
         }
 
         StudentHousingAssignment activeAssignment = assignmentRepository
                 .findByStudent_StudentIdAndStatus(student.getStudentId(), AssignmentStatus.OCCUPIED)
-                .orElseThrow(() -> new AppException("Bạn hiện không lưu trú tại Ký túc xá", HttpStatus.BAD_REQUEST));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Bạn hiện không lưu trú tại Ký túc xá"));
 
         CheckoutRequest checkoutReq = new CheckoutRequest();
         checkoutReq.setStudent(student);
@@ -80,11 +81,11 @@ public class CheckoutRequestService {
     @Transactional(readOnly = true)
     public List<CheckoutRequestResponse> getMyCheckoutRequests(String username) {
         UserAccount userAccount = userAccountRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException("Không tìm thấy tài khoản người dùng", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy tài khoản người dùng"));
 
         Student student = userAccount.getStudent();
         if (student == null) {
-            throw new AppException("Tài khoản chưa được liên kết với hồ sơ sinh viên", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Tài khoản chưa được liên kết với hồ sơ sinh viên");
         }
 
         List<CheckoutRequest> requests = checkoutRequestRepository.findAllByStudent_StudentIdOrderByCreatedAtDesc(student.getStudentId());
@@ -109,10 +110,10 @@ public class CheckoutRequestService {
     @Transactional
     public CheckoutRequestResponse reviewCheckoutRequest(UUID requestId, CheckoutRequestReviewDto request) {
         CheckoutRequest checkoutReq = checkoutRequestRepository.findById(requestId)
-                .orElseThrow(() -> new AppException("Không tìm thấy đơn xin trả phòng", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy đơn xin trả phòng"));
 
         if (checkoutReq.getStatus() != CheckoutStatus.PENDING) {
-            throw new AppException("Đơn xin trả phòng này đã được xử lý trước đó", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Đơn xin trả phòng này đã được xử lý trước đó");
         }
 
         if (request.getStatus() == CheckoutStatus.APPROVED) {
@@ -131,7 +132,7 @@ public class CheckoutRequestService {
             checkoutReq.setStatus(CheckoutStatus.REJECTED);
             checkoutReq.setRejectReason(request.getRejectReason());
         } else {
-            throw new AppException("Trạng thái xử lý không hợp lệ", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Trạng thái xử lý không hợp lệ");
         }
 
         return buildResponse(checkoutRequestRepository.save(checkoutReq));

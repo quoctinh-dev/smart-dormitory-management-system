@@ -17,4 +17,18 @@ public class FaceStudentQueryAdapter implements StudentQueryPort {
     public boolean existsById(UUID studentId) {
         return studentRepository.existsById(studentId);
     }
+
+    @Override
+    public String getStudentEmail(UUID studentId) {
+        return studentRepository.findById(studentId)
+                .map(com.sdms.backend.modules.student.entity.Student::getEmail)
+                .orElse(null);
+    }
+
+    @Override
+    public String getStudentFullName(UUID studentId) {
+        return studentRepository.findById(studentId)
+                .map(com.sdms.backend.modules.student.entity.Student::getFullName)
+                .orElse(null);
+    }
 }

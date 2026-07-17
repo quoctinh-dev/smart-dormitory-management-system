@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.room.dto.response.CurrentRoomResponse;
 import com.sdms.backend.modules.room.entity.*;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
@@ -37,7 +38,7 @@ public class StudentRoomService {
         // 3. Truy vấn Assignment theo status OCCUPIED (nguồn sự thật)
         StudentHousingAssignment assignment = assignmentRepository
                 .findByStudent_StudentIdAndStatus(studentId, AssignmentStatus.OCCUPIED)
-                .orElseThrow(() -> new AppException("No active room assignment found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hợp đồng lưu trú hoặc phòng ở hiện hành"));
 
         // 4. Map dữ liệu hạ tầng (Assignment -> Bed -> Room -> Floor -> Building)
         Bed bed = assignment.getBed();
@@ -66,7 +67,7 @@ public class StudentRoomService {
     private UserAccount getCurrentUserAccount() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserAccount)) {
-            throw new AppException("User is not authenticated", HttpStatus.UNAUTHORIZED);
+            throw new AppException(ErrorCode.UNAUTHORIZED, "Người dùng chưa đăng nhập");
         }
         return (UserAccount) authentication.getPrincipal();
     }

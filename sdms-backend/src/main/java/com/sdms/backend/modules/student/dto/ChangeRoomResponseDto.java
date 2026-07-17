@@ -12,6 +12,7 @@ public class ChangeRoomResponseDto {
     private String reason;
     private String currentRoomName;
     private String targetRoomName;
+    private UUID targetRoomId;
     private ChangeRoomRequestStatus status;
     private String adminNote;
     private LocalDateTime createdAt;

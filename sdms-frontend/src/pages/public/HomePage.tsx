@@ -1,8 +1,8 @@
 // 📄 File: src/pages/public/HomePage.jsx
 import AppRegistrationRoundedIcon from '@mui/icons-material/AppRegistrationRounded';
 import FactCheckRoundedIcon from '@mui/icons-material/FactCheckRounded';
-import VerifiedUserRoundedIcon from '@mui/icons-material/VerifiedUserRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import VerifiedUserRoundedIcon from '@mui/icons-material/VerifiedUserRounded';
 import {
   Box,
   Container,
@@ -11,11 +11,6 @@ import {
   TextField,
   Paper,
   InputAdornment,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Alert,
   Chip,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
@@ -27,16 +22,7 @@ import useHome from '@/hooks/useHome';
 import { AboutSection, CostSection, ProcessSection, ContactSection } from './components/Home';
 
 export default function HomePage() {
-  const {
-    searchCccd,
-    setSearchCccd,
-    loading,
-    dialogOpen,
-    checkResult,
-    handleCheckEligibility,
-    handleCloseDialog,
-    handleNavigateRegister,
-  } = useHome();
+  const { searchEmail, setSearchEmail, handleNavigateRegister } = useHome();
 
   // TỐI ƯU HIỆU NĂNG: Bọc các section thông tin tĩnh vào useMemo để cô lập
   const renderedStaticSections = useMemo(
@@ -101,10 +87,10 @@ export default function HomePage() {
           >
             <TextField
               fullWidth
-              placeholder="Nhập Mã định danh (CCCD/CMND) để tra cứu..."
-              value={searchCccd}
-              onChange={(e) => setSearchCccd(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCheckEligibility()}
+              placeholder="Nhập Email để bắt đầu đăng ký..."
+              value={searchEmail}
+              onChange={(e) => setSearchEmail(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleNavigateRegister()}
               variant="standard"
               sx={{ px: 2 }}
               InputProps={{
@@ -118,11 +104,10 @@ export default function HomePage() {
             />
             <Button
               variant="contained"
-              onClick={handleCheckEligibility}
-              disabled={loading}
+              onClick={handleNavigateRegister}
               sx={{ borderRadius: 3, px: 4, py: 1.5, fontWeight: 700, minWidth: '120px' }}
             >
-              {loading ? 'Đang xử lý...' : 'Kiểm tra'}
+              Bắt đầu
             </Button>
           </Paper>
         </Container>
@@ -156,7 +141,7 @@ export default function HomePage() {
               title="Kích hoạt định danh"
               description="Khởi tạo tài khoản hệ thống dành cho sinh viên đã hoàn tất thủ tục lưu trú."
               buttonText="Thực hiện kích hoạt"
-              to="/activate-account" // 🌟 FIX TẠI ĐÂY: Đồng bộ chính xác lộ trình sang đường dẫn mới
+              to="/activate-account"
               variant="contained"
               color="success"
             />
@@ -166,38 +151,6 @@ export default function HomePage() {
 
       {/* RENDER KHỐI THÔNG TIN VỆ TINH ĐÃ ĐƯỢC CACHE MƯỢT MÀ */}
       {renderedStaticSections}
-
-      {/* DIALOG KẾT QUẢ KIỂM TRA */}
-      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 'bold' }}>Kết quả kiểm tra điều kiện</DialogTitle>
-        <DialogContent dividers>
-          <Alert severity={checkResult.success ? 'success' : 'error'} variant="filled">
-            {checkResult.message}
-          </Alert>
-
-          {checkResult.success && (
-            <Typography variant="body1" sx={{ mt: 2, color: 'text.secondary' }}>
-              Hệ thống ghi nhận thông tin của bạn hoàn toàn hợp lệ. Vui lòng nhấn{' '}
-              <strong>"Đăng ký ngay"</strong> để bắt đầu quá trình khai báo hồ sơ nội trú.
-            </Typography>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ p: 2, gap: 1 }}>
-          <Button onClick={handleCloseDialog} color="inherit" variant="outlined">
-            Đóng
-          </Button>
-          {checkResult.success && (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleNavigateRegister}
-              sx={{ px: 3 }}
-            >
-              Đăng ký ngay
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }

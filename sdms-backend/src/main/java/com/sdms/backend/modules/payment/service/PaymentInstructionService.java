@@ -10,11 +10,11 @@ public class PaymentInstructionService {
         // In a real application, this data would come from a database or configuration
         // For now, we'll hardcode it as per the requirement.
         return PaymentInstructionResponse.builder()
-                .bankName("Ngân hàng TMCP Ngoại thương Việt Nam (Vietcombank)")
-                .accountNumber("0071000888888")
-                .accountHolder("TRUNG TAM QUAN LY KTX STU")
-                .qrCodeUrl("https://res.cloudinary.com/your-cloud-name/image/upload/v1/sdms/payment_qr_code.png") // Placeholder QR code URL
-                .contentPrefix("SDMS-")
+                .bankName("Ngân hàng TMCP Quân đội (MBBank)")
+                .accountNumber("0819281512")
+                .accountHolder("TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN")
+                .qrCodeUrl(null) // QR code is handled dynamically by PaymentService
+                .contentPrefix("SDMS")
                 .build();
     }
 }

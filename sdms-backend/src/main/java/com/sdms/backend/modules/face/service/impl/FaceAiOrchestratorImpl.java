@@ -52,7 +52,7 @@ public class FaceAiOrchestratorImpl implements FaceAiOrchestrator {
         try {
             FaceProfile profile = faceProfileRepository.findById(profileId).orElseThrow();
             
-            // Extract vector using the primary image URL
+            // Trích xuất vector sử dụng URL ảnh chính
             float[] vector = aiExtractionPort.extractVector(profile.getFaceImageUrl());
             
             FaceEmbedding embedding = FaceEmbedding.builder()
@@ -64,13 +64,13 @@ public class FaceAiOrchestratorImpl implements FaceAiOrchestrator {
             
             log.info("Successfully generated and persisted embedding for profile: {}", profileId);
             
-            // Publish Event ONLY after embedding is fully persisted
+            // CHỈ phát sự kiện sau khi vector đã được lưu hoàn toàn
             eventPublisher.publishEvent(new FaceSyncReadyEvent(profileId));
             
         } catch (Exception e) {
             log.error("AI Extraction failed for initial registration of profile: {}", profileId, e);
-            // System retains the profile in APPROVED state.
-            // An admin or scheduled job can retry this process later.
+            // Hệ thống giữ hồ sơ ở trạng thái ĐÃ DUYỆT.
+            // Quản trị viên hoặc cron job có thể thử lại quá trình này sau.
         }
     }
 
@@ -84,21 +84,21 @@ public class FaceAiOrchestratorImpl implements FaceAiOrchestrator {
                 return;
             }
 
-            // Extract vector using the pending image URL
+            // Trích xuất vector sử dụng URL ảnh đang chờ duyệt
             float[] newVector = aiExtractionPort.extractVector(profile.getPendingFaceImageUrl());
             
-            // Atomic Swap ensures access continuity (Delegated to Domain Service)
+            // Atomic Swap đảm bảo không gián đoạn truy cập (Ủy quyền cho Domain Service)
             faceProfileService.finalizeReplacement(profileId, newVector);
             
             log.info("Successfully swapped embedding for replacement on profile: {}", profileId);
             
-            // FaceSyncReadyEvent is naturally published inside finalizeReplacement() 
-            // after the atomic swap completes.
+            // FaceSyncReadyEvent tự động được phát bên trong finalizeReplacement() 
+            // sau khi atomic swap hoàn tất.
             
         } catch (Exception e) {
             log.error("AI Extraction failed for replacement on profile: {}. Active face is NOT revoked.", profileId, e);
-            // AI failure must never revoke active face.
-            // The old embedding remains perfectly active because finalizeReplacement was never called.
+            // Lỗi AI không bao giờ được phép thu hồi khuôn mặt đang hoạt động.
+            // Vector cũ vẫn hoạt động bình thường vì finalizeReplacement chưa từng được gọi.
         }
     }
 }

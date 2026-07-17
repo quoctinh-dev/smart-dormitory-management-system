@@ -1,14 +1,15 @@
 // src/pages/admin/RoomManagement/components/RoomActionMenu.tsx
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import AddTaskIcon from '@mui/icons-material/AddTask';
 import BuildIcon from '@mui/icons-material/Build';
+import EditIcon from '@mui/icons-material/Edit';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import AddTaskIcon from '@mui/icons-material/AddTask';
-import EditIcon from '@mui/icons-material/Edit';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
 import React, { useState } from 'react';
-import type { RoomStatus } from '@/types/room';
+
 import roomApi from '@/api/roomApi';
+import type { RoomStatus } from '@/types/room';
 import { snackbar } from '@/utils/snackbar';
 
 export interface RoomActionMenuProps {
@@ -63,7 +64,8 @@ export default function RoomActionMenu({
 
   const handleResetPin = async () => {
     handleClose();
-    if (!window.confirm('Bạn có chắc chắn muốn tạo mã PIN mới cho phòng này? Mã PIN cũ sẽ bị hủy.')) return;
+    if (!window.confirm('Bạn có chắc chắn muốn tạo mã PIN mới cho phòng này? Mã PIN cũ sẽ bị hủy.'))
+      return;
     try {
       const { default: roomPinApi } = await import('@/api/roomPinApi');
       await roomPinApi.resetRoomPin(roomId);
@@ -133,9 +135,11 @@ export default function RoomActionMenu({
         {/* Toggle Closed */}
         <MenuItem onClick={() => handleStatus(isClosed ? 'AVAILABLE' : 'CLOSED')}>
           <ListItemIcon>
-            {isClosed
-              ? <LockOpenIcon fontSize="small" color="success" />
-              : <LockIcon fontSize="small" color="error" />}
+            {isClosed ? (
+              <LockOpenIcon fontSize="small" color="success" />
+            ) : (
+              <LockIcon fontSize="small" color="error" />
+            )}
           </ListItemIcon>
           <ListItemText>
             {isClosed ? 'Mở lại phòng (AVAILABLE)' : 'Đóng phòng (CLOSED)'}

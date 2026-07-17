@@ -14,6 +14,6 @@ public class UpdateBedRequest {
 
     private BedStatus status;
 
-    @Size(max = 500, message = "Note must not exceed 500 characters")
+    @Size(max = 500, message = "Ghi chú không được vượt quá 500 ký tự")
     private String note;
 }

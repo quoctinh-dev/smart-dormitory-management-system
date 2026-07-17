@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.dto.response;
 
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
+import com.sdms.backend.modules.room.enums.RoomRole;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +23,7 @@ public class ActiveAssignmentByBedResponse {
     private LocalDateTime reservedAt;
     private LocalDateTime checkInAt;
     private LocalDateTime expectedCheckOutAt;
+    private RoomRole roomRole;
 
     // Thông tin Sinh viên (null nếu chưa liên kết - giai đoạn chờ thanh toán)
     private StudentSummary student;

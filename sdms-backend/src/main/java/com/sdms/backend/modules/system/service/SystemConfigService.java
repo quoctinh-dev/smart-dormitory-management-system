@@ -1,11 +1,11 @@
 package com.sdms.backend.modules.system.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.system.dto.SystemConfigDTO;
 import com.sdms.backend.modules.system.entity.SystemConfig;
 import com.sdms.backend.modules.system.repository.SystemConfigRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +35,7 @@ public class SystemConfigService {
     @Transactional
     public SystemConfigDTO updateConfig(String key, SystemConfigDTO dto) {
         SystemConfig config = systemConfigRepository.findById(key)
-                .orElseThrow(() -> new AppException("System config not found with key: " + key, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy cấu hình hệ thống với khóa: " + key));
 
         config.setConfigValue(dto.getConfigValue());
         if (dto.getDescription() != null) {

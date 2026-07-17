@@ -2,22 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 
 // CHUẨN HÓA TẠI ĐÂY: Gọi đúng phân hệ adminRegistrationApi từ cổng tổng tập trung @/api
 import { adminRegistrationApi } from '@/api';
+import { snackbar } from '@/utils/snackbar';
 
-export interface IRegistrationPeriod {
-  periodId: string;
-  periodName: string;
-  registrationType: string;
-  startDate: string;
-  endDate: string;
-  stayStartDate?: string;
-  stayEndDate?: string;
-  isActive: boolean;
-  [key: string]: any;
-}
+import { RegistrationPeriodResponse } from '@/types/registration';
 
 const INITIAL_FORM_STATE = {
   periodName: '',
-  registrationType: 'OPEN_REGISTRATION',
+  registrationType: 'OPEN_REGISTRATION' as any,
   startDate: '',
   endDate: '',
   stayStartDate: '',
@@ -25,37 +16,33 @@ const INITIAL_FORM_STATE = {
 };
 
 export function useRegistrationManagerUi() {
-  const [periods, setPeriods] = useState<IRegistrationPeriod[]>([]);
+  const [periods, setPeriods] = useState<RegistrationPeriodResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
 
   const [openDialog, setOpenDialog] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentPeriodId, setCurrentPeriodId] = useState<string | null>(null);
   const [eligibilityDialogOpen, setEligibilityDialogOpen] = useState(false);
   const [selectedPeriodForEligibility, setSelectedPeriodForEligibility] =
-    useState<IRegistrationPeriod | null>(null);
+    useState<RegistrationPeriodResponse | null>(null);
   const [activationConfirmOpen, setActivationConfirmOpen] = useState(false);
   const [activationTargetId, setActivationTargetId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'error' | 'warning' | 'info';
-  }>({ open: false, message: '', severity: 'success' });
+
 
   // Tải danh sách đợt (Khớp với cơ chế unwrap data của axiosClient)
   const fetchPeriods = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
+      setLoading(true);
       const res = await adminRegistrationApi.getAllPeriods();
       const data = (res as any)?.data || res;
-      setPeriods((data as IRegistrationPeriod[]) || []);
+      setPeriods((data as RegistrationPeriodResponse[]) || []);
     } catch (err: any) {
-      setError(err.message || err || 'Lỗi hệ thống khi kết nối đến máy chủ.');
+      snackbar.error(err.message || err || 'Lỗi hệ thống khi kết nối đến máy chủ.');
     } finally {
       setLoading(false);
     }
@@ -67,14 +54,10 @@ export function useRegistrationManagerUi() {
 
   const showSnackbar = useCallback(
     (message: string, severity: 'success' | 'error' | 'warning' | 'info' = 'success') => {
-      setSnackbar({ open: true, message, severity });
+      snackbar.show(message, severity);
     },
     []
   );
-
-  const handleCloseSnackbar = useCallback(() => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  }, []);
 
   const handleFormChange = useCallback(
     (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -91,7 +74,7 @@ export function useRegistrationManagerUi() {
   }, []);
 
   const handleOpenEdit = useCallback(
-    (period: IRegistrationPeriod) => () => {
+    (period: RegistrationPeriodResponse) => () => {
       setEditMode(true);
       setCurrentPeriodId(period.periodId);
       setFormData({
@@ -112,7 +95,7 @@ export function useRegistrationManagerUi() {
   );
 
   const handleOpenEligibility = useCallback(
-    (period: IRegistrationPeriod) => () => {
+    (period: RegistrationPeriodResponse) => () => {
       setSelectedPeriodForEligibility(period);
       setEligibilityDialogOpen(true);
     },
@@ -200,11 +183,9 @@ export function useRegistrationManagerUi() {
     periods,
     loading,
     isSubmitting,
-    error,
     openDialog,
     editMode,
     formData,
-    snackbar,
     eligibilityDialogOpen,
     selectedPeriodForEligibility,
     activationConfirmOpen,
@@ -216,7 +197,6 @@ export function useRegistrationManagerUi() {
     handleCloseActivationConfirm,
     handleConfirmActivation,
     handleFormChange,
-    handleCloseSnackbar,
     handleSubmitPeriod,
     handleToggleStatus,
   };

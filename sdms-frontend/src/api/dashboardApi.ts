@@ -9,6 +9,12 @@ export interface DashboardStatsResponse {
   totalBeds: number;
   totalBuildings: number;
   totalFloors: number;
+  studentsInside: number;
+  studentsOutside: number;
+  hourlyTraffic: { time: string; in: number; out: number }[];
+  totalCollectedAmount: number;
+  paidBillsCount: number;
+  unpaidBillsCount: number;
 }
 
 const dashboardApi = {

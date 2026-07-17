@@ -13,7 +13,9 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+
 import authApi from '@/api/authApi';
+import { validatePassword } from '@/utils/validate';
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -35,8 +37,8 @@ function ResetPasswordPage() {
       setError('Token khôi phục không hợp lệ hoặc bị thiếu.');
       return;
     }
-    if (!password || password.length < 6) {
-      setError('Mật khẩu mới phải có ít nhất 6 ký tự.');
+    if (!validatePassword(password)) {
+      setError('Mật khẩu phải từ 8-50 ký tự, có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.');
       return;
     }
     if (password !== confirmPassword) {
@@ -57,7 +59,9 @@ function ResetPasswordPage() {
   };
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+    <Box
+      sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}
+    >
       <Card sx={{ width: '100%', maxWidth: 460, mx: 'auto' }}>
         <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
@@ -83,7 +87,11 @@ function ResetPasswordPage() {
             </Typography>
           </Box>
 
-          {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
           {success ? (
             <Box sx={{ textAlign: 'center' }}>
               <Alert severity="success" sx={{ mb: 3 }}>
@@ -130,7 +138,14 @@ function ResetPasswordPage() {
                 disabled={loading}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
-              <Button type="submit" fullWidth variant="contained" size="large" disabled={loading} sx={{ mt: 3, py: 1.2, borderRadius: 2 }}>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                size="large"
+                disabled={loading}
+                sx={{ mt: 3, py: 1.2, borderRadius: 2 }}
+              >
                 {loading ? <CircularProgress size={24} color="inherit" /> : 'Lưu mật khẩu mới'}
               </Button>
             </Box>

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record FaceRejectionRequest(
-    @NotBlank(message = "Rejection reason is required")
-    @Size(max = 255, message = "Reason is too long")
+    @NotBlank(message = "Lý do từ chối là bắt buộc")
+    @Size(max = 255, message = "Lý do quá dài")
     String rejectionReason
 ) {}

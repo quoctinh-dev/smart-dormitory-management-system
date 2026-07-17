@@ -16,13 +16,13 @@ import java.util.UUID;
 @Setter
 public class CreateBedRequest {
 
-    @NotNull(message = "Room ID is required")
+    @NotNull(message = "ID phòng là bắt buộc")
     private UUID roomId;
 
-    @NotBlank(message = "Bed code is required")
-    @Size(max = 30, message = "Bed code must not exceed 30 characters")
+    @NotBlank(message = "Mã giường là bắt buộc")
+    @Size(max = 30, message = "Mã giường không được vượt quá 30 ký tự")
     private String bedCode;
 
-    @Size(max = 500, message = "Note must not exceed 500 characters")
+    @Size(max = 500, message = "Ghi chú không được vượt quá 500 ký tự")
     private String note;
 }

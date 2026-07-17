@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,14 +25,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * GlobalExceptionHandler: Chốt chặn cuối cùng cho mọi ngoại lệ trong hệ thống.
- * Đảm bảo mọi lỗi đều được phản hồi dưới định dạng ApiResponse đồng nhất.
+ * Bộ xử lý ngoại lệ trung tâm (Centralized Exception Handler) cho toàn bộ ứng dụng.
+ * Chặn bắt mọi ngoại lệ phát sinh từ tầng Controller trở xuống, sau đó chuẩn hóa
+ * và định dạng lại thành cấu trúc ApiResponse thống nhất trước khi gửi về client.
+ * Ngăn chặn rò rỉ thông tin nhạy cảm (stacktrace) ra môi trường bên ngoài.
  */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1. Lỗi Nghiệp vụ tự định nghĩa
+    // 1. Xử lý lỗi nghiệp vụ tự định nghĩa (Business Logic Exceptions)
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ApiResponse<?>> handleAppException(AppException ex) {
         log.warn("Business Error: {}", ex.getMessage());
@@ -39,7 +42,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getStatus()).body(new ApiResponse<>(false, ex.getMessage(), null, errorCodeStr));
     }
 
-    // 2. Lỗi Validation (DTO)
+    // 2. Xử lý lỗi xác thực dữ liệu đầu vào (Validation Error)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -50,32 +53,47 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, ErrorCode.VALIDATION_FAILED.getMessage(), errors, ErrorCode.VALIDATION_FAILED.name()));
     }
 
-    // 3. Nhóm lỗi Bad Request (Client gửi sai cấu trúc, thiếu tham số)
+    // 3. Xử lý lỗi yêu cầu không hợp lệ (Bad Request, thiếu tham số, sai định dạng)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<?>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        log.warn("Bad Request Error (Not Readable): {}", ex.getMessage());
+        String friendlyMessage = ErrorCode.BAD_REQUEST_FORMAT.getMessage();
+        if (ex.getMessage() != null && ex.getMessage().contains("Cannot deserialize value of type")) {
+            friendlyMessage = "Dữ liệu gửi lên không đúng định dạng. Ví dụ: Phương thức thanh toán hoặc trạng thái không được hỗ trợ.";
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, friendlyMessage, null, ErrorCode.BAD_REQUEST_FORMAT.name()));
+    }
+
     @ExceptionHandler({
-            HttpMessageNotReadableException.class,
             MissingServletRequestParameterException.class,
             MethodArgumentTypeMismatchException.class
     })
     public ResponseEntity<ApiResponse<?>> handleBadRequest(Exception ex) {
         log.warn("Bad Request Error: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, "Malformed request syntax or parameter mismatch", null));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, ErrorCode.BAD_REQUEST_FORMAT.getMessage(), null, ErrorCode.BAD_REQUEST_FORMAT.name()));
     }
 
-    // 4. Lỗi Database (Vi phạm ràng buộc)
+    // 4. Xử lý lỗi xung đột dữ liệu từ Database (Data Integrity, Optimistic Lock)
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<?>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         log.error("Database Integrity Error: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse<>(false, "Data conflict or integrity violation", null));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse<>(false, ErrorCode.DATA_CONFLICT.getMessage(), null, ErrorCode.DATA_CONFLICT.name()));
     }
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<ApiResponse<?>> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(new ApiResponse<>(false, "Phòng/Giường này vừa được người khác cập nhật. Vui lòng tải lại và thử lại!", null));
+                .body(new ApiResponse<>(false, ErrorCode.OPTIMISTIC_LOCK_FAILURE.getMessage(), null, ErrorCode.OPTIMISTIC_LOCK_FAILURE.name()));
     }
 
-    // 5. Lỗi Security & Auth
+    @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
+    public ResponseEntity<ApiResponse<?>> handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException ex) {
+        log.error("Data Query Error - Non Unique Result: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse<>(false, "Phát hiện dữ liệu trùng lặp (nhiều kết quả được trả về thay vì 1).", null, ErrorCode.DATA_CONFLICT.name()));
+    }
+
+    // 5. Xử lý lỗi bảo mật và phân quyền (Security & JWT Exceptions)
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<?>> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Access Denied: {}", ex.getMessage());
@@ -100,7 +118,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, ErrorCode.TOKEN_INVALID.getMessage(), null, ErrorCode.TOKEN_INVALID.name()));
     }
 
-    // 6. Lỗi Hệ thống (Fallback)
+    // 6. Xử lý lỗi hệ thống không xác định (Fallback Exception) - Tuyến phòng thủ cuối cùng
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGlobalException(Exception ex, WebRequest request) {
         log.error("Internal Server Error URI: {} - Error: ", request.getDescription(false), ex);

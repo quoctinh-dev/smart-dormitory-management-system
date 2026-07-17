@@ -15,15 +15,15 @@ import lombok.Setter;
 @Setter
 public class CreateBuildingRequest {
 
-    @NotBlank(message = "Building code is required")
-    @Size(max = 20, message = "Code must not exceed 20 characters")
+    @NotBlank(message = "Mã tòa nhà là bắt buộc")
+    @Size(max = 20, message = "Mã không được vượt quá 20 ký tự")
     private String code;
 
-    @NotBlank(message = "Building name is required")
-    @Size(max = 100, message = "Name must not exceed 100 characters")
+    @NotBlank(message = "Tên tòa nhà là bắt buộc")
+    @Size(max = 100, message = "Tên không được vượt quá 100 ký tự")
     private String name;
 
-    @Size(max = 1000, message = "Description must not exceed 1000 characters")
+    @Size(max = 1000, message = "Mô tả không được vượt quá 1000 ký tự")
     private String description;
 
     private com.sdms.backend.modules.room.enums.BuildingGender gender = com.sdms.backend.modules.room.enums.BuildingGender.MIXED;

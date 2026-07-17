@@ -3,7 +3,8 @@ import { NavigateFunction } from 'react-router-dom';
 
 import applicationApi from '@/api/applicationApi';
 import { useAuth } from '@/auth';
-
+import { getErrorMessage } from '@/types/api';
+import { snackbar } from '@/utils/snackbar';
 import { ApplicationResponse } from '@/types/application';
 
 export const useApplicationReview = (id: string | undefined, navigate: NavigateFunction) => {
@@ -26,11 +27,6 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
 
   const [deadlineDays, setDeadlineDays] = useState(3);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'error' | 'warning' | 'info';
-  }>({ open: false, message: '', severity: 'success' });
 
   const toggleDialog = (type: 'reject' | 'revision' | 'docVerify', openState: boolean) => {
     setDialogs((prev) => ({ ...prev, [type]: openState }));
@@ -42,31 +38,20 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
       setNotes((prev) => ({ ...prev, [type]: e.target.value }));
     };
 
-  // 🌟 TỐI ƯU TẠI ĐÂY: Gọi đích danh API lấy chi tiết thay vì quét mảng 100 phần tử
   const fetchApp = useCallback(async () => {
     if (!id) return;
     try {
       setLoading(true);
-      // Giả định hàm lấy chi tiết của bạn tên là getDetail hoặc getById
-      // Nếu file api của bạn chỉ có hàm getAll, hãy bổ sung hàm getById(id) vào nhé!
-      const res = await applicationApi.getById(id);
-
-      // Unwrap data theo chuẩn của axiosClient của bạn
-      const data = (res as any)?.data ? (res as any).data : res;
-
+      const data = await applicationApi.getById(id);
       if (data) {
-        setApp(data as ApplicationResponse);
+        setApp(data);
       } else {
-        setSnackbar({
-          open: true,
-          message: 'Không tìm thấy thông tin hồ sơ kiểm duyệt!',
-          severity: 'error',
-        });
+        snackbar.error('Không tìm thấy thông tin hồ sơ kiểm duyệt!');
         if (navigate) setTimeout(() => navigate('/admin/applications/review'), 2000);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      setSnackbar({ open: true, message: 'Lỗi nạp thông tin chi tiết hồ sơ.', severity: 'error' });
+      snackbar.error('Lỗi nạp thông tin chi tiết hồ sơ.');
     } finally {
       setLoading(false);
     }
@@ -80,14 +65,10 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
     if (!id) return;
     try {
       await applicationApi.approve(id, 'Được duyệt trên Hệ thống Web Admin');
-      setSnackbar({ open: true, message: 'Phê duyệt hồ sơ thành công!', severity: 'success' });
-      fetchApp(); // Tải lại để hiện nút nộp tiền
-    } catch (error: any) {
-      setSnackbar({
-        open: true,
-        message: `Lỗi: ${error.response?.data?.message || error.message}`,
-        severity: 'error',
-      });
+      snackbar.success('Phê duyệt hồ sơ thành công!');
+      fetchApp();
+    } catch (error: unknown) {
+      snackbar.error(`Lỗi: ${getErrorMessage(error)}`);
     }
   };
 
@@ -95,18 +76,10 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
     if (!id) return;
     try {
       await applicationApi.confirmPayment(id, 'Đã thu tiền mặt');
-      setSnackbar({
-        open: true,
-        message: 'Đã xác nhận thu tiền, hồ sơ được duyệt chính thức!',
-        severity: 'success',
-      });
-      fetchApp(); // Tải lại để cập nhật trạng thái
-    } catch (error: any) {
-      setSnackbar({
-        open: true,
-        message: `Lỗi: ${error.response?.data?.message || error.message}`,
-        severity: 'error',
-      });
+      snackbar.success('Đã xác nhận thu tiền, hồ sơ được duyệt chính thức!');
+      fetchApp();
+    } catch (error: unknown) {
+      snackbar.error(`Lỗi: ${getErrorMessage(error)}`);
     }
   };
 
@@ -115,14 +88,10 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
     try {
       await applicationApi.reject(id, notes.reject.trim());
       toggleDialog('reject', false);
-      setSnackbar({ open: true, message: 'Đã từ chối tiếp nhận hồ sơ đăng ký.', severity: 'info' });
+      snackbar.info('Đã từ chối tiếp nhận hồ sơ đăng ký.');
       if (navigate) setTimeout(() => navigate('/admin/applications/review'), 1500);
-    } catch (error: any) {
-      setSnackbar({
-        open: true,
-        message: `Lỗi: ${error.response?.data?.message || error.message}`,
-        severity: 'error',
-      });
+    } catch (error: unknown) {
+      snackbar.error(`Lỗi: ${getErrorMessage(error)}`);
     }
   };
 
@@ -131,18 +100,10 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
     try {
       await applicationApi.requestRevision(id, notes.revision, deadlineDays);
       toggleDialog('revision', false);
-      setSnackbar({
-        open: true,
-        message: 'Đã gửi thông báo yêu cầu sửa đổi hồ sơ.',
-        severity: 'warning',
-      });
+      snackbar.warning('Đã gửi thông báo yêu cầu sửa đổi hồ sơ.');
       if (navigate) setTimeout(() => navigate('/admin/applications/review'), 1500);
-    } catch (error: any) {
-      setSnackbar({
-        open: true,
-        message: `Lỗi: ${error.response?.data?.message || error.message}`,
-        severity: 'error',
-      });
+    } catch (error: unknown) {
+      snackbar.error(`Lỗi: ${getErrorMessage(error)}`);
     }
   };
 
@@ -155,14 +116,10 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
         return;
       }
       await applicationApi.verifyDocument(docId, 'VALID', 'Hợp lệ');
-      setSnackbar({ open: true, message: 'Đã xác nhận tài liệu Hợp lệ.', severity: 'success' });
-      fetchApp(); // Reload mượt vì data dung lượng nhỏ
-    } catch (error: any) {
-      setSnackbar({
-        open: true,
-        message: `Lỗi: ${error.response?.data?.message || error.message}`,
-        severity: 'error',
-      });
+      snackbar.success('Đã xác nhận tài liệu Hợp lệ.');
+      fetchApp();
+    } catch (error: unknown) {
+      snackbar.error(`Lỗi: ${getErrorMessage(error)}`);
     }
   };
 
@@ -171,18 +128,12 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
     try {
       await applicationApi.verifyDocument(selectedDocId, 'INVALID', notes.doc.trim());
       toggleDialog('docVerify', false);
-      setSnackbar({ open: true, message: 'Đã đánh dấu tài liệu Không hợp lệ.', severity: 'error' });
-      fetchApp(); // Reload mượt vì data dung lượng nhỏ
-    } catch (error: any) {
-      setSnackbar({
-        open: true,
-        message: `Lỗi: ${error.response?.data?.message || error.message}`,
-        severity: 'error',
-      });
+      snackbar.error('Đã đánh dấu tài liệu Không hợp lệ.');
+      fetchApp();
+    } catch (error: unknown) {
+      snackbar.error(`Lỗi: ${getErrorMessage(error)}`);
     }
   };
-
-  const closeSnackbar = () => setSnackbar((prev) => ({ ...prev, open: false }));
 
   return {
     admin,
@@ -191,7 +142,6 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
     dialogs,
     notes,
     deadlineDays,
-    snackbar,
     setDeadlineDays,
     toggleDialog,
     handleNoteChange,
@@ -201,6 +151,5 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
     handleRequestRevision,
     handleVerifyDocument,
     handleInvalidDocSubmit,
-    closeSnackbar,
   };
 };

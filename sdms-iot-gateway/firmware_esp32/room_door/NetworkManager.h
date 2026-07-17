@@ -4,11 +4,40 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include <PubSubClient.h>
 #include "Config.h"
 #include "LcdManager.h"
 #include "ServoManager.h"
 
+WiFiClient espClient;
+PubSubClient mqttClient(espClient);
+
 unsigned long lastReconnectAttempt = 0;
+unsigned long lastMqttReconnectAttempt = 0;
+
+void mqttCallback(char* topic, byte* payload, unsigned int length) {
+    Serial.print("[MQTT] Message arrived [");
+    Serial.print(topic);
+    Serial.print("] ");
+    String message = "";
+    for (int i = 0; i < length; i++) {
+        message += (char)payload[i];
+    }
+    Serial.println(message);
+
+    StaticJsonDocument<512> doc;
+    DeserializationError error = deserializeJson(doc, message);
+
+    if (!error) {
+        String command = doc["command"];
+        if (command == "UNLOCK") {
+            Serial.println("[MQTT] Received UNLOCK command from Admin");
+            lcdPrintMessage("REMOTE UNLOCK", "DOOR OPEN");
+            openDoor();
+            lcdPrintMessage("READY!", "Enter PIN...");
+        }
+    }
+}
 
 void initWiFi() {
     Serial.println();
@@ -35,6 +64,31 @@ void initWiFi() {
         Serial.println("\n[WiFi] Connection Failed!");
         lcdPrintMessage("WIFI ERROR", "CHECK ROUTER");
     }
+
+    mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
+    mqttClient.setCallback(mqttCallback);
+}
+
+void reconnectMQTT() {
+    if (WiFi.status() != WL_CONNECTED) return;
+    
+    unsigned long currentMillis = millis();
+    if (currentMillis - lastMqttReconnectAttempt > RECONNECT_INTERVAL) {
+        Serial.print("[MQTT] Attempting connection...");
+        String clientId = "ESP32_Room_";
+        clientId += String(random(0xffff), HEX);
+        
+        if (mqttClient.connect(clientId.c_str())) {
+            Serial.println("connected");
+            String topic = "sdms/gates/" + GATE_ID + "/command";
+            mqttClient.subscribe(topic.c_str());
+            Serial.println("[MQTT] Subscribed to " + topic);
+        } else {
+            Serial.print("failed, rc=");
+            Serial.println(mqttClient.state());
+        }
+        lastMqttReconnectAttempt = currentMillis;
+    }
 }
 
 void ensureWiFiConnection() {
@@ -45,6 +99,12 @@ void ensureWiFiConnection() {
             WiFi.disconnect();
             WiFi.reconnect();
             lastReconnectAttempt = currentMillis;
+        }
+    } else {
+        if (!mqttClient.connected()) {
+            reconnectMQTT();
+        } else {
+            mqttClient.loop();
         }
     }
 }

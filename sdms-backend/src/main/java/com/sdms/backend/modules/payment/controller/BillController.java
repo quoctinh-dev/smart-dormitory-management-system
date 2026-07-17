@@ -5,7 +5,10 @@ import com.sdms.backend.modules.payment.entity.Bill;
 import com.sdms.backend.modules.payment.repository.BillRepository;
 import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,30 +18,33 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/bills")
 @RequiredArgsConstructor
+@Tag(name = "Hóa đơn (Bill)", description = "Quản lý hóa đơn")
 public class BillController {
 
     private final BillRepository billRepository;
     private final DormitoryApplicationRepository applicationRepository;
 
+    @Operation(summary = "Lấy hóa đơn theo hồ sơ đăng ký")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'STUDENT')")
     @GetMapping("/application/{applicationId}")
-    public ResponseEntity<ApiResponse<Bill>> getBillByApplicationId(@PathVariable UUID applicationId) {
+    public ApiResponse<Bill> getBillByApplicationId(@PathVariable UUID applicationId) {
         List<Bill> bills = billRepository.findByApplicationId(applicationId);
         if (bills.isEmpty()) {
-            return ResponseEntity.status(404).body(new ApiResponse<>(false, "Không tìm thấy hóa đơn cho hồ sơ này", null));
+            throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hóa đơn cho hồ sơ này");
         }
         // Giả sử lấy bill mới nhất hoặc hóa đơn phí lưu trú
         Bill accommodationBill = bills.get(0);
-        return ResponseEntity.ok(ApiResponse.success("Lấy thông tin hóa đơn thành công", accommodationBill));
+        return ApiResponse.success("Lấy thông tin hóa đơn thành công", accommodationBill);
     }
 
+    @Operation(summary = "Lấy lịch sử hóa đơn của tôi")
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<List<Bill>>> getMyBills(
+    public ApiResponse<List<Bill>> getMyBills(
             @org.springframework.security.core.annotation.AuthenticationPrincipal com.sdms.backend.modules.user.entity.UserAccount currentUser
     ) {
         if (currentUser.getStudent() == null) {
-            return ResponseEntity.status(403).body(new ApiResponse<>(false, "Tài khoản chưa được liên kết sinh viên", null));
+            throw new AppException(ErrorCode.UNAUTHORIZED, "Tài khoản chưa được liên kết sinh viên");
         }
         // Giả sử Student có applicationId, hoặc ta lấy bill thông qua logic nghiệp vụ.
         // Tạm thời lấy danh sách rỗng hoặc lấy tất cả nếu DB thiết kế Bill link với StudentId
@@ -48,12 +54,13 @@ public class BillController {
         for (var app : apps) {
             myBills.addAll(billRepository.findByApplicationId(app.getApplicationId()));
         }
-        return ResponseEntity.ok(ApiResponse.success("Lấy lịch sử thanh toán thành công", myBills));
+        return ApiResponse.success("Lấy lịch sử thanh toán thành công", myBills);
     }
 
+    @Operation(summary = "Lấy tất cả hóa đơn (Admin)")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @GetMapping
-    public ResponseEntity<ApiResponse<com.sdms.backend.common.response.PageResponse<java.util.Map<String, Object>>>> getAllBills(
+    public ApiResponse<com.sdms.backend.common.response.PageResponse<java.util.Map<String, Object>>> getAllBills(
             org.springframework.data.domain.Pageable pageable
     ) {
         org.springframework.data.domain.Page<Bill> billPage = billRepository.findAll(pageable);
@@ -87,6 +94,6 @@ public class BillController {
         com.sdms.backend.common.response.PageResponse<java.util.Map<String, Object>> pageResponse = 
             com.sdms.backend.common.response.PageResponse.fromPage(billPage, result);
 
-        return ResponseEntity.ok(ApiResponse.success("Lấy danh sách hóa đơn thành công", pageResponse));
+        return ApiResponse.success("Lấy danh sách hóa đơn thành công", pageResponse);
     }
 }

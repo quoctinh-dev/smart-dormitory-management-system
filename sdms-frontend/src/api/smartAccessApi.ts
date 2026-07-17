@@ -4,7 +4,7 @@ const ACCESS_URL = '/v1/access';
 
 export const smartAccessApi = {
   // Get all access history (paginated)
-  getAccessHistory(params: { page: number; size: number }) {
+  getAccessHistory(params: { page: number; size: number; studentId?: string; gateId?: string; decision?: string; startDate?: string; endDate?: string }) {
     return axiosClient.get(`${ACCESS_URL}/history`, { params });
   },
 
@@ -25,5 +25,14 @@ export const smartAccessApi = {
     return axiosClient.post(`${ACCESS_URL}/emergency`, null, {
       params: { actionType, reason, buildingId },
     });
+  },
+
+  // --- Curfew Requests ---
+  getCurfewRequests(params: { page: number; size: number; status?: string }) {
+    return axiosClient.get(`/v1/curfew-requests`, { params });
+  },
+
+  updateCurfewRequest(id: string, data: { status: string; adminNote?: string }) {
+    return axiosClient.patch(`/v1/curfew-requests/${id}`, data);
   },
 };

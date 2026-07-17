@@ -7,6 +7,7 @@ public enum VerificationDocumentType {
     CCCD_FRONT("Căn cước công dân - Mặt trước"),
     CCCD_BACK("Căn cước công dân - Mặt sau"),
     PORTRAIT_PHOTO("Ảnh thẻ 3x4"),
+    STUDENT_CARD("Thẻ Sinh Viên"),
     COMMITMENT_FORM("Đơn cam kết nội quy ký tên"),
     
     // Giấy tờ minh chứng ưu tiên ứng với 7 đối tượng STU

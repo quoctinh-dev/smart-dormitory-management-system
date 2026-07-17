@@ -1,5 +1,7 @@
 // src/pages/admin/RoomManagement/components/BuildingListDialog.tsx
-import React, { useState } from 'react';
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
 import {
   Dialog,
   DialogTitle,
@@ -13,10 +15,10 @@ import {
   Chip,
   Box,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
+import React, { useState } from 'react';
+
 import type { BuildingResponse } from '@/types/room';
+
 import BuildingFormDialog from './BuildingFormDialog';
 
 export interface BuildingListDialogProps {
@@ -27,12 +29,17 @@ export interface BuildingListDialogProps {
 }
 
 const STATUS_COLOR: Record<string, 'success' | 'warning' | 'error' | 'default'> = {
-  ACTIVE:      'success',
+  ACTIVE: 'success',
   MAINTENANCE: 'warning',
-  CLOSED:      'error',
+  CLOSED: 'error',
 };
 
-export default function BuildingListDialog({ open, onClose, buildings, onRefresh }: BuildingListDialogProps) {
+export default function BuildingListDialog({
+  open,
+  onClose,
+  buildings,
+  onRefresh,
+}: BuildingListDialogProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingResponse | null>(null);
 
@@ -49,7 +56,9 @@ export default function BuildingListDialog({ open, onClose, buildings, onRefresh
   return (
     <>
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <DialogTitle
+          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+        >
           Quản lý Tòa nhà
           <IconButton onClick={onClose} size="small">
             <CloseIcon />
@@ -97,7 +106,10 @@ export default function BuildingListDialog({ open, onClose, buildings, onRefresh
             ))}
             {buildings.length === 0 && (
               <ListItem>
-                <ListItemText primary="Chưa có dữ liệu tòa nhà" sx={{ textAlign: 'center', color: 'text.secondary' }} />
+                <ListItemText
+                  primary="Chưa có dữ liệu tòa nhà"
+                  sx={{ textAlign: 'center', color: 'text.secondary' }}
+                />
               </ListItem>
             )}
           </List>

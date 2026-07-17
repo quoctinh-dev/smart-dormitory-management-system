@@ -1,5 +1,4 @@
 // src/pages/admin/RoomManagement/components/CreateRoomDialog.tsx
-import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,6 +8,8 @@ import {
   TextField,
   CircularProgress,
 } from '@mui/material';
+import React, { useState } from 'react';
+
 import roomApi from '@/api/roomApi';
 import { snackbar } from '@/utils/snackbar';
 
@@ -19,7 +20,12 @@ export interface CreateRoomDialogProps {
   onSuccess: () => void;
 }
 
-export default function CreateRoomDialog({ open, onClose, floorId, onSuccess }: CreateRoomDialogProps) {
+export default function CreateRoomDialog({
+  open,
+  onClose,
+  floorId,
+  onSuccess,
+}: CreateRoomDialogProps) {
   const [roomCode, setRoomCode] = useState('');
   const [capacity, setCapacity] = useState<number | ''>('');
   const [loading, setLoading] = useState(false);
@@ -73,7 +79,7 @@ export default function CreateRoomDialog({ open, onClose, floorId, onSuccess }: 
             onChange={(e) => setCapacity(e.target.value ? Number(e.target.value) : '')}
             required
             slotProps={{
-              htmlInput: { min: 1, max: 12 }
+              htmlInput: { min: 1, max: 12 },
             }}
           />
         </DialogContent>

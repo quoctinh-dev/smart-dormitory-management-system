@@ -1,7 +1,15 @@
 // src/hooks/useRoomDashboard.ts
 import { useState, useEffect, useCallback } from 'react';
+
 import roomApi from '@/api/roomApi';
-import type { BuildingResponse, FloorResponse, RoomWithBeds, RoomResponse, BedResponse } from '@/types/room';
+import type {
+  BuildingResponse,
+  FloorResponse,
+  RoomWithBeds,
+  RoomResponse,
+  BedResponse,
+} from '@/types/room';
+import { snackbar } from '@/utils/snackbar';
 
 export function useRoomDashboard() {
   const [buildings, setBuildings] = useState<BuildingResponse[]>([]);
@@ -10,20 +18,20 @@ export function useRoomDashboard() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('');
   const [selectedFloor, setSelectedFloor] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
 
   // ── Giai đoạn 1: Tải toàn bộ Tòa nhà khi mount ──────────────────────────
   useEffect(() => {
     const fetchBuildings = async () => {
       setLoading(true);
-      setError(null);
+
       try {
         const res = await roomApi.getBuildings();
         // axiosClient interceptor unwrap ApiResponse → data là mảng trực tiếp
         const data = (res as any)?.data ?? res;
         setBuildings(Array.isArray(data) ? (data as BuildingResponse[]) : []);
       } catch (err: any) {
-        setError('Không thể tải danh sách tòa nhà.');
+        snackbar.error('Không thể tải danh sách tòa nhà.');
         console.error('[useRoomDashboard] fetchBuildings:', err);
       } finally {
         setLoading(false);
@@ -42,7 +50,7 @@ export function useRoomDashboard() {
     }
     const fetchFloors = async () => {
       setLoading(true);
-      setError(null);
+
       try {
         const res = await roomApi.getFloorsByBuilding(selectedBuilding);
         const data = (res as any)?.data ?? res;
@@ -50,7 +58,7 @@ export function useRoomDashboard() {
         setSelectedFloor('');
         setRoomsWithBeds([]);
       } catch (err: any) {
-        setError('Không thể tải danh sách tầng.');
+        snackbar.error('Không thể tải danh sách tầng.');
         console.error('[useRoomDashboard] fetchFloors:', err);
       } finally {
         setLoading(false);
@@ -63,7 +71,7 @@ export function useRoomDashboard() {
   const fetchRoomsAndBeds = useCallback(async (floorId: string) => {
     if (!floorId) return;
     setLoading(true);
-    setError(null);
+
     try {
       const roomsRes = await roomApi.getRoomsByFloor(floorId);
       const roomsData: RoomResponse[] = (roomsRes as any)?.data ?? roomsRes ?? [];
@@ -85,7 +93,7 @@ export function useRoomDashboard() {
 
       setRoomsWithBeds(roomsWithBedsList);
     } catch (err: any) {
-      setError('Không thể tải danh sách phòng.');
+      snackbar.error('Không thể tải danh sách phòng.');
       console.error('[useRoomDashboard] fetchRoomsAndBeds:', err);
     } finally {
       setLoading(false);
@@ -109,7 +117,9 @@ export function useRoomDashboard() {
     selectedFloor,
     setSelectedFloor,
     loading,
-    error,
-    refresh: () => { if (selectedFloor) fetchRoomsAndBeds(selectedFloor); },
+
+    refresh: () => {
+      if (selectedFloor) fetchRoomsAndBeds(selectedFloor);
+    },
   };
 }

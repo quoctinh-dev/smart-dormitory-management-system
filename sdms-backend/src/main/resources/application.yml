@@ -5,6 +5,17 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: ""
+      database: 0
+
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+    date-format: yyyy-MM-dd HH:mm:ss
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -47,6 +58,10 @@ cloudinary:
 server:
   port: ${SERVER_PORT:8080}
 
+payment:
+  sepay:
+    api-key: ${SEPAY_API_KEY:default-api-key}
+
 logging:
   level:
     com.sdms.backend: DEBUG
@@ -60,3 +75,7 @@ ai:
   face:
     engine:
       url: http://localhost:8000/api/v1/faces/extract
+
+fpt:
+  ai:
+    api-key: ${FPT_AI_API_KEY}

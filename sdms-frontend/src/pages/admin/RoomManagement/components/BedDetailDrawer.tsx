@@ -1,11 +1,23 @@
 // src/pages/admin/RoomManagement/components/BedDetailDrawer.tsx
+import BuildIcon from '@mui/icons-material/Build';
 import CloseIcon from '@mui/icons-material/Close';
 import HotelIcon from '@mui/icons-material/Hotel';
 import PersonIcon from '@mui/icons-material/Person';
-import BuildIcon from '@mui/icons-material/Build';
 import {
-  Box, Button, Chip, CircularProgress, Divider,
-  Drawer, IconButton, Paper, Stack, Typography,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Divider,
+  Drawer,
+  IconButton,
+  Paper,
+  Stack,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
@@ -21,20 +33,26 @@ export interface BedDetailDrawerProps {
 }
 
 const BED_STATUS_COLOR: Record<BedStatus, 'success' | 'warning' | 'error' | 'default'> = {
-  AVAILABLE:   'success',
-  RESERVED:    'warning',
-  OCCUPIED:    'error',
+  AVAILABLE: 'success',
+  RESERVED: 'warning',
+  OCCUPIED: 'error',
   MAINTENANCE: 'default',
 };
 
 const BED_STATUS_LABEL: Record<BedStatus, string> = {
-  AVAILABLE:   'Trống',
-  RESERVED:    'Đã giữ chỗ (chưa check-in)',
-  OCCUPIED:    'Đang có sinh viên ở',
+  AVAILABLE: 'Trống',
+  RESERVED: 'Đã giữ chỗ (chưa check-in)',
+  OCCUPIED: 'Đang có sinh viên ở',
   MAINTENANCE: 'Đang bảo trì',
 };
 
-export default function BedDetailDrawer({ open, onClose, bed, room, onRefresh }: BedDetailDrawerProps) {
+export default function BedDetailDrawer({
+  open,
+  onClose,
+  bed,
+  room,
+  onRefresh,
+}: BedDetailDrawerProps) {
   const [assignment, setAssignment] = useState<ActiveAssignmentResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -74,6 +92,20 @@ export default function BedDetailDrawer({ open, onClose, bed, room, onRefresh }:
       onRefresh();
     } catch (err: any) {
       setError(err?.response?.data?.message ?? 'Không thể thay đổi trạng thái giường.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleChangeRoomRole = async (newRole: string) => {
+    if (!assignment) return;
+    setActionLoading(true);
+    try {
+      await roomApi.assignRoomRole(assignment.assignmentId, newRole);
+      setAssignment((prev) => (prev ? { ...prev, roomRole: newRole } : null));
+      onRefresh(); // Refresh parent if needed
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? 'Không thể thay đổi chức vụ.');
     } finally {
       setActionLoading(false);
     }
@@ -132,36 +164,43 @@ export default function BedDetailDrawer({ open, onClose, bed, room, onRefresh }:
               </Typography>
             </Stack>
           ) : error ? (
-            <Paper
-              variant="outlined"
-              sx={{ p: 2, borderColor: 'error.main', bgcolor: 'error.50' }}
-            >
-              <Typography color="error" variant="body2">{error}</Typography>
+            <Paper variant="outlined" sx={{ p: 2, borderColor: 'error.main', bgcolor: 'error.50' }}>
+              <Typography color="error" variant="body2">
+                {error}
+              </Typography>
             </Paper>
           ) : isOccupied && assignment ? (
             <Box>
               <Stack direction="row" alignItems="center" spacing={1} mb={2}>
                 <PersonIcon color="primary" fontSize="small" />
-                <Typography variant="subtitle1" fontWeight={700}>Hồ sơ Sinh viên</Typography>
+                <Typography variant="subtitle1" fontWeight={700}>
+                  Hồ sơ Sinh viên
+                </Typography>
               </Stack>
 
               <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, mb: 3 }}>
                 {assignment.student ? (
                   <Stack spacing={1}>
                     <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">Họ tên</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Họ tên
+                      </Typography>
                       <Typography variant="body2" fontWeight={600}>
                         {assignment.student.fullName}
                       </Typography>
                     </Stack>
                     <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">Mã SV</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Mã SV
+                      </Typography>
                       <Typography variant="body2" fontWeight={600}>
                         {assignment.student.studentCode}
                       </Typography>
                     </Stack>
                     <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">Email</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Email
+                      </Typography>
                       <Typography variant="body2">{assignment.student.email}</Typography>
                     </Stack>
                   </Stack>
@@ -174,7 +213,9 @@ export default function BedDetailDrawer({ open, onClose, bed, room, onRefresh }:
 
               <Stack spacing={1.5} direction="row" justifyContent="space-between" mb={2}>
                 <Box>
-                  <Typography variant="caption" color="text.secondary">Ngày giữ chỗ</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Ngày giữ chỗ
+                  </Typography>
                   <Typography variant="body2" fontWeight={600}>
                     {assignment.reservedAt
                       ? new Date(assignment.reservedAt).toLocaleDateString('vi-VN')
@@ -182,7 +223,9 @@ export default function BedDetailDrawer({ open, onClose, bed, room, onRefresh }:
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary">Check-in</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Check-in
+                  </Typography>
                   <Typography variant="body2" fontWeight={600}>
                     {assignment.checkInAt
                       ? new Date(assignment.checkInAt).toLocaleDateString('vi-VN')
@@ -190,7 +233,9 @@ export default function BedDetailDrawer({ open, onClose, bed, room, onRefresh }:
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary">Dự kiến checkout</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Dự kiến checkout
+                  </Typography>
                   <Typography variant="body2" fontWeight={600}>
                     {assignment.expectedCheckOutAt
                       ? new Date(assignment.expectedCheckOutAt).toLocaleDateString('vi-VN')
@@ -199,11 +244,22 @@ export default function BedDetailDrawer({ open, onClose, bed, room, onRefresh }:
                 </Box>
               </Stack>
 
-              <Chip
-                label={`Hợp đồng: ${assignment.status}`}
-                variant="outlined"
-                size="small"
-              />
+              <Stack direction="row" alignItems="center" spacing={2} mb={2}>
+                <Chip label={`Hợp đồng: ${assignment.status}`} variant="outlined" size="small" />
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>Chức vụ trong phòng</InputLabel>
+                  <Select
+                    value={assignment.roomRole || 'MEMBER'}
+                    label="Chức vụ trong phòng"
+                    onChange={(e) => handleChangeRoomRole(e.target.value)}
+                    disabled={actionLoading}
+                  >
+                    <MenuItem value="ROOM_LEADER">Trưởng phòng</MenuItem>
+                    <MenuItem value="DEPUTY_LEADER">Phó phòng</MenuItem>
+                    <MenuItem value="MEMBER">Thành viên</MenuItem>
+                  </Select>
+                </FormControl>
+              </Stack>
             </Box>
           ) : !isOccupied ? (
             <Stack alignItems="center" justifyContent="center" py={5} spacing={2}>

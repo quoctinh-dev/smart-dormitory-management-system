@@ -5,9 +5,9 @@ import Grid from '@mui/material/Grid2';
 import React, { useState } from 'react';
 
 import type { RoomWithBeds, BedResponse } from '@/types/room';
-import RoomCard from './components/RoomCard';
-import BedDetailDrawer from './components/BedDetailDrawer';
 
+import BedDetailDrawer from './components/BedDetailDrawer';
+import RoomCard from './components/RoomCard';
 import UpdateRoomDialog from './components/UpdateRoomDialog';
 
 export interface DashboardViewProps {
@@ -19,7 +19,7 @@ export default function DashboardView({ roomsWithBeds, onRefresh }: DashboardVie
   const [selectedBed, setSelectedBed] = useState<BedResponse | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<RoomWithBeds | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  
+
   // State for Update Room
   const [editRoomOpen, setEditRoomOpen] = useState(false);
   const [roomToEdit, setRoomToEdit] = useState<RoomWithBeds | null>(null);
@@ -64,7 +64,7 @@ export default function DashboardView({ roomsWithBeds, onRefresh }: DashboardVie
   const handleChangeStatus = async (roomId: string, status: string) => {
     const { default: roomApi } = await import('@/api/roomApi');
     const { snackbar } = await import('@/utils/snackbar');
-    
+
     try {
       await roomApi.patchRoomStatus(roomId, status as any);
       snackbar.success('Cập nhật trạng thái phòng thành công');

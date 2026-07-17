@@ -7,7 +7,6 @@ import {
   Step,
   StepLabel,
   StepContent,
-  Stack,
 } from '@mui/material';
 
 const REGISTRATION_STEPS = [
@@ -94,7 +93,9 @@ export default function ProcessSection() {
                     {step.label}
                   </Typography>
                 </StepLabel>
-                <StepContent sx={{ ml: 2.2, borderLeft: '2px dashed', borderColor: 'primary.light' }}>
+                <StepContent
+                  sx={{ ml: 2.2, borderLeft: '2px dashed', borderColor: 'primary.light' }}
+                >
                   <Typography
                     variant="body1"
                     sx={{

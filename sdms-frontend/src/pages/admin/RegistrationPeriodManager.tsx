@@ -17,12 +17,11 @@ import {
   DialogActions,
   TextField,
   MenuItem,
-  Snackbar,
-  Alert,
   Box,
   CircularProgress,
   Chip,
   Tooltip,
+  Alert,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { alpha } from '@mui/material/styles';
@@ -43,11 +42,9 @@ export default function RegistrationPeriodManager() {
     periods,
     loading,
     isSubmitting,
-    error,
     openDialog,
     editMode,
     formData,
-    snackbar,
     eligibilityDialogOpen,
     selectedPeriodForEligibility,
     activationConfirmOpen,
@@ -59,7 +56,6 @@ export default function RegistrationPeriodManager() {
     handleCloseActivationConfirm,
     handleConfirmActivation,
     handleFormChange,
-    handleCloseSnackbar,
     handleSubmitPeriod,
     handleToggleStatus,
   } = useRegistrationManagerUi();
@@ -84,11 +80,6 @@ export default function RegistrationPeriodManager() {
         </Button>
       </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-          {error}
-        </Alert>
-      )}
 
       {/* Main Grid/Table Wrapper */}
       <TableContainer
@@ -159,7 +150,7 @@ export default function RegistrationPeriodManager() {
                         gap: 0.5,
                       }}
                     >
-                      {row.registrationType !== 'OPEN_REGISTRATION' && (
+                      {row.registrationType !== 'CURRENT_RESIDENT' && (
                         <Tooltip title="Danh sách đủ điều kiện">
                           <IconButton
                             color="info"
@@ -296,12 +287,17 @@ export default function RegistrationPeriodManager() {
         period={selectedPeriodForEligibility}
       />
 
-      <Dialog open={activationConfirmOpen} onClose={handleCloseActivationConfirm} maxWidth="sm" fullWidth>
+      <Dialog
+        open={activationConfirmOpen}
+        onClose={handleCloseActivationConfirm}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle sx={{ fontWeight: 700 }}>Kích hoạt đợt đăng ký</DialogTitle>
         <DialogContent dividers>
           <Typography variant="body1">
-            Kích hoạt đợt này sẽ tự động dừng các đợt đăng ký khác đang mở để đảm bảo chỉ có
-            một đợt hoạt động.
+            Kích hoạt đợt này sẽ tự động dừng các đợt đăng ký khác đang mở để đảm bảo chỉ có một đợt
+            hoạt động.
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             Bạn có muốn tiếp tục không?
@@ -309,26 +305,16 @@ export default function RegistrationPeriodManager() {
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={handleCloseActivationConfirm}>Hủy</Button>
-          <Button onClick={handleConfirmActivation} variant="contained" color="success" disabled={isSubmitting}>
+          <Button
+            onClick={handleConfirmActivation}
+            variant="contained"
+            color="success"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? <CircularProgress size={20} color="inherit" /> : 'Kích hoạt'}
           </Button>
         </DialogActions>
       </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: '100%', borderRadius: 2 }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 }

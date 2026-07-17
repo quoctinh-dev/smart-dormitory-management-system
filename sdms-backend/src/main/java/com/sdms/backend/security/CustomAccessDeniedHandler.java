@@ -32,11 +32,13 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     ) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
 
         Map<String, Object> body = new HashMap<>();
         body.put("success", false);
-        body.put("status", HttpServletResponse.SC_FORBIDDEN);
-        body.put("message", "Access Denied");
+        body.put("errorCode", com.sdms.backend.common.exception.ErrorCode.FORBIDDEN.name());
+        body.put("message", com.sdms.backend.common.exception.ErrorCode.FORBIDDEN.getMessage());
+        body.put("data", null);
 
         objectMapper.writeValue(response.getOutputStream(), body);
     }

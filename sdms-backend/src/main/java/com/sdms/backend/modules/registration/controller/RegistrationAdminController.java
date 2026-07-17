@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,34 +26,34 @@ public class RegistrationAdminController {
 
     @Operation(summary = "Tạo đợt đăng ký mới")
     @PostMapping
-    public ResponseEntity<ApiResponse<RegistrationPeriodResponse>> create(@Valid @RequestBody CreateRegistrationPeriodRequest req) {
-        return ResponseEntity.ok(new ApiResponse<>(true, "Tạo thành công", service.createPeriod(req)));
+    public ApiResponse<RegistrationPeriodResponse> create(@Valid @RequestBody CreateRegistrationPeriodRequest req) {
+        return ApiResponse.success("Tạo thành công", service.createPeriod(req));
     }
 
     @Operation(summary = "Lấy danh sách tất cả các đợt")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<RegistrationPeriodResponse>>> getAll() {
-        return ResponseEntity.ok(new ApiResponse<>(true, "Thành công", service.getAllPeriods()));
+    public ApiResponse<List<RegistrationPeriodResponse>> getAll() {
+        return ApiResponse.success("Thành công", service.getAllPeriods());
     }
 
     @Operation(summary = "Kích hoạt đợt (Tự động tắt các đợt khác)")
     @PatchMapping("/{id}/activate")
-    public ResponseEntity<ApiResponse<Void>> activate(@PathVariable UUID id) {
+    public ApiResponse<Void> activate(@PathVariable UUID id) {
         service.activatePeriod(id);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Kích hoạt thành công", null));
+        return ApiResponse.success("Kích hoạt thành công");
     }
 
     @Operation(summary = "Tắt đợt đang hoạt động")
     @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<ApiResponse<Void>> deactivate(@PathVariable UUID id) {
+    public ApiResponse<Void> deactivate(@PathVariable UUID id) {
         service.deactivatePeriod(id);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Đã tắt đợt", null));
+        return ApiResponse.success("Đã tắt đợt");
     }
 
     @Operation(summary = "Cập nhật thông tin đợt")
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<RegistrationPeriodResponse>> update(
+    public ApiResponse<RegistrationPeriodResponse> update(
             @PathVariable UUID id, @Valid @RequestBody UpdateRegistrationPeriodRequest req) {
-        return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật thành công", service.updatePeriod(id, req)));
+        return ApiResponse.success("Cập nhật thành công", service.updatePeriod(id, req));
     }
 }

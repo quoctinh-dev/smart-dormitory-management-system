@@ -4,9 +4,10 @@ import com.sdms.backend.common.response.ApiResponse;
 import com.sdms.backend.modules.smartaccess.application.service.RoomPinService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +25,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/room-pins")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
+@Tag(name = "Mã PIN phòng (Room PIN)", description = "API quản lý mã PIN cửa các phòng")
 public class RoomPinController {
 
     private final RoomPinService roomPinService;
@@ -32,21 +34,23 @@ public class RoomPinController {
      * Lấy PIN hiện tại của 1 phòng.
      * GET /api/v1/room-pins/{roomId}
      */
+    @Operation(summary = "Lấy mã PIN", description = "Lấy mã PIN hiện tại của một phòng cụ thể")
     @GetMapping("/{roomId}")
-    public ResponseEntity<ApiResponse<Map<String, String>>> getRoomPin(@PathVariable UUID roomId) {
+    public ApiResponse<Map<String, String>> getRoomPin(@PathVariable UUID roomId) {
         String pin = roomPinService.getPinForRoom(roomId);
-        return ResponseEntity.ok(ApiResponse.success("Room PIN fetched", Map.of("roomId", roomId.toString(), "pin", pin)));
+        return ApiResponse.success("Lấy mã PIN phòng thành công", Map.of("roomId", roomId.toString(), "pin", pin));
     }
 
     /**
      * Reset PIN cho 1 phòng cụ thể.
      * POST /api/v1/room-pins/{roomId}/reset
      */
+    @Operation(summary = "Reset mã PIN", description = "Tạo mã PIN mới ngẫu nhiên cho một phòng cụ thể")
     @PostMapping("/{roomId}/reset")
-    public ResponseEntity<ApiResponse<Map<String, String>>> resetRoomPin(@PathVariable UUID roomId) {
+    public ApiResponse<Map<String, String>> resetRoomPin(@PathVariable UUID roomId) {
         String newPin = roomPinService.resetPinForRoom(roomId);
         log.info("[Admin] Reset PIN for roomId={}", roomId);
-        return ResponseEntity.ok(ApiResponse.success("PIN reset successfully", Map.of("roomId", roomId.toString(), "newPin", newPin)));
+        return ApiResponse.success("Khôi phục mã PIN thành công", Map.of("roomId", roomId.toString(), "newPin", newPin));
     }
 
     /**
@@ -54,14 +58,15 @@ public class RoomPinController {
      * POST /api/v1/room-pins/bulk-generate
      * Dùng khi: Khởi tạo hệ thống lần đầu, thêm nhiều phòng mới.
      */
+    @Operation(summary = "Tạo PIN hàng loạt", description = "Tự động sinh mã PIN cho tất cả các phòng chưa có PIN")
     @PostMapping("/bulk-generate")
-    public ResponseEntity<ApiResponse<Map<String, Integer>>> bulkGeneratePins() {
+    public ApiResponse<Map<String, Integer>> bulkGeneratePins() {
         int count = roomPinService.generatePinsForAllRoomsWithoutPin();
         log.info("[Admin] Bulk generated PINs for {} rooms.", count);
-        return ResponseEntity.ok(ApiResponse.success(
-            "PIN generated for " + count + " rooms without PIN.",
+        return ApiResponse.success(
+            "Đã tạo PIN thành công cho " + count + " phòng.",
             Map.of("generatedCount", count)
-        ));
+        );
     }
 
     /**
@@ -69,13 +74,14 @@ public class RoomPinController {
      * POST /api/v1/room-pins/bulk-reset
      * Dùng khi: Cần làm mới toàn bộ hệ thống bảo mật (sau sự cố, cuối kỳ...).
      */
+    @Operation(summary = "Reset PIN toàn bộ hệ thống", description = "Làm mới mã PIN cho tất cả các phòng trong hệ thống")
     @PostMapping("/bulk-reset")
-    public ResponseEntity<ApiResponse<Map<String, Integer>>> bulkResetAllPins() {
+    public ApiResponse<Map<String, Integer>> bulkResetAllPins() {
         int count = roomPinService.resetPinsForAllRooms();
         log.info("[Admin] Bulk RESET all PINs for {} rooms.", count);
-        return ResponseEntity.ok(ApiResponse.success(
-            "All room PINs have been reset. Total: " + count + " rooms.",
+        return ApiResponse.success(
+            "Đã làm mới mã PIN cho toàn bộ " + count + " phòng trong hệ thống.",
             Map.of("resetCount", count)
-        ));
+        );
     }
 }

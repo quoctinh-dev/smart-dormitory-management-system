@@ -1,80 +1,71 @@
 // 📄 File: src/pages/public/StatusPage.jsx
-import { Container, Paper, Fade, Box, Typography, TextField, Button, Alert } from '@mui/material';
+import { Container, Paper, Fade, Box, Typography, TextField, Button, Alert, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Tooltip } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom'; // 🌟 BỔ SUNG: Để điều hướng trang
 
-import { paymentApi } from '@/api';
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useApplicationStatus } from '@/hooks/useApplicationStatus';
-import { snackbar } from '@/utils/snackbar';
 import ApplicationInfo from '@/pages/public/components/Status/ApplicationInfo';
 import AssignmentInfo from '@/pages/public/components/Status/AssignmentInfo';
 import StatusIndicator from '@/pages/public/components/Status/StatusIndicator';
 
 export default function StatusPage() {
   const navigate = useNavigate(); // 🌟 Khởi tạo navigate
-  const [cccd, setCccd] = useState('');
+  const [studentCode, setStudentCode] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentQrUrl, setPaymentQrUrl] = useState(null);
 
-  const { application, loading, fetchStatus } = useApplicationStatus();
+  const { application, loading, paymentLoading, fetchStatus, handleOnlinePayment } =
+    useApplicationStatus();
 
-  const handleCccdChange = (e: any) => {
+  // Bóc tách thông tin từ URL QR để hiển thị cho người dùng tự gõ
+  const qrDetails = useMemo(() => {
+    if (!paymentQrUrl) return null;
+    try {
+      const url = new URL(paymentQrUrl);
+      return {
+        bank: url.searchParams.get('bank') || 'Ngân hàng',
+        acc: url.searchParams.get('acc') || '',
+        amount: url.searchParams.get('amount') || '',
+        des: url.searchParams.get('des') || '',
+      };
+    } catch (e) {
+      return null;
+    }
+  }, [paymentQrUrl]);
+
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const handleStudentCodeChange = (e) => {
     const rawValue = e.target.value;
-    const onlyNums = rawValue.replace(/[^0-9]/g, '');
-    setCccd(onlyNums);
+    setStudentCode(rawValue);
     if (hasSearched) setHasSearched(false);
   };
 
   const handleSearch = useCallback(() => {
-    const cleanCccd = cccd.trim();
-    if (!cleanCccd || (cleanCccd.length !== 9 && cleanCccd.length !== 12)) return;
+    const cleanStudentCode = studentCode.trim();
+    if (!cleanStudentCode) return;
 
     setHasSearched(true);
-    fetchStatus(cleanCccd);
-  }, [cccd, fetchStatus]);
+    fetchStatus(cleanStudentCode);
+  }, [studentCode, fetchStatus]);
 
-  const handleKeyDown = (e: any) => {
+  const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
   };
 
-  const handleMockPayment = async () => {
-    if (!application?.applicationId) return;
-
-    setPaymentLoading(true);
-    try {
-      await paymentApi.mockPaymentSuccess(application.applicationId);
-      snackbar.success(
-        'Thanh toán giả lập thành công! Giường và hóa đơn của bạn đã được chuyển sang trạng thái CHÍNH THỨC.'
-      );
-      fetchStatus(cccd.trim());
-    } catch (err: any) {
-      console.error(err);
-      snackbar.error(
-        'Lỗi hệ thống khi thanh toán thử nghiệm: ' + (err.response?.data?.message || err.message)
-      );
-    } finally {
-      setPaymentLoading(false);
-    }
-  };
-
-  const currentLength = cccd.length;
-  const isLengthInvalid = useMemo(
-    () => currentLength > 0 && currentLength !== 9 && currentLength !== 12,
-    [currentLength]
-  );
   const isBtnDisabled = useMemo(
-    () => loading || !cccd || isLengthInvalid,
-    [loading, cccd, isLengthInvalid]
+    () => loading || !studentCode,
+    [loading, studentCode]
   );
 
-  const helperText = useMemo(() => {
-    return isLengthInvalid
-      ? `Độ dài: ${currentLength} số (Yêu cầu đúng 9 hoặc 12 số).`
-      : 'Nhập CMND cũ (9 số) hoặc CCCD mới (12 số).';
-  }, [isLengthInvalid, currentLength]);
+  const helperText = 'Nhập Mã số sinh viên của bạn để tra cứu';
 
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
@@ -93,7 +84,7 @@ export default function StatusPage() {
               Tra cứu trạng thái hồ sơ
             </Typography>
             <Typography variant="body1" sx={{ opacity: 0.8, mt: 1 }}>
-              Nhập số CCCD/CMND để xem tiến độ duyệt hồ sơ của bạn
+              Nhập Mã số sinh viên để xem tiến độ duyệt hồ sơ của bạn
             </Typography>
           </Box>
 
@@ -102,17 +93,12 @@ export default function StatusPage() {
             <Box sx={{ display: 'flex', gap: 2, mb: 4, alignItems: 'flex-start' }}>
               <TextField
                 fullWidth
-                label="Số CCCD / CMND"
+                label="Mã số sinh viên"
                 variant="outlined"
-                value={cccd}
-                onChange={handleCccdChange}
+                value={studentCode}
+                onChange={handleStudentCodeChange}
                 onKeyDown={handleKeyDown}
-                error={isLengthInvalid}
                 helperText={helperText}
-                inputProps={{
-                  maxLength: 12,
-                  inputMode: 'numeric',
-                }}
               />
               <Button
                 variant="contained"
@@ -165,51 +151,29 @@ export default function StatusPage() {
                     fetchStatus={fetchStatus}
                   />
 
-                  {/* KHU VỰC 1: THANH TOÁN MOCK TIỀN PHÒNG */}
-                  {application.status === 'WAITING_PAYMENT' && (
-                    <Box
-                      sx={{
-                        mt: 4,
-                        p: 4,
-                        bgcolor: (theme) =>
-                          theme.palette.mode === 'dark' ? 'grey.900' : 'grey.50',
-                        borderRadius: 4,
-                        border: '1px dashed',
-                        borderColor: 'warning.main',
-                        textAlign: 'center',
-                      }}
-                    >
-                      <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                        Hồ sơ hợp lệ & Đã được cấp phòng thành công!
-                      </Typography>
-                      <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-                        Số tiền lưu trú cần đóng cho học kỳ này:
-                        <span
-                          style={{
-                            color: '#d32f2f',
-                            fontSize: '1.4rem',
-                            fontWeight: 'bold',
-                            marginLeft: '6px',
-                          }}
-                        >
-                          {application.bill
-                            ? application.bill.amount.toLocaleString('vi-VN')
-                            : '2,100,000'}
-                        </span>{' '}
-                        đ
-                      </Typography>
+                  {/* KHU VỰC 1: THANH TOÁN ONLINE */}
+                  {application.status === 'WAITING_PAYMENT' && application.bill && (
+                    <Box sx={{ mt: 3, textAlign: 'center' }}>
                       <Button
                         variant="contained"
-                        color="success"
+                        color="primary"
                         size="large"
                         disabled={paymentLoading}
-                        onClick={handleMockPayment}
-                        sx={{ fontWeight: 'bold', px: 5, py: 1.8, borderRadius: 2 }}
+                        onClick={async () => {
+                          const url = await handleOnlinePayment('BANK_TRANSFER');
+                          if (url) {
+                            setPaymentQrUrl(url);
+                          }
+                        }}
+                        sx={{ py: 1.5, fontSize: '1.1rem', borderRadius: 2 }}
                       >
-                        {paymentLoading
-                          ? 'Đang xử lý thanh toán...'
-                          : 'Xác nhận thanh toán thử nghiệm (2.100.000đ)'}
+                        {paymentLoading 
+                          ? 'ĐANG TẠO MÃ QR...' 
+                          : `TẠO MÃ QR THANH TOÁN - ${application.bill.amount.toLocaleString('vi-VN')}đ`}
                       </Button>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        Nhấn nút trên để lấy thông tin mã QR chuyển khoản tiền phòng tự động.
+                      </Typography>
                     </Box>
                   )}
 
@@ -269,6 +233,138 @@ export default function StatusPage() {
           </Box>
         </Paper>
       </Fade>
+
+      {/* DIALOG SHOW QR CODE CAO CẤP */}
+      <Dialog 
+        open={!!paymentQrUrl} 
+        onClose={() => setPaymentQrUrl(null)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3, overflow: 'hidden' }
+        }}
+      >
+        <DialogTitle sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          bgcolor: 'primary.main',
+          color: 'primary.contrastText',
+          p: 2
+        }}>
+          <Typography variant="h6" fontWeight="bold">Thông Tin Thanh Toán</Typography>
+          <IconButton onClick={() => setPaymentQrUrl(null)} sx={{ color: 'white' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        
+        <DialogContent dividers sx={{ p: 0, bgcolor: '#f8f9fa' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
+            {/* CỘT TRÁI: QR CODE */}
+            <Box sx={{ 
+              flex: 1, 
+              p: 4, 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center',
+              borderRight: { md: '1px solid #e0e0e0' },
+              bgcolor: 'white'
+            }}>
+              <Typography variant="subtitle1" fontWeight="bold" gutterBottom color="primary.main">
+                Cách 1: Quét mã QR (Khuyên dùng)
+              </Typography>
+              <Typography variant="body2" color="text.secondary" textAlign="center" mb={3}>
+                Mở ứng dụng ngân hàng và quét mã để tự động điền mọi thông tin.
+              </Typography>
+              
+              <Box sx={{ 
+                p: 2, 
+                border: '2px dashed #ccc', 
+                borderRadius: 4, 
+                bgcolor: '#fff',
+                width: 250,
+                height: 250,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {paymentQrUrl && (
+                  <img 
+                    src={paymentQrUrl} 
+                    alt="Mã QR Thanh Toán" 
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+                  />
+                )}
+              </Box>
+            </Box>
+
+            {/* CỘT PHẢI: MANUAL INFO */}
+            <Box sx={{ flex: 1, p: 4 }}>
+              <Typography variant="subtitle1" fontWeight="bold" gutterBottom color="primary.main">
+                Cách 2: Chuyển khoản thủ công
+              </Typography>
+              <Typography variant="body2" color="text.secondary" mb={3}>
+                Nếu bạn không thể quét QR (VD: Đang dùng điện thoại), hãy copy chính xác các thông tin sau:
+              </Typography>
+
+              {qrDetails && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Ngân hàng thụ hưởng</Typography>
+                    <Typography variant="body1" fontWeight="bold">{qrDetails.bank}</Typography>
+                  </Box>
+                  
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Tên tài khoản</Typography>
+                    <Typography variant="body1" fontWeight="bold">TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN</Typography>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">Số tài khoản</Typography>
+                      <Typography variant="h6" fontWeight="bold" color="primary.dark">{qrDetails.acc}</Typography>
+                    </Box>
+                    <Tooltip title="Copy số tài khoản">
+                      <IconButton size="small" onClick={() => handleCopy(qrDetails.acc)} sx={{ bgcolor: 'action.hover' }}>
+                        <ContentCopyIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">Số tiền</Typography>
+                      <Typography variant="h6" fontWeight="bold" color="error.main">
+                        {parseInt(qrDetails.amount).toLocaleString('vi-VN')} VNĐ
+                      </Typography>
+                    </Box>
+                    <Tooltip title="Copy số tiền">
+                      <IconButton size="small" onClick={() => handleCopy(qrDetails.amount)} sx={{ bgcolor: 'action.hover' }}>
+                        <ContentCopyIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, bgcolor: '#fff3cd', borderRadius: 2, border: '1px solid #ffe69c' }}>
+                    <Box>
+                      <Typography variant="caption" sx={{ color: '#856404', fontWeight: 'bold' }}>Nội dung chuyển khoản (BẮT BUỘC CHÍNH XÁC)</Typography>
+                      <Typography variant="h6" fontWeight="bold" sx={{ color: '#d32f2f' }}>{qrDetails.des}</Typography>
+                    </Box>
+                    <Tooltip title="Copy nội dung">
+                      <IconButton size="small" onClick={() => handleCopy(qrDetails.des)} sx={{ bgcolor: 'rgba(0,0,0,0.05)' }}>
+                        <ContentCopyIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, bgcolor: '#f8f9fa' }}>
+          <Button onClick={() => setPaymentQrUrl(null)} variant="outlined" size="large">Đóng Lại</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }

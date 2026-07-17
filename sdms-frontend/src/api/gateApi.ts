@@ -25,7 +25,7 @@ const gateApi = {
   getAllGates(): Promise<GateResponse[]> {
     return axiosClient.get('/v1/gates');
   },
-  
+
   getGateById(id: string): Promise<GateResponse> {
     return axiosClient.get(`/v1/gates/${id}`);
   },
@@ -40,7 +40,7 @@ const gateApi = {
 
   deleteGate(id: string): Promise<void> {
     return axiosClient.delete(`/v1/gates/${id}`);
-  }
+  },
 };
 
 export default gateApi;

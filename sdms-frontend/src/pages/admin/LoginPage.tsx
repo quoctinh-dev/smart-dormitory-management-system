@@ -11,14 +11,22 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useLogin } from '@/hooks/useLogin';
 
-function LoginPage() {
+type LoginPageProps = Record<string, never>;
+
+const LoginPage: React.FC<LoginPageProps> = () => {
   const navigate = useNavigate();
+
   const { formData, showPassword, loading, error, handleChange, toggleShowPassword, handleSubmit } =
     useLogin();
+
+  const onFormSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+    handleSubmit(event);
+  };
 
   return (
     <Box
@@ -29,11 +37,8 @@ function LoginPage() {
         minHeight: '80vh',
       }}
     >
-      {/* TỐI ƯU: Loại bỏ sx borderRadius và boxShadow vì MuiCard styleOverrides ở theme đã lo phần này */}
       <Card sx={{ width: '100%', maxWidth: 460, mx: 'auto' }}>
         <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-          {' '}
-          {/* TỐI ƯU: Responsive padding cho thiết bị di động */}
           {/* Header / Icon */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
             <Box
@@ -61,14 +66,16 @@ function LoginPage() {
               Đăng nhập để tiếp tục vào phân hệ Admin
             </Typography>
           </Box>
-          {/* Hiển thị lỗi */}
+
+          {/* Hiển thị thông báo lỗi */}
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
               {String(error)}
             </Alert>
           )}
+
           {/* Form nhập liệu */}
-          <Box component="form" onSubmit={handleSubmit} noValidate>
+          <Box component="form" onSubmit={onFormSubmit} noValidate>
             <TextField
               margin="normal"
               required
@@ -96,7 +103,15 @@ function LoginPage() {
               value={formData.password}
               onChange={handleChange}
               disabled={loading}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+              sx={{
+                '& .MuiOutlinedInput-root': { borderRadius: 2 },
+                '& input::-ms-reveal, & input::-ms-clear': { display: 'none' },
+                '& input::-webkit-credentials-auto-fill-button': {
+                  visibility: 'hidden',
+                  display: 'none !important',
+                },
+              }}
+
               slotProps={{
                 input: {
                   endAdornment: (
@@ -115,7 +130,6 @@ function LoginPage() {
                 },
               }}
               inputProps={{
-                autoComplete: 'current-password',
                 'data-form-type': 'other',
                 'data-lpignore': 'true',
               }}
@@ -147,6 +161,6 @@ function LoginPage() {
       </Card>
     </Box>
   );
-}
+};
 
 export default LoginPage;

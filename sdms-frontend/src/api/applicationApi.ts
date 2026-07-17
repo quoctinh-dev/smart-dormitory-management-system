@@ -1,5 +1,9 @@
 import axiosClient from './axiosClient';
-import type { ApplicationResponse, ApplicationCreateRequest } from '../types/application';
+import type {
+  ApplicationResponse,
+  ApplicationCreateRequest,
+  PageResponse,
+} from '../types/application';
 
 const APP_URL = '/v1/applications';
 const ADMIN_APP_URL = '/v1/admin/applications';
@@ -14,12 +18,17 @@ const applicationApi = {
     return axiosClient.get(`${APP_URL}/${id}`);
   },
 
-  getAll(params: any): Promise<any> {
+  getAll(params: {
+    page?: number;
+    size?: number;
+    status?: string | null;
+    search?: string;
+  }): Promise<PageResponse<ApplicationResponse>> {
     return axiosClient.get(APP_URL, { params });
   },
 
-  getStatus({ cccd }: { cccd: string }): Promise<ApplicationResponse[]> {
-    return axiosClient.get(`${APP_URL}/status`, { params: { cccd } });
+  getStatus({ studentCode }: { studentCode: string }): Promise<ApplicationResponse[]> {
+    return axiosClient.get(`${APP_URL}/status`, { params: { studentCode } });
   },
 
   approve(id: string, note = 'Approved via Web'): Promise<void> {
@@ -30,7 +39,11 @@ const applicationApi = {
     return axiosClient.patch(`${ADMIN_APP_URL}/${id}/reject`, { note });
   },
 
-  requestRevision(id: string, note = 'Please review your documents', deadlineDays = 3): Promise<void> {
+  requestRevision(
+    id: string,
+    note = 'Please review your documents',
+    deadlineDays = 3
+  ): Promise<void> {
     return axiosClient.patch(`${ADMIN_APP_URL}/${id}/request-revision`, { note, deadlineDays });
   },
 

@@ -19,7 +19,8 @@ public class StayExtensionResponse {
     private UUID currentBedId;
     private String currentBedCode;
     private String currentRoomCode;
-    private String pdfUrl;
+    private String contractPdfUrl;
+    private String commitmentPdfUrl;
     private String description;
     private String rejectReason;
     private java.time.LocalDateTime oldExpectedCheckOutAt;

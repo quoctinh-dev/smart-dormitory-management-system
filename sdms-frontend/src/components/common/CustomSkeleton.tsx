@@ -1,10 +1,33 @@
-import { Box, Skeleton, Stack, Paper } from '@mui/material';
+import { Skeleton } from '@mui/material';
+import { Box, Stack, Paper } from '@mui/material';
 
-const SkeletonItem = (props: any) => (
-  <Skeleton animation="wave" sx={{ bgcolor: 'grey.200' }} {...props} />
+type SkeletonVariant = 'circular' | 'rectangular' | 'rounded' | 'text';
+
+interface SkeletonItemProps {
+  variant?: SkeletonVariant;
+  width?: number | string;
+  height?: number | string;
+  sx?: object;
+}
+
+const SkeletonItem = ({ variant, width, height, sx }: SkeletonItemProps) => (
+  <Skeleton
+    animation="wave"
+    variant={variant}
+    width={width}
+    height={height}
+    sx={{ bgcolor: 'grey.200', ...sx }}
+  />
 );
 
-export default function CustomSkeleton({ type = 'card', count = 3 }: any) {
+export type SkeletonType = 'dashboard' | 'list' | 'form' | 'card' | 'table';
+
+interface CustomSkeletonProps {
+  type?: SkeletonType;
+  count?: number;
+}
+
+export default function CustomSkeleton({ type = 'card', count = 3 }: CustomSkeletonProps) {
   const loops = Array.from({ length: count });
 
   const renderSkeleton = () => {

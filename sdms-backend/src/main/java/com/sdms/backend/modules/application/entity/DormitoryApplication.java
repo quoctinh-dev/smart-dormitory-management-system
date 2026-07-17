@@ -93,6 +93,9 @@ public class DormitoryApplication extends BaseEntity {
     @Column(length = 100)
     private String faculty;
 
+    @Column(length = 20)
+    private String cohort; // Khóa (e.g., K26)
+
     @Column(columnDefinition = "TEXT")
     private String contactAddress;
 
@@ -118,12 +121,6 @@ public class DormitoryApplication extends BaseEntity {
 
     @Column(length = 20)
     private String motherPhone;
-
-    @Column(columnDefinition = "TEXT")
-    private String familyContact; // Liên hệ khi cần (Mục II.3)
-
-    @Column(length = 100)
-    private String emergencyContact; // SDMS System Extension
 
     // --- Nghiệp vụ phân tầng xử lý dữ liệu và Hàng đợi ---
     @Enumerated(EnumType.STRING)

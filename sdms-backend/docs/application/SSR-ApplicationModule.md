@@ -22,7 +22,7 @@ Module này chịu trách nhiệm cho toàn bộ vòng đời của một đơn 
     - **Hậu điều kiện:** Một bản ghi `VerificationDocument` được tạo và liên kết với đơn đăng ký.
 - **[FR-APP-003] Nộp Đơn chính thức:**
     - **Mô tả:** Hệ thống **Phải** cho phép sinh viên nộp đơn để chờ xét duyệt.
-    - **Tiền điều kiện:** Đơn đang ở trạng thái `DRAFT` hoặc `REQUEST_REVISION` và đã có đủ các giấy tờ bắt buộc.
+    - **Tiền điều kiện:** Đơn đang ở trạng thái `DRAFT` hoặc `REQUEST_REVISION` và đã có đủ các giấy tờ bắt buộc (Bao gồm CCCD để thực hiện OCR và đối chiếu).
     - **Hậu điều kiện:** Trạng thái của đơn được chuyển thành `PENDING`. Hệ thống **Nên** phát ra sự kiện `ApplicationSubmittedEvent`.
 
 ### Nhóm [FR-APP-REVIEW]: Xét duyệt Đơn

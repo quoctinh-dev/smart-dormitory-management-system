@@ -19,4 +19,6 @@ public class EligibilityResponse {
     private String fullName;
 
     private String studentCode;
+
+    private String email;
 }

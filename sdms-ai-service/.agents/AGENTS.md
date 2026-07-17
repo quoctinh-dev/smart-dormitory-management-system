@@ -81,3 +81,38 @@ If a change is made to the Vector size or API Response schema, you MUST notify t
 ## DETAILED TESTING GUIDANCE RULE (LUẬT HƯỚNG DẪN KIỂM THỬ CHI TIẾT)
 - **Detailed Scenarios:** When instructing a user to perform an End-to-End (E2E) or Integration test, the Agent MUST provide concrete, step-by-step actions.
 - **Log Monitoring & Troubleshooting:** The Agent MUST specify exactly which logs or serial monitors to observe, what the expected success output looks like, and provide troubleshooting steps for common failures. Do not just say "test it".
+
+## API RESPONSE & EXCEPTION ARCHITECTURE CONTRACT (LUẬT CẤU TRÚC PHẢN HỒI & NGOẠI LỆ API)
+**Version:** 1.0
+**Status:** Mandatory
+**Scope:** AI Service (FastAPI) API Responses
+
+### 1. PURPOSE
+This document defines the only allowed API Response Contract and Exception Handling architecture in SDMS.
+Even though the AI Service is written in Python (FastAPI), its API responses MUST STRICTLY MATCH the Java Backend `ApiResponse<T>` envelope so that the Frontend and Mobile apps can parse them consistently.
+
+### 2. ApiResponse CONTRACT
+Every successful API response MUST follow:
+```json
+{
+    "success": true,
+    "message": "...",
+    "data": { ... }
+}
+```
+
+Every failed API response (e.g. Face Not Found, Invalid Image) MUST follow:
+```json
+{
+    "success": false,
+    "message": "...",
+    "errorCode": "...",
+    "data": null
+}
+```
+
+### 3. ERROR CODE & HTTP STATUS
+Do not throw raw `HTTPException(status_code=400, detail="Error string")` if it doesn't match the `ApiResponse` shape.
+You MUST format the FastAPI JSONResponse to match the exact envelope above.
+- HTTP Status represents transport status (400, 404, 500).
+- `errorCode` represents business status (e.g., `FACE_NOT_FOUND`, `IMAGE_BLURRY`).

@@ -31,7 +31,7 @@ import { snackbar } from '@/utils/snackbar';
 export default function NotificationHistory() {
   const [logs, setLogs] = useState<NotificationDeliveryLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalElements, setTotalElements] = useState(0);
@@ -66,10 +66,9 @@ export default function NotificationHistory() {
       );
       setLogs(data.content || []);
       setTotalElements(data.totalElements || 0);
-      setError(null);
     } catch (requestError) {
       console.error(requestError);
-      setError('Loi khi tai lich su thong bao');
+      snackbar.error('Lỗi khi tải lịch sử thông báo');
     } finally {
       setLoading(false);
     }
@@ -77,6 +76,7 @@ export default function NotificationHistory() {
 
   useEffect(() => {
     fetchLogs(page, rowsPerPage, filter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filter]);
 
   const handleBroadcastSubmit = async () => {
@@ -132,7 +132,9 @@ export default function NotificationHistory() {
       </Box>
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
-        <Paper sx={{ flex: 1, p: 2.25, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+        <Paper
+          sx={{ flex: 1, p: 2.25, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}
+        >
           <Stack direction="row" spacing={1.25} alignItems="center">
             <CampaignOutlinedIcon color="primary" />
             <Box>
@@ -145,7 +147,9 @@ export default function NotificationHistory() {
             </Box>
           </Stack>
         </Paper>
-        <Paper sx={{ flex: 1, p: 2.25, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+        <Paper
+          sx={{ flex: 1, p: 2.25, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}
+        >
           <Stack direction="row" spacing={1.25} alignItems="center">
             <CampaignOutlinedIcon color="success" />
             <Box>
@@ -158,7 +162,9 @@ export default function NotificationHistory() {
             </Box>
           </Stack>
         </Paper>
-        <Paper sx={{ flex: 1, p: 2.25, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+        <Paper
+          sx={{ flex: 1, p: 2.25, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}
+        >
           <Stack direction="row" spacing={1.25} alignItems="center">
             <CampaignOutlinedIcon color="error" />
             <Box>
@@ -173,11 +179,6 @@ export default function NotificationHistory() {
         </Paper>
       </Stack>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
 
       <Paper sx={{ p: 2, mb: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
@@ -225,6 +226,7 @@ export default function NotificationHistory() {
             <MenuItem value="APPLICATION">Đơn đăng ký</MenuItem>
             <MenuItem value="MAINTENANCE">Báo hỏng</MenuItem>
             <MenuItem value="PAYMENT">Thanh toán</MenuItem>
+            <MenuItem value="ROOM">Đổi phòng/Phòng ở</MenuItem>
           </TextField>
         </Stack>
       </Paper>
@@ -304,7 +306,9 @@ export default function NotificationHistory() {
           }}
           rowsPerPageOptions={[10, 20, 50]}
           labelRowsPerPage="Số dòng/trang:"
-          labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`}
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`
+          }
         />
       </Paper>
 

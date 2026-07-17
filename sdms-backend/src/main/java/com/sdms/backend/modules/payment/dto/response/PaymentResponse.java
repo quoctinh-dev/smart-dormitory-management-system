@@ -35,4 +35,6 @@ public class PaymentResponse {
     private LocalDateTime paidAt;
 
     private String message;
+
+    private String paymentUrl;
 }

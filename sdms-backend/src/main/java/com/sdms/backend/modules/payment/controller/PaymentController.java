@@ -6,6 +6,8 @@ import com.sdms.backend.modules.payment.dto.request.OnlinePaymentRequest;
 import com.sdms.backend.modules.payment.dto.response.PaymentResponse;
 import com.sdms.backend.modules.payment.service.PaymentService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
+@Tag(name = "Thanh toán (Payment)", description = "Quản lý thanh toán hóa đơn")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -27,7 +30,8 @@ public class PaymentController {
      * - MoMo
      * - Bank Transfer
      */
-    @PreAuthorize("hasRole('STUDENT')")
+    @Operation(summary = "Sinh viên thanh toán online (VNPay, MoMo, Bank Transfer)")
+    // @PreAuthorize("hasRole('STUDENT')") // Bỏ chặn vì người dùng mới đăng ký chưa có tài khoản
     @PostMapping("/online")
     public ApiResponse<PaymentResponse> processOnlinePayment(
             @Valid @RequestBody OnlinePaymentRequest request
@@ -39,9 +43,8 @@ public class PaymentController {
                 request.getTransactionCode()
         );
 
-        return new ApiResponse<>(
-                true,
-                "Online payment successful",
+        return ApiResponse.success(
+                "Thanh toán online thành công",
                 response
         );
     }
@@ -54,6 +57,7 @@ public class PaymentController {
      *   ↓
      * Admin confirms
      */
+    @Operation(summary = "Admin xác nhận thanh toán tiền mặt")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/cash/approve")
     public ApiResponse<PaymentResponse> approveCashPayment(
@@ -64,9 +68,8 @@ public class PaymentController {
                 request.getAmount()
         );
 
-        return new ApiResponse<>(
-                true,
-                "Cash payment approved successfully",
+        return ApiResponse.success(
+                "Xác nhận thanh toán tiền mặt thành công",
                 response
         );
     }
@@ -75,13 +78,13 @@ public class PaymentController {
      * MOCK PAYMENT SUCCESS for testing event-driven flow.
      * This endpoint is for development/testing purposes only.
      */
+    @Operation(summary = "Mock thanh toán thành công (Chỉ dùng cho testing)")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/mock-success/{applicationId}")
     public ApiResponse<PaymentResponse> mockPaymentSuccess(@PathVariable UUID applicationId) {
         PaymentResponse response = paymentService.mockPaymentSuccess(applicationId);
-        return new ApiResponse<>(
-                true,
-                "Mock payment successful, bill paid and event published.",
+        return ApiResponse.success(
+                "Mock thanh toán thành công, hóa đơn đã được thanh toán và sự kiện đã được phát ra.",
                 response
         );
     }

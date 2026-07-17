@@ -22,12 +22,12 @@ import {
 import { useRef } from 'react';
 
 import { useEligibilityManager } from '@/hooks/useEligibilityManager';
-import { IRegistrationPeriod } from '@/hooks/useRegistrationManagerUi';
+import { RegistrationPeriodResponse } from '@/types/registration';
 
 interface EligibilityManagerDialogProps {
   open: boolean;
   onClose: () => void;
-  period: IRegistrationPeriod | null;
+  period: RegistrationPeriodResponse | null;
 }
 
 export default function EligibilityManagerDialog({
@@ -42,8 +42,6 @@ export default function EligibilityManagerDialog({
     eligibilities,
     loading,
     importing,
-    error,
-    successMsg,
     deleteTarget,
     page,
     size,
@@ -87,16 +85,6 @@ export default function EligibilityManagerDialog({
           Danh sách đủ điều kiện - {period.periodName}
         </DialogTitle>
         <DialogContent dividers sx={{ pb: 0 }}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
-              {error}
-            </Alert>
-          )}
-          {successMsg && (
-            <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
-              {successMsg}
-            </Alert>
-          )}
 
           <Box
             sx={{
@@ -108,7 +96,8 @@ export default function EligibilityManagerDialog({
             }}
           >
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Tải lên file Excel (.xlsx) gồm cột CCCD và Họ Tên để cấu hình bộ lọc sinh viên.
+              Tải lên file Excel (.xlsx) gồm các cột CCCD, Họ Tên, MSSV, Email để cấu hình bộ lọc
+              sinh viên hợp lệ.
             </Typography>
 
             <Box>
@@ -157,6 +146,9 @@ export default function EligibilityManagerDialog({
                         Mã sinh viên
                       </TableCell>
                       <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>
+                        Email
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>
                         Họ và tên
                       </TableCell>
                       <TableCell
@@ -171,7 +163,7 @@ export default function EligibilityManagerDialog({
                     {eligibilities.length === 0 ? (
                       <TableRow>
                         <TableCell
-                          colSpan={4}
+                          colSpan={6}
                           align="center"
                           sx={{ py: 4, color: 'text.secondary', fontStyle: 'italic' }}
                         >
@@ -184,9 +176,12 @@ export default function EligibilityManagerDialog({
                         <TableRow key={row.eligibilityId} hover>
                           {/* CHUẨN HÓA LOGIC: Tính số thứ tự tăng tiến chuẩn theo trang */}
                           <TableCell>{index + 1 + page * size}</TableCell>
-                          <TableCell>{row.cccd}</TableCell>
+                          <TableCell>{row.cccd || 'N/A'}</TableCell>
                           <TableCell sx={{ color: 'primary.main', fontWeight: 500 }}>
                             {row.studentCode || 'N/A'}
+                          </TableCell>
+                          <TableCell sx={{ color: 'secondary.main', fontWeight: 500 }}>
+                            {row.email || 'N/A'}
                           </TableCell>
                           <TableCell sx={{ fontWeight: 500 }}>{row.fullName}</TableCell>
                           <TableCell align="center">
@@ -216,7 +211,9 @@ export default function EligibilityManagerDialog({
                   onRowsPerPageChange={handleChangeRowsPerPage}
                   rowsPerPageOptions={[5, 10, 20, 50]}
                   labelRowsPerPage="Số dòng/trang:"
-                  labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`}
+                  labelDisplayedRows={({ from, to, count }) =>
+                    `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`
+                  }
                   sx={{ borderTop: 'none', mt: 1 }}
                 />
               )}

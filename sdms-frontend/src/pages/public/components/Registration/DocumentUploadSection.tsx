@@ -3,8 +3,6 @@ import { Box, Typography, Alert } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 
 const DOC_TYPES = [
-  { type: 'CCCD_FRONT', label: 'Mặt trước CCCD', desc: 'Bản gốc hoặc bản sao y có công chứng' },
-  { type: 'CCCD_BACK', label: 'Mặt sau CCCD', desc: 'Rõ nét, không bị mờ hoặc cắt góc' },
   {
     type: 'PORTRAIT_PHOTO',
     label: 'Ảnh chân dung 3x4',
@@ -164,13 +162,19 @@ export default function DocumentUploadSection({
         Tải lên hồ sơ minh chứng
       </Typography>
 
-      {error && <Alert severity="error">{error}</Alert>}
+
 
       <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
         I. Tài liệu bắt buộc chung ({DOC_TYPES.length} loại)
       </Typography>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+      <Box sx={{ 
+        display: 'grid', 
+        gridTemplateColumns: DOC_TYPES.length === 1 ? '1fr' : { xs: '1fr', sm: '1fr 1fr' }, 
+        gap: 3,
+        maxWidth: DOC_TYPES.length === 1 ? 400 : '100%',
+        mx: 'auto'
+      }}>
         {DOC_TYPES.map((doc) => (
           <DocumentUploadBox
             key={doc.type}
@@ -192,7 +196,13 @@ export default function DocumentUploadSection({
             II. Tài liệu minh chứng diện ưu tiên ({extraDocs.length} loại)
           </Typography>
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: extraDocs.length === 1 ? '1fr' : { xs: '1fr', sm: '1fr 1fr' }, 
+            gap: 3,
+            maxWidth: extraDocs.length === 1 ? 400 : '100%',
+            mx: 'auto'
+          }}>
             {extraDocs.map((doc) => (
               <DocumentUploadBox
                 key={doc.type}

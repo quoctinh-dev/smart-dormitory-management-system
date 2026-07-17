@@ -8,9 +8,9 @@ import lombok.Setter;
 @Setter
 public class LoginRequest {
 
-    @NotBlank(message = "Username or Email is required")
+    @NotBlank(message = "Tên đăng nhập hoặc Email không được để trống")
     private String usernameOrEmail;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "Mật khẩu không được để trống")
     private String password;
 }

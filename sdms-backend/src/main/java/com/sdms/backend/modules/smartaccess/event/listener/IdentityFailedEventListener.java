@@ -16,6 +16,13 @@ import com.sdms.backend.modules.smartaccess.event.IdentityFailedEvent;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Mục tiêu/Nghiệp vụ: Lắng nghe sự kiện khi hệ thống AI nhận diện khuôn mặt thất bại (Không tìm thấy người dùng trong cơ sở dữ liệu khuôn mặt).
+ * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Observer Pattern & Event-Driven Architecture.
+ * Lưu ý Kiến thức (Dành cho phản biện): 
+ * - Áp dụng cơ chế Idempotency (tính lũy đẳng) bằng IdempotencyService để chống lại tình trạng một sự kiện thất bại bị bắn (publish) nhiều lần từ AI Engine, gây rác lịch sử ra vào.
+ * - Sau khi ghi lịch sử truy cập (AccessHistory) với trạng thái DENIED, nó tiếp tục bắn ra Outbound Event (AccessDeniedEvent) để IoT Gateway báo đèn đỏ/còi hú.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

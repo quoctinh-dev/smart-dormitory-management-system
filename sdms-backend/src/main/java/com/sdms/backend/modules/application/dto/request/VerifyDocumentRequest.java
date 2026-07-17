@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VerifyDocumentRequest {
-    @NotNull(message = "Status is required")
+    @NotNull(message = "Trạng thái xác minh là bắt buộc")
     private VerificationStatus status;
 
     private String note;

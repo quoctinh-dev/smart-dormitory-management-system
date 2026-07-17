@@ -36,7 +36,8 @@ const COMMITMENT_CLAUSES = [
   },
   {
     id: 4,
-    content: 'Cam kết không phá hoại hệ thống phòng cháy chữa cháy, không làm giả báo động hoặc gây mất an toàn.',
+    content:
+      'Cam kết không phá hoại hệ thống phòng cháy chữa cháy, không làm giả báo động hoặc gây mất an toàn.',
     penalty: 'BUỘC RA KHỎI KÝ TÚC XÁ',
     severe: true,
   },
@@ -84,8 +85,7 @@ const COMMITMENT_CLAUSES = [
   },
   {
     id: 11,
-    content:
-      'Cam kết đeo thẻ lưu trú khi ra vào ký túc xá để đảm bảo an ninh và quản lý nội bộ.',
+    content: 'Cam kết đeo thẻ lưu trú khi ra vào ký túc xá để đảm bảo an ninh và quản lý nội bộ.',
     penalty: 'BUỘC RA KHỎI KÝ TÚC XÁ',
     severe: true,
   },
@@ -111,9 +111,17 @@ export default function CommitmentSection({
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 860, mx: 'auto', mt: 2 }}>
+    <Box
+      sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 860, mx: 'auto', mt: 2 }}
+    >
       <Box sx={{ textAlign: 'center' }}>
-        <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" sx={{ mb: 1 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          justifyContent="center"
+          alignItems="center"
+          sx={{ mb: 1 }}
+        >
           <ShieldOutlined color="primary" />
           <Typography variant="h5" sx={{ fontWeight: 800 }}>
             BẢN CAM KẾT LƯU TRÚ KÝ TÚC XÁ
@@ -197,7 +205,9 @@ export default function CommitmentSection({
                   </Typography>
                 </Box>
               </Box>
-              {clause.id < COMMITMENT_CLAUSES.length && <Divider sx={{ mt: 1.8, borderColor: 'divider' }} />}
+              {clause.id < COMMITMENT_CLAUSES.length && (
+                <Divider sx={{ mt: 1.8, borderColor: 'divider' }} />
+              )}
             </Box>
           ))}
         </Box>
@@ -212,14 +222,17 @@ export default function CommitmentSection({
           borderColor: (theme) => alpha(theme.palette.info.main, 0.25),
         }}
       >
-        <Typography variant="body2" sx={{ textAlign: 'justify', lineHeight: 1.8, color: 'text.secondary' }}>
+        <Typography
+          variant="body2"
+          sx={{ textAlign: 'justify', lineHeight: 1.8, color: 'text.secondary' }}
+        >
           Tôi xin cam đoan đã đọc kỹ, hiểu rõ toàn bộ nội dung trên và cam kết thực hiện nghiêm
           chỉnh. Nếu vi phạm bất kỳ điều khoản nào, tôi xin hoàn toàn chịu các hình thức kỷ luật cao
           nhất từ Ban Quản lý Ký túc xá và Nhà trường.
         </Typography>
       </Paper>
 
-      {error && <Alert severity="error">{error}</Alert>}
+
 
       <Box
         sx={{
@@ -231,7 +244,9 @@ export default function CommitmentSection({
           border: '2px solid',
           borderColor: isCommitted ? 'success.main' : 'divider',
           bgcolor: (theme) =>
-            isCommitted ? alpha(theme.palette.success.main, 0.07) : alpha(theme.palette.grey[500], 0.04),
+            isCommitted
+              ? alpha(theme.palette.success.main, 0.07)
+              : alpha(theme.palette.grey[500], 0.04),
           transition: 'all 0.25s ease',
           boxShadow: isCommitted ? 1 : 0,
         }}
@@ -246,7 +261,9 @@ export default function CommitmentSection({
             />
           }
           label={
-            <Typography sx={{ fontWeight: 700, color: isCommitted ? 'success.main' : 'text.primary' }}>
+            <Typography
+              sx={{ fontWeight: 700, color: isCommitted ? 'success.main' : 'text.primary' }}
+            >
               Tôi xin cam đoan đã đọc kỹ, hiểu rõ toàn bộ nội quy và cam kết thực hiện nghiêm chỉnh
               tất cả 11 điều khoản trên.
             </Typography>

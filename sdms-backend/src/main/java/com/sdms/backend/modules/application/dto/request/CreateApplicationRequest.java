@@ -14,29 +14,32 @@ import java.util.UUID;
 @Getter
 @Setter
 public class CreateApplicationRequest {
-    @NotNull(message = "Registration Period ID is required")
+    @NotNull(message = "Mã kỳ đăng ký là bắt buộc")
     private UUID periodId;
 
-    @NotBlank(message = "Full name is required")
+    @NotBlank(message = "Họ và tên là bắt buộc")
     private String fullName;
 
-    @NotNull(message = "DOB is required")
+    @NotBlank(message = "Mã số sinh viên là bắt buộc")
+    private String studentCode;
+
+    @NotNull(message = "Ngày sinh là bắt buộc")
     private LocalDate dob;
 
-    @NotNull(message = "Gender is required")
+    @NotNull(message = "Giới tính là bắt buộc")
     private Gender gender;
 
-    @NotBlank(message = "CCCD is required")
+    @NotBlank(message = "Số CCCD là bắt buộc")
     private String cccd;
 
     private LocalDate issueDate;
     private String issuePlace;
 
-    @Email(message = "Invalid email format")
-    @NotBlank(message = "Email is required")
+    @Email(message = "Định dạng email không hợp lệ")
+    @NotBlank(message = "Email là bắt buộc")
     private String email;
 
-    @NotBlank(message = "Phone is required")
+    @NotBlank(message = "Số điện thoại là bắt buộc")
     private String phone;
 
     private String permanentAddress;
@@ -44,6 +47,7 @@ public class CreateApplicationRequest {
     private String ethnic;
     private String religion;
     private String faculty;
+    private String cohort;
     private String contactAddress;
 
     private String fatherName;
@@ -56,8 +60,6 @@ public class CreateApplicationRequest {
     private String motherJob;
     private String motherPhone;
 
-    private String familyContact;
-    private String emergencyContact;
 
     private List<PriorityCategory> priorityCategories;
 }

@@ -10,13 +10,13 @@ import com.sdms.backend.modules.upload.service.CloudinaryService;
 import com.sdms.backend.common.response.ApiResponse;
 import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.user.entity.UserAccount;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -27,16 +27,17 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/students/me/face")
 @RequiredArgsConstructor
+@Tag(name = "Sinh viên - Hồ sơ khuôn mặt", description = "Đăng ký và quản lý hồ sơ khuôn mặt của sinh viên")
 public class FaceStudentController {
 
     private final FaceProfileService faceProfileService;
     private final FaceVerificationService faceVerificationService;
     private final CloudinaryService cloudinaryService;
 
+    @Operation(summary = "Đăng ký khuôn mặt mới")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<ApiResponse<UUID>> registerFace(
+    public ApiResponse<UUID> registerFace(
             @AuthenticationPrincipal UserAccount currentUser,
             @RequestParam("file") MultipartFile file) {
         
@@ -47,13 +48,13 @@ public class FaceStudentController {
         // 2. Tạo hồ sơ khuôn mặt (Trạng thái PENDING)
         UUID profileId = faceProfileService.registerFace(studentId, imageUrl);
         
-        return ResponseEntity.ok(new ApiResponse<>(true, "Face registered successfully and pending approval", profileId));
+        return ApiResponse.success("Đăng ký khuôn mặt thành công và đang chờ duyệt", profileId);
     }
 
+    @Operation(summary = "Yêu cầu thay thế khuôn mặt")
     @PostMapping(value = "/replacements", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.ACCEPTED)
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<ApiResponse<Void>> requestReplacement(
+    public ApiResponse<Void> requestReplacement(
             @AuthenticationPrincipal UserAccount currentUser,
             @RequestParam("file") MultipartFile file) {
         
@@ -64,30 +65,32 @@ public class FaceStudentController {
         // Gửi yêu cầu thay thế ảnh
         faceProfileService.requestReplacement(studentId, imageUrl);
         
-        return ResponseEntity.ok(new ApiResponse<>(true, "Replacement requested successfully", null));
+        return ApiResponse.success("Yêu cầu thay thế khuôn mặt thành công");
     }
 
+    @Operation(summary = "Lấy hồ sơ khuôn mặt của tôi")
     @GetMapping
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<ApiResponse<FaceProfileDetailResponse>> getMyProfile(
+    public ApiResponse<FaceProfileDetailResponse> getMyProfile(
             @AuthenticationPrincipal UserAccount currentUser) {
         UUID studentId = currentUser.getStudent().getStudentId();
         FaceProfileDetailResponse profile = faceProfileService.getMyFaceProfile(studentId);
-        return ResponseEntity.ok(ApiResponse.success("Lấy hồ sơ khuôn mặt thành công", profile));
+        return ApiResponse.success("Lấy hồ sơ khuôn mặt thành công", profile);
     }
 
+    @Operation(summary = "Lấy lịch sử xác thực khuôn mặt")
     @GetMapping("/verifications")
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<ApiResponse<PageResponse<VerificationAttemptSummaryResponse>>> getMyVerifications(
+    public ApiResponse<PageResponse<VerificationAttemptSummaryResponse>> getMyVerifications(
             @AuthenticationPrincipal UserAccount currentUser,
             Pageable pageable) {
         UUID studentId = currentUser.getStudent().getStudentId();
-        // Resolve profileId from studentId
+        // Lấy profileId từ studentId
         FaceProfileDetailResponse profile = faceProfileService.getMyFaceProfile(studentId);
         if (profile == null) {
-            return ResponseEntity.ok(ApiResponse.success("Chưa có hồ sơ", PageResponse.of(Page.empty())));
+            return ApiResponse.success("Chưa có hồ sơ", PageResponse.of(Page.empty()));
         }
         Page<VerificationAttemptSummaryResponse> page = faceVerificationService.viewVerificationAttempts(profile.profileId(), pageable);
-        return ResponseEntity.ok(ApiResponse.success("Lấy lịch sử xác thực thành công", PageResponse.of(page)));
+        return ApiResponse.success("Lấy lịch sử xác thực thành công", PageResponse.of(page));
     }
 }

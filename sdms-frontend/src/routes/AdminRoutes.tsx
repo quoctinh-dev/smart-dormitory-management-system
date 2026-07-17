@@ -59,7 +59,7 @@ export const adminRoutes: RouteObject[] = [
     children: [
       { path: 'admin/login', element: <LoginLazy /> },
       { path: 'admin/forgot-password', element: <ForgotPasswordLazy /> },
-      { path: 'admin/reset-password', element: <ResetPasswordLazy /> }
+      { path: 'admin/reset-password', element: <ResetPasswordLazy /> },
     ],
   },
   // Admin routes protected by RequireAdmin

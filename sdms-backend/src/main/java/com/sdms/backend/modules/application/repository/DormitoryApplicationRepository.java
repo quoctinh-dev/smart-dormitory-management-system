@@ -27,12 +27,31 @@ public interface DormitoryApplicationRepository
     // Đã xóa @EntityGraph để tránh cảnh báo HHH90003004 khi phân trang với fetch collection
     org.springframework.data.domain.Page<DormitoryApplication> findAll(org.springframework.data.domain.Pageable pageable);
 
+    @Query("""
+        SELECT a FROM DormitoryApplication a
+        WHERE (:status IS NULL OR a.status = :status)
+        AND (LOWER(a.fullName) LIKE LOWER(CONCAT('%', :search, '%')) OR a.cccd LIKE CONCAT('%', :search, '%') OR a.applicationCode LIKE CONCAT('%', :search, '%'))
+    """)
+    org.springframework.data.domain.Page<DormitoryApplication> findAllWithFilters(
+            @Param("status") ApplicationStatus status,
+            @Param("search") String search,
+            org.springframework.data.domain.Pageable pageable
+    );
+
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"priorities", "documents"})
     Optional<DormitoryApplication> findByApplicationCode(String applicationCode);
     
     List<DormitoryApplication> findByCccd(String cccd);
+    
+    List<DormitoryApplication> findByStudentCode(String studentCode);
+    
+    List<DormitoryApplication> findByEmail(String email);
 
     boolean existsByCccdAndRegistrationPeriod_PeriodId(String cccd, UUID periodId);
+    
+    boolean existsByEmailAndRegistrationPeriod_PeriodId(String email, UUID periodId);
+
+    Optional<DormitoryApplication> findByEmailAndRegistrationPeriod_PeriodId(String email, UUID periodId);
 
     List<DormitoryApplication> findByRegistrationPeriod_PeriodIdAndStatusIn(UUID periodId, List<ApplicationStatus> statuses);
 

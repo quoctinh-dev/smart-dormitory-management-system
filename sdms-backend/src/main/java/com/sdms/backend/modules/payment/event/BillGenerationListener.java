@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 public class BillGenerationListener {
 
     private final BillService billService;
+    private final com.sdms.backend.modules.system.service.SystemConfigService systemConfigService;
 
     /**
      * Lắng nghe sự kiện một giường đã được giữ chỗ thành công (BedReservedEvent).
@@ -36,8 +37,8 @@ public class BillGenerationListener {
     public void handleBedReservedEvent(BedReservedEvent event) {
         log.info("[BillGenerationListener] Handling BedReservedEvent for assignmentId={}", event.getAssignmentId());
         try {
-            // 🌟 FIX TẠI ĐÂY: Đổi số tiền đóng lần đầu thành 2.100.000 VND
-            BigDecimal accommodationFee = new BigDecimal("2100000");
+            // Lấy phí lưu trú từ SystemConfig, mặc định 2.100.000 VND
+            BigDecimal accommodationFee = new BigDecimal(systemConfigService.getConfigValue("ROOM_RESERVATION_FEE", "2100000"));
 
             billService.createAccommodationBill(
                     event.getAssignmentId(),
@@ -64,7 +65,8 @@ public class BillGenerationListener {
     public void handleExtensionApprovedEvent(ExtensionApprovedEvent event) {
         log.info("[BillGenerationListener] Handling ExtensionApprovedEvent for extensionId={}", event.getExtensionId());
         try {
-            BigDecimal accommodationFee = new BigDecimal("2100000"); // 🌟 Phí lưu trú 1 năm (giả định)
+            // Lấy phí lưu trú từ SystemConfig, mặc định 2.100.000 VND
+            BigDecimal accommodationFee = new BigDecimal(systemConfigService.getConfigValue("ROOM_RESERVATION_FEE", "2100000"));
 
             billService.createAccommodationBill(
                     event.getAssignmentId(),

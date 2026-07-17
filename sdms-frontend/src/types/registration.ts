@@ -1,26 +1,34 @@
 // 📄 File: src/types/registration.ts
 
-export interface RegistrationPeriod {
-  id: string;
-  name: string;
-  registrationType: 'NEW' | 'EXTENSION';
+export type RegistrationType = 'CURRENT_RESIDENT' | 'NEW_STUDENT' | 'OPEN_REGISTRATION';
+
+export interface RegistrationPeriodResponse {
+  periodId: string;
+  periodName: string;
+  registrationType: RegistrationType;
   startDate: string;
   endDate: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'UPCOMING' | 'ENDED';
+  isActive: boolean;
+  stayStartDate?: string;
+  stayEndDate?: string;
 }
 
 export interface CreateRegistrationPeriodRequest {
-  name: string;
-  registrationType: 'NEW' | 'EXTENSION';
+  periodName: string;
+  registrationType: RegistrationType;
   startDate: string;
   endDate: string;
+  stayStartDate?: string;
+  stayEndDate?: string;
 }
 
 export interface UpdateRegistrationPeriodRequest {
-  name?: string;
-  registrationType?: 'NEW' | 'EXTENSION';
+  periodName?: string;
+  registrationType?: RegistrationType;
   startDate?: string;
   endDate?: string;
+  stayStartDate?: string;
+  stayEndDate?: string;
 }
 
 export interface EligibilityImportResponse {
@@ -44,29 +52,13 @@ export interface Eligibility {
 
 export interface Page<T> {
   content: T[];
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
-    sort: {
-      sorted: boolean;
-      unsorted: boolean;
-      empty: boolean;
-    };
-    offset: number;
-    paged: boolean;
-    unpaged: boolean;
-  };
+  pageable: any;
   last: boolean;
   totalPages: number;
   totalElements: number;
   size: number;
   number: number;
-  sort: {
-    sorted: boolean;
-    unsorted: boolean;
-
-    empty: boolean;
-  };
+  sort: any;
   first: boolean;
   numberOfElements: number;
   empty: boolean;
@@ -79,7 +71,7 @@ export interface CheckEligibilityRequest {
 export interface CheckEligibilityResponse {
   eligible: boolean;
   periodId: string | null;
-  target: 'NEW' | 'EXTENSION' | null;
+  target: RegistrationType | null;
   fullName: string | null;
   message: string;
 }

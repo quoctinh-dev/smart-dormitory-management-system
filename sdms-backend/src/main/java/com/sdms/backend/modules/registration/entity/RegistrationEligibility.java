@@ -15,8 +15,12 @@ import java.util.UUID;
     name = "registration_eligibilities",
     uniqueConstraints = {
         @UniqueConstraint(
-            name = "uk_eligibility_period_cccd",
-            columnNames = {"period_id", "cccd"}
+            name = "uk_eligibility_period_student_code",
+            columnNames = {"period_id", "student_code"}
+        ),
+        @UniqueConstraint(
+            name = "uk_eligibility_period_email",
+            columnNames = {"period_id", "email"}
         )
     }
 )
@@ -32,18 +36,19 @@ public class RegistrationEligibility extends BaseEntity {
     @JoinColumn(name = "period_id", nullable = false)
     private RegistrationPeriod registrationPeriod;
 
-    @Column(nullable = false, length = 20)
+    // Trích xuất từ OCR nên Admin có thể không biết trước
+    @Column(length = 20, nullable = true)
     private String cccd;
 
     @Column(length = 100)
     private String fullName;
 
-    // Email có thể không có trong tệp trường cung cấp ban đầu
-    @Column(name = "email", length = 100, nullable = true)
+    // Email trường cấp là định danh chính để sinh viên đăng nhập
+    @Column(name = "email", length = 100, nullable = false)
     private String email;
 
-    // MSSV để trống đối với Tân sinh viên (Group A) khi import danh sách
-    @Column(name = "student_code", length = 50, nullable = true)
+    // MSSV là định danh cốt lõi
+    @Column(name = "student_code", length = 50, nullable = false)
     private String studentCode;
 
     @Enumerated(EnumType.STRING)

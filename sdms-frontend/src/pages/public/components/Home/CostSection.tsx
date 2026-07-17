@@ -39,7 +39,17 @@ export default function CostSection() {
 
             <Stack spacing={2}>
               {COST_ITEMS.map((item, index) => (
-                <Paper key={index} elevation={0} sx={{ p: 2.25, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.default' }}>
+                <Paper
+                  key={index}
+                  elevation={0}
+                  sx={{
+                    p: 2.25,
+                    borderRadius: 3,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'background.default',
+                  }}
+                >
                   <Stack direction="row" spacing={2.2} alignItems="flex-start">
                     <Box
                       sx={(theme) => ({

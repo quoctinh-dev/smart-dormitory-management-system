@@ -26,6 +26,8 @@ public interface RoomRepository extends JpaRepository<Room, UUID>, JpaSpecificat
 
     Optional<Room> findByFloor_FloorIdAndRoomCode(UUID floorId, String roomCode);
 
+    Optional<Room> findFirstByRoomCode(String roomCode);
+
     boolean existsByFloor_FloorIdAndRoomCode(UUID floorId, String roomCode);
 
     List<Room> findByFloor_FloorId(UUID floorId);

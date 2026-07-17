@@ -1,8 +1,10 @@
 package com.sdms.backend.modules.user.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
+import com.sdms.backend.modules.student.dto.response.StudentProfileResponse;
 import com.sdms.backend.modules.user.dto.response.MeResponse;
-import com.sdms.backend.modules.user.dto.response.UserAccountDTO;
+import com.sdms.backend.modules.user.dto.response.UserAccountResponse;
 import com.sdms.backend.modules.user.entity.UserAccount;
 import com.sdms.backend.modules.user.enums.AccountStatus;
 import com.sdms.backend.modules.user.enums.Role;
@@ -35,10 +37,7 @@ public class UserService {
                         .getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new AppException(
-                    "Unauthorized",
-                    HttpStatus.UNAUTHORIZED
-            );
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         Object principal = authentication.getPrincipal();
@@ -54,17 +53,14 @@ public class UserService {
             );
         }
 
-        throw new AppException(
-                "Invalid authentication information",
-                HttpStatus.UNAUTHORIZED
-        );
+        throw new AppException(ErrorCode.INVALID_CREDENTIALS);
     }
 
-    public PageResponse<UserAccountDTO> searchAccounts(String keyword, Role role, AccountStatus status, Pageable pageable) {
+    public PageResponse<UserAccountResponse> searchAccounts(String keyword, Role role, AccountStatus status, Pageable pageable) {
         String searchKeyword = (keyword == null) ? "" : keyword;
         Page<UserAccount> page = repository.searchAccounts(searchKeyword, role, status, pageable);
         
-        Page<UserAccountDTO> dtoPage = page.map(account -> UserAccountDTO.builder()
+        Page<UserAccountResponse> dtoPage = page.map(account -> UserAccountResponse.builder()
                 .accountId(account.getAccountId())
                 .username(account.getUsername())
                 .email(account.getEmail())
@@ -79,28 +75,32 @@ public class UserService {
     @Transactional
     public void toggleAccountStatus(UUID accountId) {
         UserAccount account = repository.findById(accountId)
-                .orElseThrow(() -> new AppException("Account not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserAccount currentAccount) {
             if (account.getAccountId().equals(currentAccount.getAccountId())) {
-                throw new AppException("Bạn không thể tự khóa tài khoản của chính mình", HttpStatus.FORBIDDEN);
+                throw new AppException(ErrorCode.CANNOT_LOCK_SELF);
             }
         }
 
         if (account.getRole() == Role.ADMIN && account.getStatus() == AccountStatus.ACTIVE) {
-            throw new AppException("Không thể khóa tài khoản của Quản trị viên hệ thống (ADMIN)", HttpStatus.FORBIDDEN);
+            throw new AppException(ErrorCode.CANNOT_LOCK_ADMIN);
+        }
+
+        if (account.getStatus() == AccountStatus.PENDING_ACTIVATION) {
+            throw new AppException(ErrorCode.CANNOT_TOGGLE_PENDING_ACCOUNT);
         }
 
         if (account.getStatus() == AccountStatus.ACTIVE) {
             account.setStatus(AccountStatus.LOCKED);
-            account.setRefreshToken(null); // Force logout
+            account.setRefreshToken(null);
         } else if (account.getStatus() == AccountStatus.LOCKED) {
             account.setStatus(AccountStatus.ACTIVE);
             account.setFailedLoginAttempts(0);
             account.setLockTime(null);
         } else {
-            throw new AppException("Cannot toggle status of account in state: " + account.getStatus(), HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.INVALID_ACCOUNT_STATE);
         }
 
         repository.save(account);
@@ -109,10 +109,10 @@ public class UserService {
     @Transactional
     public void createStaff(com.sdms.backend.modules.user.dto.request.CreateStaffRequest request) {
         if (repository.existsByUsername(request.getUsername())) {
-            throw new AppException("Username đã tồn tại", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.USERNAME_ALREADY_EXISTS);
         }
         if (repository.existsByEmail(request.getEmail())) {
-            throw new AppException("Email đã tồn tại", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
         UserAccount staff = new UserAccount();
@@ -127,14 +127,14 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public com.sdms.backend.modules.student.dto.response.StudentProfileResponse getStudentProfileByAccountId(UUID accountId) {
+    public StudentProfileResponse getStudentProfileByAccountId(UUID accountId) {
         UserAccount account = repository.findById(accountId)
-                .orElseThrow(() -> new AppException("Account not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (account.getRole() != Role.STUDENT || account.getStudent() == null) {
-            throw new AppException("This account is not associated with a student profile", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.STUDENT_PROFILE_NOT_FOUND);
         }
 
-        return com.sdms.backend.modules.student.dto.response.StudentProfileResponse.fromEntity(account.getStudent());
+        return StudentProfileResponse.fromEntity(account.getStudent());
     }
 }

@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.validator;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +30,7 @@ public class BedValidator {
                 .existsByBed_BedIdAndStatusIn(bedId, activeStatuses);
 
         if (isBedLocked) {
-            throw new AppException(
-                    "Cannot put bed into maintenance. It is currently bound to an active reservation or occupied status.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Cannot put bed into maintenance. It is currently bound to an active reservation or occupied status.");
         }
     }
 }

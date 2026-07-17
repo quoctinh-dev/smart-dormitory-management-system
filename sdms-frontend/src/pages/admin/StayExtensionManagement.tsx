@@ -222,7 +222,9 @@ export default function StayExtensionManagement() {
             setPage(0);
           }}
           labelRowsPerPage="Số dòng/trang:"
-          labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`}
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`
+          }
         />
       </Paper>
 

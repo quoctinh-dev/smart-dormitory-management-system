@@ -25,7 +25,7 @@ export interface ResetPasswordData {
 }
 
 export interface ActivateData {
-  email: string;
+  studentCode: string;
   tempPassword?: string;
   newPassword?: string;
 }

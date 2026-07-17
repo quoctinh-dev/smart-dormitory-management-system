@@ -18,32 +18,17 @@ import {
   Select,
   FormControl,
   InputLabel,
-  Stack,
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 
 import checkInApi from '@/api/checkInApi';
+import type { HousingAssignmentDto } from '@/api/checkInApi';
 import { snackbar } from '@/utils/snackbar';
-
-// Định dạng DTO giả định cho danh sách trả về từ Backend
-interface HousingAssignmentDto {
-  assignmentId: string;
-  status: string; // 'PENDING_CHECKIN' | 'OCCUPIED'
-  checkInAt?: string;
-  student: {
-    studentCode: string;
-    fullName: string;
-    cccd?: string;
-  };
-  buildingName: string;
-  roomCode: string;
-  bedCode: string;
-}
 
 export default function CheckInManagement() {
   const [data, setData] = useState<HousingAssignmentDto[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   // Phân trang
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -62,23 +47,13 @@ export default function CheckInManagement() {
         search: searchQuery,
         status: filterStatus === 'ALL' ? undefined : filterStatus,
       });
-      // Giả sử API bọc list trong res.content và tổng số trong res.totalElements
-      if (res && res.content) {
-        setData(res.content);
-        setTotalElements(res.totalElements || res.content.length);
-      } else if (Array.isArray(res)) {
-        setData(res);
-        setTotalElements(res.length);
-      } else if (res && res.data && res.data.content) {
-         setData(res.data.content);
-         setTotalElements(res.data.totalElements || res.data.content.length);
-      } else {
-        // Fallback mock nếu API chưa sẵn sàng
-        setData([]);
-      }
-    } catch (err) {
+      setData(res.content ?? []);
+      setTotalElements(res.totalElements ?? res.content?.length ?? 0);
+    } catch (err: unknown) {
       console.error(err);
-      snackbar.error('Không thể tải danh sách kiểm soát Check-in. Backend cần implement API GET /v1/admin/housing-assignments');
+      snackbar.error(
+        'Không thể tải danh sách kiểm soát Check-in. Backend cần implement API GET /v1/admin/housing-assignments'
+      );
     } finally {
       setLoading(false);
     }
@@ -114,13 +89,24 @@ export default function CheckInManagement() {
           Quản Lý & Báo Cáo Nhận Phòng
         </Typography>
         <Typography sx={{ color: 'text.secondary', mt: 0.5 }}>
-          Bảng đối soát danh sách sinh viên đã và đang chờ nhận phòng. Thao tác thực thi chính nên dùng qua App Mobile.
+          Bảng đối soát danh sách sinh viên đã và đang chờ nhận phòng. Thao tác thực thi chính nên
+          dùng qua App Mobile.
         </Typography>
       </Box>
 
       <Paper variant="outlined" sx={{ borderRadius: 4, overflow: 'hidden' }}>
         {/* THANH CÔNG CỤ LỌC */}
-        <Box sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'center', bgcolor: 'background.default', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Box
+          sx={{
+            p: 2,
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            bgcolor: 'background.default',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
           <TextField
             size="small"
             placeholder="Tìm theo MSSV, Tên..."
@@ -135,7 +121,7 @@ export default function CheckInManagement() {
                     <Search />
                   </InputAdornment>
                 ),
-              }
+              },
             }}
           />
 
@@ -155,7 +141,14 @@ export default function CheckInManagement() {
             </Select>
           </FormControl>
 
-          <Button variant="contained" startIcon={<FilterList />} onClick={() => { setPage(0); fetchList(); }}>
+          <Button
+            variant="contained"
+            startIcon={<FilterList />}
+            onClick={() => {
+              setPage(0);
+              fetchList();
+            }}
+          >
             Lọc Dữ Liệu
           </Button>
         </Box>
@@ -165,32 +158,62 @@ export default function CheckInManagement() {
           <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell><b>Sinh viên</b></TableCell>
-                <TableCell><b>MSSV</b></TableCell>
-                <TableCell><b>Vị trí phòng</b></TableCell>
-                <TableCell><b>Trạng thái</b></TableCell>
-                <TableCell><b>Giờ nhận phòng</b></TableCell>
-                <TableCell align="right"><b>Thao tác (Dự phòng)</b></TableCell>
+                <TableCell>
+                  <b>Sinh viên</b>
+                </TableCell>
+                <TableCell>
+                  <b>MSSV</b>
+                </TableCell>
+                <TableCell>
+                  <b>Vị trí phòng</b>
+                </TableCell>
+                <TableCell>
+                  <b>Trạng thái</b>
+                </TableCell>
+                <TableCell>
+                  <b>Giờ nhận phòng</b>
+                </TableCell>
+                <TableCell align="right">
+                  <b>Thao tác (Dự phòng)</b>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading && data.length === 0 ? (
-                 <TableRow><TableCell colSpan={6} align="center">Đang tải dữ liệu...</TableCell></TableRow>
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    Đang tải dữ liệu...
+                  </TableCell>
+                </TableRow>
               ) : data.length === 0 ? (
-                 <TableRow><TableCell colSpan={6} align="center">Không có dữ liệu đối soát phù hợp. (Cần Backend API)</TableCell></TableRow>
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    Không có dữ liệu đối soát phù hợp. (Cần Backend API)
+                  </TableCell>
+                </TableRow>
               ) : (
                 data.map((row) => (
                   <TableRow key={row.assignmentId} hover>
                     <TableCell>{row.student?.fullName}</TableCell>
                     <TableCell>{row.student?.studentCode}</TableCell>
                     <TableCell>
-                       {row.buildingName} - P.{row.roomCode} - G.{row.bedCode}
+                      {row.buildingName} - P.{row.roomCode} - G.{row.bedCode}
                     </TableCell>
                     <TableCell>
                       {row.status === 'OCCUPIED' ? (
-                        <Chip icon={<CheckCircle />} label="Đã nhận phòng" color="success" size="small" />
+                        <Chip
+                          icon={<CheckCircle />}
+                          label="Đã nhận phòng"
+                          color="success"
+                          size="small"
+                        />
                       ) : (
-                        <Chip icon={<PendingActions />} label="Chờ nhận phòng" color="warning" size="small" />
+                        <Chip
+                          icon={<PendingActions />}
+                          label="Chờ nhận phòng"
+                          color="warning"
+                          size="small"
+                        />
                       )}
                     </TableCell>
                     <TableCell>
@@ -198,9 +221,9 @@ export default function CheckInManagement() {
                     </TableCell>
                     <TableCell align="right">
                       {row.status === 'PENDING_CHECKIN' && (
-                        <Button 
-                          size="small" 
-                          variant="outlined" 
+                        <Button
+                          size="small"
+                          variant="outlined"
                           color="primary"
                           onClick={() => handleManualCheckIn(row.assignmentId)}
                         >

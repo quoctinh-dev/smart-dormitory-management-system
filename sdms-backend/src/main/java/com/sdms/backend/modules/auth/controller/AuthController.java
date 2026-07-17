@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -23,59 +22,59 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Authentication APIs")
-public class AuthController {
+@Tag(name = "Xác thực (Authentication)", description = "Các API dùng để xác thực và quản lý tài khoản")
+public class    AuthController {
 
     private final AuthService authService;
     private final UserService userService;
 
     @Operation(summary = "Kích hoạt tài khoản sinh viên", description = "Kích hoạt tài khoản bằng email, mật khẩu tạm thời (CCCD) và mật khẩu mới")
     @PostMapping("/activate")
-    public ResponseEntity<ApiResponse<AuthResponse>> activate(@Valid @RequestBody ActivateAccountRequest request) {
+    public ApiResponse<AuthResponse> activate(@Valid @RequestBody ActivateAccountRequest request) {
         AuthResponse response = authService.activate(request);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Tài khoản đã được kích hoạt thành công", response));
+        return ApiResponse.success("Tài khoản đã được kích hoạt thành công", response);
     }
 
-    @Operation(summary = "User Login", description = "Authenticate user and return JWT tokens")
+    @Operation(summary = "Đăng nhập", description = "Xác thực người dùng và trả về JWT token")
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
+    public ApiResponse<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", response));
+        return ApiResponse.success("Đăng nhập thành công", response);
     }
 
-    @Operation(summary = "Refresh Token", description = "Get new access and refresh tokens")
+    @Operation(summary = "Làm mới Token", description = "Cấp lại Access Token và Refresh Token mới")
     @PostMapping({"/refresh-token", "/refresh"})
-    public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+    public ApiResponse<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         AuthResponse response = authService.refreshToken(request.getRefreshToken());
-        return ResponseEntity.ok(new ApiResponse<>(true, "Refresh token successful", response));
+        return ApiResponse.success("Làm mới Token thành công", response);
     }
 
-    @Operation(summary = "User Logout", description = "Logout user and revoke refresh token")
+    @Operation(summary = "Đăng xuất", description = "Đăng xuất người dùng và vô hiệu hóa Refresh Token")
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout() {
+    public ApiResponse<Void> logout() {
         authService.logout();
-        return ResponseEntity.ok(new ApiResponse<>(true, "Logout successful", null));
+        return ApiResponse.success("Đăng xuất thành công", null);
     }
 
-    @Operation(summary = "Change Password", description = "Change password for the current authenticated user")
+    @Operation(summary = "Đổi mật khẩu", description = "Đổi mật khẩu cho người dùng đang đăng nhập")
     @PostMapping("/change-password")
-    public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+    public ApiResponse<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         authService.changePassword(request);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Password changed successfully", null));
+        return ApiResponse.success("Đổi mật khẩu thành công", null);
     }
 
-    @Operation(summary = "Forgot Password", description = "Request password reset via email")
+    @Operation(summary = "Quên mật khẩu", description = "Gửi yêu cầu khôi phục mật khẩu qua email")
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+    public ApiResponse<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         authService.forgotPassword(request);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Password reset request processed", null));
+        return ApiResponse.success("Yêu cầu khôi phục mật khẩu đã được xử lý", null);
     }
 
-    @Operation(summary = "Reset Password", description = "Reset user password using a valid token")
+    @Operation(summary = "Khôi phục mật khẩu", description = "Đặt lại mật khẩu mới bằng token hợp lệ")
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+    public ApiResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Password has been reset successfully", null));
+        return ApiResponse.success("Mật khẩu đã được khôi phục thành công", null);
     }
 
 }

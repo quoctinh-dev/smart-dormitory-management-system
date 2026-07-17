@@ -3,36 +3,36 @@ package com.sdms.backend.modules.face.service;
 import java.util.UUID;
 
 /**
- * INTERNAL ORCHESTRATION SERVICE.
+ * DỊCH VỤ ĐIỀU PHỐI NỘI BỘ.
  * 
- * <p>This service acts as an Anti-Corruption Layer (ACL) between the Face Module 
- * and the external AI Engine.
+ * <p>Dịch vụ này hoạt động như một lớp Anti-Corruption Layer (ACL) giữa Module Face 
+ * và AI Engine bên ngoài.
  *
- * <p><b>Event-Driven:</b> This is NOT a public application service. It should NOT 
- * be called directly by standard REST controllers. It must only be invoked via 
- * Spring Application Event listeners reacting to {@code FaceProfileApprovedEvent}.
+ * <p><b>Điều hướng Sự kiện:</b> Đây KHÔNG phải là một application service công khai. Nó KHÔNG 
+ * được gọi trực tiếp bởi các REST controller tiêu chuẩn. Nó chỉ được gọi qua 
+ * các listener Spring Application Event phản ứng với {@code FaceProfileApprovedEvent}.
  *
- * <p>Ownership: Face Module. Manages the FaceEmbedding aggregate.
+ * <p>Quyền sở hữu: Module Face. Quản lý aggregate FaceEmbedding.
  */
 public interface FaceAiOrchestrator {
 
-    // --- COMMANDS ---
+    // --- LỆNH (COMMANDS) ---
 
     /**
-     * Generates a biometric embedding for an APPROVED face profile.
-     * Consumes FaceProfileApprovedEvent internally.
-     * Publishes FaceSyncReadyEvent AFTER_COMMIT upon successful vector persistence.
+     * Tạo một vector sinh trắc học cho hồ sơ khuôn mặt ĐÃ DUYỆT.
+     * Tiêu thụ FaceProfileApprovedEvent nội bộ.
+     * Phát FaceSyncReadyEvent AFTER_COMMIT khi lưu vector thành công.
      *
-     * @param profileId The UUID of the FaceProfile to process
+     * @param profileId UUID của FaceProfile cần xử lý
      */
     void generateEmbedding(UUID profileId);
 
     /**
-     * Generates a biometric embedding for a pending replacement request.
-     * Consumes FaceReplacementApprovedEvent internally.
-     * Delegates to FaceProfileService.finalizeReplacement for the atomic swap.
+     * Tạo một vector sinh trắc học cho yêu cầu thay thế đang chờ duyệt.
+     * Tiêu thụ FaceReplacementApprovedEvent nội bộ.
+     * Ủy quyền cho FaceProfileService.finalizeReplacement cho việc atomic swap.
      *
-     * @param profileId The UUID of the FaceProfile to process
+     * @param profileId UUID của FaceProfile cần xử lý
      */
     void generateReplacementEmbedding(UUID profileId);
 }

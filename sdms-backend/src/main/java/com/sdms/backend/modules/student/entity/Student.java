@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.UUID;
+import com.sdms.backend.common.enums.Gender;
 
 /**
  * DOMAIN ROLE: Hồ sơ cư dân chính thức của KTX (Resident Profile).
@@ -61,10 +62,12 @@ public class Student extends BaseEntity {
     @Column(length = 20)
     private String academicYear;
 
+
     @Column(length = 100)
     private String fatherName;
     @Column(length = 20)
     private String fatherPhone;
+
     @Column(length = 100)
     private String motherName;
     @Column(length = 20)

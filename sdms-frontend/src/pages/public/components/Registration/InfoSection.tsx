@@ -63,11 +63,7 @@ export default function InfoSection({ formData, error, setFormData }: InfoSectio
         Hệ thống xác nhận bạn đủ điều kiện nộp hồ sơ. Vui lòng cung cấp đầy đủ các thông tin cá nhân
         dưới đây.
       </Alert>
-      {error && (
-        <Alert severity="error" sx={{ borderRadius: 2 }}>
-          {error}
-        </Alert>
-      )}
+
 
       {/* ---------------- I. THÔNG TIN CÁ NHÂN ---------------- */}
       <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main', mt: 2 }}>
@@ -75,21 +71,31 @@ export default function InfoSection({ formData, error, setFormData }: InfoSectio
       </Typography>
       <Divider />
 
-      <TextField
-        label="Họ và tên"
-        value={formData.fullName}
-        onChange={handleFieldChange('fullName')}
-        required
-        fullWidth
-      />
+      <Box sx={{ display: 'flex', gap: 2 }}>
+        <TextField
+          label="Họ và tên"
+          value={formData.fullName}
+          onChange={handleFieldChange('fullName')}
+          required
+          fullWidth
+        />
+        <TextField
+          label="Mã số sinh viên"
+          value={formData.studentCode || ''}
+          onChange={handleFieldChange('studentCode')}
+          required
+          fullWidth
+          helperText="Mã số sinh viên do trường cấp"
+        />
+      </Box>
 
       <Box sx={{ display: 'flex', gap: 2 }}>
         <TextField
           label="Mã số định danh (CCCD)"
-          value={formData.cccd}
-          disabled
+          value={formData.cccd || ''}
+          onChange={handleNumberFieldChange('cccd', 12)}
+          required
           fullWidth
-          sx={{ bgcolor: 'action.hover' }}
         />
         <TextField
           label="Ngày cấp CCCD"
@@ -140,7 +146,13 @@ export default function InfoSection({ formData, error, setFormData }: InfoSectio
           fullWidth
         />
         <TextField
-          label="Khoa / Ngành học"
+          label="Khóa học (VD: K17, K18)"
+          value={formData.cohort || ''}
+          onChange={handleFieldChange('cohort')}
+          fullWidth
+        />
+        <TextField
+          label="Khoa"
           value={formData.faculty || ''}
           onChange={handleFieldChange('faculty')}
           fullWidth
@@ -184,13 +196,6 @@ export default function InfoSection({ formData, error, setFormData }: InfoSectio
         label="Hộ khẩu thường trú"
         value={formData.permanentAddress}
         onChange={handleFieldChange('permanentAddress')}
-        required
-        fullWidth
-      />
-      <TextField
-        label="Địa chỉ liên hệ hiện tại"
-        value={formData.contactAddress}
-        onChange={handleFieldChange('contactAddress')}
         required
         fullWidth
       />
@@ -258,14 +263,15 @@ export default function InfoSection({ formData, error, setFormData }: InfoSectio
           fullWidth
         />
       </Box>
-
       <TextField
-        label="Thông tin liên hệ khẩn cấp (Họ tên, SĐT, địa chỉ người thân)"
-        value={formData.familyContact || ''}
-        onChange={handleFieldChange('familyContact')}
+        label="Địa chỉ liên hệ"
+        value={formData.contactAddress}
+        onChange={handleFieldChange('contactAddress')}
+        required
         fullWidth
-        sx={{ mt: 1 }}
+        sx={{ mt: 2 }}
       />
+
 
       {/* ---------------- III. ĐỐI TƯỢNG ƯU TIÊN ---------------- */}
       <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main', mt: 3 }}>

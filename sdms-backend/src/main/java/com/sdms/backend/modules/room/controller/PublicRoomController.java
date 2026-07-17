@@ -1,10 +1,13 @@
 package com.sdms.backend.modules.room.controller;
 
+import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.common.response.ApiResponse;
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,16 +20,18 @@ import java.util.HashMap;
 @RequestMapping("/api/v1/student/room-result")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
+@Tag(name = "Kết quả xếp phòng (Public)", description = "API cho sinh viên xem kết quả xếp phòng của mình")
 public class PublicRoomController {
 
     private final StudentHousingAssignmentRepository assignmentRepository;
 
+    @Operation(summary = "Xem kết quả xếp phòng", description = "Xem kết quả xếp phòng thông qua mã đơn đăng ký (Application ID)")
     @GetMapping("/assignment/{applicationId}")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getAssignmentByApplicationId(@PathVariable UUID applicationId) {
+    public ApiResponse<Map<String, Object>> getAssignmentByApplicationId(@PathVariable UUID applicationId) {
         Optional<StudentHousingAssignment> assignmentOpt = assignmentRepository.findByApplication_ApplicationId(applicationId);
         
         if (assignmentOpt.isEmpty()) {
-            return ResponseEntity.status(404).body(new ApiResponse<>(false, "Chưa được cấp phòng", null));
+            throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Chưa được cấp phòng hoặc không tìm thấy đơn đăng ký này.");
         }
 
         StudentHousingAssignment assignment = assignmentOpt.get();
@@ -48,6 +53,6 @@ public class PublicRoomController {
             }
         }
 
-        return ResponseEntity.ok(ApiResponse.success("Lấy thông tin xếp phòng thành công", data));
+        return ApiResponse.success("Lấy thông tin xếp phòng thành công", data);
     }
 }

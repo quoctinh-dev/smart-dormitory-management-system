@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.smartaccess.application.service;
 
-import com.sdms.backend.common.response.ApiResponse;
+import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.room.entity.Room;
 import com.sdms.backend.modules.room.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,7 @@ public class RoomPinService {
     @Transactional
     public String generatePinForRoom(UUID roomId) {
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("Room not found: " + roomId));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy phòng: " + roomId));
         String pin = generatePin();
         room.setRoomPinCode(pin);
         roomRepository.save(room);
@@ -97,6 +98,6 @@ public class RoomPinService {
     public String getPinForRoom(UUID roomId) {
         return roomRepository.findById(roomId)
                 .map(Room::getRoomPinCode)
-                .orElseThrow(() -> new IllegalArgumentException("Room not found: " + roomId));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy phòng: " + roomId));
     }
 }

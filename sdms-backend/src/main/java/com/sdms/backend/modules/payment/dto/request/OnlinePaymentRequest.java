@@ -12,18 +12,18 @@ import com.sdms.backend.modules.payment.enums.PaymentMethod;
 @Setter
 public class OnlinePaymentRequest {
 
-    @NotNull(message = "Bill id is required")
+    @NotNull(message = "ID hóa đơn là bắt buộc")
     private UUID billId;
 
-    @NotNull(message = "Amount is required")
+    @NotNull(message = "Số tiền là bắt buộc")
     @DecimalMin(
             value = "0.0",
             inclusive = false,
-            message = "Amount must be greater than 0"
+            message = "Số tiền phải lớn hơn 0"
     )
     private BigDecimal amount;
 
-    @NotNull(message = "Payment method is required")
+    @NotNull(message = "Phương thức thanh toán là bắt buộc")
     private PaymentMethod paymentMethod;
 
     private String transactionCode;

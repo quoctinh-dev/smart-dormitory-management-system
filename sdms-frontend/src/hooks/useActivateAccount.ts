@@ -1,8 +1,10 @@
-// 📄 File: src/hooks/public/useActivateAccount.js
+// 📄 File: src/hooks/public/useActivateAccount.ts
 import { useState, useCallback } from 'react';
 
 import { authApi } from '@/api';
+import { getErrorMessage } from '@/types/api';
 import { snackbar } from '@/utils/snackbar';
+import { validatePassword } from '@/utils/validate';
 
 export const useActivateAccount = () => {
   const [formData, setFormData] = useState({
@@ -15,13 +17,13 @@ export const useActivateAccount = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleChange = useCallback((e: any) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
   const handleSubmit = useCallback(
-    async (e: any) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       const { email, tempPassword, newPassword, confirmPassword } = formData;
@@ -30,8 +32,10 @@ export const useActivateAccount = () => {
         snackbar.error('Vui lòng điền đầy đủ tất cả các trường thông tin.');
         return;
       }
-      if (newPassword.length < 8) {
-        snackbar.error('Mật khẩu mới phải có độ dài tối thiểu từ 8 ký tự trở lên.');
+      if (!validatePassword(newPassword)) {
+        snackbar.error(
+          'Mật khẩu phải từ 8-50 ký tự, có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.'
+        );
         return;
       }
       if (newPassword !== confirmPassword) {
@@ -49,12 +53,10 @@ export const useActivateAccount = () => {
 
         setSuccess(true);
         snackbar.success('Kích hoạt thành công! Mật khẩu chính thức của bạn đã được thiết lập.');
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Activation failed:', err);
         snackbar.error(
-          err.response?.data?.message ||
-            err.message ||
-            'Kích hoạt thất bại. Vui lòng kiểm tra lại thông tin.'
+          getErrorMessage(err, 'Kích hoạt thất bại. Vui lòng kiểm tra lại thông tin.')
         );
       } finally {
         setLoading(false);

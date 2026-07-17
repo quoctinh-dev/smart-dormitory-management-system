@@ -1,6 +1,7 @@
 package com.sdms.backend.common.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.config.BrevoConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,11 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Dịch vụ lõi (Core Service) phụ trách tích hợp và giao tiếp với hệ thống thư điện tử (Brevo SMTP).
+ * Thiết kế phân tách rõ ràng hai luồng xử lý: đồng bộ (Synchronous) cho các tác vụ mang tính sống còn
+ * và bất đồng bộ (Asynchronous) cho các tác vụ thông báo ngoại vi nhằm tối ưu hóa hiệu năng tổng thể.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,11 +27,15 @@ public class EmailService {
     private final RestTemplate restTemplate;
 
     /**
-     * Gửi các email không quan trọng (VD: thông báo).
-     * <p>
-     * Method này chạy bất đồng bộ (@Async) và sẽ không làm block luồng chính.
-     * Nếu có lỗi xảy ra, lỗi sẽ chỉ được ghi log mà không ném ra ngoài,
-     * đảm bảo không làm gián đoạn các tác vụ khác.
+     * Gửi thư điện tử thông báo (Notification) không yêu cầu độ tin cậy tuyệt đối.
+     * 
+     * Kiến trúc: Áp dụng cơ chế thực thi bất đồng bộ (@Async) trên một Thread Pool độc lập.
+     * Ngăn chặn tình trạng thắt nút cổ chai (bottleneck) ở luồng xử lý HTTP chính. 
+     * Các ngoại lệ phát sinh được cô lập hoàn toàn và ghi log cục bộ, đảm bảo tính liên tục của luồng nghiệp vụ.
+     *
+     * @param to Địa chỉ email người nhận
+     * @param subject Tiêu đề thư
+     * @param htmlContent Nội dung thư định dạng HTML
      */
     @Async
     public void sendNotificationEmail(String to, String subject, String htmlContent) {
@@ -37,25 +47,29 @@ public class EmailService {
     }
 
     /**
-     * Gửi các email quan trọng yêu cầu phải thành công (VD: Gửi mã OTP, Reset mật khẩu).
-     * <p>
-     * Method này chạy đồng bộ. Nếu gửi email thất bại, nó sẽ ném ra một {@link AppException}
-     * để tầng service/controller có thể bắt lại và thông báo lỗi cho người dùng.
+     * Gửi thư điện tử trọng yếu (Critical) đòi hỏi tính chính xác và kịp thời (VD: Mã OTP, Khôi phục mật khẩu).
+     * 
+     * Kiến trúc: Bắt buộc thực thi đồng bộ (Synchronous). Quy trình này cấu thành một phần không thể tách rời
+     * của giao dịch nghiệp vụ. Sự cố gián đoạn từ phía SMTP Server sẽ lập tức phát sinh ngoại lệ (AppException),
+     * trực tiếp kích hoạt cơ chế Rollback (nếu có) và báo cáo minh bạch cho hệ thống client.
      *
-     * @throws AppException nếu không thể gửi email
+     * @param to Địa chỉ email người nhận
+     * @param subject Tiêu đề thư
+     * @param htmlContent Nội dung thư định dạng HTML
+     * @throws AppException Ném ra khi đường truyền đến hạ tầng email thất bại
      */
     public void sendCriticalEmail(String to, String subject, String htmlContent) {
         try {
             executeSend(to, subject, htmlContent);
         } catch (Exception e) {
             log.error("CRITICAL: Failed to send critical email to {}: {}", to, e.getMessage(), e);
-            // Ném ra lỗi để GlobalExceptionHandler bắt được và trả về response 500 cho client
-            throw new AppException("Không thể gửi email vào lúc này, vui lòng thử lại sau.", HttpStatus.INTERNAL_SERVER_ERROR, e);
+            throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR, "Không thể gửi email vào lúc này, vui lòng thử lại sau.");
         }
     }
 
     /**
-     * Lõi logic thực thi việc gọi API của Brevo để gửi email.
+     * Tầng giao tiếp (Facade) tích hợp trực tiếp với nền tảng Brevo SMTP thông qua giao thức REST.
+     * Đóng gói toàn bộ logic khởi tạo HttpHeaders và Payload.
      */
     private void executeSend(String to, String subject, String htmlContent) {
         String url = "https://api.brevo.com/v3/smtp/email";
@@ -75,15 +89,7 @@ public class EmailService {
         );
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-
-        // RestTemplate.exchange sẽ tự ném ra RestClientException nếu status code là 4xx hoặc 5xx
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            log.info("Email sent successfully to {}", to);
-        } else {
-            // Đoạn này gần như sẽ không bao giờ được thực thi vì RestTemplate đã ném lỗi trước đó
-            log.warn("Email send failed to {}: status={}, body={}", to, response.getStatusCode(), response.getBody());
-        }
+        log.info("Email sent successfully to {}", to);
     }
 }

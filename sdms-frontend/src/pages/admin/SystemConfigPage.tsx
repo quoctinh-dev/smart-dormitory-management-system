@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import SaveIcon from '@mui/icons-material/Save';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Box,
   Typography,
-  Card,
-  Grid,
   Button,
   TextField,
   Table,
@@ -16,9 +15,9 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
+import React, { useState, useEffect } from 'react';
+
 import { systemConfigApi, SystemConfig } from '@/api/systemConfigApi';
-import SaveIcon from '@mui/icons-material/Save';
-import SettingsIcon from '@mui/icons-material/Settings';
 
 export default function SystemConfigPage() {
   const { enqueueSnackbar } = useSnackbar();
@@ -28,6 +27,7 @@ export default function SystemConfigPage() {
 
   useEffect(() => {
     fetchConfigs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchConfigs = async () => {
@@ -35,13 +35,13 @@ export default function SystemConfigPage() {
       setLoading(true);
       const res = await systemConfigApi.getAllConfigs();
       setConfigs(res);
-      
+
       const values: Record<string, string> = {};
       res.forEach((config: SystemConfig) => {
         values[config.configKey] = config.configValue;
       });
       setEditValues(values);
-    } catch (error) {
+    } catch {
       enqueueSnackbar('Lỗi khi tải cấu hình hệ thống', { variant: 'error' });
     } finally {
       setLoading(false);
@@ -49,15 +49,15 @@ export default function SystemConfigPage() {
   };
 
   const handleValueChange = (key: string, value: string) => {
-    setEditValues(prev => ({
+    setEditValues((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
   const handleSave = async (config: SystemConfig) => {
     const newValue = editValues[config.configKey];
-    
+
     if (!newValue || newValue.trim() === '') {
       enqueueSnackbar('Giá trị không được để trống', { variant: 'warning' });
       return;
@@ -69,7 +69,9 @@ export default function SystemConfigPage() {
       enqueueSnackbar('Cập nhật cấu hình thành công!', { variant: 'success' });
       fetchConfigs();
     } catch (error: any) {
-      enqueueSnackbar(error.response?.data?.message || 'Lỗi khi cập nhật cấu hình', { variant: 'error' });
+      enqueueSnackbar(error.response?.data?.message || 'Lỗi khi cập nhật cấu hình', {
+        variant: 'error',
+      });
     } finally {
       setLoading(false);
     }
@@ -118,9 +120,15 @@ export default function SystemConfigPage() {
                 const isChanged = currentValue !== config.configValue;
 
                 return (
-                  <TableRow key={config.configKey} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                  <TableRow
+                    key={config.configKey}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  >
                     <TableCell component="th" scope="row">
-                      <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: 'primary.dark' }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: 'primary.dark' }}
+                      >
                         {config.configKey}
                       </Typography>
                     </TableCell>

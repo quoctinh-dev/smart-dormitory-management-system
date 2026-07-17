@@ -11,9 +11,8 @@ import lombok.Setter;
 @Setter
 public class ActivateAccountRequest {
 
-    @NotBlank(message = "Email không được để trống")
-    @Email(message = "Định dạng email không hợp lệ")
-    private String email;
+    @NotBlank(message = "Mã sinh viên không được để trống")
+    private String studentCode;
 
     @NotBlank(message = "Mật khẩu tạm thời không được để trống")
     private String tempPassword;

@@ -1,5 +1,5 @@
 // 📄 File: src/pages/public/ActivateAccountPage.jsx
-import { Visibility, VisibilityOff, Key, Email, Lock, LockReset } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Key, Person, Lock, LockReset } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
   Container,
@@ -21,7 +21,7 @@ import { authApi } from '@/api';
 export default function ActivateAccountPage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
+    studentCode: '',
     tempPassword: '',
     newPassword: '',
     confirmPassword: '',
@@ -41,10 +41,10 @@ export default function ActivateAccountPage() {
     e.preventDefault();
     setError(null);
 
-    const { email, tempPassword, newPassword, confirmPassword } = formData;
+    const { studentCode, tempPassword, newPassword, confirmPassword } = formData;
 
     // Validation Client-side
-    if (!email || !tempPassword || !newPassword || !confirmPassword) {
+    if (!studentCode || !tempPassword || !newPassword || !confirmPassword) {
       return setError('Vui lòng điền đầy đủ tất cả các trường thông tin.');
     }
     if (newPassword.length < 8) {
@@ -58,7 +58,7 @@ export default function ActivateAccountPage() {
     try {
       // 🌟 GỌI API CHUẨN ĐÉT SANG ENDPOINT POST BACKEND
       await authApi.activate({
-        email: email.trim(),
+        studentCode: studentCode.trim(),
         tempPassword: tempPassword.trim(),
         newPassword: newPassword,
       });
@@ -91,17 +91,16 @@ export default function ActivateAccountPage() {
               Kích Hoạt Thành Công!
             </Typography>
             <Typography sx={{ color: 'text.secondary', mb: 4 }}>
-              Mật khẩu chính thức của bạn đã được thiết lập. Bây giờ bạn có thể quay lại đăng nhập
-              hệ thống bằng tài khoản sinh viên.
+              Mật khẩu chính thức của bạn đã được thiết lập. Vui lòng tải xuống hoặc mở <b>Ứng dụng trên Điện thoại (Mobile App)</b> để đăng nhập vào hệ thống KTX.
             </Typography>
             <Button
               variant="contained"
               fullWidth
               size="large"
-              onClick={() => navigate('/login')} // 🌟 Điều hướng về đúng trang login hệ thống
+              onClick={() => navigate('/')}
               sx={{ borderRadius: 2, py: 1.5, fontWeight: 'bold' }}
             >
-              Quay lại Đăng nhập
+              Về Trang Chủ KTX
             </Button>
           </Paper>
         </Fade>
@@ -120,8 +119,7 @@ export default function ActivateAccountPage() {
               Kích Hoạt Tài Khoản
             </Typography>
             <Typography sx={{ color: 'text.secondary', mt: 1 }}>
-              Nhập Email đăng ký và Mật khẩu tạm thời (số CCCD) để hoàn tất thiết lập tài khoản sinh
-              viên lần đầu.
+              Nhập Mã sinh viên và Mật khẩu tạm thời (chính là Mã sinh viên của bạn) để hoàn tất thiết lập tài khoản.
             </Typography>
           </Box>
 
@@ -138,17 +136,19 @@ export default function ActivateAccountPage() {
             sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}
           >
             <TextField
+              label="Mã Sinh Viên"
+              name="studentCode"
+              type="text"
+              variant="outlined"
               fullWidth
               required
-              label="Địa chỉ Email đăng ký"
-              name="email"
-              value={formData.email}
+              value={formData.studentCode}
               onChange={handleChange}
               disabled={loading}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Email color="action" />
+                    <Person color="action" />
                   </InputAdornment>
                 ),
               }}
@@ -157,7 +157,7 @@ export default function ActivateAccountPage() {
             <TextField
               fullWidth
               required
-              label="Mật khẩu tạm thời (Số CCCD của bạn)"
+              label="Mật khẩu tạm thời (Mã sinh viên)"
               name="tempPassword"
               type="password"
               value={formData.tempPassword}

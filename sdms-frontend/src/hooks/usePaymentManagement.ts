@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
 import { paymentApi } from '@/api';
-
+import { snackbar } from '@/utils/snackbar';
 import type { BillAdminResponse } from '@/types/payment';
 
 export const usePaymentManagement = () => {
@@ -18,12 +18,6 @@ export const usePaymentManagement = () => {
   const [detailsDialog, setDetailsDialog] = useState(false);
   const [selectedBill, setSelectedBill] = useState<BillAdminResponse | null>(null);
 
-  // Trạng thái thông báo hệ thống
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'error' | 'info' | 'warning';
-  }>({ open: false, message: '', severity: 'success' });
 
   const fetchBills = useCallback(async () => {
     try {
@@ -34,11 +28,7 @@ export const usePaymentManagement = () => {
       setBills(data);
     } catch (err: any) {
       console.error('Failed to fetch bills:', err);
-      setSnackbar({
-        open: true,
-        message: err.message || 'Không thể tải danh sách hóa đơn từ máy chủ.',
-        severity: 'error',
-      });
+      snackbar.error(err.message || 'Không thể tải danh sách hóa đơn từ máy chủ.');
     } finally {
       setLoading(false);
     }
@@ -62,18 +52,10 @@ export const usePaymentManagement = () => {
       );
       setConfirmDialog(false);
 
-      setSnackbar({
-        open: true,
-        message: `Đã gạch nợ tiền mặt thành công cho hóa đơn ${selectedBill.billCode}!`,
-        severity: 'success',
-      });
+      snackbar.success(`Đã gạch nợ tiền mặt thành công cho hóa đơn ${selectedBill.billCode}!`);
     } catch (error: any) {
       console.error('Payment confirmation failed:', error);
-      setSnackbar({
-        open: true,
-        message: error.message || 'Lỗi hệ thống khi xác nhận thu tiền mặt.',
-        severity: 'error',
-      });
+      snackbar.error(error.message || 'Lỗi hệ thống khi xác nhận thu tiền mặt.');
     }
   };
 
@@ -111,9 +93,6 @@ export const usePaymentManagement = () => {
     setConfirmDialog(true);
   }, []);
 
-  const closeSnackbar = useCallback(() => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  }, []);
 
   return {
     bills: filteredBills,
@@ -121,7 +100,6 @@ export const usePaymentManagement = () => {
     confirmDialog,
     detailsDialog,
     selectedBill,
-    snackbar,
     currentTab,
     searchQuery,
     billTypeFilter,
@@ -133,6 +111,5 @@ export const usePaymentManagement = () => {
     handleConfirmCashPayment,
     openDetails,
     openConfirm,
-    closeSnackbar,
   };
 };

@@ -91,22 +91,38 @@
                 Xin chào <strong style="color: #0f172a;"><span th:text="${studentName}">Sinh viên</span></strong>,
             </p>
 
-            <p style="color: #475569; font-size: 15px;"> Hệ thống thông báo đơn đăng ký chỗ ở mã số
-                <strong style="color: #2563eb;" th:text="${applicationId}">#MÃ_ĐƠN</strong>
-                của bạn đã thay đổi trạng thái:
-            </p>
+            <!-- Trạng thái ĐÃ PHÊ DUYỆT -->
+            <div th:if="${status == 'ĐA_PHE_DUYET'}">
+                <p style="color: #475569; font-size: 15px;">
+                    Chúc mừng bạn! 🎉 Đơn đăng ký lưu trú ký túc xá có mã số 
+                    <strong style="color: #2563eb;" th:text="${applicationId}">#MÃ_ĐƠN</strong> 
+                    của bạn đã được <strong>phê duyệt thành công</strong>.
+                </p>
+                <div class="status-badge" style="background-color: #dcfce7; color: #166534;">ĐÃ PHÊ DUYỆT</div>
+                <p style="margin-top: 15px; color: #475569; font-size: 15px;">
+                    Ban Quản lý Ký túc xá rất vui mừng được chào đón bạn! Bước tiếp theo, bạn vui lòng đăng nhập vào Hệ thống KTX để kiểm tra <strong>Hóa đơn tiền phòng</strong> và hoàn tất thanh toán nhé.
+                </p>
+            </div>
 
-            <div class="status-badge" th:text="${status}">TRẠNG THÁI</div>
+            <!-- Các trạng thái khác -->
+            <div th:unless="${status == 'ĐA_PHE_DUYET'}">
+                <p style="color: #475569; font-size: 15px;"> Hệ thống thông báo đơn đăng ký chỗ ở mã số
+                    <strong style="color: #2563eb;" th:text="${applicationId}">#MÃ_ĐƠN</strong>
+                    của bạn vừa được cập nhật trạng thái mới:
+                </p>
+                <div class="status-badge" th:text="${status}">TRẠNG THÁI</div>
+                
+                <p style="margin-top: 15px; color: #475569; font-size: 15px;">
+                    Vui lòng đăng nhập vào hệ thống ứng dụng Ký túc xá để kiểm tra chi tiết đơn và thực hiện các bước tiếp
+                    theo (nếu có).
+                </p>
+            </div>
 
+            <!-- Ghi chú từ Ban quản lý (nếu có) -->
             <div th:if="${reason != null}" class="alert-box">
                 <strong style="color: #9f1239; font-size: 15px;">Ghi chú từ Ban quản lý:</strong>
                 <p style="margin: 6px 0 0 0; color: #4c0519; font-size: 14px;" th:text="${reason}">Lý do chi tiết...</p>
             </div>
-
-            <p style="margin-top: 30px; color: #475569; font-size: 15px;">
-                Vui lòng đăng nhập vào hệ thống ứng dụng Ký túc xá để kiểm tra chi tiết đơn và thực hiện các bước tiếp
-                theo (nếu có).
-            </p>
         </div>
 
         <div class="footer">

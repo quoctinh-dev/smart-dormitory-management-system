@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.validator;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,10 +36,7 @@ public class BuildingValidator {
      */
     public void validateCanClose(UUID buildingId) {
         if (hasActiveResidents(buildingId)) {
-            throw new AppException(
-                    "Cannot close building. There are still active reservations (Payment Window) or occupied residents inside.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Cannot close building. There are still active reservations (Payment Window) or occupied residents inside.");
         }
     }
 
@@ -49,10 +47,7 @@ public class BuildingValidator {
      */
     public void validateCanMaintenance(UUID buildingId) {
         if (hasActiveResidents(buildingId)) {
-            throw new AppException(
-                    "Cannot put building into maintenance. Active bookings or occupied residents currently exist.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Cannot put building into maintenance. Active bookings or occupied residents currently exist.");
         }
     }
 

@@ -13,6 +13,6 @@ import lombok.Setter;
 @Setter
 public class UpdateFloorRequest {
 
-    @NotNull(message = "Occupancy policy is required")
+    @NotNull(message = "Chính sách giới tính là bắt buộc")
     private Gender gender;
 }

@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.room.dto.request.CreateRoomRequest;
 import com.sdms.backend.modules.room.dto.request.UpdateRoomRequest;
 import com.sdms.backend.modules.room.dto.response.RoomResponse;
@@ -10,6 +11,9 @@ import com.sdms.backend.modules.room.enums.RoomStatus;
 import com.sdms.backend.modules.room.mapper.RoomMapper;
 import com.sdms.backend.modules.room.repository.FloorRepository;
 import com.sdms.backend.modules.room.repository.RoomRepository;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
+import com.sdms.backend.modules.room.enums.RoomRole;
 import com.sdms.backend.modules.room.validator.RoomValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -41,6 +45,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final FloorRepository floorRepository;
+    private final StudentHousingAssignmentRepository assignmentRepository;
     private final RoomMapper roomMapper;
 
     // ROOM-04 INTEGRATION: Thay thế việc gọi trực tiếp AssignmentRepository bằng RoomValidator lớp chuyên trách
@@ -51,11 +56,11 @@ public class RoomService {
 
     public RoomResponse createRoom(CreateRoomRequest request) {
         Floor floor = floorRepository.findById(request.getFloorId())
-                .orElseThrow(() -> new AppException("Floor not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy tầng"));
 
         String normalizedCode = request.getRoomCode().trim().toUpperCase();
         if (roomRepository.existsByFloor_FloorIdAndRoomCode(floor.getFloorId(), normalizedCode)) {
-            throw new AppException("Room code already exists in this floor", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Mã phòng đã tồn tại ở tầng này");
         }
 
         Room room = new Room();
@@ -102,6 +107,16 @@ public class RoomService {
 
         room.setStatus(status);
         roomRepository.save(room);
+    }
+
+    public void assignRoomRole(UUID assignmentId, RoomRole role) {
+        StudentHousingAssignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy thông tin phân bổ giường"));
+        
+        // Nếu chuyển thành Trưởng phòng hoặc Phó phòng, có thể kiểm tra xem phòng đã có trưởng phòng chưa (Optional)
+        // Hiện tại cho phép ghi đè đơn giản.
+        assignment.setRoomRole(role);
+        assignmentRepository.save(assignment);
     }
 
     @Transactional(readOnly = true)
@@ -203,6 +218,6 @@ public class RoomService {
 
     private Room findById(UUID id) {
         return roomRepository.findById(id)
-                .orElseThrow(() -> new AppException("Room not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy phòng"));
     }
 }

@@ -19,10 +19,10 @@ export interface RecordUtilityRequest {
 
 export const utilityApi = {
   getRoomsForRecording: (
-    month: number, 
-    year: number, 
-    type: 'ELECTRICITY' | 'WATER', 
-    buildingId?: string, 
+    month: number,
+    year: number,
+    type: 'ELECTRICITY' | 'WATER',
+    buildingId?: string,
     floorId?: string
   ): Promise<RoomUtilityResponse[]> => {
     return axiosClient.get('/v1/admin/utilities/rooms', {

@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.room.dto.request.CreateBedRequest;
 import com.sdms.backend.modules.room.dto.request.UpdateBedRequest;
 import com.sdms.backend.modules.room.dto.response.BedResponse;
@@ -37,13 +38,13 @@ public class BedService {
 
     public BedResponse createBed(CreateBedRequest request) {
         Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new AppException("Room not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy phòng"));
 
         roomValidator.validateCanGenerateBeds(room, 1);
 
         String normalizedCode = request.getBedCode().trim().toUpperCase();
         if (bedRepository.existsByRoom_RoomIdAndBedCode(room.getRoomId(), normalizedCode)) {
-            throw new AppException("Bed code already exists in this room", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Mã giường đã tồn tại trong phòng này");
         }
 
         Bed bed = new Bed();
@@ -61,13 +62,13 @@ public class BedService {
      */
     public List<BedResponse> autoGenerateBeds(UUID roomId) {
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new AppException("Room not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy phòng"));
 
         long currentBedCount = bedRepository.countByRoom_RoomId(roomId);
         int missingBeds = room.getCapacity() - (int) currentBedCount;
 
         if (missingBeds <= 0) {
-            throw new AppException("Room already has maximum number of beds based on capacity.", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Phòng đã đạt số lượng giường tối đa");
         }
 
         // ROOM-04 STEP 03.4: Đảm bảo số lượng sinh thêm không vượt quá giới hạn
@@ -145,15 +146,12 @@ public class BedService {
         );
 
         if (hasActiveAssignment) {
-            throw new AppException(
-                    "Cannot delete bed: This bed is currently linked to an active assignment",
-                    HttpStatus.CONFLICT
-            );
+            throw new AppException(ErrorCode.DATA_CONFLICT, "Không thể xóa giường: Giường này đang được liên kết với một hợp đồng lưu trú còn hiệu lực");
         }
     }
 
     private Bed findById(UUID id) {
         return bedRepository.findById(id)
-                .orElseThrow(() -> new AppException("Bed not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy giường"));
     }
 }

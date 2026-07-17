@@ -1,5 +1,13 @@
+import type {
+  BillResponse,
+  BillAdminResponse,
+  PaymentInstruction,
+  PageResponse,
+  OnlinePaymentRequest,
+  PaymentActionResponse,
+} from '@/types/payment';
+
 import axiosClient from './axiosClient';
-import type { BillResponse, BillAdminResponse, PaymentInstruction, PageResponse } from '@/types/payment';
 
 export const paymentApi = {
   // 1. Quản lý hóa đơn (Dùng chung hoặc Admin)
@@ -12,12 +20,15 @@ export const paymentApi = {
   },
 
   // 2. Xử lý thanh toán
-  processOnlinePayment: async (data: any): Promise<any> => {
-    return await axiosClient.post('/v1/payments/online', data); // Updated path
+  processOnlinePayment: async (data: OnlinePaymentRequest): Promise<PaymentActionResponse> => {
+    return await axiosClient.post('/v1/payments/online', data);
   },
 
-  approveCashPayment: async (data: { billId: string; amount: number }): Promise<any> => {
-    return await axiosClient.post('/v1/payments/cash/approve', data); // Updated path
+  approveCashPayment: async (data: {
+    billId: string;
+    amount: number;
+  }): Promise<PaymentActionResponse> => {
+    return await axiosClient.post('/v1/payments/cash/approve', data);
   },
 
   // 3. Lấy hướng dẫn thanh toán
@@ -26,7 +37,7 @@ export const paymentApi = {
   },
 
   // Mock payment success for testing event-driven flow
-  mockPaymentSuccess: async (applicationId: string): Promise<any> => {
+  mockPaymentSuccess: async (applicationId: string): Promise<PaymentActionResponse> => {
     return await axiosClient.post(`/v1/payments/mock-success/${applicationId}`);
   },
 };

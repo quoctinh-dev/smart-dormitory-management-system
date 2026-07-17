@@ -16,7 +16,7 @@ interface Admin {
   updatedAt?: string;
 }
 
-// Định nghĩa kiểu dữ liệu cho dữ liệu trả về khi đăng nhập
+// Định nghia
 interface AuthData {
   accessToken: string;
   refreshToken: string;
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (token) {
         try {
-          const userData = (await authApi.getMe()) as any;
+          const userData = (await authApi.getMe()) as unknown as Admin;
           setAdmin(userData);
         } catch (error) {
           console.error('Auth init failed:', error);

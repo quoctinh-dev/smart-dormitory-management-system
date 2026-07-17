@@ -10,6 +10,13 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Mục tiêu/Nghiệp vụ: Kiểm tra xem sinh viên (dựa vào ResidentType: Vãng lai, Ngoại trú, v.v.) có được phép ra/vào tòa nhà trong khung giờ hiện tại hay không.
+ * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Áp dụng Strategy Pattern để tách biệt logic kiểm tra khung giờ ra khỏi lớp Service chính. 
+ * Lưu ý Kiến thức (Dành cho phản biện): 
+ * - Nguyên tắc "Fail-Closed" (Đóng mặc định): Nếu không tìm thấy bất kỳ TimeWindowPolicy nào đang Active, hệ thống tự động TỪ CHỐI truy cập (return false). Điều này đảm bảo an ninh tuyệt đối so với "Fail-Open" (Mở mặc định).
+ * - Thuật toán xử lý khung giờ qua đêm: Tương tự Curfew, nếu startTime > endTime (VD: 22:00 -> 02:00), toán tử logic OR (Tuyển) sẽ được kích hoạt thay vì AND (Hội).
+ */
 @Component
 @RequiredArgsConstructor
 public class TimeWindowEvaluationStrategy {

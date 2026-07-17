@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 
 import applicationApi from '@/api/applicationApi';
 import paymentApi from '@/api/paymentApi';
-import { snackbar } from '@/utils/snackbar';
-
-import type { BillResponse, PaymentInstruction } from '@/types/payment';
 import type { ApplicationResponse } from '@/types/application';
+import type { BillResponse, PaymentInstruction } from '@/types/payment';
+import { snackbar } from '@/utils/snackbar';
 
 export const usePayment = (applicationId: string) => {
   const [bill, setBill] = useState<BillResponse | null>(null);
@@ -55,18 +54,24 @@ export const usePayment = (applicationId: string) => {
     };
   }, [applicationId]);
 
-  const handleMockPayment = async (onSuccessCallback: () => void) => {
+  const handleOnlinePayment = async (
+    paymentMethod: string = 'BANK_TRANSFER',
+    onSuccessCallback?: () => void
+  ) => {
     setPaying(true);
     try {
-      await paymentApi.mockPaymentSuccess(applicationId);
+      const response = await paymentApi.processOnlinePayment({
+        billId: bill!.billId,
+        amount: bill!.remainingAmount > 0 ? bill!.remainingAmount : bill!.amount,
+        paymentMethod,
+        returnUrl: window.location.origin + '/status',
+      });
 
-      snackbar.success(
-        'Thanh toán thành công! Hệ thống đang tự động khởi tạo tài khoản định danh...'
-      );
-
-      if (onSuccessCallback) {
-        setTimeout(onSuccessCallback, 2500);
+      if (response.paymentUrl) {
+        return response.paymentUrl;
       }
+
+      onSuccessCallback?.();
     } catch (err: any) {
       snackbar.error(`Lỗi xử lý giao dịch: ${err.response?.data?.message || err.message}`);
       setPaying(false);
@@ -79,6 +84,6 @@ export const usePayment = (applicationId: string) => {
     paymentInstructions,
     loading,
     paying,
-    handleMockPayment,
+    handleOnlinePayment,
   };
 };

@@ -40,7 +40,7 @@ public class GateService {
     public GateResponse getGateById(UUID id) {
         return gateRepository.findById(id)
                 .map(gateMapper::toResponse)
-                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy cổng"));
     }
 
     @Transactional
@@ -50,17 +50,17 @@ public class GateService {
 
         if (request.getGateType() == GateType.BUILDING_GATE) {
             if (request.getBuildingId() == null) {
-                throw new IllegalArgumentException("Building ID is required for BUILDING_GATE");
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Cần cung cấp Building ID cho loại cổng BUILDING_GATE");
             }
             Building building = buildingRepository.findById(request.getBuildingId())
-                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Not found"));
+                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy tòa nhà"));
             gate.setBuilding(building);
         } else if (request.getGateType() == GateType.ROOM_DOOR) {
             if (request.getRoomId() == null) {
-                throw new IllegalArgumentException("Room ID is required for ROOM_DOOR");
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Cần cung cấp Room ID cho loại cổng ROOM_DOOR");
             }
             Room room = roomRepository.findById(request.getRoomId())
-                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Not found"));
+                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy phòng"));
             gate.setRoom(room);
             gate.setBuilding(room.getFloor().getBuilding());
         }
@@ -72,21 +72,21 @@ public class GateService {
     @Transactional
     public GateResponse updateGate(UUID id, GateRequest request) {
         Gate gate = gateRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy cổng"));
 
         gateMapper.updateEntity(gate, request);
 
         if (request.getGateType() == GateType.BUILDING_GATE) {
             if (request.getBuildingId() != null) {
                 Building building = buildingRepository.findById(request.getBuildingId())
-                        .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Not found"));
+                        .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy tòa nhà"));
                 gate.setBuilding(building);
                 gate.setRoom(null);
             }
         } else if (request.getGateType() == GateType.ROOM_DOOR) {
             if (request.getRoomId() != null) {
                 Room room = roomRepository.findById(request.getRoomId())
-                        .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Not found"));
+                        .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy phòng"));
                 gate.setRoom(room);
                 gate.setBuilding(room.getFloor().getBuilding());
             }
@@ -98,7 +98,7 @@ public class GateService {
     @Transactional
     public void deleteGate(UUID id) {
         if (!gateRepository.existsById(id)) {
-            throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Not found");
+            throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy cổng");
         }
         gateRepository.deleteById(id);
     }

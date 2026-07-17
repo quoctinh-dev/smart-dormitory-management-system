@@ -10,8 +10,6 @@ import java.util.UUID;
 
 @Repository
 public interface TimeWindowPolicyRepository extends JpaRepository<TimeWindowPolicy, UUID> {
-    
-    // Retrieves active time window policies for specific boarding/non-boarding resident types.
-    // Used by TimeWindowEvaluationStrategy.
+    // Để truy xuất các chính sách cửa sổ thời gian đang hoạt động cho một tòa nhà cụ thể và loại cư dân cụ thể.
     List<TimeWindowPolicy> findByBuildingIdAndResidentTypeAndIsActiveTrue(UUID buildingId, ResidentType residentType);
 }

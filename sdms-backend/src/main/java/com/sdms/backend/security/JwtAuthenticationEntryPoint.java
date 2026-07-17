@@ -33,11 +33,13 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     ) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
 
         Map<String, Object> body = new HashMap<>();
         body.put("success", false);
-        body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-        body.put("message", "Unauthorized");
+        body.put("errorCode", com.sdms.backend.common.exception.ErrorCode.UNAUTHORIZED.name());
+        body.put("message", com.sdms.backend.common.exception.ErrorCode.UNAUTHORIZED.getMessage());
+        body.put("data", null);
 
         objectMapper.writeValue(response.getOutputStream(), body);
     }

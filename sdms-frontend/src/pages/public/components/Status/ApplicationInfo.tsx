@@ -13,8 +13,8 @@ import {
 import Grid from '@mui/material/Grid2';
 import { useState } from 'react';
 
-import DocumentPreview from '@/components/common/DocumentPreview';
 import applicationApi from '@/api/applicationApi';
+import DocumentPreview from '@/components/common/DocumentPreview';
 import { snackbar } from '@/utils/snackbar';
 
 export default function ApplicationInfo({ application, documents, fetchStatus }: any) {
@@ -33,7 +33,7 @@ export default function ApplicationInfo({ application, documents, fetchStatus }:
       // Gọi API resubmit
       await applicationApi.resubmitDocument(application.applicationId, docId, fileUrl);
       snackbar.success('Nộp lại tài liệu thành công!');
-      if (fetchStatus) fetchStatus(application.cccd); // Reload
+      if (fetchStatus) fetchStatus(application.studentCode); // Reload
     } catch (err: any) {
       snackbar.error('Lỗi khi nộp lại: ' + (err.response?.data?.message || err.message));
     } finally {
@@ -111,14 +111,14 @@ export default function ApplicationInfo({ application, documents, fetchStatus }:
               <DocumentPreview
                 url={application.registrationFormPdfUrl}
                 title="Đơn đăng ký lưu trú"
-                height={420}
+                
               />
             )}
             {application.commitmentFormPdfUrl && (
               <DocumentPreview
                 url={application.commitmentFormPdfUrl}
                 title="Bản cam kết lưu trú"
-                height={420}
+                
               />
             )}
           </Box>

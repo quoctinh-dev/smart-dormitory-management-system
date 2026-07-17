@@ -1,5 +1,6 @@
 export type BillStatus = 'UNPAID' | 'PARTIAL' | 'PAID' | 'OVERDUE' | 'CANCELLED';
-export type BillType = 'ACCOMMODATION_FEE' | 'UTILITY_WATER' | 'UTILITY_ELECTRICITY' | 'DAMAGE_FEE' | 'OTHER';
+export type BillType =
+  'ACCOMMODATION_FEE' | 'UTILITY_WATER' | 'UTILITY_ELECTRICITY' | 'DAMAGE_FEE' | 'OTHER';
 
 export interface BillResponse {
   billId: string;
@@ -41,4 +42,18 @@ export interface PageResponse<T> {
   totalElements: number;
   totalPages: number;
   last: boolean;
+}
+
+export interface OnlinePaymentRequest {
+  billId: string;
+  amount: number;
+  paymentMethod?: string;
+  returnUrl?: string;
+}
+
+export interface PaymentActionResponse {
+  success: boolean;
+  message: string;
+  transactionId?: string;
+  paymentUrl?: string;
 }

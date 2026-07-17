@@ -41,40 +41,41 @@ export interface BroadcastResponse {
   message: string;
 }
 
-const normalizePageResponse = <T>(payload: any): PageResponse<T> => {
-  const source = payload?.data ?? payload;
-  const content = Array.isArray(source?.content)
-    ? source.content
-    : Array.isArray(source?.items)
-      ? source.items
-      : Array.isArray(source?.data?.content)
-        ? source.data.content
+const normalizePageResponse = <T>(payload: unknown): PageResponse<T> => {
+  const raw = payload as Record<string, unknown>;
+  const source = (raw?.['data'] ?? raw) as Record<string, unknown>;
+  const content = Array.isArray(source?.['content'])
+    ? source['content']
+    : Array.isArray(source?.['items'])
+      ? source['items']
+      : Array.isArray((source?.['data'] as Record<string, unknown>)?.['content'])
+        ? (source['data'] as Record<string, unknown>)['content']
         : [];
 
   const totalElements =
-    typeof source?.totalElements === 'number'
-      ? source.totalElements
-      : typeof source?.total === 'number'
-        ? source.total
-        : typeof source?.count === 'number'
-          ? source.count
-          : typeof source?.totalCount === 'number'
-            ? source.totalCount
-            : typeof source?.data?.totalElements === 'number'
-              ? source.data.totalElements
-              : content.length;
+    typeof source?.['totalElements'] === 'number'
+      ? source['totalElements']
+      : typeof source?.['total'] === 'number'
+        ? source['total']
+        : typeof source?.['count'] === 'number'
+          ? source['count']
+          : typeof source?.['totalCount'] === 'number'
+            ? source['totalCount']
+            : typeof (source?.['data'] as Record<string, unknown>)?.['totalElements'] === 'number'
+              ? (source['data'] as Record<string, unknown>)['totalElements']
+              : (content as unknown[]).length;
 
   const totalPages =
-    typeof source?.totalPages === 'number'
-      ? source.totalPages
-      : typeof source?.data?.totalPages === 'number'
-        ? source.data.totalPages
-        : Math.max(1, Math.ceil(totalElements / 20));
+    typeof source?.['totalPages'] === 'number'
+      ? source['totalPages']
+      : typeof (source?.['data'] as Record<string, unknown>)?.['totalPages'] === 'number'
+        ? (source['data'] as Record<string, unknown>)['totalPages']
+        : Math.max(1, Math.ceil((totalElements as number) / 20));
 
   return {
     content: content as T[],
-    totalElements,
-    totalPages,
+    totalElements: totalElements as number,
+    totalPages: totalPages as number,
   };
 };
 
@@ -104,15 +105,12 @@ export const notificationApi = {
     type?: string,
     isBroadcast?: boolean
   ): Promise<PageResponse<NotificationDeliveryLog>> {
-    const params: Record<string, any> = { page, size };
+    const params: Record<string, string | number | boolean> = { page, size };
     if (keyword) params.keyword = keyword;
     if (type) params.type = type;
     if (isBroadcast !== undefined) params.isBroadcast = isBroadcast;
 
-    const data = await axiosClient.get<any>(
-      '/v1/admin/notifications/delivery-logs',
-      { params }
-    );
+    const data = await axiosClient.get('/v1/admin/notifications/delivery-logs', { params });
     return normalizePageResponse<NotificationDeliveryLog>(data);
   },
 

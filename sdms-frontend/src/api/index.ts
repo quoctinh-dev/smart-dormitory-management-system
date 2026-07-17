@@ -11,3 +11,4 @@ export { default as roomApi } from './roomApi';
 export * from './smartAccessApi';
 export { default as paymentApi } from './paymentApi';
 export { changeRoomApi } from './changeRoomApi';
+export { default as ocrApi } from './ocrApi';

@@ -1,28 +1,31 @@
-// 📄 File: src/hooks/public/useApplicationStatus.js
 import { useState, useCallback } from 'react';
 
 import applicationApi from '@/api/applicationApi';
 import paymentApi from '@/api/paymentApi';
+import { getErrorMessage, isNotFoundError } from '@/types/api';
+import type { AssignmentInfo, DocumentResponse } from '@/types/application';
+import type { BillResponse } from '@/types/payment';
 import { snackbar } from '@/utils/snackbar';
 
-interface ApplicationStatus {
+interface ApplicationStatusState {
   applicationId: string;
   status: string;
-  cccd: string;
-  assignment?: any;
-  bill?: any;
-  documents?: any[];
+  studentCode: string;
+  assignment?: AssignmentInfo;
+  bill?: BillResponse;
+  documents?: DocumentResponse[];
   reviewNote?: string;
+  [key: string]: unknown;
 }
 
 export const useApplicationStatus = () => {
   const [loading, setLoading] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
-  const [application, setApplication] = useState<ApplicationStatus | null>(null);
+  const [application, setApplication] = useState<ApplicationStatusState | null>(null);
 
-  const fetchStatus = useCallback(async (cccd: string) => {
-    if (!cccd) {
-      snackbar.error('Vui lòng nhập số CCCD/CMND để kiểm tra trạng thái hồ sơ.');
+  const fetchStatus = useCallback(async (studentCode: string) => {
+    if (!studentCode) {
+      snackbar.error('Vui lòng nhập Mã số sinh viên để kiểm tra trạng thái hồ sơ.');
       return;
     }
 
@@ -30,36 +33,27 @@ export const useApplicationStatus = () => {
     setLoading(true);
 
     try {
-      const appData: ApplicationStatus = (await applicationApi.getStatus({ cccd })) as any;
+      const appData = await applicationApi.getStatus({ studentCode });
+      const data = appData as unknown as ApplicationStatusState;
 
-      if (appData) {
-        try {
-          const roomData = appData.assignment;
-          appData.assignment = roomData;
-        } catch (roomErr: any) {
-          console.log(
-            'Hồ sơ chưa được xếp phòng dự kiến:',
-            roomErr.response?.data?.message || roomErr.message
-          );
-        }
-
-        if (appData.status === 'WAITING_PAYMENT') {
+      if (data) {
+        if (data.status === 'WAITING_PAYMENT') {
           try {
-            const billData = await paymentApi.getBillByApplication(appData.applicationId);
-            appData.bill = billData;
-          } catch (billErr: any) {
+            const billData = await paymentApi.getBillByApplication(data.applicationId);
+            data.bill = billData;
+          } catch (billErr: unknown) {
             console.warn('Chưa tìm thấy hóa đơn:', billErr);
           }
         }
 
-        setApplication(appData);
+        setApplication(data);
         snackbar.success('Tải trạng thái hồ sơ thành công!');
       } else {
-        snackbar.error('Không tìm thấy thông tin hồ sơ với số CCCD/CMND này.');
+        snackbar.error('Không tìm thấy thông tin hồ sơ với Mã số sinh viên này.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       snackbar.error(
-        err.response?.status === 404
+        isNotFoundError(err)
           ? 'Hồ sơ không tồn tại.'
           : 'Đã xảy ra lỗi hệ thống khi kiểm tra trạng thái hồ sơ.'
       );
@@ -69,33 +63,46 @@ export const useApplicationStatus = () => {
     }
   }, []);
 
-  const handleMockPayment = useCallback(async () => {
-    if (!application?.applicationId) {
-      snackbar.error('Không có thông tin hồ sơ để thực hiện thanh toán.');
-      return;
-    }
+  const handleOnlinePayment = useCallback(
+    async (paymentMethod: string = 'BANK_TRANSFER') => {
+      if (!application?.applicationId || !application.bill) {
+        snackbar.error('Không có thông tin hồ sơ hoặc hóa đơn để thực hiện thanh toán.');
+        return;
+      }
 
-    setPaymentLoading(true);
-    try {
-      await paymentApi.mockPaymentSuccess(application.applicationId);
-      snackbar.success('Thanh toán giả lập thành công! Trạng thái hồ sơ sẽ được cập nhật.');
+      setPaymentLoading(true);
+      try {
+        const response = await paymentApi.processOnlinePayment({
+          billId: application.bill.billId,
+          amount:
+            application.bill.remainingAmount > 0
+              ? application.bill.remainingAmount
+              : application.bill.amount,
+          paymentMethod,
+          returnUrl: window.location.origin + '/status',
+        });
 
-      await fetchStatus(application.cccd);
-    } catch (err: any) {
-      console.error(err);
-      snackbar.error(
-        'Lỗi hệ thống khi thanh toán thử nghiệm: ' + (err.response?.data?.message || err.message)
-      );
-    } finally {
-      setPaymentLoading(false);
-    }
-  }, [application, fetchStatus]);
+        if (response.paymentUrl) {
+          // Trả về url thay vì redirect đi
+          return response.paymentUrl;
+        } else {
+          snackbar.success('Thanh toán thành công!');
+          fetchStatus(application.studentCode);
+        }
+      } catch (err: any) {
+        snackbar.error(err?.response?.data?.message || 'Đã xảy ra lỗi khi khởi tạo thanh toán.');
+      } finally {
+        setPaymentLoading(false);
+      }
+    },
+    [application, fetchStatus]
+  );
 
   return {
     application,
     loading,
     paymentLoading,
     fetchStatus,
-    handleMockPayment,
+    handleOnlinePayment,
   };
 };

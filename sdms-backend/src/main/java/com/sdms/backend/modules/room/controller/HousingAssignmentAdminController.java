@@ -1,7 +1,9 @@
 package com.sdms.backend.modules.room.controller;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.common.response.ApiResponse;
+import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.room.dto.response.ActiveAssignmentByBedResponse;
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
@@ -9,8 +11,6 @@ import com.sdms.backend.modules.room.repository.StudentHousingAssignmentReposito
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +26,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/admin/housing-assignments")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-@Tag(name = "Housing Assignment Admin", description = "API tra cứu hợp đồng lưu trú dành cho Admin")
+@Tag(name = "Hợp đồng lưu trú (Admin)", description = "API tra cứu hợp đồng lưu trú dành cho Admin")
 public class HousingAssignmentAdminController {
 
     private final StudentHousingAssignmentRepository assignmentRepository;
@@ -37,7 +37,7 @@ public class HousingAssignmentAdminController {
     )
     @GetMapping("/active/bed/{bedId}")
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<ActiveAssignmentByBedResponse>> getActiveAssignmentByBed(
+    public ApiResponse<ActiveAssignmentByBedResponse> getActiveAssignmentByBed(
             @PathVariable UUID bedId
     ) {
         StudentHousingAssignment assignment = assignmentRepository
@@ -49,10 +49,7 @@ public class HousingAssignmentAdminController {
                                 AssignmentStatus.OCCUPIED
                         )
                 )
-                .orElseThrow(() -> new AppException(
-                        "No active assignment found for this bed",
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hợp đồng lưu trú nào đang hoạt động cho giường này"));
 
         // Map sang DTO — tránh trả về raw Entity
         ActiveAssignmentByBedResponse.StudentSummary studentSummary = null;
@@ -76,21 +73,20 @@ public class HousingAssignmentAdminController {
                 .reservedAt(assignment.getReservedAt())
                 .checkInAt(assignment.getCheckInAt())
                 .expectedCheckOutAt(assignment.getExpectedCheckOutAt())
+                .roomRole(assignment.getRoomRole())
                 .student(studentSummary)
                 .bedId(bed.getBedId())
                 .bedCode(bed.getBedCode())
                 .roomCode(room.getRoomCode())
                 .buildingName(building.getName())
                 .build();
-        return ResponseEntity.ok(ApiResponse.success(
-                "Active assignment retrieved successfully", response
-        ));
+        return ApiResponse.success("Lấy thông tin hợp đồng thành công", response);
     }
 
     @Operation(summary = "Lấy danh sách Check-in / Hợp đồng lưu trú", description = "Lấy danh sách dùng cho bảng đối soát nhận phòng Web Admin")
     @GetMapping
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<org.springframework.data.domain.Page<ActiveAssignmentByBedResponse>>> getHousingAssignments(
+    public ApiResponse<PageResponse<ActiveAssignmentByBedResponse>> getHousingAssignments(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) AssignmentStatus status,
             org.springframework.data.domain.Pageable pageable
@@ -118,6 +114,7 @@ public class HousingAssignmentAdminController {
                     .reservedAt(assignment.getReservedAt())
                     .checkInAt(assignment.getCheckInAt())
                     .expectedCheckOutAt(assignment.getExpectedCheckOutAt())
+                    .roomRole(assignment.getRoomRole())
                     .student(studentSummary)
                     .bedId(bed.getBedId())
                     .bedCode(bed.getBedCode())
@@ -126,6 +123,6 @@ public class HousingAssignmentAdminController {
                     .build();
         });
 
-        return ResponseEntity.ok(ApiResponse.success("List retrieved successfully", dtoPage));
+        return ApiResponse.success("Lấy danh sách hợp đồng thành công", PageResponse.of(dtoPage));
     }
 }

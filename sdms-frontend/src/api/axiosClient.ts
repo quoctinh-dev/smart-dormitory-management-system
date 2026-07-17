@@ -3,9 +3,12 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { authStorage } from '@/auth';
 
 let isRefreshing = false;
-let failedQueue: Array<{ resolve: (token: string) => void; reject: (error: any) => void }> = [];
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: Error | unknown) => void;
+}> = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: Error | unknown, token: string | null = null) => {
   failedQueue.forEach((promise) => {
     if (error) promise.reject(error);
     else promise.resolve(token as string);
@@ -33,7 +36,7 @@ axiosClient.interceptors.request.use(
 
 axiosClient.interceptors.response.use(
   (response) => response.data?.data ?? response.data,
-  async (error: AxiosError<any>) => {
+  async (error: AxiosError<{ message?: string; errorCode?: string }>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     if (error.response?.status === 401 && !originalRequest._retry) {

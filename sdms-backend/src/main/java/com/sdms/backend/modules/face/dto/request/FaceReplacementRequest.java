@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record FaceReplacementRequest(
-    @NotBlank(message = "New face image URL is required")
-    @Size(max = 500, message = "URL is too long")
+    @NotBlank(message = "URL ảnh khuôn mặt mới là bắt buộc")
+    @Size(max = 500, message = "URL quá dài")
     String pendingFaceImageUrl
 ) {}

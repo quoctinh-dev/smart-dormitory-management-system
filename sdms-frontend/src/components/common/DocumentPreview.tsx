@@ -17,7 +17,6 @@ import { useState, useEffect } from 'react';
 interface DocumentPreviewProps {
   url?: string | null;
   title?: string;
-  height?: number;
   compact?: boolean;
 }
 
@@ -31,10 +30,17 @@ function normalizeDocumentUrl(url?: string | null) {
 function getDocumentKind(url?: string | null) {
   if (!url) return 'unknown';
   const normalized = url.toLowerCase();
-  if (normalized.includes('/image/upload/') || /\.(jpg|jpeg|png|gif|webp|bmp|svg|avif|ico)(\?.*)?$/.test(normalized)) {
+  if (
+    normalized.includes('/image/upload/') ||
+    /\.(jpg|jpeg|png|gif|webp|bmp|svg|avif|ico)(\?.*)?$/.test(normalized)
+  ) {
     return 'image';
   }
-  if (normalized.includes('/raw/upload/') || normalized.includes('/pdf') || /\.pdf(\?.*)?$/.test(normalized)) {
+  if (
+    normalized.includes('/raw/upload/') ||
+    normalized.includes('/pdf') ||
+    /\.pdf(\?.*)?$/.test(normalized)
+  ) {
     return 'pdf';
   }
   return 'other';
@@ -43,7 +49,6 @@ function getDocumentKind(url?: string | null) {
 export default function DocumentPreview({
   url,
   title = 'Tài liệu đính kèm',
-  height = 600,
   compact = false,
 }: DocumentPreviewProps) {
   const resolvedUrl = normalizeDocumentUrl(url);
@@ -118,7 +123,12 @@ export default function DocumentPreview({
           <img
             src={resolvedUrl}
             alt={title}
-            style={{ width: '100%', maxHeight: compact ? 260 : 360, objectFit: 'contain', display: 'block' }}
+            style={{
+              width: '100%',
+              maxHeight: compact ? 260 : 360,
+              objectFit: 'contain',
+              display: 'block',
+            }}
           />
         </Box>
 
@@ -129,7 +139,13 @@ export default function DocumentPreview({
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
             <Button onClick={() => setOpenPreview(false)}>Đóng</Button>
-            <Button href={resolvedUrl} target="_blank" rel="noopener noreferrer" startIcon={<DownloadRounded />} variant="contained">
+            <Button
+              href={resolvedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              startIcon={<DownloadRounded />}
+              variant="contained"
+            >
               Tải xuống
             </Button>
           </DialogActions>
@@ -141,7 +157,10 @@ export default function DocumentPreview({
   if (kind === 'pdf') {
     return (
       <Box>
-        <Paper variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden', bgcolor: 'background.paper' }}>
+        <Paper
+          variant="outlined"
+          sx={{ borderRadius: 2.5, overflow: 'hidden', bgcolor: 'background.paper' }}
+        >
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
             justifyContent="space-between"
@@ -181,23 +200,55 @@ export default function DocumentPreview({
 
         <Dialog open={openPreview} onClose={() => setOpenPreview(false)} maxWidth="lg" fullWidth>
           <DialogTitle sx={{ fontWeight: 700 }}>{title}</DialogTitle>
-          <DialogContent dividers sx={{ p: 0, bgcolor: 'grey.100', minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <DialogContent
+            dividers
+            sx={{
+              p: 0,
+              bgcolor: 'grey.100',
+              minHeight: 400,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             {loadingPdf ? (
               <CircularProgress size={50} />
             ) : previewError ? (
               <Stack alignItems="center" spacing={2}>
-                <Typography variant="body1" color="error">Không thể xem trước tệp tin trực tuyến.</Typography>
-                <Button href={resolvedUrl} download={`${title}.pdf`} target="_blank" rel="noopener noreferrer" variant="contained" startIcon={<DownloadRounded />}>
+                <Typography variant="body1" color="error">
+                  Không thể xem trước tệp tin trực tuyến.
+                </Typography>
+                <Button
+                  href={resolvedUrl}
+                  download={`${title}.pdf`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="contained"
+                  startIcon={<DownloadRounded />}
+                >
                   Tải xuống PDF
                 </Button>
               </Stack>
             ) : (
-              <iframe src={pdfBlobUrl || ''} title={title} width="100%" height="780px" style={{ border: 'none' }} />
+              <iframe
+                src={pdfBlobUrl || ''}
+                title={title}
+                width="100%"
+                height="780px"
+                style={{ border: 'none' }}
+              />
             )}
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
             <Button onClick={() => setOpenPreview(false)}>Đóng</Button>
-            <Button href={pdfBlobUrl || resolvedUrl} download={`${title}.pdf`} target="_blank" rel="noopener noreferrer" startIcon={<DownloadRounded />} variant="contained">
+            <Button
+              href={pdfBlobUrl || resolvedUrl}
+              download={`${title}.pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              startIcon={<DownloadRounded />}
+              variant="contained"
+            >
               Tải xuống
             </Button>
           </DialogActions>
@@ -214,7 +265,12 @@ export default function DocumentPreview({
           {title}
         </Typography>
       </Stack>
-      <Button href={resolvedUrl} target="_blank" rel="noopener noreferrer" startIcon={<DownloadRounded />}>
+      <Button
+        href={resolvedUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        startIcon={<DownloadRounded />}
+      >
         Tải xuống
       </Button>
     </Paper>

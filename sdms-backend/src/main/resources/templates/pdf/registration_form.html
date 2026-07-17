@@ -31,31 +31,56 @@
         .header-right {
             font-weight: bold;
         }
-        .title {
+        .title-container {
             text-align: center;
             font-weight: bold;
             font-size: 16pt;
-            margin-top: 20px;
-            margin-bottom: 5px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            line-height: 1.2;
         }
-        .subtitle {
+        .kinh-gui {
             text-align: center;
             font-style: italic;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
-        .section-title {
-            font-weight: bold;
-            margin-top: 20px;
-            margin-bottom: 10px;
+        .main-content {
+            display: table;
+            width: 100%;
+        }
+        .photo-box-container {
+            display: table-cell;
+            width: 30mm;
+            vertical-align: top;
+            padding-right: 15px;
+        }
+        .photo-box {
+            width: 30mm;
+            height: 40mm;
+            border: 1px solid #000;
+            text-align: center;
+            vertical-align: middle;
+            display: table-cell;
+        }
+        .info-container {
+            display: table-cell;
+            vertical-align: top;
         }
         .field {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .value {
             font-weight: bold;
         }
+        .section-title {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
         .checkbox-group {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            text-align: justify;
         }
         .checkbox {
             display: inline-block;
@@ -64,21 +89,26 @@
             border: 1px solid #000;
             text-align: center;
             line-height: 15px;
-            margin-right: 10px;
+            margin-right: 5px;
             vertical-align: middle;
         }
         .footer {
             width: 100%;
             display: table;
-            margin-top: 40px;
+            margin-top: 20px;
         }
         .footer-left, .footer-right {
             display: table-cell;
             width: 50%;
             text-align: center;
+            vertical-align: top;
         }
         .signature-box {
-            height: 100px;
+            height: 80px;
+        }
+        .doc-list {
+            font-size: 11pt;
+            margin-top: 40px;
         }
     </style>
 </head>
@@ -87,108 +117,134 @@
 <div class="header">
     <div class="header-left">
         TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN<br/>
-        BAN QUẢN LÝ KÝ TÚC XÁ<br/>
-        -----------------------
+        PHÒNG HÀNH CHÍNH - QUẢN TRỊ<br/>
+        <u>KÝ TÚC XÁ</u>
     </div>
     <div class="header-right">
         CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br/>
-        Độc lập - Tự do - Hạnh phúc<br/>
-        -----------------------------
+        <u>Độc lập - Tự do - Hạnh phúc</u>
     </div>
 </div>
 
-<div class="title">PHIẾU ĐĂNG KÝ LƯU TRÚ KÝ TÚC XÁ</div>
-<div class="subtitle">
-    Học kỳ: ....... Năm học: <span th:text="${academicYear}"></span>
+<div class="title-container">
+    PHIẾU ĐĂNG KÝ LƯU TRÚ<br/>
+    KÝ TÚC XÁ TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN<br/>
+    NĂM HỌC <span th:text="${academicYear != null ? academicYear : '20..... - 20.....'}"></span>
 </div>
 
-<div class="section-title">I. THÔNG TIN CÁ NHÂN (Sinh viên viết chữ IN HOA có dấu)</div>
-<div class="field">
-    1. Họ và tên: <span class="value" style="text-transform: uppercase;" th:text="${app.fullName}"></span>
-    <span style="margin-left: 50px;">Giới tính: <span class="value" th:text="${app.gender == T(com.sdms.backend.common.enums.Gender).MALE ? 'Nam' : 'Nữ'}"></span></span>
-</div>
-<div class="field">
-    2. Ngày sinh: <span class="value" th:text="${#temporals.format(app.dob, 'dd/MM/yyyy')}"></span>
-    <span style="margin-left: 30px;">Nơi sinh: <span class="value" th:text="${app.pob}"></span></span>
-</div>
-<div class="field">
-    3. Dân tộc: <span class="value" th:text="${app.ethnic}"></span>
-    <span style="margin-left: 50px;">Tôn giáo: <span class="value" th:text="${app.religion}"></span></span>
-</div>
-<div class="field">
-    4. Số CMND/CCCD: <span class="value" th:text="${app.cccd}"></span>
-    <span style="margin-left: 30px;">Ngày cấp: <span class="value" th:text="${app.issueDate != null ? #temporals.format(app.issueDate, 'dd/MM/yyyy') : ''}"></span></span>
-    <span style="margin-left: 30px;">Nơi cấp: <span class="value" th:text="${app.issuePlace}"></span></span>
-</div>
-<div class="field">
-    5. Mã số sinh viên (nếu có): ........................................
-    <span style="margin-left: 30px;">Khoa: <span class="value" th:text="${app.faculty}"></span></span>
-</div>
-<div class="field">
-    6. Điện thoại di động (Bắt buộc): <span class="value" th:text="${app.phone}"></span>
-</div>
-<div class="field">
-    7. Địa chỉ hộ khẩu thường trú: <span class="value" th:text="${app.permanentAddress}"></span>
-</div>
-<div class="field">
-    8. Địa chỉ liên hệ hiện tại: <span class="value" th:text="${app.contactAddress}"></span>
+<div class="kinh-gui">
+    Kính gửi: <strong>Ban Quản lý Ký túc xá Trường Đại học Công nghệ Sài Gòn</strong>
 </div>
 
-<div class="section-title">II. THÔNG TIN GIA ĐÌNH</div>
-<div class="field">
-    1. Họ và tên Cha: <span class="value" th:text="${app.fatherName}"></span>
-    <span style="margin-left: 30px;">Năm sinh: <span class="value" th:text="${app.fatherYob}"></span></span><br/>
-    - Nghề nghiệp: <span class="value" th:text="${app.fatherJob}"></span>
-    <span style="margin-left: 30px;">Số điện thoại: <span class="value" th:text="${app.fatherPhone}"></span></span>
-</div>
-<div class="field">
-    2. Họ và tên Mẹ: <span class="value" th:text="${app.motherName}"></span>
-    <span style="margin-left: 30px;">Năm sinh: <span class="value" th:text="${app.motherYob}"></span></span><br/>
-    - Nghề nghiệp: <span class="value" th:text="${app.motherJob}"></span>
-    <span style="margin-left: 30px;">Số điện thoại: <span class="value" th:text="${app.motherPhone}"></span></span>
-</div>
-<div class="field">
-    3. Địa chỉ/Điện thoại liên hệ khi cần: <span class="value" th:text="${app.familyContact}"></span>
+<div class="main-content">
+    <div class="photo-box-container">
+        <div class="photo-box">
+            <span th:if="${portraitPhotoUrl == null}">ảnh 3x4</span>
+            <img th:if="${portraitPhotoUrl != null}" th:src="${portraitPhotoUrl}" style="width: 30mm; height: 40mm; object-fit: cover; display: block;" />
+        </div>
+    </div>
+    <div class="info-container">
+        <div class="field">
+            Tôi tên: <span class="value" style="text-transform: uppercase;" th:text="${app.fullName}"></span>
+            <span style="float: right;">Nam /Nữ: <span class="value" th:text="${app.gender == T(com.sdms.backend.common.enums.Gender).MALE ? 'Nam' : 'Nữ'}"></span></span>
+        </div>
+        <div class="field">
+            Ngày sinh: <span class="value" th:text="${#temporals.format(app.dob, 'dd/MM/yyyy')}"></span>
+            <span style="float: right;">Nơi sinh: <span class="value" th:text="${app.pob}"></span></span>
+        </div>
+        <div class="field">
+            Dân tộc: <span class="value" th:text="${app.ethnic}"></span>
+            <span style="float: right;">Tôn giáo: <span class="value" th:text="${app.religion}"></span></span>
+        </div>
+        <div class="field">
+            Mã số SV: <span class="value" th:text="${app.studentCode != null ? app.studentCode : '....................'}"></span>
+            <span style="margin-left: 20px;">Khoa: <span class="value" th:text="${app.faculty}"></span></span>
+            <span style="float: right;">ĐTDĐ: <span class="value" th:text="${app.phone}"></span></span>
+        </div>
+        <div class="field">
+            Số CMND: <span class="value" th:text="${app.cccd}"></span>
+            <span style="margin-left: 10px;">Ngày cấp: <span class="value" th:text="${app.issueDate != null ? #temporals.format(app.issueDate, 'dd/MM/yyyy') : '..................'}"></span></span>
+            <span style="float: right;">Nơi cấp: <span class="value" th:text="${app.issuePlace}"></span></span>
+        </div>
+        <div class="field">
+            Hộ khẩu thường trú: <span class="value" th:text="${app.permanentAddress}"></span>
+        </div>
+        <div style="border-top: 1px dotted #000; margin: 10px 0;"></div>
+        <div class="field">
+            Họ tên cha: <span class="value" th:text="${app.fatherName}"></span>
+            <span style="float: right;">Điện thoại: <span class="value" th:text="${app.fatherPhone}"></span></span>
+        </div>
+        <div class="field">
+            Năm sinh: <span class="value" th:text="${app.fatherYob}"></span>
+            <span style="float: right;">Nghề nghiệp: <span class="value" th:text="${app.fatherJob}"></span></span>
+        </div>
+        <div class="field">
+            Họ tên mẹ: <span class="value" th:text="${app.motherName}"></span>
+            <span style="float: right;">Điện thoại: <span class="value" th:text="${app.motherPhone}"></span></span>
+        </div>
+        <div class="field">
+            Năm sinh: <span class="value" th:text="${app.motherYob}"></span>
+            <span style="float: right;">Nghề nghiệp: <span class="value" th:text="${app.motherJob}"></span></span>
+        </div>
+        <div class="field">
+            Địa chỉ liên hệ: <span class="value" th:text="${app.contactAddress}"></span>
+        </div>
+    </div>
 </div>
 
-<div class="section-title">III. ĐỐI TƯỢNG ƯU TIÊN (Sinh viên thuộc diện nào đánh dấu X vào ô vuông tương ứng và nộp kèm minh chứng)</div>
+<div class="section-title">Thuộc các đối tượng sau <span style="font-weight: normal;">(đánh dấu X vào ô phù hợp):</span></div>
 <div class="checkbox-group">
-    <span class="checkbox" th:text="${priorities.contains('PRIORITY_01') ? 'X' : ''}"></span> 1. Con liệt sĩ, con thương binh, bệnh binh, con của người hưởng chính sách như thương binh.
+    1. <span class="checkbox" th:text="${priorities.contains('PRIORITY_01') ? 'X' : ''}"></span> Con liệt sĩ, con thương binh, bệnh binh (<i>Bản sao công chứng thẻ thương binh, bệnh binh hoặc giấy xác nhận của cơ quan chức năng có thẩm quyền</i>).
 </div>
 <div class="checkbox-group">
-    <span class="checkbox" th:text="${priorities.contains('PRIORITY_02') ? 'X' : ''}"></span> 2. Con đẻ của người hoạt động kháng chiến bị nhiễm chất độc hóa học.
+    2. <span class="checkbox" th:text="${priorities.contains('PRIORITY_02') ? 'X' : ''}"></span> Con đẻ của những người hoạt động kháng chiến bị nhiễm chất độc hóa học (<i>Giấy chứng nhận người hoạt động kháng chiến bị nhiễm chất độc hóa học của cơ quan chức năng có thẩm quyền</i>).
 </div>
 <div class="checkbox-group">
-    <span class="checkbox" th:text="${priorities.contains('PRIORITY_03') ? 'X' : ''}"></span> 3. Sinh viên là người dân tộc thiểu số.
+    3. <span class="checkbox" th:text="${priorities.contains('PRIORITY_03') ? 'X' : ''}"></span> Sinh viên là người dân tộc thiểu số.
 </div>
 <div class="checkbox-group">
-    <span class="checkbox" th:text="${priorities.contains('PRIORITY_04') ? 'X' : ''}"></span> 4. Sinh viên có hộ khẩu thường trú và sinh sống tại xã khó khăn, vùng sâu vùng xa, biên giới, hải đảo; Sinh viên thuộc diện xóa đói giảm nghèo (hộ nghèo, cận nghèo).
+    4. <span class="checkbox" th:text="${priorities.contains('PRIORITY_04') ? 'X' : ''}"></span> Sinh viên có hộ khẩu và sinh sống tại xã khó khăn; Sinh viên gia đình thuộc diện xóa đói giảm nghèo theo quy định của nhà nước (<i>gia đình có sổ hộ khẩu, sổ hộ cận nghèo</i>).
 </div>
 <div class="checkbox-group">
-    <span class="checkbox" th:text="${priorities.contains('PRIORITY_05') ? 'X' : ''}"></span> 5. Sinh viên khuyết tật; Sinh viên mồ côi cả cha lẫn mẹ không nơi nương tựa.
+    5. <span class="checkbox" th:text="${priorities.contains('PRIORITY_05') ? 'X' : ''}"></span> Sinh viên là người khuyết tật, sinh viên mồ côi cả cha lẫn mẹ không nơi nương tựa.
 </div>
 <div class="checkbox-group">
-    <span class="checkbox" th:text="${priorities.contains('PRIORITY_06') ? 'X' : ''}"></span> 6. Sinh viên là Đảng viên Đảng Cộng sản Việt Nam, bộ đội, công an đã hoàn tất nghĩa vụ xuất ngũ.
+    6. <span class="checkbox" th:text="${priorities.contains('PRIORITY_06') ? 'X' : ''}"></span> Sinh viên là Đảng viên, bộ đội, công an đã hoàn tất nghĩa vụ và xuất ngũ.
 </div>
 <div class="checkbox-group">
-    <span class="checkbox" th:text="${priorities.contains('PRIORITY_07') ? 'X' : ''}"></span> 7. Sinh viên tham gia hoạt động công tác xã hội (Cán bộ đoàn, hội, đội trưởng hoặc thành viên tích cực khác...).
+    7. <span class="checkbox" th:text="${priorities.contains('PRIORITY_07') ? 'X' : ''}"></span> Sinh viên tham gia hoạt động công tác xã hội (cán bộ đoàn, hội, khác): .............................................
 </div>
 
-<p style="text-align: justify; margin-top: 20px;">
-    Tôi xin cam đoan những lời khai trên là đúng sự thật, nếu có gì khai man tôi xin chịu hoàn toàn trách nhiệm trước Ban Quản lý Ký túc xá và Nhà trường.
+<p style="text-align: justify; margin-top: 15px; text-indent: 30px;">
+    Tôi xin cam đoan những lời khai trên là đúng sự thật, nếu sai tôi hoàn toàn chịu trách nhiệm và tôi xin cam kết thực hiện nghiêm túc các quy định của Nhà trường, nội quy của Ký túc xá. Nếu vi phạm tôi chấp nhận chịu mọi hình thức xử lý của Nhà trường và Ký túc xá.
 </p>
 
 <div class="footer">
-    <div class="footer-left"></div>
+    <div class="footer-left">
+        <strong>Phần xét duyệt</strong><br/>
+        <div th:if="${app.status == T(com.sdms.backend.modules.application.enums.ApplicationStatus).APPROVED || app.status == T(com.sdms.backend.modules.application.enums.ApplicationStatus).WAITING_PAYMENT}">
+            <i>Đã duyệt hồ sơ hợp lệ</i><br/>
+            <div class="signature-box" style="height: 60px;"></div>
+            <strong>Ban Quản lý Ký túc xá</strong>
+        </div>
+    </div>
     <div class="footer-right">
-        ........, Ngày <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'dd')}"></span> 
+        <i>Tp. Hồ Chí Minh, ngày <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'dd')}"></span> 
         tháng <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'MM')}"></span> 
-        năm <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'yyyy')}"></span><br/>
-        <strong>Người làm đơn</strong><br/>
-        <i>(Ký và ghi rõ họ tên)</i><br/>
+        năm <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'yyyy')}"></span></i><br/>
+        <strong>Kính đơn</strong><br/>
+        <i>(Sinh viên ký, ghi rõ họ tên)</i><br/>
         <div class="signature-box"></div>
         <strong th:text="${app.fullName}" style="text-transform: uppercase;"></strong>
     </div>
+</div>
+
+<div class="doc-list">
+    Hồ sơ gồm có:<br/>
+    1. Phiếu đăng ký lưu trú KTX theo mẫu<br/>
+    2. Bản cam kết<br/>
+    3. 04 ảnh 3 x 4 (chụp không quá 06 tháng)<br/>
+    4. 02 giấy photo CMND
 </div>
 
 </body>

@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.student.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.registration.enums.RegistrationType;
 import com.sdms.backend.modules.registration.repository.RegistrationPeriodRepository;
 import com.sdms.backend.modules.registration.entity.RegistrationPeriod;
@@ -56,36 +57,36 @@ public class StayExtensionService {
                 .stream()
                 .filter(p -> Boolean.TRUE.equals(p.getIsActive()) && p.getRegistrationType() == RegistrationType.CURRENT_RESIDENT)
                 .findFirst()
-                .orElseThrow(() -> new AppException("Hiện tại KTX không trong đợt tiếp nhận đơn gia hạn", HttpStatus.BAD_REQUEST));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Hiện tại KTX không trong đợt tiếp nhận đơn gia hạn"));
 
         // 2. Tìm kiếm sinh viên từ UserAccount
         UserAccount userAccount = userAccountRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException("Không tìm thấy tài khoản người dùng", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy tài khoản người dùng"));
         
         Student student = userAccount.getStudent();
         if (student == null) {
-            throw new AppException("Tài khoản không liên kết với bất kỳ hồ sơ sinh viên nào", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Tài khoản không liên kết với bất kỳ hồ sơ sinh viên nào");
         }
 
         if (student.getStatus() != com.sdms.backend.modules.student.enums.StudentStatus.ACTIVE) {
-            throw new AppException("Chỉ sinh viên đang cư trú (ACTIVE) mới được phép nộp đơn gia hạn", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ sinh viên đang cư trú (ACTIVE) mới được phép nộp đơn gia hạn");
         }
 
         // 3. Kiểm tra xem sinh viên đã nộp đơn gia hạn chưa
         if (stayExtensionRepository.existsByStudent_StudentId(student.getStudentId())) {
-            throw new AppException("Sinh viên đã nộp đơn xin gia hạn trước đó", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Sinh viên đã nộp đơn xin gia hạn trước đó");
         }
 
         // 3.5. KIỂM TRA NỢ ĐỌNG: Luật luận văn chặt chẽ
         boolean hasDebts = billRepository.existsByStudentIdAndStatusIn(student.getStudentId(), Arrays.asList(BillStatus.UNPAID, BillStatus.OVERDUE));
         if (hasDebts) {
-            throw new AppException("Không thể gia hạn: Bạn đang có hóa đơn tiền phòng hoặc điện nước chưa thanh toán. Vui lòng hoàn tất nghĩa vụ tài chính trước.", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Không thể gia hạn: Bạn đang có hóa đơn tiền phòng hoặc điện nước chưa thanh toán. Vui lòng hoàn tất nghĩa vụ tài chính trước.");
         }
 
         // 4. Lấy thông tin phòng/giường hiện tại của sinh viên
         StudentHousingAssignment activeAssignment = assignmentRepository
                 .findByStudent_StudentIdAndStatus(student.getStudentId(), AssignmentStatus.OCCUPIED)
-                .orElseThrow(() -> new AppException("Sinh viên hiện không lưu trú tại KTX", HttpStatus.BAD_REQUEST));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Sinh viên hiện không lưu trú tại KTX"));
 
         // 5. Tạo đơn gia hạn mới
         StayExtension extension = new StayExtension();
@@ -98,23 +99,49 @@ public class StayExtensionService {
         extension.setOldExpectedCheckOutAt(activeAssignment.getExpectedCheckOutAt());
         extension.setNewExpectedCheckOutAt(activeWave.getStayEndDate());
 
-        StayExtension savedExtension = stayExtensionRepository.save(extension);
+        // Tự động gia hạn (Auto-Approve) nếu là Trưởng phòng hoặc Phó phòng
+        if (activeAssignment.getRoomRole() == com.sdms.backend.modules.room.enums.RoomRole.ROOM_LEADER ||
+            activeAssignment.getRoomRole() == com.sdms.backend.modules.room.enums.RoomRole.DEPUTY_LEADER) {
+            
+            extension.setStatus(ExtensionStatus.APPROVED);
+            StayExtension savedExtension = stayExtensionRepository.save(extension);
+            
+            activeAssignment.setExpectedCheckOutAt(extension.getNewExpectedCheckOutAt());
+            assignmentRepository.save(activeAssignment);
+            
+            String[] pdfUrls = pdfService.generateExtensionPdfs(savedExtension);
+            savedExtension.setContractPdfUrl(pdfUrls[0]);
+            savedExtension.setCommitmentPdfUrl(pdfUrls[1]);
+            stayExtensionRepository.save(savedExtension);
 
-        return buildResponse(savedExtension);
+            eventPublisher.publishEvent(new ExtensionApprovedEvent(
+                    this,
+                    savedExtension.getExtensionId(),
+                    savedExtension.getStudent().getStudentId(),
+                    activeAssignment.getAssignmentId(),
+                    savedExtension.getStudent().getFullName(),
+                    savedExtension.getStudent().getEmail()
+            ));
+            return buildResponse(savedExtension);
+        } else {
+            extension.setStatus(ExtensionStatus.PENDING);
+            StayExtension savedExtension = stayExtensionRepository.save(extension);
+            return buildResponse(savedExtension);
+        }
     }
 
     @Transactional(readOnly = true)
     public StayExtensionResponse getMyExtension(String username) {
         UserAccount userAccount = userAccountRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException("Không tìm thấy tài khoản người dùng", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy tài khoản người dùng"));
 
         Student student = userAccount.getStudent();
         if (student == null) {
-            throw new AppException("Tài khoản không liên kết với bất kỳ hồ sơ sinh viên nào", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Tài khoản không liên kết với bất kỳ hồ sơ sinh viên nào");
         }
 
         StayExtension extension = stayExtensionRepository.findByStudent_StudentCode(student.getStudentCode())
-                .orElseThrow(() -> new AppException("Bạn chưa nộp đơn gia hạn nào", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Bạn chưa nộp đơn gia hạn nào"));
 
         return buildResponse(extension);
     }
@@ -131,24 +158,25 @@ public class StayExtensionService {
     @Transactional
     public StayExtensionResponse reviewExtension(UUID extensionId, StayExtensionReviewRequest request) {
         StayExtension extension = stayExtensionRepository.findById(extensionId)
-                .orElseThrow(() -> new AppException("Không tìm thấy đơn gia hạn", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đơn gia hạn"));
 
         if (extension.getStatus() != ExtensionStatus.PENDING) {
-            throw new AppException("Đơn này đã được xử lý", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Đơn này đã được xử lý");
         }
 
         if (request.getStatus() == ExtensionStatus.APPROVED) {
             StudentHousingAssignment activeAssignment = assignmentRepository
                     .findByStudent_StudentIdAndStatus(extension.getStudent().getStudentId(), AssignmentStatus.OCCUPIED)
-                    .orElseThrow(() -> new AppException("Sinh viên hiện không lưu trú tại KTX", HttpStatus.BAD_REQUEST));
+                    .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Sinh viên hiện không lưu trú tại KTX"));
             
             // Kéo dài expectedCheckOutAt theo lịch trình của Đợt gia hạn
             activeAssignment.setExpectedCheckOutAt(extension.getNewExpectedCheckOutAt());
             assignmentRepository.save(activeAssignment);
 
-            // Sinh PDF
-            String pdfUrl = pdfService.generateAndUploadExtensionDecisionPdf(extension);
-            extension.setPdfUrl(pdfUrl);
+            // Sinh PDF (Hợp đồng & Bản cam kết mới)
+            String[] pdfUrls = pdfService.generateExtensionPdfs(extension);
+            extension.setContractPdfUrl(pdfUrls[0]);
+            extension.setCommitmentPdfUrl(pdfUrls[1]);
             extension.setStatus(ExtensionStatus.APPROVED);
             stayExtensionRepository.save(extension);
 
@@ -166,7 +194,7 @@ public class StayExtensionService {
             extension.setStatus(ExtensionStatus.REJECTED);
             extension.setRejectReason(request.getRejectReason());
         } else {
-            throw new AppException("Trạng thái không hợp lệ", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Trạng thái không hợp lệ");
         }
 
         return buildResponse(stayExtensionRepository.save(extension));

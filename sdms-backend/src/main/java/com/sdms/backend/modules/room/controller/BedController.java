@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/admin/beds")
 @RequiredArgsConstructor
-@Tag(name = "Bed Management", description = "API quản lý giường")
+@Tag(name = "Quản lý giường (Bed Management)", description = "API quản lý cấu hình giường")
 public class BedController {
 
     private final BedService bedService;
@@ -28,29 +27,29 @@ public class BedController {
     @Operation(summary = "Tạo giường mới")
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<BedResponse>> create(@Valid @RequestBody CreateBedRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Bed created successfully", bedService.createBed(request)));
+    public ApiResponse<BedResponse> create(@Valid @RequestBody CreateBedRequest request) {
+        return ApiResponse.success("Tạo giường thành công", bedService.createBed(request));
     }
 
     @Operation(summary = "Lấy danh sách giường theo phòng")
     @GetMapping("/room/{roomId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<List<BedResponse>>> getByRoom(@PathVariable UUID roomId) {
-        return ResponseEntity.ok(ApiResponse.success(bedService.getBedsByRoom(roomId)));
+    public ApiResponse<List<BedResponse>> getByRoom(@PathVariable UUID roomId) {
+        return ApiResponse.success("Lấy danh sách giường thành công", bedService.getBedsByRoom(roomId));
     }
 
     @Operation(summary = "Tự động sinh giường cho phòng dựa trên sức chứa (Capacity)")
     @PostMapping("/room/{roomId}/auto-generate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<List<BedResponse>>> autoGenerateBeds(@PathVariable UUID roomId) {
-        return ResponseEntity.ok(ApiResponse.success("Beds generated successfully", bedService.autoGenerateBeds(roomId)));
+    public ApiResponse<List<BedResponse>> autoGenerateBeds(@PathVariable UUID roomId) {
+        return ApiResponse.success("Sinh giường tự động thành công", bedService.autoGenerateBeds(roomId));
     }
 
     @Operation(summary = "Cập nhật trạng thái giường", description = "Chỉ được chuyển AVAILABLE <-> MAINTENANCE")
     @PatchMapping("/{bedId}/status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> changeStatus(@PathVariable UUID bedId, @RequestParam BedStatus status) {
+    public ApiResponse<Void> changeStatus(@PathVariable UUID bedId, @RequestParam BedStatus status) {
         bedService.changeStatus(bedId, status);
-        return ResponseEntity.ok(ApiResponse.success("Status updated successfully"));
+        return ApiResponse.success("Cập nhật trạng thái thành công");
     }
 }

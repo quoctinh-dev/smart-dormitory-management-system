@@ -4,7 +4,8 @@ import com.sdms.backend.modules.face.entity.FaceEmbedding;
 import com.sdms.backend.modules.face.entity.FaceProfile;
 import com.sdms.backend.modules.face.enums.FaceProfileStatus;
 import com.sdms.backend.modules.face.event.*;
-import com.sdms.backend.modules.face.exception.*;
+import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.face.port.StudentQueryPort;
 import com.sdms.backend.modules.face.repository.FaceEmbeddingRepository;
 import com.sdms.backend.modules.face.repository.FaceProfileRepository;
@@ -33,7 +34,7 @@ public class FaceProfileServiceImpl implements FaceProfileService {
     @Override
     public UUID registerFace(UUID studentId, String faceImageUrl) {
         if (!studentQueryPort.existsById(studentId)) {
-            throw new StudentNotFoundException("Student not found in cross-context verification: " + studentId);
+            throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy thông tin sinh viên khi xác thực chéo: " + studentId);
         }
 
         Optional<FaceProfile> existingOpt = faceProfileRepository.findByStudentId(studentId);
@@ -41,14 +42,14 @@ public class FaceProfileServiceImpl implements FaceProfileService {
         if (existingOpt.isPresent()) {
             FaceProfile profile = existingOpt.get();
             if (profile.getStatus() == FaceProfileStatus.APPROVED) {
-                throw new FaceAlreadyRegisteredException("Student already has an active face profile. Please use replacement request instead.");
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Sinh viên đã có hồ sơ khuôn mặt đang hoạt động. Vui lòng sử dụng tính năng yêu cầu thay thế.");
             }
             if (profile.getPendingFaceImageUrl() != null) {
-                throw new FaceAlreadyRegisteredException("Student already has a replacement request pending.");
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Sinh viên đã có yêu cầu thay thế khuôn mặt đang chờ duyệt.");
             }
 
-            // Re-registration flow for PENDING, REJECTED or REVOKED profiles
-            // Allow overwriting PENDING profile to optimize UX when student realizes they uploaded a bad photo
+            // Luồng đăng ký lại cho các hồ sơ PENDING, REJECTED hoặc REVOKED
+            // Cho phép ghi đè hồ sơ PENDING để tối ưu UX khi sinh viên nhận ra họ đã tải lên ảnh xấu
             profile.setFaceImageUrl(faceImageUrl);
             profile.setStatus(FaceProfileStatus.PENDING);
             profile.setRejectionReason(null);
@@ -67,7 +68,7 @@ public class FaceProfileServiceImpl implements FaceProfileService {
     @Override
     public void approveFace(UUID profileId, UUID adminId) {
         FaceProfile profile = faceProfileRepository.findById(profileId)
-                .orElseThrow(() -> new FaceProfileNotFoundException("Face profile not found: " + profileId));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ khuôn mặt: " + profileId));
 
         if (profile.getPendingFaceImageUrl() != null) {
             approveReplacement(profileId, adminId);
@@ -75,7 +76,7 @@ public class FaceProfileServiceImpl implements FaceProfileService {
         }
 
         if (profile.getStatus() != FaceProfileStatus.PENDING) {
-            throw new InvalidFaceProfileStateException("Profile must be PENDING to be approved.");
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Hồ sơ phải ở trạng thái CHỜ DUYỆT mới có thể được duyệt.");
         }
 
         profile.setStatus(FaceProfileStatus.APPROVED);
@@ -83,14 +84,16 @@ public class FaceProfileServiceImpl implements FaceProfileService {
         profile.setApprovedAt(LocalDateTime.now());
         faceProfileRepository.save(profile);
 
-        // AFTER_COMMIT listeners will handle this transactionally
-        eventPublisher.publishEvent(new FaceProfileApprovedEvent(profileId, profile.getStudentId(), null, null));
+        // Các listener AFTER_COMMIT sẽ xử lý việc này theo transaction
+        String email = studentQueryPort.getStudentEmail(profile.getStudentId());
+        String fullName = studentQueryPort.getStudentFullName(profile.getStudentId());
+        eventPublisher.publishEvent(new FaceProfileApprovedEvent(profileId, profile.getStudentId(), email, fullName));
     }
 
     @Override
     public void rejectFace(UUID profileId, String rejectionReason) {
         FaceProfile profile = faceProfileRepository.findById(profileId)
-                .orElseThrow(() -> new FaceProfileNotFoundException("Face profile not found: " + profileId));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ khuôn mặt: " + profileId));
 
         if (profile.getPendingFaceImageUrl() != null) {
             rejectReplacement(profileId, rejectionReason);
@@ -98,7 +101,7 @@ public class FaceProfileServiceImpl implements FaceProfileService {
         }
 
         if (profile.getStatus() != FaceProfileStatus.PENDING) {
-            throw new InvalidFaceProfileStateException("Profile must be PENDING to be rejected.");
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Hồ sơ phải ở trạng thái CHỜ DUYỆT mới có thể bị từ chối.");
         }
 
         profile.setStatus(FaceProfileStatus.REJECTED);
@@ -111,17 +114,17 @@ public class FaceProfileServiceImpl implements FaceProfileService {
     @Override
     public void revokeFace(UUID profileId, String revocationReason) {
         FaceProfile profile = faceProfileRepository.findById(profileId)
-                .orElseThrow(() -> new FaceProfileNotFoundException("Face profile not found: " + profileId));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ khuôn mặt: " + profileId));
 
         if (profile.getStatus() != FaceProfileStatus.APPROVED) {
-            throw new InvalidFaceProfileStateException("Profile must be APPROVED to be revoked.");
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Hồ sơ phải ở trạng thái ĐÃ DUYỆT mới có thể bị thu hồi.");
         }
 
         profile.setStatus(FaceProfileStatus.REVOKED);
         profile.setRejectionReason(revocationReason);
         faceProfileRepository.save(profile);
 
-        // Instantly terminate gate physical access
+        // Ngay lập tức chấm dứt quyền truy cập cổng vật lý
         faceEmbeddingRepository.deleteByProfileId(profileId);
 
         eventPublisher.publishEvent(new FaceProfileRevokedEvent(profileId, revocationReason));
@@ -130,10 +133,10 @@ public class FaceProfileServiceImpl implements FaceProfileService {
     @Override
     public void requestReplacement(UUID studentId, String pendingFaceImageUrl) {
         FaceProfile profile = faceProfileRepository.findByStudentId(studentId)
-                .orElseThrow(() -> new FaceProfileNotFoundException("No face profile found for student: " + studentId));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ khuôn mặt cho sinh viên này: " + studentId));
 
         if (profile.getStatus() != FaceProfileStatus.APPROVED) {
-            throw new InvalidFaceProfileStateException("Profile must be APPROVED to request a replacement.");
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Hồ sơ phải ở trạng thái ĐÃ DUYỆT mới có thể yêu cầu thay thế.");
         }
 
         profile.setPendingFaceImageUrl(pendingFaceImageUrl);
@@ -146,24 +149,24 @@ public class FaceProfileServiceImpl implements FaceProfileService {
     @Override
     public void approveReplacement(UUID profileId, UUID adminId) {
         FaceProfile profile = faceProfileRepository.findById(profileId)
-                .orElseThrow(() -> new FaceProfileNotFoundException("Face profile not found: " + profileId));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ khuôn mặt: " + profileId));
 
         if (profile.getPendingFaceImageUrl() == null) {
-            throw new ReplacementNotRequestedException("No replacement requested for profile: " + profileId);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Không có yêu cầu thay thế nào cho hồ sơ khuôn mặt này: " + profileId);
         }
 
-        // Do not update profile or delete embedding yet to guarantee access continuity.
-        // Trigger AI extraction first.
+        // Chưa cập nhật hồ sơ hoặc xóa vector để đảm bảo tính liên tục của quyền truy cập.
+        // Kích hoạt trích xuất AI trước.
         eventPublisher.publishEvent(new FaceReplacementApprovedEvent(profileId));
     }
 
     @Override
     public void rejectReplacement(UUID profileId, String rejectionReason) {
         FaceProfile profile = faceProfileRepository.findById(profileId)
-                .orElseThrow(() -> new FaceProfileNotFoundException("Face profile not found: " + profileId));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ khuôn mặt: " + profileId));
 
         if (profile.getPendingFaceImageUrl() == null) {
-            throw new ReplacementNotRequestedException("No replacement requested for profile: " + profileId);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Không có yêu cầu thay thế nào cho hồ sơ khuôn mặt này: " + profileId);
         }
 
         profile.setPendingFaceImageUrl(null);
@@ -176,10 +179,10 @@ public class FaceProfileServiceImpl implements FaceProfileService {
     @Override
     public void finalizeReplacement(UUID profileId, float[] newVector) {
         FaceProfile profile = faceProfileRepository.findById(profileId)
-                .orElseThrow(() -> new FaceProfileNotFoundException("Face profile not found: " + profileId));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ khuôn mặt: " + profileId));
 
         if (profile.getPendingFaceImageUrl() == null) {
-            throw new ReplacementNotRequestedException("No pending image to finalize for profile: " + profileId);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Không có ảnh chờ duyệt để hoàn tất cho hồ sơ khuôn mặt này: " + profileId);
         }
 
         profile.setFaceImageUrl(profile.getPendingFaceImageUrl());
@@ -213,7 +216,7 @@ public class FaceProfileServiceImpl implements FaceProfileService {
                         profile.getCreatedAt(),
                         profile.getUpdatedAt()
                 ))
-                .orElseThrow(() -> new FaceProfileNotFoundException("No face profile found for student: " + studentId));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ khuôn mặt cho sinh viên này: " + studentId));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.validator;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.room.entity.Room;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.enums.RoomStatus;
@@ -40,10 +41,7 @@ public class RoomValidator {
      */
     public void validateCanClose(UUID roomId) {
         if (hasActiveAssignments(roomId)) {
-            throw new AppException(
-                    "Cannot close room. Active room assignments or ongoing payment flows still exist.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Cannot close room. Active room assignments or ongoing payment flows still exist.");
         }
     }
 
@@ -53,10 +51,7 @@ public class RoomValidator {
      */
     public void validateCanMaintenance(UUID roomId) {
         if (hasActiveAssignments(roomId)) {
-            throw new AppException(
-                    "Cannot put room into maintenance status while it contains active assignments.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Cannot put room into maintenance status while it contains active assignments.");
         }
     }
 
@@ -87,10 +82,7 @@ public class RoomValidator {
                 .countByBed_Room_RoomIdAndStatus(roomId, AssignmentStatus.OCCUPIED);
 
         if (newCapacity < currentRoomOccupied) {
-            throw new AppException(
-                    "Operation failed. New capacity (" + newCapacity + ") cannot be lower than current occupied beds in this room (" + currentRoomOccupied + ").",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Operation failed. New capacity (" + newCapacity + ") cannot be lower than current occupied beds in this room (" + currentRoomOccupied + ").");
         }
     }
 
@@ -102,10 +94,7 @@ public class RoomValidator {
         long bedCount = bedRepository.countByRoom_RoomId(room.getRoomId());
 
         if (bedCount > room.getCapacity()) {
-            throw new AppException(
-                    "Data inconsistency detected. Physical bed count (" + bedCount + ") exceeds the room design capacity (" + room.getCapacity() + ").",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Data inconsistency detected. Physical bed count (" + bedCount + ") exceeds the room design capacity (" + room.getCapacity() + ").");
         }
     }
 
@@ -118,10 +107,7 @@ public class RoomValidator {
         long currentBedCount = bedRepository.countByRoom_RoomId(room.getRoomId());
 
         if ((currentBedCount + quantity) > room.getCapacity()) {
-            throw new AppException(
-                    "Cannot generate beds. Requested quantity (" + quantity + ") plus current beds (" + currentBedCount + ") would exceed room capacity limit (" + room.getCapacity() + ").",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Cannot generate beds. Requested quantity (" + quantity + ") plus current beds (" + currentBedCount + ") would exceed room capacity limit (" + room.getCapacity() + ").");
         }
     }
 

@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.payment.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.payment.dto.request.RecordUtilityRequest;
 import com.sdms.backend.modules.payment.dto.response.RoomUtilityResponse;
 import com.sdms.backend.modules.payment.entity.UtilityType;
@@ -34,7 +35,7 @@ public class UtilityUsageManagementService {
 
     @Transactional(readOnly = true)
     public List<RoomUtilityResponse> getRoomsForUtilityRecording(int month, int year, UtilityType utilityType, UUID buildingId, UUID floorId) {
-        Specification<Room> spec = Specification.where(null);
+        Specification<Room> spec = (root, query, cb) -> cb.conjunction();
         if (buildingId != null) {
             spec = spec.and(RoomSpecification.hasBuildingId(buildingId));
         }
@@ -80,14 +81,14 @@ public class UtilityUsageManagementService {
     public void recordUtility(RecordUtilityRequest request, UtilityType utilityType) {
         // Validate room
         Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new AppException("Room not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy phòng"));
 
         // Check if already settled
         Optional<UtilityUsage> existingUsage = utilityUsageRepository
                 .findByRoomIdAndUtilityTypeAndMonthAndYear(request.getRoomId(), utilityType, request.getMonth(), request.getYear());
 
         if (existingUsage.isPresent() && Boolean.TRUE.equals(existingUsage.get().getIsSettled())) {
-            throw new AppException("Utility for this room has already been settled for this month", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Phòng này đã được chốt chỉ số điện nước trong tháng");
         }
 
         // Get old reading
@@ -107,14 +108,14 @@ public class UtilityUsageManagementService {
         } else {
             // Lần đầu tiên chốt phòng, bắt buộc phải cung cấp oldReading
             if (request.getOldReading() == null) {
-                throw new AppException("Vui lòng cung cấp chỉ số cũ cho lần chốt đầu tiên của phòng này", HttpStatus.BAD_REQUEST);
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Vui lòng cung cấp chỉ số cũ cho lần chốt đầu tiên của phòng này");
             }
             oldReading = request.getOldReading();
         }
 
         // Validate reading
         if (request.getNewReading() < oldReading) {
-            throw new AppException("New reading cannot be smaller than old reading (" + oldReading + ")", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ số mới không thể nhỏ hơn chỉ số cũ (" + oldReading + ")");
         }
 
         int totalUsage = request.getNewReading() - oldReading;

@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.registration.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.registration.dto.response.EligibilityImportResponse;
 import com.sdms.backend.modules.registration.dto.response.EligibilityResponse;
 import com.sdms.backend.modules.registration.entity.RegistrationEligibility;
@@ -39,20 +40,20 @@ public class RegistrationEligibilityService {
     @Transactional
     public EligibilityImportResponse importEligibility(UUID periodId, MultipartFile file) throws IOException {
         if (file.isEmpty()) {
-            throw new AppException("File không được để trống", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "File không được để trống");
         }
         if (file.getOriginalFilename() != null && !file.getOriginalFilename().endsWith(".xlsx")) {
-            throw new AppException("Chỉ chấp nhận file định dạng .xlsx", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ chấp nhận file định dạng .xlsx");
         }
 
         RegistrationPeriod period = periodRepository.findById(periodId)
-                .orElseThrow(() -> new AppException("Không tìm thấy đợt đăng ký", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đợt đăng ký"));
 
         if (period.getRegistrationType() == RegistrationType.OPEN_REGISTRATION) {
-            throw new AppException("Đợt đăng ký tự do không cần import danh sách", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Đợt đăng ký tự do không cần import danh sách");
         }
 
-        Set<String> existingCccds = eligibilityRepository.findCccdByRegistrationPeriod_PeriodId(periodId);
+        Set<String> existingStudentCodes = eligibilityRepository.findStudentCodeByRegistrationPeriod_PeriodId(periodId);
         List<RegistrationEligibility> newEligibilities = new ArrayList<>();
 
         int total = 0, imported = 0, skipped = 0;
@@ -71,20 +72,19 @@ public class RegistrationEligibilityService {
                 String targetStr = getCellValue(row.getCell(4));
 
                 // Bỏ qua nếu dòng hoàn toàn trống để tránh tăng biến "total" ảo
-                if (cccd.isEmpty() && fullName.isEmpty()) continue;
+                if (studentCode.isEmpty() && email.isEmpty()) continue;
 
                 total++; // Tăng total dựa trên dòng có dữ liệu thực tế
 
-                if (cccd.isEmpty() || existingCccds.contains(cccd)) {
+                if (studentCode.isEmpty() || email.isEmpty() || existingStudentCodes.contains(studentCode)) {
                     skipped++;
                 } else {
                     RegistrationEligibility e = new RegistrationEligibility();
                     e.setRegistrationPeriod(period);
-                    e.setCccd(cccd);
+                    if (!cccd.isEmpty()) e.setCccd(cccd);
                     e.setFullName(fullName);
-
-                    if (!studentCode.isEmpty()) e.setStudentCode(studentCode);
-                    if (!email.isEmpty()) e.setEmail(email);
+                    e.setStudentCode(studentCode);
+                    e.setEmail(email);
 
                     // Map Enum sạch sẽ bằng cách tận dụng biến import cụ thể
                     e.setTarget(RegistrationTarget.FRESHMAN);
@@ -97,7 +97,7 @@ public class RegistrationEligibilityService {
                     }
 
                     newEligibilities.add(e);
-                    existingCccds.add(cccd); // Chống trùng lặp nội bộ trong file
+                    existingStudentCodes.add(studentCode); // Chống trùng lặp nội bộ trong file
                     imported++;
                 }
             }
@@ -116,10 +116,10 @@ public class RegistrationEligibilityService {
     @Transactional(readOnly = true)
     public Page<EligibilityResponse> getEligibilities(UUID periodId, Pageable pageable) {
         if (!periodRepository.existsById(periodId)) {
-            throw new AppException("Không tìm thấy đợt đăng ký", HttpStatus.NOT_FOUND);
+            throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đợt đăng ký");
         }
         return eligibilityRepository.findByRegistrationPeriod_PeriodId(periodId, pageable)
-                .map(e -> new EligibilityResponse(e.getEligibilityId(), e.getCccd(), e.getFullName(), e.getStudentCode()));
+                .map(e -> new EligibilityResponse(e.getEligibilityId(), e.getCccd(), e.getFullName(), e.getStudentCode(), e.getEmail()));
     }
 
     /**
@@ -128,10 +128,10 @@ public class RegistrationEligibilityService {
     @Transactional
     public void deleteEligibility(UUID periodId, UUID eligibilityId) {
         RegistrationEligibility e = eligibilityRepository.findById(eligibilityId)
-                .orElseThrow(() -> new AppException("Không tìm thấy bản ghi cần xóa", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy bản ghi cần xóa"));
 
         if (!e.getRegistrationPeriod().getPeriodId().equals(periodId)) {
-            throw new AppException("Bản ghi không thuộc về đợt đăng ký này", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Bản ghi không thuộc về đợt đăng ký này");
         }
 
         eligibilityRepository.delete(e);

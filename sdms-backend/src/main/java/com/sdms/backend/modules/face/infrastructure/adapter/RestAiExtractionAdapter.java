@@ -65,7 +65,7 @@ public class RestAiExtractionAdapter implements AiExtractionPort {
 
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             
-            // Wrap the byte array in a resource so RestTemplate knows it's a file
+            // Bọc mảng byte trong một resource để RestTemplate biết đó là một file
             ByteArrayResource resource = new ByteArrayResource(imageBytes) {
                 @Override
                 public String getFilename() {
@@ -100,7 +100,7 @@ public class RestAiExtractionAdapter implements AiExtractionPort {
         }
     }
 
-    // --- DTOs for parsing the agreed JSON contract ---
+    // --- Các DTO để parse JSON contract đã thỏa thuận ---
     @Data
     public static class AiResponse {
         private boolean success;

@@ -2,6 +2,7 @@
 package com.sdms.backend.modules.student.event;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.application.entity.VerificationDocument;
 import com.sdms.backend.modules.application.enums.VerificationDocumentType;
@@ -67,13 +68,13 @@ public class StudentProvisioningListener {
 
             // 2. Trích xuất thông tin Đơn đăng ký gốc
             DormitoryApplication application = applicationRepository.findById(event.getApplicationId())
-                    .orElseThrow(() -> new AppException("Không tìm thấy đơn đăng ký gốc có ID: " + event.getApplicationId(), HttpStatus.NOT_FOUND));
+                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đơn đăng ký gốc có ID: " + event.getApplicationId()));
 
             // 3. KHỞI TẠO HỒ SƠ SINH VIÊN (STUDENT RESIDENT PROFILE)
             Student student = new Student();
             student.setSourceApplication(application);
             student.setFullName(application.getFullName());
-            student.setStudentCode("STU-" + application.getCccd()); // Tạo mã số sinh viên KTX tạm thời theo số CCCD
+            student.setStudentCode(application.getStudentCode()); // Lấy chính xác Mã sinh viên gốc từ Đơn đăng ký
             student.setCccd(application.getCccd());
             student.setEmail(application.getEmail());
             student.setPhone(application.getPhone());
@@ -83,9 +84,10 @@ public class StudentProvisioningListener {
             // Sao chép chi tiết thông tin nhân thân để quầy lễ tân tra cứu
             student.setFatherName(application.getFatherName());
             student.setFatherPhone(application.getFatherPhone());
+            
             student.setMotherName(application.getMotherName());
             student.setMotherPhone(application.getMotherPhone());
-            student.setEmergencyContact(application.getEmergencyContact());
+            
 
             // 🌟 ĐỒNG BỘ CHUẨN XÁC: Duyệt danh sách minh chứng tìm đúng file ảnh chân dung trên Cloudinary
             String portraitUrl = application.getDocuments().stream()
@@ -106,12 +108,12 @@ public class StudentProvisioningListener {
             // 4. KHỞI TẠO TÀI KHOẢN ĐĂNG NHẬP (USER ACCOUNT)
             UserAccount account = new UserAccount();
             account.setStudent(student);
-            account.setUsername(application.getCccd()); // Tài khoản đăng nhập mặc định là số CCCD
+            account.setUsername(application.getStudentCode()); // Tài khoản đăng nhập mặc định là Mã sinh viên
             account.setEmail(application.getEmail());
 
-            // 🌟 CHUẨN HÓA MẬT KHẨU TẠM THỜI: Chỉ băm chuỗi phẳng số CCCD (Loại bỏ chữ TEMP- cũ)
+            // 🌟 CHUẨN HÓA MẬT KHẨU TẠM THỜI: Mật khẩu tạm thời mặc định cũng là Mã sinh viên
             // Đồng bộ 100% với form nhập liệu tại trang giao diện Frontend /activate-account
-            String rawTempPassword = application.getCccd();
+            String rawTempPassword = application.getStudentCode();
             account.setPassword(passwordEncoder.encode(rawTempPassword));
 
             account.setRole(Role.STUDENT);
@@ -132,7 +134,7 @@ public class StudentProvisioningListener {
         } catch (Exception e) {
             log.error("[StudentProvisioningListener] Thất bại khi sinh hồ sơ/tài khoản tự động cho Đơn={}. Lý do: {}",
                     event.getApplicationId(), e.getMessage(), e);
-            throw new AppException("Lỗi hệ thống ngầm khi sinh tài khoản cư dân tự động.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR, "Lỗi hệ thống ngầm khi sinh tài khoản cư dân tự động.");
         }
     }
 

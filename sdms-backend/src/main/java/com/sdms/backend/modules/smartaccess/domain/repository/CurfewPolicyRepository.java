@@ -9,8 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface CurfewPolicyRepository extends JpaRepository<CurfewPolicy, UUID> {
-    
-    // Retrieves all active curfew policies for a specific building.
-    // Used by CurfewResolutionStrategy to resolve overlaps based on priority.
+    // Để truy xuất các chính sách giới nghiêm đang hoạt động cho một tòa nhà cụ thể.
     List<CurfewPolicy> findByBuildingIdAndIsActiveTrue(UUID buildingId);
 }

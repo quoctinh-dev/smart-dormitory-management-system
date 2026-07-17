@@ -29,7 +29,8 @@ public class IdentityVerifiedEventListener {
                 event.getEventId(),
                 event.getStudentId(),
                 event.getGateId(),
-                event.getMethod()
+                event.getMethod(),
+                event.getSnapshotUrl()
         );
     }
 }

@@ -13,11 +13,11 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
-import { 
-  ChangePasswordData, 
-  ForgotPasswordData, 
-  ResetPasswordData, 
-  ActivateData 
+import {
+  ChangePasswordData,
+  ForgotPasswordData,
+  ResetPasswordData,
+  ActivateData,
 } from '../types/auth';
 
 export interface UserProfile {
@@ -79,7 +79,7 @@ export const authApi = {
    */
   activate(data: ActivateData): Promise<AuthTokens> {
     return axiosClient.post(`${AUTH_PREFIX}/activate`, {
-      email: data.email,
+      studentCode: data.studentCode,
       tempPassword: data.tempPassword,
       newPassword: data.newPassword,
     });

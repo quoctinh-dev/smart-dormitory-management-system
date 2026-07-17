@@ -1,13 +1,14 @@
 package com.sdms.backend.modules.student.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.student.dto.request.UpdateProfileRequest;
 import com.sdms.backend.modules.student.dto.response.StudentProfileResponse;
 import com.sdms.backend.modules.student.entity.Student;
 import com.sdms.backend.modules.student.repository.StudentRepository;
 import com.sdms.backend.modules.user.entity.UserAccount;
+import com.sdms.backend.modules.user.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,19 +26,21 @@ import com.sdms.backend.modules.student.event.StudentRfidAssignedEvent;
 @RequiredArgsConstructor
 public class StudentService {
     private final StudentRepository studentRepository;
+    private final UserAccountRepository userAccountRepository;
     private final ApplicationEventPublisher eventPublisher;
 
+    @Transactional(readOnly = true)
     public StudentProfileResponse getMyProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserAccount account = (UserAccount) authentication.getPrincipal();
 
-        Student student = account.getStudent();
+        if (account.getStudent() == null) {
+            return null;
+        }
 
+        Student student = studentRepository.findById(account.getStudent().getStudentId()).orElse(null);
         if (student == null) {
-            throw new AppException(
-                    "Student profile not found",
-                    HttpStatus.NOT_FOUND
-            );
+            return null;
         }
 
         return StudentProfileResponse.fromEntity(student);
@@ -51,11 +54,10 @@ public class StudentService {
 
         Student student = account.getStudent();
         if (student == null) {
-            throw new AppException("Student profile not found", HttpStatus.NOT_FOUND);
+            throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ sinh viên");
         }
 
-        // Cập nhật từng field nếu request không null (Cơ chế PATCH)
-        if (request.getEmail() != null) student.setEmail(request.getEmail());
+        // Cập nhật các trường thông tin nếu có dữ liệu trong request
         if (request.getPhone() != null) student.setPhone(request.getPhone());
         if (request.getFatherName() != null) student.setFatherName(request.getFatherName());
         if (request.getFatherPhone() != null) student.setFatherPhone(request.getFatherPhone());
@@ -75,7 +77,7 @@ public class StudentService {
     @Transactional
     public void assignRfidCode(java.util.UUID studentId, String rfidCode) {
         Student student = studentRepository.findById(studentId)
-            .orElseThrow(() -> new AppException("Student not found", HttpStatus.NOT_FOUND));
+            .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy sinh viên"));
         
         student.setRfidCode(rfidCode);
         studentRepository.save(student);

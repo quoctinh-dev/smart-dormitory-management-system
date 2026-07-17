@@ -13,21 +13,27 @@ export interface FaceProfileResponse {
   createdAt: string;
 }
 
+export interface FaceActionParams {
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
 const faceApi = {
   // ==========================================
   // ADMIN ENDPOINTS
   // ==========================================
-  getPendingProfiles(params: any): Promise<PageResponse<FaceProfileResponse>> {
+  getPendingProfiles(params: FaceActionParams): Promise<PageResponse<FaceProfileResponse>> {
     return axiosClient.get(`${ADMIN_FACE_URL}/pending`, { params });
   },
 
-  approveFace(profileId: string, adminId: string): Promise<any> {
+  approveFace(profileId: string, adminId: string): Promise<void> {
     return axiosClient.post(`${ADMIN_FACE_URL}/${profileId}/approve`, null, {
       headers: { 'X-Admin-Id': adminId },
     });
   },
 
-  rejectFace(profileId: string, reason: string): Promise<any> {
+  rejectFace(profileId: string, reason: string): Promise<void> {
     return axiosClient.post(`${ADMIN_FACE_URL}/${profileId}/reject`, {
       rejectionReason: reason,
     });

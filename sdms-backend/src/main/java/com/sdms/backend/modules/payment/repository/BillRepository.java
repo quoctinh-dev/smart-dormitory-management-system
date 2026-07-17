@@ -19,6 +19,11 @@ public interface BillRepository extends JpaRepository<Bill, UUID> {
 
     List<Bill> findByStatus(BillStatus status);
 
+    long countByStatus(BillStatus status);
+
+    @Query("SELECT SUM(b.amount) FROM Bill b WHERE b.status = :status")
+    java.math.BigDecimal sumAmountByStatus(@Param("status") BillStatus status);
+
     List<Bill> findByBillType(BillType billType);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

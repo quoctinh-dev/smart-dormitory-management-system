@@ -11,51 +11,51 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Repository for {@link FaceEmbedding}.
+ * Repository cho {@link FaceEmbedding}.
  *
- * <p>Ownership: Face Module only.
- * The raw vector must never be exposed outside this module.
- * Smart Access consumes {@code FaceSyncReadyEvent} — not the embedding directly.
+ * <p>Quyền sở hữu: Chỉ thuộc Module Face.
+ * Vector thô không bao giờ được phơi bày ra ngoài module này.
+ * Smart Access tiêu thụ {@code FaceSyncReadyEvent} — không phải vector trực tiếp.
  *
- * <p><b>Threshold Governance:</b> This repository does NOT contain threshold logic.
- * The cosine similarity threshold (e.g. 0.8) is the exclusive responsibility
- * of the Service Layer ({@code FaceVerificationService}), not this repository.
+ * <p><b>Ràng buộc quản trị ngưỡng:</b> Repository này KHÔNG chứa logic ngưỡng.
+ * Ngưỡng cosine similarity (ví dụ: 0.8) là trách nhiệm độc quyền
+ * của Service Layer ({@code FaceVerificationService}), không phải repository này.
  */
 @Repository
 public interface FaceEmbeddingRepository extends JpaRepository<FaceEmbedding, UUID> {
 
     /**
-     * Looks up the embedding for a specific profile.
-     * Used by {@code FaceAiOrchestrator} to check whether extraction has already occurred.
+     * Tìm kiếm vector cho một hồ sơ cụ thể.
+     * Được sử dụng bởi {@code FaceAiOrchestrator} để kiểm tra xem quá trình trích xuất đã xảy ra chưa.
      */
     Optional<FaceEmbedding> findByProfileId(UUID profileId);
 
     /**
-     * Deletes the embedding for a specific profile.
-     * Used by FaceProfileService during an Atomic Swap replacement.
-     * Use @Modifying query to bypass entity fetching which fails due to pgvector mapping issues.
+     * Xóa vector cho một hồ sơ cụ thể.
+     * Được sử dụng bởi FaceProfileService trong quá trình thay thế Atomic Swap.
+     * Sử dụng truy vấn @Modifying để bỏ qua entity fetching (thất bại do lỗi mapping pgvector).
      */
     @Modifying
     @Query("DELETE FROM FaceEmbedding e WHERE e.profileId = :profileId")
     void deleteByProfileId(@Param("profileId") UUID profileId);
 
     /**
-     * Executes a pgvector cosine similarity nearest-neighbor search against all
-     * APPROVED face embeddings and returns the profile ID of the closest match.
+     * Thực thi tìm kiếm nearest-neighbor cosine similarity của pgvector với tất cả
+     * các vector khuôn mặt ĐÃ DUYỆT và trả về ID hồ sơ của khớp nối gần nhất.
      *
-     * <p><b>Threshold Governance:</b> This query intentionally returns the single
-     * closest match WITHOUT applying a threshold filter. The calling Service Layer
-     * ({@code FaceVerificationService}) is solely responsible for evaluating
-     * whether the returned distance satisfies the acceptance threshold.
+     * <p><b>Ràng buộc quản trị ngưỡng:</b> Truy vấn này cố ý trả về một
+     * khớp gần nhất MÀ KHÔNG áp dụng bộ lọc ngưỡng. Service Layer gọi tới
+     * ({@code FaceVerificationService}) chịu trách nhiệm duy nhất cho việc đánh giá
+     * liệu khoảng cách trả về có thỏa mãn ngưỡng chấp nhận hay không.
      *
-     * <p><b>Vector format:</b> {@code queryVector} must be a PostgreSQL vector literal
-     * string, e.g. {@code "[0.1,0.2,...,0.5]"}, cast via {@code ::vector} in the query.
+     * <p><b>Định dạng Vector:</b> {@code queryVector} phải là chuỗi literal vector PostgreSQL
+     * ví dụ: {@code "[0.1,0.2,...,0.5]"}, được cast qua {@code ::vector} trong truy vấn.
      *
-     * <p><b>Index:</b> Requires the HNSW index ({@code idx_face_embeddings_vector})
-     * on the {@code vector} column, created by Flyway migration.
+     * <p><b>Chỉ mục:</b> Yêu cầu chỉ mục HNSW ({@code idx_face_embeddings_vector})
+     * trên cột {@code vector}, được tạo bởi Flyway migration.
      *
-     * @param queryVector the 512-dimension vector string from the AI Engine
-     * @return the profile_id and cosine distance of the nearest embedding, or empty if none found
+     * @param queryVector chuỗi vector 512 chiều từ AI Engine
+     * @return profile_id và khoảng cách cosine của vector gần nhất, hoặc empty nếu không tìm thấy
      */
     @Query(value = """
             SELECT fe.profile_id AS profileId,
@@ -70,10 +70,10 @@ public interface FaceEmbeddingRepository extends JpaRepository<FaceEmbedding, UU
     Optional<VectorMatchResult> findNearestMatch(@Param("queryVector") String queryVector);
 
     /**
-     * Projection interface for the vector similarity query result.
-     * Decouples the raw query result from the {@link FaceEmbedding} entity.
+     * Giao diện Projection cho kết quả truy vấn độ tương đồng vector.
+     * Tách biệt kết quả truy vấn thô khỏi entity {@link FaceEmbedding}.
      *
-     * <p>The Service Layer reads {@code getDistance()} and applies its own threshold.
+     * <p>Service Layer đọc {@code getDistance()} và áp dụng ngưỡng riêng của nó.
      */
     interface VectorMatchResult {
         UUID getProfileId();

@@ -32,27 +32,14 @@ public class SepayService {
     @Value("${payment.sepay.api-key:default-api-key}")
     private String sepayApiKey;
 
-    @Value("${payment.sepay.secret-key:default-secret-key}")
-    private String sepaySecretKey;
-
-    public void processWebhook(String rawPayload, String authorization, String signature) {
+    public void processWebhook(String rawPayload, String authorization) {
         // 1. Validate API Key
         if (authorization == null || !authorization.equals("Apikey " + sepayApiKey)) {
             log.warn("[SepayService] Invalid API Key");
             throw new AppException(ErrorCode.UNAUTHORIZED, "API Key không hợp lệ");
         }
 
-        // 2. Validate Signature (Optional for now to simplify testing)
-        if (signature != null && !signature.isEmpty()) {
-            if (!verifySignature(rawPayload, signature)) {
-                log.warn("[SepayService] Invalid Webhook Signature but proceeding for testing purposes (or configure properly).");
-                // throw new AppException(ErrorCode.UNAUTHORIZED, "Chữ ký Webhook không hợp lệ");
-            }
-        } else {
-            log.info("[SepayService] No signature provided, relying on API Key authorization only.");
-        }
-
-        // 3. Parse Payload
+        // 2. Parse Payload
         SepayWebhookPayload payload;
         try {
             payload = objectMapper.readValue(rawPayload, SepayWebhookPayload.class);
@@ -113,24 +100,7 @@ public class SepayService {
         paymentService.completeOnlinePayment(payment.getPaymentId(), payload.getTransferAmount());
     }
 
-    private boolean verifySignature(String rawPayload, String providedSignature) {
-        try {
-            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secret_key = new SecretKeySpec(sepaySecretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-            sha256_HMAC.init(secret_key);
-            byte[] hashBytes = sha256_HMAC.doFinal(rawPayload.getBytes(StandardCharsets.UTF_8));
-            
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashBytes) {
-                sb.append(String.format("%02x", b));
-            }
-            String computedSignature = sb.toString();
-            return computedSignature.equalsIgnoreCase(providedSignature);
-        } catch (Exception e) {
-            log.error("Error computing HMAC SHA256", e);
-            return false;
-        }
-    }
+
 
     private String extractTransactionCode(String content) {
         // Simple extraction: Look for words starting with SDMS

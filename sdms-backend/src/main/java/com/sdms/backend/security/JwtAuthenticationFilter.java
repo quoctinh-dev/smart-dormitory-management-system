@@ -2,6 +2,7 @@ package com.sdms.backend.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdms.backend.modules.auth.service.JwtService;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.user.entity.UserAccount;
 import com.sdms.backend.modules.user.enums.AccountStatus;
 import io.jsonwebtoken.JwtException;
@@ -75,7 +76,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.info("User {} has authorities: {}", username, userDetails.getAuthorities());
                 if (!(userDetails instanceof UserAccount account) || account.getStatus() != AccountStatus.ACTIVE) {
                     log.warn("Attempt to access with non-ACTIVE account. Username: {}", username);
-                    sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "Account is not active");
+                    sendErrorResponse(response, ErrorCode.ACCOUNT_LOCKED);
                     return;
                 }
 
@@ -91,28 +92,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (JwtException e) {
-            log.debug("JWT validation failed", e);
+            log.debug("JWT validation failed: {}", e.getMessage());
             SecurityContextHolder.clearContext();
-            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+            filterChain.doFilter(request, response);
         } catch (Exception e) {
             log.error("Unexpected error during authentication filter", e);
             SecurityContextHolder.clearContext();
-            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
+            filterChain.doFilter(request, response);
         }
     }
 
     /**
      * Gửi response lỗi chuẩn hóa dạng JSON.
      */
-    private void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
-        response.setStatus(status);
+    private void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+        response.setStatus(errorCode.getStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
         Map<String, Object> body = new HashMap<>();
         body.put("success", false);
-        body.put("status", status);
-        body.put("message", message);
+        body.put("errorCode", errorCode.name());
+        body.put("message", errorCode.getMessage());
+        body.put("data", null);
 
         objectMapper.writeValue(response.getOutputStream(), body);
     }

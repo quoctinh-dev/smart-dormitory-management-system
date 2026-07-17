@@ -108,7 +108,32 @@ At the end of every task, provide the user with a summary containing:
 - **Wait for Confirmation:** After completing a single step, the Agent MUST STOP, send a review/summary to the user, and EXPLICITLY ask for confirmation before proceeding to the next step.
 - **Enforcement:** Never execute multiple major changes across different domains or modules without the user's step-by-step approval.
 
-## API RESPONSE ENVELOPE PATTERN RULE (LUẬT CẤU TRÚC PHẢN HỒI API)
-- **Mandatory Pattern:** The system MUST strictly use the "Envelope Pattern" for all API responses (`ApiResponse<T>`). The structure MUST be exactly: `{ "success": boolean, "message": string, "data": object/null, "errorCode": string/null }`.
-- **No Over-Engineering:** DO NOT nest error objects (e.g., creating an `ApiError` class with `path`, `timestamp`, `httpStatus` inside `ApiResponse`). HTTP Status Codes (200, 400, 404, 500) and Server Logs are sufficient for routing and debugging.
-- **Enforcement:** AI Agents MUST NOT refactor or modify this core `ApiResponse` structure under any circumstances, as it will break the Mobile App's JSON parsing (Retrofit/Gson) and Web Frontend's form validation logic, which rely on the flat `data` and `errorCode` fields.
+## SDMS BACKEND REFACTOR ARCHITECTURE CONTRACT (STRICT RULES)
+Mọi tác vụ backend BẮT BUỘC tuân thủ các quy tắc sau. Trước khi phát triển tính năng mới, Agent phải kiểm tra và refactor code cũ nếu vi phạm:
+
+### 1. API RESPONSE & PAGE RESPONSE
+- **Mandatory Pattern:** Hệ thống chỉ sử dụng duy nhất `ApiResponse<T>`. Tuyệt đối không tạo ErrorResponse, BaseResponse, v.v.
+  - **Thành công:** `{ "success": true, "message": "...", "data": { ... } }`
+  - **Thất bại:** `{ "success": false, "message": "...", "errorCode": "...", "data": null }`
+  - **Validation:** `{ "success": false, "message": "...", "errorCode": "VALIDATION_FAILED", "data": { "field": "error_msg" } }`
+- **Phân trang:** BẮT BUỘC dùng `ApiResponse<PageResponse<T>>`. Không bao giờ trả trực tiếp Spring `Page` hoặc List thuần.
+- **Enforcement:** Agent KHÔNG ĐƯỢC thay đổi cấu trúc `ApiResponse` để tránh làm hỏng luồng parse JSON của Frontend và Mobile App.
+
+### 2. APPEXCEPTION & ERRORCODE
+- **Ném lỗi:** Mọi lỗi nghiệp vụ ở Service PHẢI dùng `AppException` kết hợp Enum `ErrorCode` (VD: `throw new AppException(ErrorCode.RESOURCE_NOT_FOUND);`).
+- **Nghiêm cấm:** KHÔNG throw `RuntimeException`, `IllegalArgumentException`. KHÔNG hard-code HttpStatus và message (trừ khi dùng constructor ghi đè message nhưng vẫn phải có ErrorCode).
+- **GlobalExceptionHandler:** Là nơi DUY NHẤT được catch Exception, build `ApiResponse` thất bại, gán HttpStatus và ErrorCode. Tuyệt đối không try/catch lỗi nghiệp vụ ở Controller.
+
+### 3. CONTROLLER, SERVICE, & ENTITY RULES
+- **Controller:** Chỉ được nhận Request DTO -> Gọi Service -> Trả `ApiResponse<ResponseDTO>`. KHÔNG chứa Business Logic, KHÔNG try/catch.
+- **Service:** Chỉ xử lý Business Logic, Validation nghiệp vụ, Transaction, và throw AppException. KHÔNG tạo `ApiResponse`, KHÔNG trả ResponseEntity.
+- **Entity & DTO:** Entity CHỈ dùng cho Database (Persistence). Bắt buộc tuân theo luồng: Entity -> Mapper -> Response DTO -> ApiResponse. Không bao giờ expose Entity ra ngoài Controller. Không tái sử dụng Entity làm Request/Response.
+
+### 4. NGÔN NGỮ & LOGGING (LANGUAGE & LOGGING RULE)
+- **Code (Class, Method, Variable):** BẮT BUỘC 100% đặt tên bằng Tiếng Anh.
+- **Thông báo người dùng (User-facing Messages):** BẮT BUỘC sử dụng Tiếng Việt có dấu (trong `ApiResponse.message`, thông báo lỗi của `ErrorCode`).
+- **Log hệ thống (System Logs):** BẮT BUỘC ghi bằng Tiếng Anh (ví dụ: `log.info("User {} successfully registered", username)`). Không ghi log tiếng Việt có dấu để tránh lỗi mã hóa (encoding) khi đẩy lên hệ thống Server/Monitor (như ELK, Grafana) và giúp Developer dễ dàng tìm kiếm (grep/search).
+
+### 5. SEEDER DEVELOPMENT RULE (LUẬT PHÁT TRIỂN SEEDER)
+- **Nguyên tắc Đơn nhiệm (Single Responsibility):** Mỗi module lớn (User, Room, Payment...) PHẢI có một file Seeder riêng biệt (VD: `UserSeeder`, `DormitorySeeder`, `PaymentSeeder`). Tuyệt đối KHÔNG dồn tất cả logic khởi tạo vào một file `DataSeeder` khổng lồ duy nhất để tránh xung đột dữ liệu và logic skip.
+- **Tính tự động hóa:** Sau khi hoàn thành code xong một Module hoặc một Feature mới có tác động đến Database, Agent BẮT BUỘC phải viết bổ sung/cập nhật Seeder tương ứng để Developer khác clone code về chạy lên là có data dùng thử ngay lập tức (không phải nhập tay).

@@ -1,8 +1,38 @@
 // src/api/roomApi.ts
-import axiosClient from './axiosClient';
 import type { BedStatus, BuildingStatus, RoomStatus } from '@/types/room';
 
+import axiosClient from './axiosClient';
+
 const BASE = '/v1/admin';
+
+// ─── ANALYTICS TYPES ─────────────────────────────────────────────────────────
+export interface OccupancyAnalytics {
+  totalBeds: number;
+  occupiedBeds: number;
+  vacantBeds: number;
+  occupancyRate: number;
+}
+
+export interface EmergencyRelocationRoom {
+  roomId: string;
+  roomCode: string;
+  buildingName: string;
+  vacantBeds: number;
+}
+
+export interface RevenueAtRiskItem {
+  applicationId: string;
+  studentName: string;
+  amount: number;
+  deadline: string;
+}
+
+export interface MaintenanceReportItem {
+  roomId: string;
+  roomCode: string;
+  issue: string;
+  reportedAt: string;
+}
 
 // ─── BUILDING ────────────────────────────────────────────────────────────────
 export interface CreateBuildingPayload {
@@ -66,12 +96,17 @@ export interface UpdateBedPayload {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { BuildingResponse, FloorResponse, RoomResponse, BedResponse, ActiveAssignmentResponse } from '@/types/room';
+import type {
+  BuildingResponse,
+  FloorResponse,
+  RoomResponse,
+  BedResponse,
+  ActiveAssignmentResponse,
+} from '@/types/room';
 
 const roomApi = {
   // ─── BUILDING ──────────────────────────────────────────────────────────────
-  getBuildings: (): Promise<BuildingResponse[]> =>
-    axiosClient.get(`${BASE}/buildings`),
+  getBuildings: (): Promise<BuildingResponse[]> => axiosClient.get(`${BASE}/buildings`),
 
   getBuildingById: (id: string): Promise<BuildingResponse> =>
     axiosClient.get(`${BASE}/buildings/${id}`),
@@ -116,20 +151,22 @@ const roomApi = {
   patchRoomStatus: (roomId: string, status: RoomStatus): Promise<RoomResponse> =>
     axiosClient.patch(`${BASE}/rooms/${roomId}/status?status=${status}`),
 
-  searchRooms: (params: SearchRoomsParams): Promise<{ content: RoomResponse[], totalElements: number }> =>
+  searchRooms: (
+    params: SearchRoomsParams
+  ): Promise<{ content: RoomResponse[]; totalElements: number }> =>
     axiosClient.get(`${BASE}/rooms`, { params }),
 
   // ─── ROOM ANALYTICS ────────────────────────────────────────────────────────
-  getOccupancyAnalytics: (): Promise<any> =>
+  getOccupancyAnalytics: (): Promise<OccupancyAnalytics> =>
     axiosClient.get(`${BASE}/rooms/analytics/occupancy`),
 
-  getEmergencyRelocationRooms: (): Promise<any> =>
+  getEmergencyRelocationRooms: (): Promise<EmergencyRelocationRoom[]> =>
     axiosClient.get(`${BASE}/rooms/analytics/emergency-relocation`),
 
-  getRevenueAtRisk: (): Promise<any> =>
+  getRevenueAtRisk: (): Promise<RevenueAtRiskItem[]> =>
     axiosClient.get(`${BASE}/rooms/analytics/revenue-at-risk`),
 
-  getMaintenanceReport: (): Promise<any> =>
+  getMaintenanceReport: (): Promise<MaintenanceReportItem[]> =>
     axiosClient.get(`${BASE}/rooms/analytics/maintenance-report`),
 
   // ─── BED ───────────────────────────────────────────────────────────────────
@@ -149,6 +186,9 @@ const roomApi = {
   // ─── HOUSING ASSIGNMENT (BED DRILL-DOWN) ───────────────────────────────────
   getActiveAssignmentByBed: (bedId: string): Promise<ActiveAssignmentResponse> =>
     axiosClient.get(`${BASE}/housing-assignments/active/bed/${bedId}`),
+
+  assignRoomRole: (assignmentId: string, role: string): Promise<void> =>
+    axiosClient.patch(`${BASE}/rooms/assignments/${assignmentId}/role?role=${role}`),
 };
 
 export default roomApi;

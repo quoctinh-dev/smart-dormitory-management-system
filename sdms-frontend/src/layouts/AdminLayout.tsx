@@ -9,9 +9,9 @@ import FaceIcon from '@mui/icons-material/Face';
 import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PaymentIcon from '@mui/icons-material/Payment';
+import PeopleIcon from '@mui/icons-material/People';
 import RoomPreferencesIcon from '@mui/icons-material/RoomPreferences';
 import SensorsIcon from '@mui/icons-material/Sensors';
-import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
   AppBar,
@@ -52,52 +52,127 @@ const MENU_GROUPS: MenuGroup[] = [
     title: 'Tổng quan',
     items: [
       { text: 'Dashboard', path: '/admin', icon: <DashboardIcon />, roles: ['ADMIN'] },
-      { text: 'Lịch sử thông báo', path: '/admin/notifications', icon: <NotificationsIcon />, roles: ['ADMIN'] },
-    ]
+      {
+        text: 'Lịch sử thông báo',
+        path: '/admin/notifications',
+        icon: <NotificationsIcon />,
+        roles: ['ADMIN'],
+      },
+    ],
   },
   {
     title: 'Quản lý Lưu trú',
     items: [
-      { text: 'Quản lý giường & phòng', path: '/admin/rooms', icon: <BedIcon />, roles: ['ADMIN', 'STAFF'] },
-      { text: 'Yêu cầu đổi phòng', path: '/admin/change-room', icon: <EventRepeat />, roles: ['ADMIN', 'STAFF'] },
-      { text: 'Quản lý đợt đăng ký', path: '/admin/registration-periods', icon: <DateRangeIcon />, roles: ['ADMIN'] },
-      { text: 'Kiểm duyệt hồ sơ', path: '/admin/applications/review', icon: <AssignmentTurnedInIcon />, roles: ['ADMIN', 'STAFF'] },
-      { text: 'Lễ tân check-in', path: '/admin/check-in', icon: <RoomPreferencesIcon />, roles: ['ADMIN', 'STAFF'] },
-      { text: 'Quản lý gia hạn', path: '/admin/extension-requests', icon: <EventRepeat />, roles: ['ADMIN', 'STAFF'] },
-      { text: 'Quản lý trả phòng', path: '/admin/checkout-requests', icon: <ExitToAppIcon />, roles: ['ADMIN', 'STAFF'] },
-    ]
+      {
+        text: 'Quản lý giường & phòng',
+        path: '/admin/rooms',
+        icon: <BedIcon />,
+        roles: ['ADMIN', 'STAFF'],
+      },
+      {
+        text: 'Yêu cầu đổi phòng',
+        path: '/admin/change-room',
+        icon: <EventRepeat />,
+        roles: ['ADMIN', 'STAFF'],
+      },
+      {
+        text: 'Quản lý đợt đăng ký',
+        path: '/admin/registration-periods',
+        icon: <DateRangeIcon />,
+        roles: ['ADMIN'],
+      },
+      {
+        text: 'Kiểm duyệt hồ sơ',
+        path: '/admin/applications/review',
+        icon: <AssignmentTurnedInIcon />,
+        roles: ['ADMIN', 'STAFF'],
+      },
+      {
+        text: 'Lễ tân check-in',
+        path: '/admin/check-in',
+        icon: <RoomPreferencesIcon />,
+        roles: ['ADMIN', 'STAFF'],
+      },
+      {
+        text: 'Quản lý gia hạn',
+        path: '/admin/extension-requests',
+        icon: <EventRepeat />,
+        roles: ['ADMIN', 'STAFF'],
+      },
+      {
+        text: 'Quản lý trả phòng',
+        path: '/admin/checkout-requests',
+        icon: <ExitToAppIcon />,
+        roles: ['ADMIN', 'STAFF'],
+      },
+    ],
   },
   {
     title: 'Tài chính & Dịch vụ',
     items: [
-      { text: 'Quản lý thanh toán', path: '/admin/payments', icon: <PaymentIcon />, roles: ['ADMIN'] },
-      { text: 'Chốt chỉ số Tiện ích', path: '/admin/electricity', icon: <AssignmentTurnedInIcon />, roles: ['ADMIN', 'STAFF'] }, // New item placeholder
-    ]
+      {
+        text: 'Quản lý thanh toán',
+        path: '/admin/payments',
+        icon: <PaymentIcon />,
+        roles: ['ADMIN'],
+      },
+      {
+        text: 'Chốt chỉ số Tiện ích',
+        path: '/admin/electricity',
+        icon: <AssignmentTurnedInIcon />,
+        roles: ['ADMIN', 'STAFF'],
+      }, // New item placeholder
+    ],
   },
   {
     title: 'Hệ thống & An ninh',
     items: [
-      { text: 'Quản lý tài khoản', path: '/admin/accounts', icon: <PeopleIcon />, roles: ['ADMIN'] },
-      { text: 'Kiểm duyệt khuôn mặt', path: '/admin/faces/approve', icon: <FaceIcon />, roles: ['ADMIN', 'STAFF'] },
-      { text: 'Quản lý thiết bị Cổng', path: '/admin/gates', icon: <SensorsIcon />, roles: ['ADMIN'] },
-      { text: 'Log cửa thông minh', path: '/admin/smart-access', icon: <AssignmentTurnedInIcon />, roles: ['ADMIN'] },
-      { text: 'Cấu hình hệ thống', path: '/admin/system-configs', icon: <SettingsIcon />, roles: ['ADMIN'] },
-    ]
-  }
+      {
+        text: 'Quản lý tài khoản',
+        path: '/admin/accounts',
+        icon: <PeopleIcon />,
+        roles: ['ADMIN'],
+      },
+      {
+        text: 'Kiểm duyệt khuôn mặt',
+        path: '/admin/faces/approve',
+        icon: <FaceIcon />,
+        roles: ['ADMIN', 'STAFF'],
+      },
+      {
+        text: 'Quản lý thiết bị Cổng',
+        path: '/admin/gates',
+        icon: <SensorsIcon />,
+        roles: ['ADMIN'],
+      },
+      {
+        text: 'Log cửa thông minh',
+        path: '/admin/smart-access',
+        icon: <AssignmentTurnedInIcon />,
+        roles: ['ADMIN'],
+      },
+      {
+        text: 'Cấu hình hệ thống',
+        path: '/admin/system-configs',
+        icon: <SettingsIcon />,
+        roles: ['ADMIN'],
+      },
+    ],
+  },
 ];
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { admin, logout } = useAuth();
-  
+
   const userRole = admin?.role?.toUpperCase() || '';
 
   // Filter groups and items based on user role
-  const filteredGroups = MENU_GROUPS.map(group => ({
+  const filteredGroups = MENU_GROUPS.map((group) => ({
     ...group,
-    items: group.items.filter(item => item.roles.includes(userRole))
-  })).filter(group => group.items.length > 0);
+    items: group.items.filter((item) => item.roles.includes(userRole)),
+  })).filter((group) => group.items.length > 0);
 
   return (
     <Box
@@ -174,12 +249,12 @@ export default function AdminLayout() {
                   mb: 1,
                   color: 'text.secondary',
                   fontWeight: 700,
-                  lineHeight: 1.2
+                  lineHeight: 1.2,
                 }}
               >
                 {group.title}
               </Typography>
-              
+
               {/* Group Items */}
               {group.items.map((item) => {
                 const isSelected =

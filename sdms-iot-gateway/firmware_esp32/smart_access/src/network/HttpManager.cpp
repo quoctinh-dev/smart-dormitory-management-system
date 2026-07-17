@@ -112,7 +112,7 @@ String HttpManager::uploadFace(camera_fb_t *fb) {
     return finalResult;
 }
 
-void HttpManager::verifyCard(String rfidCode) {
+void HttpManager::verifyCard(String rfidCode, camera_fb_t *fb) {
     if (WiFi.status() != WL_CONNECTED) {
         Serial.println("[HTTP] WiFi not connected. Cannot verify card.");
         return;
@@ -121,17 +121,50 @@ void HttpManager::verifyCard(String rfidCode) {
     HTTPClient http;
     String fullUrl = BACKEND_BASE_URL + "/verify/card";
     http.begin(fullUrl);
-    http.addHeader("Content-Type", "application/json");
+    http.setTimeout(HTTP_TIMEOUT);
 
-    String payload = "{\"rfid\":\"" + rfidCode + "\", \"gateId\":\"" + GATE_ID + "\"}";
+    String boundary = "----ESP32Boundary987654321";
+    http.addHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+    // Xây dựng body (String part)
+    String head = "--" + boundary + "\r\n";
+    head += "Content-Disposition: form-data; name=\"rfid\"\r\n\r\n";
+    head += rfidCode + "\r\n";
     
-    int httpCode = http.POST(payload);
+    head += "--" + boundary + "\r\n";
+    head += "Content-Disposition: form-data; name=\"gateId\"\r\n\r\n";
+    head += GATE_ID + "\r\n";
+
+    if (fb != nullptr && fb->len > 0) {
+        head += "--" + boundary + "\r\n";
+        head += "Content-Disposition: form-data; name=\"snapshot\"; filename=\"snapshot.jpg\"\r\n";
+        head += "Content-Type: image/jpeg\r\n\r\n";
+    }
+
+    String tail = "\r\n--" + boundary + "--\r\n";
+
+    size_t imageLen = (fb != nullptr) ? fb->len : 0;
+    size_t totalLen = head.length() + imageLen + tail.length();
+
+    uint8_t *body = (uint8_t*)ps_malloc(totalLen);
+    if (body == nullptr) {
+        Serial.println("[HTTP] Error: PSRAM malloc failed for verifyCard payload!");
+        http.end();
+        return;
+    }
+
+    memcpy(body, head.c_str(), head.length());
+    if (imageLen > 0) {
+        memcpy(body + head.length(), fb->buf, fb->len);
+    }
+    memcpy(body + head.length() + imageLen, tail.c_str(), tail.length());
+
+    int httpCode = http.sendRequest("POST", body, totalLen);
+    free(body);
     
     if (httpCode > 0) {
         String response = http.getString();
         Serial.println("[HTTP] Card Verify Response: " + response);
-        // Note: verifyCard API trả về status: PROCESSING, IoT không cần làm gì thêm ngay,
-        // Backend sẽ đẩy MQTT xuống cho phép mở Relay sau khi xử lý Idempotency và Policy.
     } else {
         Serial.printf("[HTTP] Failed to verify card. HTTP Code: %d\n", httpCode);
     }

@@ -1,8 +1,10 @@
-import { Box, Snackbar, Alert, Container, Typography, Button } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { Box, Container, Typography, Button } from '@mui/material';
+import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
+
+import { snackbar } from '@/utils/snackbar';
 
 import { useAuth } from './AuthContext';
 
@@ -11,13 +13,12 @@ export default function RequireAdmin() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const isAuthorized =
-    admin && ['ADMIN', 'STAFF'].includes(admin.role?.toUpperCase());
+
+  const isAuthorized = admin && ['ADMIN', 'STAFF'].includes(admin.role?.toUpperCase());
 
   useEffect(() => {
     if (admin && !isAuthorized) {
-      setOpenSnackbar(true);
+      snackbar.error('Bạn không có quyền truy cập trang quản trị!');
 
       const timer = setTimeout(() => {
         navigate('/', { replace: true });
@@ -59,16 +60,6 @@ export default function RequireAdmin() {
           </Button>
         </Container>
 
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={4000}
-          onClose={() => setOpenSnackbar(false)}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        >
-          <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
-            Bạn không có quyền truy cập trang quản trị!
-          </Alert>
-        </Snackbar>
       </Box>
     );
   }

@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.sdms.backend.modules.smartaccess.domain.enums.AccessDecision;
+import com.sdms.backend.modules.smartaccess.domain.enums.GateDirection;
 import com.sdms.backend.modules.smartaccess.domain.enums.VerificationMethod;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -56,6 +57,13 @@ public class AccessHistory {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "method", nullable = false, columnDefinition = "verification_method_enum")
     private VerificationMethod method;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "direction", length = 20)
+    private GateDirection direction = GateDirection.UNKNOWN;
+
+    @Column(name = "snapshot_url", columnDefinition = "TEXT")
+    private String snapshotUrl;
 
     // Explicitly avoids extending BaseEntity. Immutable.
     @Column(name = "created_at", nullable = false, updatable = false)

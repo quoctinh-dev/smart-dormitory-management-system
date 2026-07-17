@@ -15,20 +15,20 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecordUtilityRequest {
-    @NotNull(message = "Room ID is required")
+    @NotNull(message = "ID phòng là bắt buộc")
     private UUID roomId;
 
-    @Min(value = 1, message = "Month must be between 1 and 12")
-    @Max(value = 12, message = "Month must be between 1 and 12")
+    @Min(value = 1, message = "Tháng phải từ 1 đến 12")
+    @Max(value = 12, message = "Tháng phải từ 1 đến 12")
     private int month;
 
-    @Min(value = 2020, message = "Year must be valid")
+    @Min(value = 2020, message = "Năm không hợp lệ")
     private int year;
 
-    @Min(value = 0, message = "New reading must be non-negative")
+    @Min(value = 0, message = "Chỉ số mới không được âm")
     private int newReading;
 
     // Chỉ dùng cho lần đầu tiên chốt số của phòng
-    @Min(value = 0, message = "Old reading must be non-negative")
+    @Min(value = 0, message = "Chỉ số cũ không được âm")
     private Integer oldReading;
 }

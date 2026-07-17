@@ -9,35 +9,35 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 /**
- * Repository for {@link FaceVerificationAttempt} — an insert-only audit ledger.
+ * Repository cho {@link FaceVerificationAttempt} — một sổ cái kiểm toán chỉ-thêm.
  *
- * <p><b>APPEND-ONLY COMPLIANCE:</b> This interface intentionally extends
- * {@link Repository} (not {@code JpaRepository}) to expose ONLY {@code save()}
- * and read methods. Delete and update operations are structurally prohibited,
- * mirroring the pattern used by {@code AccessHistoryRepository}.
+ * <p><b>TUÂN THỦ CHỈ-THÊM:</b> Interface này cố tình kế thừa
+ * {@link Repository} (không phải {@code JpaRepository}) để CHỈ expose {@code save()}
+ * và các phương thức đọc. Các thao tác xóa và cập nhật bị cấm về mặt cấu trúc,
+ * phản ánh pattern được sử dụng bởi {@code AccessHistoryRepository}.
  *
- * <p>Every gate scan attempt must be persisted regardless of outcome.
- * Records must never be mutated or deleted. Data retention cleanup is
- * handled by a scheduled archival job — not by this repository.
+ * <p>Mọi lần quét cổng phải được lưu giữ bất kể kết quả.
+ * Bản ghi không bao giờ được phép thay đổi hoặc xóa. Dọn dẹp lưu trữ dữ liệu được
+ * xử lý bởi một cron job lưu trữ — không phải bởi repository này.
  */
 @Component
 public interface FaceVerificationAttemptRepository extends Repository<FaceVerificationAttempt, UUID> {
 
     /**
-     * Persists a new verification attempt record.
-     * The only write operation permitted on this ledger.
+     * Lưu giữ một bản ghi lần thử xác thực mới.
+     * Thao tác ghi duy nhất được phép trên sổ cái này.
      */
     FaceVerificationAttempt save(FaceVerificationAttempt attempt);
 
     /**
-     * Returns paginated verification attempts for a specific face profile.
-     * Use case: Admin audit view of all gate scans for a given student.
+     * Trả về các lần thử xác thực được phân trang cho một hồ sơ khuôn mặt cụ thể.
+     * Sử dụng: Chế độ xem kiểm toán của Admin về tất cả các lần quét cổng của một sinh viên.
      */
     Page<FaceVerificationAttempt> findByProfileId(UUID profileId, Pageable pageable);
 
     /**
-     * Returns paginated verification attempts for a specific physical gate device.
-     * Use case: Security investigation of a specific gate's activity log.
+     * Trả về các lần thử xác thực được phân trang cho một thiết bị cổng vật lý cụ thể.
+     * Sử dụng: Điều tra bảo mật log hoạt động của một cổng cụ thể.
      */
     Page<FaceVerificationAttempt> findByGateDeviceId(String gateDeviceId, Pageable pageable);
 }

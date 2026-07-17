@@ -1,4 +1,8 @@
-import { Visibility } from '@mui/icons-material';
+import {
+  Visibility,
+  Search as SearchIcon,
+  FilterList as FilterListIcon,
+} from '@mui/icons-material';
 import {
   Box,
   Typography,
@@ -12,8 +16,17 @@ import {
   Button,
   Chip,
   Alert,
+  TextField,
+  MenuItem,
+  Select,
+  InputAdornment,
+  Pagination,
+  Stack,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
@@ -34,10 +47,27 @@ const STATUS_MAPPING: Record<
 
 export default function ApplicationReviewQueue() {
   const navigate = useNavigate();
-  const { applications, loading, error } = useApplicationQueue();
+  const [page, setPage] = useState(0);
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  const { applications, totalPages, loading, error } = useApplicationQueue(
+    page,
+    10,
+    statusFilter === 'ALL' ? null : statusFilter,
+    debouncedSearch
+  );
 
   const handleViewDetails = (applicationId: string) => () => {
     navigate(`/admin/applications/${applicationId}/review`);
+  };
+
+  const handleSearchKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      setDebouncedSearch(searchTerm);
+      setPage(0);
+    }
   };
 
   return (
@@ -46,11 +76,63 @@ export default function ApplicationReviewQueue() {
         Duyệt Hồ Sơ Lưu Trú
       </Typography>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-          {error}
-        </Alert>
-      )}
+
+      {/* FILTER BAR */}
+      <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 3 }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
+          <TextField
+            fullWidth
+            placeholder="Tìm kiếm theo Tên, CCCD, Mã Đơn..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchKeyPress}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            size="small"
+          />
+          <FormControl size="small" sx={{ minWidth: 200 }}>
+            <InputLabel id="status-filter-label">Trạng thái</InputLabel>
+            <Select
+              labelId="status-filter-label"
+              value={statusFilter}
+              label="Trạng thái"
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(0);
+              }}
+              startAdornment={
+                <InputAdornment position="start">
+                  <FilterListIcon fontSize="small" />
+                </InputAdornment>
+              }
+            >
+              <MenuItem value="ALL">Tất cả</MenuItem>
+              {Object.entries(STATUS_MAPPING).map(([key, value]) => (
+                <MenuItem key={key} value={key}>
+                  {value.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setDebouncedSearch(searchTerm);
+              setPage(0);
+            }}
+            sx={{ whiteSpace: 'nowrap' }}
+          >
+            Tìm kiếm
+          </Button>
+        </Stack>
+      </Paper>
 
       <TableContainer
         component={Paper}
@@ -64,7 +146,9 @@ export default function ApplicationReviewQueue() {
         <Table>
           <TableHead>
             <TableRow sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04) }}>
+              <TableCell sx={{ fontWeight: 'bold' }}>Mã Đơn</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Họ và tên</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>MSSV</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>CCCD / CMND</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Ngày sinh</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
@@ -76,18 +160,18 @@ export default function ApplicationReviewQueue() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} sx={{ p: 4 }}>
+                <TableCell colSpan={6} sx={{ p: 4 }}>
                   <CustomSkeleton type="list" count={4} />
                 </TableCell>
               </TableRow>
             ) : applications.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   align="center"
                   sx={{ py: 6, color: 'text.secondary', fontStyle: 'italic' }}
                 >
-                  Hiện tại không có hồ sơ đăng ký nào trong hàng đợi kiểm duyệt.
+                  Không tìm thấy hồ sơ đăng ký nào phù hợp.
                 </TableCell>
               </TableRow>
             ) : (
@@ -103,7 +187,11 @@ export default function ApplicationReviewQueue() {
                     hover
                     sx={{ '&:last-child cell': { border: 0 } }}
                   >
+                    <TableCell sx={{ fontWeight: 500, color: 'primary.main' }}>
+                      {app.applicationCode || '---'}
+                    </TableCell>
                     <TableCell sx={{ fontWeight: 500 }}>{app.fullName}</TableCell>
+                    <TableCell>{app.studentCode || '-'}</TableCell>
                     <TableCell>{app.cccd}</TableCell>
                     <TableCell>{app.dob || 'Chưa cập nhật'}</TableCell>
                     <TableCell>
@@ -133,6 +221,19 @@ export default function ApplicationReviewQueue() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* PAGINATION */}
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <Pagination
+            count={totalPages}
+            page={page + 1}
+            onChange={(_, newPage) => setPage(newPage - 1)}
+            color="primary"
+            shape="rounded"
+          />
+        </Box>
+      )}
     </Box>
   );
 }

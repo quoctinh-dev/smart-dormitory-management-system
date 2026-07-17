@@ -53,8 +53,8 @@ public class AuthService {
      */
     @Transactional
     public AuthResponse activate(ActivateAccountRequest request) {
-        // 1. Tìm kiếm tài khoản bằng Email và khóa dòng dữ liệu PESSIMISTIC_WRITE để tránh Double Activation
-        UserAccount account = userAccountRepository.findByEmailForUpdate(request.getEmail().trim())
+        // 1. Tìm kiếm tài khoản bằng Mã sinh viên (username) và khóa dòng dữ liệu PESSIMISTIC_WRITE để tránh Double Activation
+        UserAccount account = userAccountRepository.findByUsernameForUpdate(request.getStudentCode().trim())
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS, "Tài khoản không tồn tại trên hệ thống"));
 
         // 2. Chỉ cho phép các tài khoản có trạng thái PENDING_ACTIVATION được thực hiện kích hoạt
@@ -106,7 +106,7 @@ public class AuthService {
             throw new AppException(ErrorCode.ACCOUNT_LOCKED);
         }
 
-        // --- TÍNH NĂNG CHỐNG BRUTE-FORCE ---
+        // Kiểm tra số lần đăng nhập thất bại và thời gian khóa tài khoản
         if (account.getLockTime() != null) {
             if (account.getLockTime().isAfter(LocalDateTime.now())) {
                 throw new AppException(ErrorCode.ACCOUNT_LOCKED, "Tài khoản bị khóa tạm thời do sai mật khẩu quá nhiều lần. Vui lòng thử lại sau.");
@@ -128,7 +128,7 @@ public class AuthService {
             throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
 
-        // Reset if success
+        // Reset số lần đăng nhập thất bại và thời gian khóa khi đăng nhập thành công
         account.setFailedLoginAttempts(0);
         account.setLockTime(null);
 
@@ -183,7 +183,7 @@ public class AuthService {
         }
 
         account.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        revokeTokens(account); // Buộc đăng nhập lại trên tất cả thiết bị
+        revokeTokens(account); // Thu hồi toàn bộ session hiện tại (buộc người dùng phải đăng nhập lại)
         userAccountRepository.save(account);
     }
 

@@ -1,9 +1,13 @@
 package com.sdms.backend.modules.room.controller;
 
+import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
+import com.sdms.backend.common.response.ApiResponse;
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import com.sdms.backend.modules.system.service.SystemConfigService;
-import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,16 +26,18 @@ import java.util.UUID;
 @RequestMapping("/api/v1/student/assignments")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('STUDENT')")
+@Tag(name = "Hạn chót đóng tiền phòng (Countdown)", description = "API xem đếm ngược thời gian giữ chỗ của sinh viên")
 public class StudentAssignmentCountdownController {
     private final StudentHousingAssignmentRepository assignmentRepository;
     private final SystemConfigService systemConfigService;
     
+    @Operation(summary = "Lấy đếm ngược thanh toán")
     @GetMapping("/countdown")
     @Cacheable(value = "assignmentCountdown", key = "#assignmentId")
-    public ResponseEntity<Map<String, Object>> getCountdown(@RequestParam UUID assignmentId) {
+    public ApiResponse<Map<String, Object>> getCountdown(@RequestParam UUID assignmentId) {
         StudentHousingAssignment assignment = assignmentRepository.findById(assignmentId).orElse(null);
         if (assignment == null || assignment.getReservedAt() == null) {
-            return ResponseEntity.notFound().build();
+            throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hợp đồng lưu trú hoặc thời gian đặt phòng.");
         }
         
         int deadlineDays = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_DEADLINE_DAYS", "3"));
@@ -50,6 +56,6 @@ public class StudentAssignmentCountdownController {
             response.put("message", "Vui lòng thanh toán trước hạn chót.");
         }
         
-        return ResponseEntity.ok(response);
+        return ApiResponse.success("Lấy đếm ngược thành công", response);
     }
 }

@@ -22,7 +22,6 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Snackbar,
   Alert,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
@@ -42,7 +41,6 @@ export default function ApplicationReviewDetail() {
     dialogs,
     notes,
     deadlineDays,
-    snackbar,
     setDeadlineDays,
     toggleDialog,
     handleNoteChange,
@@ -51,7 +49,6 @@ export default function ApplicationReviewDetail() {
     handleRequestRevision,
     handleVerifyDocument,
     handleInvalidDocSubmit,
-    closeSnackbar,
   } = useApplicationReview(id, navigate);
 
   if (loading)
@@ -127,6 +124,9 @@ export default function ApplicationReviewDetail() {
                 <ListItemText primary="Họ tên" secondary={app.fullName} />
               </ListItem>
               <ListItem disableGutters>
+                <ListItemText primary="MSSV" secondary={app.studentCode || 'Không có'} />
+              </ListItem>
+              <ListItem disableGutters>
                 <ListItemText primary="CCCD" secondary={app.cccd} />
               </ListItem>
               <ListItem disableGutters>
@@ -162,6 +162,36 @@ export default function ApplicationReviewDetail() {
               </ListItem>
             </List>
           </Paper>
+
+          {/* HIỂN THỊ PHÂN PHÒNG DỰ KIẾN (AUTO-ASSIGNED TỪ HỆ THỐNG) */}
+          {app.assignment && (
+            <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, mt: 3, bgcolor: 'primary.50' }}>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: 'primary.main' }}>
+                Xếp Phòng Dự Kiến
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ mb: 2, fontStyle: 'italic', color: 'text.secondary' }}
+              >
+                Hệ thống đã tự động xếp chỗ (giữ giường tạm thời) khi sinh viên nộp đơn. Vị trí này
+                sẽ được chốt chính thức sau khi bạn bấm Duyệt.
+              </Typography>
+              <List dense sx={{ p: 0 }}>
+                <ListItem disableGutters>
+                  <ListItemText primary="Tòa nhà" secondary={app.assignment.buildingName} />
+                </ListItem>
+                <ListItem disableGutters>
+                  <ListItemText primary="Tầng" secondary={`Tầng ${app.assignment.floorName}`} />
+                </ListItem>
+                <ListItem disableGutters>
+                  <ListItemText primary="Phòng" secondary={app.assignment.roomName} />
+                </ListItem>
+                <ListItem disableGutters>
+                  <ListItemText primary="Giường" secondary={app.assignment.bedName} />
+                </ListItem>
+              </List>
+            </Paper>
+          )}
         </Grid>
 
         <Grid size={{ xs: 12, md: 8 }}>
@@ -185,7 +215,7 @@ export default function ApplicationReviewDetail() {
                       <DocumentPreview
                         url={app.registrationFormPdfUrl}
                         title="Phiếu Đăng Ký (PDF)"
-                        height={420}
+                        
                       />
                     )}
 
@@ -193,7 +223,7 @@ export default function ApplicationReviewDetail() {
                       <DocumentPreview
                         url={app.commitmentFormPdfUrl}
                         title="Bản Cam Kết (PDF)"
-                        height={420}
+                        
                       />
                     )}
                   </Box>
@@ -240,7 +270,7 @@ export default function ApplicationReviewDetail() {
                               <DocumentPreview
                                 url={doc.fileUrl}
                                 title={doc.documentType}
-                                height={240}
+                                
                                 compact
                               />
                             </Box>
@@ -406,21 +436,6 @@ export default function ApplicationReviewDetail() {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: '100%', borderRadius: 2 }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

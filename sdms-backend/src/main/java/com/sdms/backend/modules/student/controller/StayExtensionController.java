@@ -6,43 +6,39 @@ import com.sdms.backend.modules.student.dto.response.StayExtensionResponse;
 import com.sdms.backend.modules.student.service.StayExtensionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import com.sdms.backend.modules.student.dto.request.StayExtensionReviewRequest;
-import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/students/extensions")
 @RequiredArgsConstructor
+@Tag(name = "Student Stay Extension", description = "API quản lý đơn xin gia hạn lưu trú (dành cho Sinh viên)")
 public class StayExtensionController {
 
     private final StayExtensionService stayExtensionService;
 
+    @Operation(summary = "Nộp đơn gia hạn lưu trú", description = "Sinh viên nộp đơn xin gia hạn thêm thời gian ở ký túc xá")
     @PostMapping
-    public ResponseEntity<ApiResponse<StayExtensionResponse>> submitExtension(
+    public ApiResponse<StayExtensionResponse> submitExtension(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody StayExtensionRequest request) {
 
         String studentCode = userDetails.getUsername(); // Username của User sinh viên là studentCode
         StayExtensionResponse response = stayExtensionService.submitExtension(studentCode, request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.success("Đã nộp đơn gia hạn lưu trú thành công", response)
-        );
+        return ApiResponse.success("Đã nộp đơn gia hạn lưu trú thành công", response);
     }
 
+    @Operation(summary = "Lấy thông tin đơn gia hạn", description = "Sinh viên xem lại trạng thái đơn xin gia hạn lưu trú của mình")
     @GetMapping("/my-application")
-    public ResponseEntity<ApiResponse<StayExtensionResponse>> getMyExtension(
+    public ApiResponse<StayExtensionResponse> getMyExtension(
             @AuthenticationPrincipal UserDetails userDetails) {
         
         String studentCode = userDetails.getUsername();
         StayExtensionResponse response = stayExtensionService.getMyExtension(studentCode);
 
-        return ResponseEntity.ok(
-                ApiResponse.success("Lấy thông tin đơn gia hạn thành công", response)
-        );
+        return ApiResponse.success("Lấy thông tin đơn gia hạn thành công", response);
     }
 }

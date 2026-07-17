@@ -11,14 +11,14 @@ import java.util.UUID;
 @Setter
 public class CashPaymentRequest {
 
-    @NotNull(message = "Bill id is required")
+    @NotNull(message = "ID hóa đơn là bắt buộc")
     private UUID billId;
 
-    @NotNull(message = "Amount is required")
+    @NotNull(message = "Số tiền là bắt buộc")
     @DecimalMin(
             value = "0.0",
             inclusive = false,
-            message = "Amount must be greater than 0"
+            message = "Số tiền phải lớn hơn 0"
     )
     private BigDecimal amount;
 }

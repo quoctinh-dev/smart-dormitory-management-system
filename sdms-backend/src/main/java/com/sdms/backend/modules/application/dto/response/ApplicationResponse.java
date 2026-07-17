@@ -17,10 +17,12 @@ public class ApplicationResponse {
     private String applicationCode;
     private String fullName;
     private String cccd;
+    private String studentCode;
     private String email;
     private String phone;
     private String dob;
     private String gender;
+    private String cohort;
     private String permanentAddress;
     private String contactAddress;
     private List<String> priorityCategories;

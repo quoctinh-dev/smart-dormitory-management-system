@@ -1,4 +1,5 @@
 import axiosClient from './axiosClient';
+import type { PageResponse } from './notificationApi';
 
 const CHECKIN_PREFIX = '/v1/admin/check-in';
 
@@ -15,8 +16,29 @@ export interface CheckInSearchResponse {
   bedName: string;
 }
 
+export interface HousingAssignmentDto {
+  assignmentId: string;
+  status: string; // 'PENDING_CHECKIN' | 'OCCUPIED'
+  checkInAt?: string;
+  student: {
+    studentCode: string;
+    fullName: string;
+    cccd?: string;
+  };
+  buildingName: string;
+  roomCode: string;
+  bedCode: string;
+}
+
+export interface HousingAssignmentListParams {
+  page?: number;
+  size?: number;
+  search?: string;
+  status?: string;
+}
+
 const checkInApi = {
-  getList(params?: any): Promise<any> {
+  getList(params?: HousingAssignmentListParams): Promise<PageResponse<HousingAssignmentDto>> {
     return axiosClient.get(`/v1/admin/housing-assignments`, { params });
   },
 

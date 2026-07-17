@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.application.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.application.entity.DormitoryApplicationStatusHistory;
 import com.sdms.backend.modules.application.entity.VerificationDocument;
@@ -41,6 +42,7 @@ public class ApplicationReviewService {
     private final com.sdms.backend.modules.payment.service.PaymentService paymentService;
     private final com.sdms.backend.modules.room.service.HousingAssignmentService housingAssignmentService;
     private final SystemConfigService systemConfigService;
+    private final ApplicationPdfService pdfService;
 
     @Transactional
     public void startReview(UUID applicationId, UUID adminUserId) {
@@ -48,7 +50,7 @@ public class ApplicationReviewService {
         DormitoryApplication application = findApplicationOrThrow(applicationId);
 
         if (application.getStatus() != ApplicationStatus.PENDING) {
-            throw new AppException("Chỉ có thể chuyển sang xét duyệt đối với đơn ở trạng thái PENDING", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ có thể chuyển sang xét duyệt đối với đơn ở trạng thái PENDING");
         }
 
         updateStatusAndSaveHistory(application, ApplicationStatus.UNDER_REVIEW, adminUserId, "Bắt đầu xét duyệt hồ sơ");
@@ -58,11 +60,11 @@ public class ApplicationReviewService {
     public void verifyDocument(UUID documentId, VerificationStatus status, String note, UUID adminUserId) {
         log.info("Verifying document={} status={} by admin={}", documentId, status, adminUserId);
         VerificationDocument doc = documentRepository.findById(documentId)
-                .orElseThrow(() -> new AppException("Tài liệu không tồn tại", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Tài liệu không tồn tại"));
 
         DormitoryApplication application = doc.getApplication();
         if (application.getStatus() != ApplicationStatus.PENDING && application.getStatus() != ApplicationStatus.UNDER_REVIEW) {
-            throw new AppException("Hồ sơ đã hoàn thành xử lý, không thể thay đổi trạng thái tài liệu", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Hồ sơ đã hoàn thành xử lý, không thể thay đổi trạng thái tài liệu");
         }
 
         doc.setStatus(status);
@@ -84,7 +86,7 @@ public class ApplicationReviewService {
             application.getStatus() != ApplicationStatus.UNDER_REVIEW && 
             application.getStatus() != ApplicationStatus.REQUEST_REVISION &&
             application.getStatus() != ApplicationStatus.WAITING_LIST) {
-            throw new AppException("Hồ sơ đã được xử lý xong, không thể từ chối", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Hồ sơ đã được xử lý xong, không thể từ chối");
         }
 
         application.setReviewedByUserId(adminUserId);
@@ -116,7 +118,7 @@ public class ApplicationReviewService {
         DormitoryApplication application = findApplicationOrThrow(applicationId);
 
         if (application.getStatus() != ApplicationStatus.PENDING && application.getStatus() != ApplicationStatus.UNDER_REVIEW) {
-            throw new AppException("Hồ sơ đã được xử lý xong, không thể phê duyệt lại", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Hồ sơ đã được xử lý xong, không thể phê duyệt lại");
         }
 
         // Tự động duyệt các tài liệu còn lại là VALID
@@ -138,11 +140,16 @@ public class ApplicationReviewService {
         // Cập nhật trạng thái đơn sang WAITING_PAYMENT và lưu lịch sử
         updateStatusAndSaveHistory(application, ApplicationStatus.WAITING_PAYMENT, adminUserId, note);
 
+        // Ghi đè file PDF Đăng ký để hiển thị chữ ký/xét duyệt của Admin
+        String newRegistrationPdf = pdfService.generateAndUploadRegistrationFormPdf(application);
+        application.setRegistrationFormPdfUrl(newRegistrationPdf);
+        applicationRepository.save(application);
+
         // 🌟 1. TRUY VẤN LẤY ASSIGNMENT ID ĐÃ ĐƯỢC TẠO DỰ KIẾN TỪ BƯỚC PENDING
         // Tìm bản ghi gán phòng đang ở trạng thái RESERVED hoặc PENDING của đơn này
         var assignment = assignmentRepository.findByApplication_ApplicationId(application.getApplicationId())
                 .stream().findFirst()
-                .orElseThrow(() -> new AppException("Không tìm thấy thông tin xếp phòng dự kiến từ bước nộp đơn", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy thông tin xếp phòng dự kiến từ bước nộp đơn"));
 
         // Tự động gán Hạn lưu trú từ Đợt đăng ký vào Assignment của Tân Sinh Viên
         assignment.setExpectedCheckOutAt(application.getRegistrationPeriod().getStayEndDate());
@@ -190,14 +197,14 @@ public class ApplicationReviewService {
         DormitoryApplication application = findApplicationOrThrow(applicationId);
 
         if (application.getStatus() != ApplicationStatus.PENDING && application.getStatus() != ApplicationStatus.UNDER_REVIEW) {
-            throw new AppException("Chỉ có thể yêu cầu bổ sung khi hồ sơ đang chờ duyệt", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ có thể yêu cầu bổ sung khi hồ sơ đang chờ duyệt");
         }
 
         List<VerificationDocument> invalidDocs = documentRepository.findByApplication_ApplicationId(applicationId)
                 .stream().filter(d -> d.getStatus() == VerificationStatus.INVALID).toList();
 
         if (invalidDocs.isEmpty()) {
-            throw new AppException("Phải đánh dấu ít nhất 1 tài liệu là Không hợp lệ (INVALID) để yêu cầu bổ sung", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Phải đánh dấu ít nhất 1 tài liệu là Không hợp lệ (INVALID) để yêu cầu bổ sung");
         }
 
         application.setReviewedByUserId(adminUserId);
@@ -211,7 +218,7 @@ public class ApplicationReviewService {
 
     private DormitoryApplication findApplicationOrThrow(UUID applicationId) {
         return applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Application not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Hồ sơ không tồn tại"));
     }
 
     private void updateStatusAndSaveHistory(DormitoryApplication application, ApplicationStatus newStatus, UUID userId, String note) {

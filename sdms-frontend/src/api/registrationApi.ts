@@ -118,13 +118,25 @@ export const adminRegistrationApi = {
 // =========================================================================
 export const studentRegistrationApi = {
   /**
-   * Kiểm tra điều kiện tham gia đăng ký ký túc xá của sinh viên
+   * Yêu cầu gửi mã OTP để xác thực Email trước khi đăng ký
+   * Backend: POST /api/v1/registrations/request-otp
+   * @param {Object} data - SendOtpRequest
+   * @param {string} data.email - Email của sinh viên
+   * @returns {Promise<ApiResponse>} data: null
+   */
+  requestOtp: async (data: { email: string }) => {
+    return await axiosClient.post(`${STUDENT_PREFIX}/request-otp`, data);
+  },
+
+  /**
+   * Kiểm tra điều kiện tham gia đăng ký ký túc xá của sinh viên (Kèm xác thực OTP)
    * Backend: POST /api/v1/registrations/check-eligibility
    * @param {Object} data - CheckEligibilityRequest
-   * @param {string} data.cccd - Số Căn cước công dân của sinh viên
+   * @param {string} data.email - Email của sinh viên
+   * @param {string} data.otp - Mã OTP gửi về email
    * @returns {Promise<ApiResponse>} CheckEligibilityResponse (Gồm eligible, periodId, target, fullName, message...)
    */
-  checkEligibility: async (data) => {
+  checkEligibility: async (data: { email: string; otp: string }) => {
     return await axiosClient.post(`${STUDENT_PREFIX}/check-eligibility`, data);
   },
 };

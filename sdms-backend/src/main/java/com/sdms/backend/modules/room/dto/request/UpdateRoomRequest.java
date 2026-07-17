@@ -14,8 +14,8 @@ import lombok.Setter;
 @Setter
 public class UpdateRoomRequest {
 
-    @Min(value = 1, message = "Capacity must be at least 1")
-    @Max(value = 20, message = "Capacity must not exceed 20")
+    @Min(value = 1, message = "Sức chứa tối thiểu là 1")
+    @Max(value = 20, message = "Sức chứa tối đa là 20")
     private Integer capacity;
 
     private RoomStatus status;

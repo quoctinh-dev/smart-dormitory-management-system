@@ -1,20 +1,20 @@
 package com.sdms.backend.modules.face.enums;
 
 /**
- * Lifecycle states for a FaceProfile aggregate root.
+ * Các trạng thái vòng đời cho root aggregate FaceProfile.
  *
- * <p>Valid state machine transitions:
+ * <p>Các trạng thái chuyển đổi hợp lệ:
  * <pre>
- *   [Student Upload]  → PENDING
- *   PENDING           → APPROVED    (Admin approves)
- *   PENDING           → REJECTED    (Admin rejects)
- *   APPROVED          → REVOKED     (Admin revokes)
- *   REJECTED          → PENDING     (Student re-uploads)
- *   REVOKED           → PENDING     (Student re-uploads)
+ *   [Sinh viên Upload] → CHỜ DUYỆT
+ *   CHỜ DUYỆT          → ĐÃ DUYỆT    (Admin duyệt)
+ *   CHỜ DUYỆT          → BỊ TỪ CHỐI  (Admin từ chối)
+ *   ĐÃ DUYỆT           → BỊ THU HỒI  (Admin thu hồi)
+ *   BỊ TỪ CHỐI         → CHỜ DUYỆT   (Sinh viên upload lại)
+ *   BỊ THU HỒI         → CHỜ DUYỆT   (Sinh viên upload lại)
  * </pre>
  *
- * <p>NOT_REGISTERED is intentionally excluded:
- * absence of a FaceProfile record represents the unregistered state.
+ * <p>NOT_REGISTERED bị cố tình loại trừ:
+ * sự vắng mặt của bản ghi FaceProfile đại diện cho trạng thái chưa đăng ký.
  */
 public enum FaceProfileStatus {
     PENDING,

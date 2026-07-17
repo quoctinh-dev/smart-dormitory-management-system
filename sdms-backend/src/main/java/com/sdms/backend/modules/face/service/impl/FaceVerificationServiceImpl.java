@@ -35,8 +35,8 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
     private final ApplicationEventPublisher eventPublisher;
     private final com.sdms.backend.modules.face.port.AiExtractionPort aiExtractionPort;
 
-    // AI Cosine Similarity Threshold (Governance constraint)
-    // Distance = 1.0 - Similarity. Configurable via application.yml
+    // Ngưỡng Cosine Similarity AI (Ràng buộc quản trị)
+    // Khoảng cách = 1.0 - Độ tương đồng. Có thể cấu hình qua application.yml
     @org.springframework.beans.factory.annotation.Value("${sdms.face.verification.threshold:0.2}")
     private double matchDistanceThreshold;
 
@@ -113,7 +113,7 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
 
         attempt = attemptRepository.save(attempt);
         
-        // No event is fired on FAIL, minimizing internal bus traffic.
+        // Không phát sự kiện khi THẤT BẠI, giảm thiểu lưu lượng bus nội bộ.
         return new com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse(false, profileId, confidenceScore, attempt.getAttemptId());
     }
 

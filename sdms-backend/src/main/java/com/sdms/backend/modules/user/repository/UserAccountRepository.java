@@ -30,11 +30,14 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, UUID> 
 
     Optional<UserAccount> findByResetPasswordToken(String token);
 
-    Optional<UserAccount> findByStudent_StudentId(UUID studentId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT u FROM UserAccount u WHERE u.email = :email")
     Optional<UserAccount> findByEmailForUpdate(@Param("email") String email);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT u FROM UserAccount u WHERE u.username = :username")
+    Optional<UserAccount> findByUsernameForUpdate(@Param("username") String username);
 
     List<UserAccount> findByRole(Role role);
 

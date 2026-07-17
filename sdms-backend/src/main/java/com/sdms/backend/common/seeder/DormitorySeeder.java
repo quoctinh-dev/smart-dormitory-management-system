@@ -23,8 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 /**
- * Seeder for Dormitory Infrastructure and Smart Access Gates.
- * Executed after DatabaseSeeder.
+ * Trình khởi tạo dữ liệu mồi (Seeder) cho hạ tầng Ký túc xá (Tòa nhà, Tầng, Phòng, Giường).
+ * Đảm bảo hệ thống luôn có sẵn cấu trúc dữ liệu nền tảng, hỗ trợ quá trình kiểm thử
+ * và phát triển ban đầu mà không đòi hỏi thao tác nhập liệu thủ công.
  */
 @Component
 @Order(2)
@@ -47,7 +48,7 @@ public class DormitorySeeder implements CommandLineRunner {
 
         log.info("Starting Dormitory Infrastructure Seeding...");
 
-        // 1. Create Building A
+        // 1. Khởi tạo dữ liệu Tòa nhà A
         Building building = new Building();
         building.setCode("A");
         building.setName("Tòa nhà A - KTX");
@@ -56,7 +57,7 @@ public class DormitorySeeder implements CommandLineRunner {
         building.setGender(BuildingGender.MIXED);
         building = buildingRepository.save(building);
 
-        // 2. Create Floors (1 Male, 2 Female)
+        // 2. Khởi tạo danh sách Tầng (1 Tầng Nam, 1 Tầng Nữ)
         Floor floor1 = new Floor();
         floor1.setFloorNumber(1);
         floor1.setGender(Gender.MALE);
@@ -69,7 +70,7 @@ public class DormitorySeeder implements CommandLineRunner {
         floor2.setBuilding(building);
         floor2 = floorRepository.save(floor2);
 
-        // 3. Create Rooms and Beds
+        // 3. Khởi tạo danh sách Phòng và Giường tương ứng cho từng Tầng
         Room room101 = null;
         for (int i = 1; i <= 10; i++) {
             Room room = createRoom(floor1, 100 + i, 4);
@@ -80,8 +81,8 @@ public class DormitorySeeder implements CommandLineRunner {
         }
 
         log.info("Dormitory Infrastructure Seeded Successfully!");
-        // Note: Smart Access Gates should now be managed via the Frontend Admin UI (CRUD)
-        // rather than hardcoding them here.
+        // Lưu ý: Dữ liệu thiết bị Smart Access Gate phải được quản lý động qua giao diện Admin CRUD,
+        // không được mã hóa cứng (hardcode) tại Seeder này.
     }
 
     private Room createRoom(Floor floor, int number, int capacity) {

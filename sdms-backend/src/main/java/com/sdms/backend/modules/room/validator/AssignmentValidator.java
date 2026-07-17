@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.validator;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
@@ -40,10 +41,7 @@ public class AssignmentValidator {
 
         boolean exists = assignmentRepository.existsByStudent_StudentIdAndStatusIn(studentId, ACTIVE_STATUSES);
         if (exists) {
-            throw new AppException(
-                    "Operation rejected. Student already possesses an active housing reservation or occupancy.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Operation rejected. Student already possesses an active housing reservation or occupancy.");
         }
     }
 
@@ -54,10 +52,7 @@ public class AssignmentValidator {
     public void validateBedIsAvailable(UUID bedId) {
         boolean exists = assignmentRepository.existsByBed_BedIdAndStatusIn(bedId, ACTIVE_STATUSES);
         if (exists) {
-            throw new AppException(
-                    "Infrastructure conflict. The selected bed currently has an active reservation or is occupied.",
-                    HttpStatus.CONFLICT
-            );
+            throw new AppException(ErrorCode.DATA_CONFLICT, "Infrastructure conflict. The selected bed currently has an active reservation or is occupied.");
         }
     }
 
@@ -67,10 +62,7 @@ public class AssignmentValidator {
      */
     public void validateCheckIn(StudentHousingAssignment assignment) {
         if (assignment.getStatus() != AssignmentStatus.PENDING_CHECKIN) {
-            throw new AppException(
-                    "Lifecycle error. Only assignments with 'PENDING_CHECKIN' status (Payment Success) are eligible for Check-In.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Lifecycle error. Only assignments with 'PENDING_CHECKIN' status (Payment Success) are eligible for Check-In.");
         }
     }
 
@@ -80,10 +72,7 @@ public class AssignmentValidator {
      */
     public void validateCheckOut(StudentHousingAssignment assignment) {
         if (assignment.getStatus() != AssignmentStatus.OCCUPIED) {
-            throw new AppException(
-                    "Lifecycle error. Only 'OCCUPIED' active residents can perform a Check-Out operation.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Lifecycle error. Only 'OCCUPIED' active residents can perform a Check-Out operation.");
         }
     }
 
@@ -93,10 +82,7 @@ public class AssignmentValidator {
      */
     public void validateCancelAssignment(StudentHousingAssignment assignment) {
         if (assignment.getStatus() != AssignmentStatus.RESERVED) {
-            throw new AppException(
-                    "Lifecycle error. Cannot cancel assignment. Current status is not 'RESERVED'.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Lifecycle error. Cannot cancel assignment. Current status is not 'RESERVED'.");
         }
     }
 
@@ -106,17 +92,14 @@ public class AssignmentValidator {
      */
     public void validateReservationExpired(StudentHousingAssignment assignment) {
         if (assignment.getStatus() != AssignmentStatus.RESERVED) {
-            throw new AppException("Only reserved assignments can expire.", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ có quyết định xếp phòng đang giữ chỗ mới có thể hết hạn.");
         }
 
         int deadlineDays = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_DEADLINE_DAYS", "3"));
 
         // Kiểm tra khung thời gian cấu hình hệ thống
         if (LocalDateTime.now().isBefore(assignment.getReservedAt().plusDays(deadlineDays))) {
-            throw new AppException(
-                    "Operational restriction. The " + deadlineDays + "-day payment window for this reservation has not expired yet.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Operational restriction. The " + deadlineDays + "-day payment window for this reservation has not expired yet.");
         }
 
         // Nhằm tránh việc hủy nhầm hồ sơ đã thanh toán thành công nhưng chưa kích hoạt webhook.
@@ -128,10 +111,7 @@ public class AssignmentValidator {
      */
     public void validateLinkStudent(StudentHousingAssignment assignment) {
         if (assignment.getStudent() != null) {
-            throw new AppException(
-                    "Security violation. This assignment is already strictly linked to a resident student and cannot change ownership.",
-                    HttpStatus.BAD_REQUEST
-            );
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Security violation. This assignment is already strictly linked to a resident student and cannot change ownership.");
         }
     }
 }

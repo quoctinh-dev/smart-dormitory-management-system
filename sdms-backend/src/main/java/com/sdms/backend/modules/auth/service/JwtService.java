@@ -31,12 +31,12 @@ public class JwtService {
      */
     public String generateAccessToken(UserAccount account) {
         return Jwts.builder()
-                .subject(account.getUsername()) // Lưu username làm định danh chính
-                .claim("accountId", account.getAccountId().toString()) // Đính kèm ID tài khoản
-                .claim("role", account.getRole().name()) // Đính kèm vai trò (ADMIN/STUDENT...)
-                .issuedAt(new Date()) // Thời điểm tạo
-                .expiration(new Date(System.currentTimeMillis() + jwtConfig.getAccessExpiration())) // Thời hạn
-                .signWith(getAccessSigningKey()) // Ký bằng key riêng cho AccessToken
+                .subject(account.getUsername())
+                .claim("accountId", account.getAccountId().toString())
+                .claim("role", account.getRole().name())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtConfig.getAccessExpiration()))
+                .signWith(getAccessSigningKey())
                 .compact();
     }
 
@@ -49,7 +49,7 @@ public class JwtService {
                 .subject(account.getUsername())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtConfig.getRefreshExpiration()))
-                .signWith(getRefreshSigningKey()) // Ký bằng key riêng cho RefreshToken
+                .signWith(getRefreshSigningKey())
                 .compact();
     }
 
@@ -62,8 +62,8 @@ public class JwtService {
                 .subject(email)
                 .claim("userId", userId.toString())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 300000)) // 5 phút hạn sử dụng cho activation token
-                .signWith(getAccessSigningKey()) // Có thể dùng chung key với Access Token hoặc tạo key riêng
+                .expiration(new Date(System.currentTimeMillis() + 300000))
+                .signWith(getAccessSigningKey())
                 .compact();
     }
 

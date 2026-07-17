@@ -1,4 +1,12 @@
-export type ApplicationStatus = 'PENDING' | 'UNDER_REVIEW' | 'REQUEST_REVISION' | 'WAITING_PAYMENT' | 'APPROVED' | 'REJECTED' | 'WAITING_LIST' | 'EXPIRED';
+export type ApplicationStatus =
+  | 'PENDING'
+  | 'UNDER_REVIEW'
+  | 'REQUEST_REVISION'
+  | 'WAITING_PAYMENT'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'WAITING_LIST'
+  | 'EXPIRED';
 export type DocumentStatus = 'PENDING' | 'VALID' | 'INVALID';
 
 export interface DocumentResponse {
@@ -20,12 +28,14 @@ export interface AssignmentInfo {
 export interface ApplicationResponse {
   applicationId: string;
   applicationCode: string;
+  studentCode: string;
   fullName: string;
   cccd: string;
   email: string;
   phone: string;
   dob: string;
   gender: string;
+  cohort?: string;
   permanentAddress: string;
   contactAddress: string;
   priorityCategories: string[];
@@ -42,12 +52,14 @@ export interface ApplicationResponse {
 
 export interface ApplicationCreateRequest {
   periodId: string;
+  studentCode: string;
   fullName: string;
   dob: string;
   gender: string;
   cccd: string;
   email: string;
   phone: string;
+  cohort?: string;
   permanentAddress: string;
   contactAddress: string;
   issueDate?: string | null;
@@ -64,6 +76,14 @@ export interface ApplicationCreateRequest {
   motherYob?: number | null;
   motherJob: string;
   motherPhone: string;
-  familyContact: string;
   priorityCategories: string[];
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  isLast: boolean;
 }

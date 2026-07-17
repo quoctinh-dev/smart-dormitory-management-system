@@ -15,15 +15,15 @@ import java.util.UUID;
 @Setter
 public class CreateRoomRequest {
 
-    @NotNull(message = "Floor ID is required")
+    @NotNull(message = "ID tầng là bắt buộc")
     private UUID floorId;
 
-    @NotBlank(message = "Room code is required")
-    @Size(max = 30, message = "Room code must not exceed 30 characters")
+    @NotBlank(message = "Mã phòng là bắt buộc")
+    @Size(max = 30, message = "Mã phòng không được vượt quá 30 ký tự")
     private String roomCode;
 
-    @NotNull(message = "Capacity is required")
-    @Min(value = 1, message = "Capacity must be at least 1")
-    @Max(value = 20, message = "Capacity must not exceed 20")
+    @NotNull(message = "Sức chứa là bắt buộc")
+    @Min(value = 1, message = "Sức chứa tối thiểu là 1")
+    @Max(value = 20, message = "Sức chứa tối đa là 20")
     private Integer capacity;
 }

@@ -11,13 +11,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Insert-only audit ledger for every IoT gate verification request.
+ * Sổ cái kiểm toán chỉ-thêm cho mỗi yêu cầu xác thực cổng IoT.
  *
- * <p>This entity deliberately does NOT extend BaseEntity.
- * It is immutable: created once per gate scan, never updated.
+ * <p>Entity này cố tình KHÔNG kế thừa BaseEntity.
+ * Nó là bất biến: được tạo một lần cho mỗi lần quét cổng, không bao giờ cập nhật.
  *
- * <p>Ownership: Face Module only.
- * camera capture data is NOT stored here — that belongs to the IoT Module boundary.
+ * <p>Quyền sở hữu: Chỉ thuộc Module Face.
+ * dữ liệu ảnh camera KHÔNG được lưu ở đây — nó thuộc ranh giới Module IoT.
  */
 @Entity
 @Table(
@@ -40,49 +40,49 @@ public class FaceVerificationAttempt {
     private UUID attemptId;
 
     /**
-     * Identifier of the physical IoT gate device.
+     * Định danh của thiết bị cổng IoT vật lý.
      */
     @Column(name = "gate_device_id", nullable = false, length = 100)
     private String gateDeviceId;
 
     /**
-     * The matched FaceProfile, if the verification was successful.
-     * Nullable for FAIL and AI_TIMEOUT outcomes.
-     * ON DELETE SET NULL: retained for audit even if profile is later deleted.
+     * FaceProfile khớp, nếu xác thực thành công.
+     * Nullable cho kết quả FAIL và AI_TIMEOUT.
+     * ON DELETE SET NULL: giữ lại cho kiểm toán ngay cả khi hồ sơ bị xóa sau này.
      */
     @Column(name = "profile_id")
     private UUID profileId;
 
     /**
-     * Cosine similarity distance returned by the pgvector nearest-neighbor query.
+     * Khoảng cách Cosine similarity trả về bởi truy vấn nearest-neighbor của pgvector.
      *
-     * <p><b>DIAGNOSTIC ONLY.</b> This value exists solely for audit, observability,
-     * and AI model performance monitoring.
+     * <p><b>CHỈ ĐỂ CHẨN ĐOÁN.</b> Giá trị này tồn tại duy nhất cho kiểm toán, khả năng quan sát,
+     * và giám sát hiệu suất mô hình AI.
      *
-     * <p><b>GOVERNANCE CONSTRAINT — MUST NEVER be used for:</b>
+     * <p><b>RÀNG BUỘC QUẢN TRỊ — KHÔNG BAO GIỜ được sử dụng cho:</b>
      * <ul>
-     *   <li>Authorization decisions</li>
-     *   <li>Access control logic</li>
-     *   <li>Permission grants or denials</li>
+     *   <li>Quyết định phân quyền</li>
+     *   <li>Logic kiểm soát truy cập</li>
+     *   <li>Cấp hoặc từ chối quyền</li>
      * </ul>
      *
-     * <p>All access decisions are the exclusive responsibility of the
-     * Smart Access Module, which consumes {@code FaceMatchSuccessEvent}
-     * and evaluates its own independent policy chain (curfew, time window, student status).
+     * <p>Mọi quyết định truy cập là trách nhiệm độc quyền của
+     * Module Smart Access, tiêu thụ {@code FaceMatchSuccessEvent}
+     * và đánh giá chuỗi chính sách độc lập của riêng nó (giờ giới nghiêm, khung giờ, trạng thái sinh viên).
      *
-     * <p>Nullable: absent for {@code FAIL} and {@code AI_TIMEOUT} outcomes.
+     * <p>Nullable: vắng mặt cho kết quả {@code FAIL} và {@code AI_TIMEOUT}.
      */
     @Column(name = "confidence_score", precision = 10, scale = 8)
     private BigDecimal confidenceScore;
 
     /**
-     * Outcome of the AI verification attempt.
+     * Kết quả của lần thử xác thực AI.
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     private FaceVerificationResult status;
 
-    // Immutable timestamp — no updatedAt column on this ledger table.
+    // Dấu thời gian bất biến — không có cột updatedAt trên bảng sổ cái này.
     @CreatedDate
     @Column(name = "attempted_at", nullable = false, updatable = false)
     private LocalDateTime attemptedAt;

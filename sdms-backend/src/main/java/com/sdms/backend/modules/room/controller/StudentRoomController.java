@@ -39,11 +39,6 @@
         )
         public ApiResponse<CurrentRoomResponse> getCurrentRoom() {
             CurrentRoomResponse response = studentRoomService.getCurrentRoom();
-
-            return new ApiResponse<>(
-                    true,
-                    "Current room retrieved successfully",
-                    response
-            );
+            return ApiResponse.success("Lấy thông tin phòng hiện tại thành công", response);
         }
     }

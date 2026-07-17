@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.room.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.room.dto.request.CreateBuildingRequest;
 import com.sdms.backend.modules.room.dto.request.UpdateBuildingRequest;
 import com.sdms.backend.modules.room.dto.response.BuildingResponse;
@@ -36,7 +37,7 @@ public class BuildingService {
     public BuildingResponse createBuilding(CreateBuildingRequest request) {
         String normalizedCode = request.getCode().trim().toUpperCase();
         if (buildingRepository.existsByCode(normalizedCode)) {
-            throw new AppException("Building code already exists", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Mã tòa nhà đã tồn tại");
         }
 
         Building building = buildingMapper.toEntity(request);
@@ -98,6 +99,6 @@ public class BuildingService {
 
     private Building findById(UUID id) {
         return buildingRepository.findById(id)
-                .orElseThrow(() -> new AppException("Building not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy tòa nhà"));
     }
 }

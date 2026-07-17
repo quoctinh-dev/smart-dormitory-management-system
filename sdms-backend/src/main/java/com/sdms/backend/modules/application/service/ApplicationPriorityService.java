@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.application.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.application.entity.ApplicationPriority;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.application.entity.VerificationDocument;
@@ -34,7 +35,7 @@ public class ApplicationPriorityService {
     @Transactional
     public void assignPriorities(UUID applicationId, List<PriorityCategory> categories) {
         DormitoryApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Application not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Hồ sơ không tồn tại"));
 
         // Xóa các diện ưu tiên cũ trước khi gán mới
         List<ApplicationPriority> oldPriorities = priorityRepository.findByApplication_ApplicationId(applicationId);
@@ -60,7 +61,7 @@ public class ApplicationPriorityService {
     @Transactional
     public int recalculateScore(UUID applicationId) {
         DormitoryApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Application not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Hồ sơ không tồn tại"));
 
         List<ApplicationPriority> priorities = priorityRepository.findByApplication_ApplicationId(applicationId);
         List<VerificationDocument> documents = documentRepository.findByApplication_ApplicationId(applicationId);
@@ -85,8 +86,26 @@ public class ApplicationPriorityService {
         }
 
         application.setPriorityScore(maxScore);
+        
+        // 🌟 BỔ SUNG LOGIC: Đợt tự do ưu tiên Tân Sinh Viên
+        int currentYear = java.time.LocalDateTime.now().getYear();
+        boolean isFirstYear = false;
+        
+        // Kiểm tra dựa trên khóa học (cohort) hoặc năm sinh (dob)
+        if (application.getCohort() != null && application.getCohort().equals(String.valueOf(currentYear))) {
+            isFirstYear = true;
+        } else if (application.getDob() != null && application.getDob().getYear() == currentYear - 18) {
+            isFirstYear = true;
+        }
+
+        if (isFirstYear && application.getRegistrationPeriod().getRegistrationType() == com.sdms.backend.modules.registration.enums.RegistrationType.OPEN_REGISTRATION) {
+            // Cộng điểm cực cao để luôn đứng đầu danh sách đợt tự do
+            application.setPriorityScore(maxScore + 1000);
+            log.info("Cộng 1000 điểm ưu tiên cho Tân sinh viên trong Đợt tự do: {}", applicationId);
+        }
+
         applicationRepository.save(application);
-        log.info("Recalculated priority score for application={}: {}", applicationId, maxScore);
+        log.info("Recalculated priority score for application={}: {}", applicationId, application.getPriorityScore());
 
         return maxScore;
     }

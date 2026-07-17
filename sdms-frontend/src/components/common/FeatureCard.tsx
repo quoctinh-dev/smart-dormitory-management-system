@@ -1,10 +1,25 @@
 import { Card, Box, Typography, Button } from '@mui/material';
+import type { ButtonProps } from '@mui/material';
 import { alpha } from '@mui/material/styles';
+import type { ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+
+type PaletteColor = 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success';
+type ButtonVariant = ButtonProps['variant'];
 
 /**
  * FeatureCard: Component dùng chung cho các khối chức năng (Trang chủ, Dashboard...)
  */
+interface FeatureCardProps {
+  icon?: ReactNode;
+  title: string;
+  description: string;
+  buttonText?: string;
+  to?: string;
+  variant?: ButtonVariant;
+  color?: PaletteColor;
+}
+
 export default function FeatureCard({
   icon,
   title,
@@ -13,7 +28,7 @@ export default function FeatureCard({
   to,
   variant = 'contained',
   color = 'primary',
-}: any) {
+}: FeatureCardProps) {
   return (
     <Card
       sx={{
@@ -28,8 +43,7 @@ export default function FeatureCard({
         transition: 'all 0.25s ease',
         '&:hover': {
           transform: 'translateY(-6px)',
-          boxShadow: (theme) =>
-            `0 16px 32px -12px ${alpha((theme.palette as any)[color].main, 0.28)}`,
+          boxShadow: (theme) => `0 16px 32px -12px ${alpha(theme.palette[color].main, 0.28)}`,
         },
       }}
     >
@@ -42,8 +56,8 @@ export default function FeatureCard({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          bgcolor: alpha((theme.palette as any)[color].main, 0.1),
-          color: (theme.palette as any)[color].main,
+          bgcolor: alpha(theme.palette[color].main, 0.1),
+          color: theme.palette[color].main,
           mx: 'auto',
         })}
       >
@@ -54,15 +68,18 @@ export default function FeatureCard({
         {title}
       </Typography>
 
-      <Typography color="text.secondary" sx={{ textAlign: 'center', mb: 4, flexGrow: 1, lineHeight: 1.7 }}>
+      <Typography
+        color="text.secondary"
+        sx={{ textAlign: 'center', mb: 4, flexGrow: 1, lineHeight: 1.7 }}
+      >
         {description}
       </Typography>
 
       {buttonText && to && (
         <Button
           fullWidth
-          color={color as any}
-          variant={variant as any}
+          color={color}
+          variant={variant}
           size="large"
           component={RouterLink}
           to={to}

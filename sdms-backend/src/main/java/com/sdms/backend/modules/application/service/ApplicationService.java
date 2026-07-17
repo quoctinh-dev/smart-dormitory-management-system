@@ -1,6 +1,7 @@
 package com.sdms.backend.modules.application.service;
 
 import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.application.dto.request.CreateApplicationRequest;
 import com.sdms.backend.modules.application.dto.response.ApplicationResponse;
@@ -64,28 +65,39 @@ public class ApplicationService {
         log.info("Creating application draft for cccd={}", request.getCccd());
 
         RegistrationPeriod period = periodRepository.findById(request.getPeriodId())
-                .orElseThrow(() -> new AppException("Kỳ đăng ký không tồn tại", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Kỳ đăng ký không tồn tại"));
 
         LocalDateTime now = LocalDateTime.now();
         if (!Boolean.TRUE.equals(period.getIsActive()) || now.isBefore(period.getStartDate()) || now.isAfter(period.getEndDate())) {
-            throw new AppException("Kỳ đăng ký hiện đã đóng hoặc chưa mở", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Kỳ đăng ký hiện đã đóng hoặc chưa mở");
         }
 
         if (period.getRegistrationType() != RegistrationType.OPEN_REGISTRATION) {
-            boolean eligible = eligibilityRepository.existsByRegistrationPeriod_PeriodIdAndCccd(period.getPeriodId(), request.getCccd());
+            boolean eligible = eligibilityRepository.existsByRegistrationPeriod_PeriodIdAndEmail(period.getPeriodId(), request.getEmail());
             if (!eligible) {
-                throw new AppException("Bạn không có trong danh sách đủ điều kiện tham gia đợt này", HttpStatus.FORBIDDEN);
+                throw new AppException(ErrorCode.FORBIDDEN, "Bạn không có trong danh sách đủ điều kiện tham gia đợt này (Email không được tìm thấy)");
             }
         }
 
-        boolean alreadySubmitted = applicationRepository.existsByCccdAndRegistrationPeriod_PeriodId(request.getCccd(), period.getPeriodId());
-        if (alreadySubmitted) {
-            throw new AppException("Bạn đã nộp đơn đăng ký cho kỳ tuyển sinh này rồi", HttpStatus.CONFLICT);
-        }
+        Optional<DormitoryApplication> existingAppOpt = applicationRepository.findByEmailAndRegistrationPeriod_PeriodId(request.getEmail(), period.getPeriodId());
+        DormitoryApplication application;
 
-        DormitoryApplication application = new DormitoryApplication();
-        application.setRegistrationPeriod(period);
+        if (existingAppOpt.isPresent()) {
+            application = existingAppOpt.get();
+            // Nếu đơn đã qua bước PENDING (nghĩa là đã nộp chính thức hoặc đang xử lý), thì mới chặn lại
+            if (application.getStatus() != ApplicationStatus.PENDING) {
+                throw new AppException(ErrorCode.DATA_CONFLICT, "Bạn đã nộp đơn đăng ký cho kỳ tuyển sinh này rồi");
+            }
+            log.info("Found existing PENDING draft for email={}, updating it", request.getEmail());
+        } else {
+            application = new DormitoryApplication();
+            application.setRegistrationPeriod(period);
+            application.setApplicationCode(generateApplicationCode());
+            application.setStatus(ApplicationStatus.PENDING);
+            application.setWaitingListUsed(false);
+        }
         application.setFullName(request.getFullName());
+        application.setStudentCode(request.getStudentCode());
         application.setDob(request.getDob());
         application.setGender(request.getGender());
         application.setCccd(request.getCccd());
@@ -98,6 +110,7 @@ public class ApplicationService {
         application.setEthnic(request.getEthnic());
         application.setReligion(request.getReligion());
         application.setFaculty(request.getFaculty());
+        application.setCohort(request.getCohort());
         application.setContactAddress(request.getContactAddress());
         application.setFatherName(request.getFatherName());
         application.setFatherYob(request.getFatherYob());
@@ -107,17 +120,10 @@ public class ApplicationService {
         application.setMotherYob(request.getMotherYob());
         application.setMotherJob(request.getMotherJob());
         application.setMotherPhone(request.getMotherPhone());
-        application.setFamilyContact(request.getFamilyContact());
-        application.setEmergencyContact(request.getEmergencyContact());
-
-        application.setApplicationCode(generateApplicationCode());
-
-        // 🌟 GIỮ NGUYÊN: Trạng thái ban đầu bắt buộc là PENDING theo đặc tả V1
-        application.setStatus(ApplicationStatus.PENDING);
-        application.setWaitingListUsed(false);
 
         application = applicationRepository.save(application);
 
+        // Nạp lại danh sách ưu tiên mới
         if (request.getPriorityCategories() != null && !request.getPriorityCategories().isEmpty()) {
             priorityService.assignPriorities(application.getApplicationId(), request.getPriorityCategories());
         }
@@ -131,11 +137,11 @@ public class ApplicationService {
         log.info("Uploading document type={} for application={}", type, applicationId);
 
         DormitoryApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Hồ sơ đăng ký không tồn tại", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Hồ sơ đăng ký không tồn tại"));
 
         // 🌟 GIỮ NGUYÊN: Cho phép upload khi PENDING (Đang hoàn thiện nháp) hoặc REQUEST_REVISION
         if (application.getStatus() != ApplicationStatus.PENDING && application.getStatus() != ApplicationStatus.REQUEST_REVISION) {
-            throw new AppException("Không thể bổ sung tài liệu khi đơn đã được xử lý xong", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Không thể bổ sung tài liệu khi đơn đã được xử lý xong");
         }
 
         VerificationDocument doc = new VerificationDocument();
@@ -154,28 +160,28 @@ public class ApplicationService {
         log.info("Resubmitting document={} for application={}", documentId, applicationId);
 
         DormitoryApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Hồ sơ đăng ký không tồn tại", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Hồ sơ đăng ký không tồn tại"));
 
         if (application.getStatus() != ApplicationStatus.REQUEST_REVISION) {
-            throw new AppException("Chỉ có thể nộp lại tài liệu khi hồ sơ ở trạng thái Yêu cầu bổ sung", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ có thể nộp lại tài liệu khi hồ sơ ở trạng thái Yêu cầu bổ sung");
         }
 
         if (application.getRevisionDeadline() != null && LocalDateTime.now().isAfter(application.getRevisionDeadline())) {
             application.setStatus(ApplicationStatus.REJECTED);
             application.setReviewNote("Hồ sơ bị từ chối do quá hạn nộp bổ sung tài liệu");
             applicationRepository.save(application);
-            throw new AppException("Đã quá hạn nộp lại tài liệu. Hồ sơ của bạn đã bị từ chối.", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Đã quá hạn nộp lại tài liệu. Hồ sơ của bạn đã bị từ chối.");
         }
 
         VerificationDocument doc = documentRepository.findById(documentId)
-                .orElseThrow(() -> new AppException("Tài liệu không tồn tại", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Tài liệu không tồn tại"));
 
         if (!doc.getApplication().getApplicationId().equals(applicationId)) {
-            throw new AppException("Tài liệu không thuộc hồ sơ này", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Tài liệu không thuộc hồ sơ này");
         }
 
         if (doc.getStatus() != VerificationStatus.INVALID) {
-            throw new AppException("Chỉ có thể nộp lại những tài liệu bị đánh dấu là Không hợp lệ", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ có thể nộp lại những tài liệu bị đánh dấu là Không hợp lệ");
         }
 
         doc.setFileUrl(newFileUrl);
@@ -201,23 +207,22 @@ public class ApplicationService {
         log.info("Submitting application ID={}", applicationId);
 
         DormitoryApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Hồ sơ đăng ký không tồn tại", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Hồ sơ đăng ký không tồn tại"));
 
         if (application.getStatus() != ApplicationStatus.PENDING) {
-            throw new AppException("Đơn đăng ký không ở trạng thái hợp lệ để gửi đi", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Đơn đăng ký không ở trạng thái hợp lệ để gửi đi");
         }
 
         if (application.getSubmittedAt() != null) {
-            throw new AppException("Đơn đăng ký này đã được nộp chính thức trước đó", HttpStatus.BAD_REQUEST);
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Đơn đăng ký này đã được nộp chính thức trước đó");
         }
 
         List<VerificationDocument> docs = documentRepository.findByApplication_ApplicationId(applicationId);
         boolean hasCccdFront = docs.stream().anyMatch(d -> d.getDocumentType() == VerificationDocumentType.CCCD_FRONT);
         boolean hasCccdBack = docs.stream().anyMatch(d -> d.getDocumentType() == VerificationDocumentType.CCCD_BACK);
-        boolean hasPortrait = docs.stream().anyMatch(d -> d.getDocumentType() == VerificationDocumentType.PORTRAIT_PHOTO);
 
-        if (!hasCccdFront || !hasCccdBack || !hasPortrait) {
-            throw new AppException("Thiếu tài liệu bắt buộc. Vui lòng tải lên mặt trước/sau CCCD và ảnh chân dung.", HttpStatus.BAD_REQUEST);
+        if (!hasCccdFront || !hasCccdBack) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Hệ thống yêu cầu ảnh CCCD mặt trước/sau để xác thực (OCR) và đối chiếu. Vui lòng tải lên tài liệu bắt buộc.");
         }
 
         application.setSubmittedAt(LocalDateTime.now());
@@ -250,7 +255,7 @@ public class ApplicationService {
     public void cancelApplicationDueToPayment(UUID applicationId) {
         log.info("Cancelling application ID={} due to payment expiration", applicationId);
         DormitoryApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Hồ sơ đăng ký không tồn tại", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Hồ sơ đăng ký không tồn tại"));
 
         ApplicationStatus oldStatus = application.getStatus();
         application.setStatus(ApplicationStatus.REJECTED);
@@ -268,19 +273,19 @@ public class ApplicationService {
     public ApplicationResponse getApplicationDetail(UUID applicationId) {
         log.info("Getting application detail for ID={}", applicationId);
         DormitoryApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new AppException("Hồ sơ đăng ký không tồn tại", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Hồ sơ đăng ký không tồn tại"));
         return mapToResponse(application);
     }
 
     @Transactional(readOnly = true)
-    public ApplicationResponse getApplicationByCccd(String cccd) {
-        log.info("Tra cứu hồ sơ theo CCCD công khai: {}", cccd);
+    public ApplicationResponse getApplicationByStudentCode(String studentCode) {
+        log.info("Tra cứu hồ sơ theo MSSV công khai: {}", studentCode);
 
-        // 1. Tìm tất cả đơn của CCCD này từ Database dưới dạng danh sách List
-        List<DormitoryApplication> applications = applicationRepository.findByCccd(cccd);
+        // 1. Tìm tất cả đơn của MSSV này từ Database dưới dạng danh sách List
+        List<DormitoryApplication> applications = applicationRepository.findByStudentCode(studentCode);
 
         if (applications.isEmpty()) {
-            throw new AppException("Không tìm thấy hồ sơ đăng ký cho CCCD này trên hệ thống", HttpStatus.NOT_FOUND);
+            throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ đăng ký cho MSSV này trên hệ thống");
         }
 
         // 2. Sử dụng Java Stream tối ưu để tìm ra đơn đăng ký mới nhất dựa trên thời gian
@@ -293,17 +298,17 @@ public class ApplicationService {
                 })
                 .orElse(applications.get(0));
 
-        log.info("Tìm thấy hồ sơ mới nhất cho CCCD={}, Mã đơn={}, Trạng thái={}",
-                cccd, latestApplication.getApplicationCode(), latestApplication.getStatus());
+        log.info("Tìm thấy hồ sơ mới nhất cho MSSV={}, Mã đơn={}, Trạng thái={}",
+                studentCode, latestApplication.getApplicationCode(), latestApplication.getStatus());
 
         // 3. Quy đổi dữ liệu Entity sang DTO Response để trả về cho Frontend hiển thị
         return mapToResponse(latestApplication);
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<ApplicationResponse> getApplications(Pageable pageable) {
-        log.info("Getting page of applications pageNumber={}, pageSize={}", pageable.getPageNumber(), pageable.getPageSize());
-        Page<DormitoryApplication> page = applicationRepository.findAll(pageable);
+    public PageResponse<ApplicationResponse> getApplications(ApplicationStatus status, String search, Pageable pageable) {
+        log.info("Getting page of applications pageNumber={}, pageSize={}, status={}, search={}", pageable.getPageNumber(), pageable.getPageSize(), status, search);
+        Page<DormitoryApplication> page = applicationRepository.findAllWithFilters(status, search, pageable);
         List<ApplicationResponse> list = page.getContent().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -332,10 +337,12 @@ public class ApplicationService {
                 .applicationCode(application.getApplicationCode())
                 .fullName(application.getFullName())
                 .cccd(application.getCccd())
+                .studentCode(application.getStudentCode())
                 .email(application.getEmail())
                 .phone(application.getPhone())
                 .dob(application.getDob() != null ? application.getDob().toString() : null)
                 .gender(application.getGender() != null ? application.getGender().name() : null)
+                .cohort(application.getCohort())
                 .permanentAddress(application.getPermanentAddress())
                 .contactAddress(application.getContactAddress())
                 .priorityCategories(priorityCategories)

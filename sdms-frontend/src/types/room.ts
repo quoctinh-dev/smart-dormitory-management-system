@@ -9,16 +9,11 @@ export type RoomStatus = 'AVAILABLE' | 'FULL' | 'MAINTENANCE' | 'CLOSED';
 // BedStatus: AVAILABLE, RESERVED, OCCUPIED, MAINTENANCE (từ BedStatus.java)
 export type BedStatus = 'AVAILABLE' | 'RESERVED' | 'OCCUPIED' | 'MAINTENANCE';
 export type AssignmentStatus =
-  | 'RESERVED'
-  | 'PENDING_CHECKIN'
-  | 'OCCUPIED'
-  | 'CANCELLED'
-  | 'EXPIRED'
-  | 'CHECKED_OUT';
+  'RESERVED' | 'PENDING_CHECKIN' | 'OCCUPIED' | 'CANCELLED' | 'EXPIRED' | 'CHECKED_OUT';
 
 // ─── BUILDING (khớp BuildingResponse.java) ───────────────────────────────────
 export interface BuildingResponse {
-  buildingId: string;   // UUID
+  buildingId: string; // UUID
   code: string;
   name: string;
   description?: string;
@@ -29,7 +24,7 @@ export interface BuildingResponse {
 
 // ─── FLOOR (khớp FloorResponse.java) ─────────────────────────────────────────
 export interface FloorResponse {
-  floorId: string;      // UUID
+  floorId: string; // UUID
   floorNumber: number;
   gender?: string;
   buildingId: string;
@@ -39,7 +34,7 @@ export interface FloorResponse {
 
 // ─── ROOM (khớp RoomResponse.java) ───────────────────────────────────────────
 export interface RoomResponse {
-  roomId: string;       // UUID
+  roomId: string; // UUID
   roomCode: string;
   capacity: number;
   occupiedBeds: number;
@@ -55,7 +50,7 @@ export interface RoomResponse {
 
 // ─── BED (khớp BedResponse.java) ─────────────────────────────────────────────
 export interface BedResponse {
-  bedId: string;        // UUID
+  bedId: string; // UUID
   bedCode: string;
   status: BedStatus;
   note?: string;
@@ -88,6 +83,7 @@ export interface ActiveAssignmentResponse {
   reservedAt?: string;
   checkInAt?: string;
   expectedCheckOutAt?: string;
+  roomRole?: string;
   student?: StudentInfo;
   bedId: string;
   bedCode: string;

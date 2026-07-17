@@ -13,50 +13,53 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/admin/change-room")
 @RequiredArgsConstructor
+@Tag(name = "Admin duyệt hoặc từ chối yêu cầu đổi phòng của sinh viên", description = "API quản lý việc đổi phòng và di dời sinh viên (dành cho Admin)")
 public class AdminChangeRoomController {
 
     private final ChangeRoomService changeRoomService;
 
+    @Operation(summary = "Lấy danh sách yêu cầu đổi phòng", description = "Lấy tất cả yêu cầu đổi phòng của sinh viên, có hỗ trợ phân trang và lọc theo trạng thái")
     @GetMapping("/requests")
-    public ResponseEntity<ApiResponse<PageResponse<ChangeRoomResponseDto>>> getAllRequests(
+    public ApiResponse<PageResponse<ChangeRoomResponseDto>> getAllRequests(
             @RequestParam(required = false) ChangeRoomRequestStatus status,
             @PageableDefault(sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
         
         Page<ChangeRoomResponseDto> page = changeRoomService.getAllRequests(status, pageable);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách thành công", PageResponse.of(page)));
+        return ApiResponse.success("Lấy danh sách thành công", PageResponse.of(page));
     }
 
+    @Operation(summary = "Xử lý yêu cầu đổi phòng", description = "Admin duyệt hoặc từ chối yêu cầu đổi phòng của sinh viên")
     @PostMapping("/requests/{id}/process")
-    public ResponseEntity<ApiResponse<ChangeRoomResponseDto>> processRequest(
-            Authentication authentication,
+    public ApiResponse<ChangeRoomResponseDto> processRequest(
+            org.springframework.security.core.Authentication authentication,
             @PathVariable Long id,
             @Valid @RequestBody AdminProcessChangeRoomDto dto) {
         
         UserAccount userAccount = (UserAccount) authentication.getPrincipal();
-        UUID adminId = userAccount.getAccountId();
+        java.util.UUID adminId = userAccount.getAccountId();
         
         ChangeRoomResponseDto response = changeRoomService.processRequest(adminId, id, dto);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Xử lý yêu cầu thành công", response));
+        return ApiResponse.success("Xử lý yêu cầu thành công", response);
     }
 
+    @Operation(summary = "Di dời sinh viên để bảo trì", description = "Di dời hàng loạt sinh viên sang phòng khác để thực hiện bảo trì phòng hiện tại")
     @PostMapping("/maintenance/relocate")
-    public ResponseEntity<ApiResponse<Void>> relocateForMaintenance(
-            Authentication authentication,
+    public ApiResponse<Void> relocateForMaintenance(
+            org.springframework.security.core.Authentication authentication,
             @Valid @RequestBody MaintenanceRelocationDto dto) {
         
         UserAccount userAccount = (UserAccount) authentication.getPrincipal();
-        UUID adminId = userAccount.getAccountId();
+        java.util.UUID adminId = userAccount.getAccountId();
         
         changeRoomService.relocateStudentsForMaintenance(adminId, dto);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Di dời sinh viên thành công", null));
+        return ApiResponse.success("Di dời sinh viên thành công");
     }
 }

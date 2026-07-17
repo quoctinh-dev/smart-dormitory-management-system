@@ -8,6 +8,5 @@ import java.util.UUID;
 public class ChangeRoomSubmitDto {
     @NotBlank(message = "Lý do đổi phòng không được để trống")
     private String reason;
-    
     private UUID targetRoomId; // Optional
 }

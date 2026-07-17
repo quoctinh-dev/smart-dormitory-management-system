@@ -7,10 +7,10 @@
 // 1. DEVICE IDENTITY
 // ==============================================================================
 static const String DEVICE_ID = "ESP32_ROOM_101";
-static const String GATE_ID = "999e4567-e89b-12d3-a456-426614174999"; // Thay bằng Gate UUID của phòng trên Frontend
+static const String GATE_ID = "a937509c-e2ae-4a2c-a74e-fd30d2318b2b"; 
 static const String FIRMWARE_VERSION = "1.0.0-Room";
 
-// ==============================================================================
+// ====================================================================== ========
 // 2. NETWORK CONFIGURATION
 // ==============================================================================
 static const char* WIFI_SSID = "TECNO POVA 6";
@@ -18,6 +18,10 @@ static const char* WIFI_PASSWORD = "12345678";
 
 // API Backend
 static const String BACKEND_BASE_URL = "http://10.152.127.74:8080/api/v1/smartaccess";
+
+// MQTT Broker
+static const char* MQTT_SERVER = "10.152.127.74";
+static const int MQTT_PORT = 1883;
 
 // ==============================================================================
 // 3. SYSTEM TIMEOUT & INTERVALS

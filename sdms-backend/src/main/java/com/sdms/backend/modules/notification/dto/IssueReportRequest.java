@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 
 @Data
 public class IssueReportRequest {
-    @NotBlank
+    @NotBlank(message = "Mô tả sự cố là bắt buộc")
     private String description;
-    @NotBlank
+    @NotBlank(message = "ID phòng là bắt buộc")
     private String roomId;
     private String imageUrl;
 }

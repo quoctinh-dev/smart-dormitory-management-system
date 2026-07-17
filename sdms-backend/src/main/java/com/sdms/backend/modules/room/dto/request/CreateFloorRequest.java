@@ -16,12 +16,12 @@ import java.util.UUID;
 @Setter
 public class CreateFloorRequest {
 
-    @NotNull(message = "Building ID is required")
+    @NotNull(message = "ID tòa nhà là bắt buộc")
     private UUID buildingId;
 
-    @NotNull(message = "Floor number is required")
+    @NotNull(message = "Số tầng là bắt buộc")
     private Integer floorNumber;
 
-    @NotNull(message = "Occupancy policy is required")
+    @NotNull(message = "Chính sách giới tính là bắt buộc")
     private Gender gender;
 }

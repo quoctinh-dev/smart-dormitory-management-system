@@ -19,8 +19,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Snackbar,
-  Alert,
   Tabs,
   Tab,
   TextField,
@@ -60,7 +58,6 @@ export default function PaymentManagement() {
     confirmDialog,
     detailsDialog,
     selectedBill,
-    snackbar,
     currentTab,
     searchQuery,
     billTypeFilter,
@@ -72,7 +69,6 @@ export default function PaymentManagement() {
     handleConfirmCashPayment,
     openDetails,
     openConfirm,
-    closeSnackbar,
   } = usePaymentManagement();
 
   if (loading && bills.length === 0) {
@@ -348,22 +344,6 @@ export default function PaymentManagement() {
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* SNACKBAR */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={closeSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: '100%', borderRadius: 2 }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }
