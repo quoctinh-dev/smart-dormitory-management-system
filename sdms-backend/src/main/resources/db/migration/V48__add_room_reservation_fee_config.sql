@@ -1,0 +1,1 @@
+INSERT INTO system_configs (config_key, config_value, description) VALUES ('ROOM_RESERVATION_FEE', '2100000', 'Phí lưu trú cơ bản của KTX cho một sinh viên (VND)');

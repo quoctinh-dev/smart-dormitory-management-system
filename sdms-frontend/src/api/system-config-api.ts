@@ -1,0 +1,14 @@
+import axiosClient from './axios-client';
+import { SystemConfig } from '../types/system-config';
+
+export const systemConfigApi = {
+  getAllConfigs: async (): Promise<SystemConfig[]> => {
+    const res = await axiosClient.get('/v1/admin/system-configs');
+    return res as unknown as SystemConfig[];
+  },
+
+  updateConfig: async (key: string, data: Partial<SystemConfig>) => {
+    const res = await axiosClient.put(`/v1/admin/system-configs/${key}`, data);
+    return res;
+  },
+};

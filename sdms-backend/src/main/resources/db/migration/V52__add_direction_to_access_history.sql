@@ -1,0 +1,1 @@
+ALTER TABLE access_history ADD COLUMN direction VARCHAR(20) DEFAULT 'UNKNOWN';
