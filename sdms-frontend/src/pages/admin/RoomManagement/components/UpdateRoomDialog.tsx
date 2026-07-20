@@ -1,4 +1,3 @@
-// src/pages/admin/RoomManagement/components/UpdateRoomDialog.tsx
 import {
   Dialog,
   DialogTitle,
@@ -9,11 +8,10 @@ import {
   CircularProgress,
   Typography,
 } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-import roomApi from '@/api/roomApi';
+import { useUpdateRoomForm } from '@/hooks/useUpdateRoomForm';
 import type { RoomWithBeds } from '@/types/room';
-import { snackbar } from '@/utils/snackbar';
 
 export interface UpdateRoomDialogProps {
   open: boolean;
@@ -28,43 +26,7 @@ export default function UpdateRoomDialog({
   room,
   onSuccess,
 }: UpdateRoomDialogProps) {
-  const [capacity, setCapacity] = useState<number | ''>('');
-  const [loading, setLoading] = useState(false);
-
-  // Khởi tạo giá trị khi mở form
-  useEffect(() => {
-    if (open && room) {
-      setCapacity(room.capacity);
-    }
-  }, [open, room]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!room || !capacity) return;
-
-    // Không cho giảm sức chứa xuống dưới số giường thực tế
-    const currentBedsCount = room.beds?.length || 0;
-    if (Number(capacity) < currentBedsCount) {
-      snackbar.error(
-        `Sức chứa không được nhỏ hơn số giường vật lý hiện tại (${currentBedsCount} giường).`
-      );
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await roomApi.updateRoom(room.roomId, {
-        capacity: Number(capacity),
-        status: room.status,
-      });
-      snackbar.success('Cập nhật thông tin phòng thành công');
-      onSuccess();
-    } catch (err: any) {
-      snackbar.error(err?.response?.data?.message || 'Lỗi khi cập nhật phòng');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { capacity, setCapacity, loading, handleSubmit } = useUpdateRoomForm(open, room, onSuccess);
 
   if (!room) return null;
 

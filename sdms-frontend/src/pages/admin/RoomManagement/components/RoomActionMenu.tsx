@@ -1,4 +1,3 @@
-// src/pages/admin/RoomManagement/components/RoomActionMenu.tsx
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import BuildIcon from '@mui/icons-material/Build';
 import EditIcon from '@mui/icons-material/Edit';
@@ -6,11 +5,10 @@ import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
-import React, { useState } from 'react';
+import React from 'react';
 
-import roomApi from '@/api/roomApi';
+import { useRoomActionMenu } from '@/hooks/useRoomActionMenu';
 import type { RoomStatus } from '@/types/room';
-import { snackbar } from '@/utils/snackbar';
 
 export interface RoomActionMenuProps {
   roomId: string;
@@ -31,51 +29,16 @@ export default function RoomActionMenu({
   onEditRoom,
   onRefresh,
 }: RoomActionMenuProps) {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-
-  const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
-    setAnchorEl(e.currentTarget);
-  };
-  const handleClose = () => setAnchorEl(null);
-
-  const handleStatus = (status: string) => {
-    handleClose();
-    onChangeStatus(roomId, status);
-  };
-
-  const handleAutoGenerateBeds = async () => {
-    handleClose();
-    try {
-      await roomApi.autoGenerateBeds(roomId);
-      snackbar.success('Đã sinh giường tự động thành công');
-      onRefresh();
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || 'Không thể sinh giường tự động';
-      snackbar.error(msg);
-    }
-  };
-
-  const handleEditRoom = () => {
-    handleClose();
-    onEditRoom();
-  };
-
-  const handleResetPin = async () => {
-    handleClose();
-    if (!window.confirm('Bạn có chắc chắn muốn tạo mã PIN mới cho phòng này? Mã PIN cũ sẽ bị hủy.'))
-      return;
-    try {
-      const { default: roomPinApi } = await import('@/api/roomPinApi');
-      await roomPinApi.resetRoomPin(roomId);
-      snackbar.success('Đã reset mã PIN phòng thành công');
-      onRefresh();
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || 'Không thể reset mã PIN';
-      snackbar.error(msg);
-    }
-  };
+  const {
+    anchorEl,
+    open,
+    handleOpen,
+    handleClose,
+    handleStatus,
+    handleAutoGenerateBeds,
+    handleEditRoom,
+    handleResetPin,
+  } = useRoomActionMenu(roomId, onChangeStatus, onEditRoom, onRefresh);
 
   const isMaintenance = roomStatus === 'MAINTENANCE';
   const isClosed = roomStatus === 'CLOSED';

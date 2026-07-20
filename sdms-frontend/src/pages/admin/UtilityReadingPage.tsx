@@ -1,4 +1,6 @@
 import BoltIcon from '@mui/icons-material/Bolt';
+import CancelIcon from '@mui/icons-material/Cancel';
+import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import {
@@ -22,198 +24,68 @@ import {
   CircularProgress,
   Tabs,
   Tab,
+  IconButton,
+  Tooltip,
+  InputAdornment,
 } from '@mui/material';
-import { useSnackbar } from 'notistack';
-import React, { useState, useEffect, SyntheticEvent } from 'react';
+import LockIcon from '@mui/icons-material/Lock';
+import InfoIcon from '@mui/icons-material/Info';
+import { alpha } from '@mui/material/styles';
+import React from 'react';
 
-import roomApi from '@/api/roomApi';
-import { utilityApi, RoomUtilityResponse } from '@/api/utilityApi';
-import { BuildingResponse, FloorResponse } from '@/types/room';
+import { useUtilityReading } from '@/hooks/useUtilityReading';
 
 export default function UtilityReadingPage() {
-  const { enqueueSnackbar } = useSnackbar();
-  const currentDate = new Date();
-
-  const [month, setMonth] = useState<number>(currentDate.getMonth() + 1);
-  const [year, setYear] = useState<number>(currentDate.getFullYear());
-  const [utilityType, setUtilityType] = useState<'ELECTRICITY' | 'WATER'>('ELECTRICITY');
-
-  // Filters
-  const [buildings, setBuildings] = useState<BuildingResponse[]>([]);
-  const [floors, setFloors] = useState<FloorResponse[]>([]);
-  const [selectedBuildingId, setSelectedBuildingId] = useState<string>('');
-  const [selectedFloorId, setSelectedFloorId] = useState<string>('');
-
-  const [loading, setLoading] = useState(false);
-  const [rooms, setRooms] = useState<RoomUtilityResponse[]>([]);
-  const [readings, setReadings] = useState<Record<string, number>>({});
-  const [oldReadings, setOldReadings] = useState<Record<string, number>>({});
-
-  useEffect(() => {
-    fetchBuildings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (selectedBuildingId) {
-      fetchFloors(selectedBuildingId);
-      setSelectedFloorId(''); // Reset floor when building changes
-    } else {
-      setFloors([]);
-      setSelectedFloorId('');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedBuildingId]);
-
-  useEffect(() => {
-    fetchRooms();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [month, year, utilityType, selectedBuildingId, selectedFloorId]);
-
-  const fetchBuildings = async () => {
-    try {
-      const res = await roomApi.getBuildings();
-      setBuildings(res);
-    } catch {
-      enqueueSnackbar('Lỗi tải danh sách tòa nhà', { variant: 'error' });
-    }
-  };
-
-  const fetchFloors = async (buildingId: string) => {
-    try {
-      const res = await roomApi.getFloorsByBuilding(buildingId);
-      setFloors(res);
-    } catch {
-      enqueueSnackbar('Lỗi tải danh sách tầng', { variant: 'error' });
-    }
-  };
-
-  const fetchRooms = async () => {
-    try {
-      setLoading(true);
-      const res = await utilityApi.getRoomsForRecording(
-        month,
-        year,
-        utilityType,
-        selectedBuildingId || undefined,
-        selectedFloorId || undefined
-      );
-      setRooms(res);
-
-      const initialReadings: Record<string, number> = {};
-      const initialOldReadings: Record<string, number> = {};
-      res.forEach((room: RoomUtilityResponse) => {
-        if (room.newReading !== null) {
-          initialReadings[room.roomId] = room.newReading;
-        }
-        if (room.isFirstRecord) {
-          initialOldReadings[room.roomId] = 0; // Default to 0, user will change
-        }
-      });
-      setReadings(initialReadings);
-      setOldReadings(initialOldReadings);
-    } catch {
-      enqueueSnackbar('Lỗi khi tải danh sách phòng', { variant: 'error' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleTabChange = (event: SyntheticEvent, newValue: 'ELECTRICITY' | 'WATER') => {
-    setUtilityType(newValue);
-  };
-
-  const handleReadingChange = (roomId: string, value: string) => {
-    const numValue = parseInt(value, 10);
-    setReadings((prev) => ({
-      ...prev,
-      [roomId]: isNaN(numValue) ? 0 : numValue,
-    }));
-  };
-
-  const handleOldReadingChange = (roomId: string, value: string) => {
-    const numValue = parseInt(value, 10);
-    setOldReadings((prev) => ({
-      ...prev,
-      [roomId]: isNaN(numValue) ? 0 : numValue,
-    }));
-  };
-
-  const handleSave = async (room: RoomUtilityResponse) => {
-    const newReading = readings[room.roomId];
-    const actualOldReading = room.isFirstRecord ? oldReadings[room.roomId] : room.oldReading;
-
-    if (newReading === undefined || newReading === null) {
-      enqueueSnackbar('Vui lòng nhập chỉ số mới', { variant: 'warning' });
-      return;
-    }
-
-    if (room.isFirstRecord && (actualOldReading === undefined || actualOldReading === null)) {
-      enqueueSnackbar('Vui lòng nhập chỉ số cũ cho phòng này (lần đầu ghi)', {
-        variant: 'warning',
-      });
-      return;
-    }
-
-    if (newReading < actualOldReading) {
-      enqueueSnackbar(`Chỉ số mới không được nhỏ hơn chỉ số cũ (${actualOldReading})`, {
-        variant: 'error',
-      });
-      return;
-    }
-
-    const unit = utilityType === 'ELECTRICITY' ? 'kWh' : 'm3';
-    if (
-      !window.confirm(
-        `Xác nhận chốt ${newReading - actualOldReading} ${unit} cho phòng ${room.roomCode}?`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await utilityApi.recordUtility(utilityType, {
-        roomId: room.roomId,
-        month,
-        year,
-        newReading,
-        ...(room.isFirstRecord && { oldReading: actualOldReading }),
-      });
-      enqueueSnackbar('Lưu chỉ số thành công!', { variant: 'success' });
-      fetchRooms();
-    } catch (error: any) {
-      enqueueSnackbar(error.response?.data?.message || 'Lỗi khi lưu chỉ số', { variant: 'error' });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    month,
+    setMonth,
+    year,
+    setYear,
+    utilityType,
+    buildings,
+    floors,
+    selectedBuildingId,
+    setSelectedBuildingId,
+    selectedFloorId,
+    setSelectedFloorId,
+    loading,
+    rooms,
+    readings,
+    oldReadings,
+    handleTabChange,
+    handleReadingChange,
+    handleOldReadingChange,
+    handleSave,
+    handleCancel,
+    fetchRooms,
+    currentDate,
+  } = useUtilityReading();
 
   return (
     <Box>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.main', mb: 1 }}>
-          Chốt Chỉ Số Tiện Ích
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'primary.main', mb: 1 }}>
+          Chốt chỉ số điện
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Cập nhật chỉ số đồng hồ điện/nước hàng tháng.
+          Cập nhật chỉ số đồng hồ điện hàng tháng cho các phòng.
         </Typography>
       </Box>
 
       {/* Tabs */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, display: 'none' }}>
         <Tabs value={utilityType} onChange={handleTabChange} aria-label="utility tabs">
           <Tab
             icon={<BoltIcon />}
             iconPosition="start"
-            label="Chốt Số Điện"
+            label="Chốt số điện"
             value="ELECTRICITY"
             sx={{ fontWeight: 'bold' }}
           />
           <Tab
             icon={<WaterDropIcon />}
             iconPosition="start"
-            label="Chốt Số Nước"
+            label="Chốt số nước"
             value="WATER"
             sx={{ fontWeight: 'bold' }}
           />
@@ -221,7 +93,17 @@ export default function UtilityReadingPage() {
       </Box>
 
       {/* Filters */}
-      <Card sx={{ p: 3, mb: 3, borderRadius: 2 }}>
+      <Card
+        sx={{
+          p: 3,
+          mb: 3,
+          borderRadius: 4,
+          background: 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.02)',
+          border: '1px solid rgba(255,255,255,0.4)',
+        }}
+      >
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} sm={6} md={2}>
             <FormControl fullWidth size="small">
@@ -303,18 +185,18 @@ export default function UtilityReadingPage() {
       </Card>
 
       {/* Table */}
-      <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+      <TableContainer component={Paper} sx={{ borderRadius: 4 }}>
         <Table sx={{ minWidth: 650 }} aria-label="utility reading table">
-          <TableHead sx={{ bgcolor: '#fafafa' }}>
+          <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04) }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: 'bold' }}>Mã phòng</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>
-                Chỉ số tháng trước {utilityType === 'ELECTRICITY' ? '(kWh)' : '(m3)'}
+              <TableCell width="15%" sx={{ fontWeight: 'bold' }}>Mã phòng</TableCell>
+              <TableCell width="25%" sx={{ fontWeight: 'bold' }}>
+                Chỉ số cũ (Kế thừa từ tháng trước) {utilityType === 'ELECTRICITY' ? '(kWh)' : '(m3)'}
               </TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Chỉ số mới</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Tiêu thụ</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Thao tác</TableCell>
+              <TableCell width="25%" sx={{ fontWeight: 'bold' }}>Chỉ số trên đồng hồ cuối kỳ</TableCell>
+              <TableCell width="15%" sx={{ fontWeight: 'bold' }}>Tiêu thụ (Mới - Cũ)</TableCell>
+              <TableCell width="10%" sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
+              <TableCell width="10%" sx={{ fontWeight: 'bold' }}>Thao tác</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -333,15 +215,18 @@ export default function UtilityReadingPage() {
             ) : (
               rooms.map((room) => {
                 const actualOldReading = room.isFirstRecord
-                  ? oldReadings[room.roomId] || 0
+                  ? oldReadings[room.roomId] !== undefined && oldReadings[room.roomId] !== ''
+                    ? Number(oldReadings[room.roomId])
+                    : 0
                   : room.oldReading;
                 const newReading = readings[room.roomId];
                 const value = newReading !== undefined ? newReading : '';
                 const isError = value !== '' && Number(value) < actualOldReading;
                 const isValid =
                   newReading !== undefined &&
-                  newReading >= actualOldReading &&
-                  (!room.isFirstRecord || oldReadings[room.roomId] !== undefined);
+                  newReading !== '' &&
+                  Number(newReading) >= actualOldReading &&
+                  (!room.isFirstRecord || (oldReadings[room.roomId] !== undefined && oldReadings[room.roomId] !== ''));
 
                 return (
                   <TableRow
@@ -362,37 +247,59 @@ export default function UtilityReadingPage() {
                     <TableCell>
                       {room.isFirstRecord ? (
                         <TextField
-                          size="small"
                           type="number"
-                          value={
-                            oldReadings[room.roomId] !== undefined ? oldReadings[room.roomId] : ''
-                          }
-                          disabled={room.isSettled}
+                          size="small"
+                          fullWidth
+                          placeholder="Chỉ số đầu tiên"
+                          value={oldReadings[room.roomId] !== undefined ? oldReadings[room.roomId] : ''}
                           onChange={(e) => handleOldReadingChange(room.roomId, e.target.value)}
-                          placeholder="Chỉ số đầu kỳ"
-                          sx={{ minWidth: 120 }}
+                          disabled={room.isSettled}
+                          error={oldReadings[room.roomId] === undefined || oldReadings[room.roomId] === ''}
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">{utilityType === 'ELECTRICITY' ? 'kWh' : 'm3'}</InputAdornment>,
+                          }}
                         />
                       ) : (
-                        <Typography color="text.secondary">{room.oldReading}</Typography>
+                        <Tooltip title="Chỉ số này được hệ thống tự động kế thừa từ số cuối kỳ của tháng trước để đảm bảo tính minh bạch.">
+                          <TextField
+                            size="small"
+                            fullWidth
+                            disabled
+                            value={actualOldReading}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <LockIcon fontSize="small" />
+                                </InputAdornment>
+                              ),
+                              endAdornment: (
+                                <InputAdornment position="end">{utilityType === 'ELECTRICITY' ? 'kWh' : 'm3'}</InputAdornment>
+                              ),
+                            }}
+                          />
+                        </Tooltip>
                       )}
                     </TableCell>
                     <TableCell>
                       <TextField
-                        size="small"
                         type="number"
-                        value={value}
-                        disabled={room.isSettled}
+                        size="small"
+                        fullWidth
+                        placeholder="Nhập số trên đồng hồ"
+                        value={newReading !== undefined ? newReading : ''}
                         onChange={(e) => handleReadingChange(room.roomId, e.target.value)}
-                        error={isError}
-                        helperText={isError ? 'Không hợp lệ' : ''}
-                        inputProps={{ min: actualOldReading }}
-                        sx={{ minWidth: 150 }}
+                        disabled={room.isSettled}
+                        error={isError || newReading === ''}
+                        helperText={isError ? `Phải ≥ ${actualOldReading}` : ''}
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">{utilityType === 'ELECTRICITY' ? 'kWh' : 'm3'}</InputAdornment>,
+                        }}
                       />
                     </TableCell>
                     <TableCell>
-                      {newReading !== undefined && newReading >= actualOldReading ? (
+                      {newReading !== undefined && newReading !== '' && Number(newReading) >= actualOldReading ? (
                         <Typography fontWeight="bold" color="primary">
-                          {newReading - actualOldReading}
+                          {Number(newReading) - actualOldReading}
                         </Typography>
                       ) : (
                         <Typography>-</Typography>
@@ -404,9 +311,9 @@ export default function UtilityReadingPage() {
                           display: 'inline-block',
                           px: 2,
                           py: 0.5,
-                          borderRadius: 1,
+                          borderRadius: 4,
                           fontSize: '0.875rem',
-                          fontWeight: 600,
+                          fontWeight: 'bold',
                           bgcolor: room.isSettled ? 'success.light' : 'warning.light',
                           color: room.isSettled ? 'success.dark' : 'warning.dark',
                         }}
@@ -415,15 +322,27 @@ export default function UtilityReadingPage() {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="contained"
-                        size="small"
-                        startIcon={<SaveIcon />}
-                        disabled={room.isSettled || !isValid}
-                        onClick={() => handleSave(room)}
-                      >
-                        Lưu
-                      </Button>
+                      {room.isSettled ? (
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          startIcon={<CancelIcon />}
+                          onClick={() => handleCancel(room)}
+                        >
+                          Hủy chốt
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          size="small"
+                          startIcon={<SaveIcon />}
+                          disabled={!isValid}
+                          onClick={() => handleSave(room)}
+                        >
+                          Lưu
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 );

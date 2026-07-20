@@ -1,10 +1,10 @@
 import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 
-import { RequireAdmin } from '@/auth';
+import { wrap } from '@/helpers/route-utils';
 import AdminLayout from '@/layouts/AdminLayout';
 import AuthLayout from '@/layouts/AuthLayout';
-import { wrap } from '@/utils/routeUtils';
+import RequireAdmin from '@/routes/RequireAdmin';
 
 // Lazy-loaded admin pages
 const LoginPage = lazy(() => import('@/pages/admin/LoginPage'));
@@ -19,7 +19,6 @@ const PaymentManagement = lazy(() => import('@/pages/admin/PaymentManagement'));
 const CheckInManagement = lazy(() => import('@/pages/admin/CheckInManagement'));
 const RoomManagementPage = lazy(() => import('@/pages/admin/RoomManagement/RoomManagementPage'));
 const NotificationHistory = lazy(() => import('@/pages/admin/NotificationHistory'));
-const IntegratedReviewPage = lazy(() => import('@/pages/admin/IntegratedReviewPage'));
 const ExtensionManagementPage = lazy(() => import('@/pages/admin/StayExtensionManagement'));
 const CheckoutManagementPage = lazy(() => import('@/pages/admin/CheckoutManagement'));
 const ChangeRoomManagementPage = lazy(() => import('@/pages/admin/ChangeRoomManagement'));
@@ -41,7 +40,6 @@ const FaceApprovalQueueLazy = wrap(FaceApprovalQueue);
 const PaymentManagementLazy = wrap(PaymentManagement);
 const CheckInManagementLazy = wrap(CheckInManagement);
 const NotificationHistoryLazy = wrap(NotificationHistory);
-const IntegratedReviewPageLazy = wrap(IntegratedReviewPage);
 const ExtensionManagementLazy = wrap(ExtensionManagementPage);
 const CheckoutManagementLazy = wrap(CheckoutManagementPage);
 const ChangeRoomManagementLazy = wrap(ChangeRoomManagementPage);
@@ -72,7 +70,6 @@ export const adminRoutes: RouteObject[] = [
           { path: 'admin', element: <AdminDashboardLazy /> },
           { path: 'admin/accounts', element: <AccountManagementLazy /> },
           { path: 'admin/registration-periods', element: <RegistrationPeriodManagerLazy /> },
-          { path: 'admin/review', element: <IntegratedReviewPageLazy /> },
           { path: 'admin/applications/review', element: <ApplicationReviewQueueLazy /> },
           { path: 'admin/applications/:id/review', element: <ApplicationReviewDetailLazy /> },
           { path: 'admin/faces/approve', element: <FaceApprovalQueueLazy /> },

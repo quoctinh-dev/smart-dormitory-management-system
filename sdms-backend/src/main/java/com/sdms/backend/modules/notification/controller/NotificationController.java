@@ -60,9 +60,4 @@ public class NotificationController {
         return ApiResponse.success("Đã gửi báo cáo vấn đề thành công");
     }
 
-    @Operation(summary = "Lấy lịch sử báo cáo hỏng hóc")
-    @GetMapping("/issues/history")
-    public ApiResponse<List<Object>> getIssueHistory() {
-        return ApiResponse.success("Lấy lịch sử báo cáo thành công", java.util.Collections.emptyList());
-    }
 }

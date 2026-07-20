@@ -1,12 +1,28 @@
-import { CheckCircle, CloudUpload } from '@mui/icons-material';
-import { Box, Typography, Alert } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
+
+import { IconifyIcon } from '@/components/base/IconifyIcon';
 
 const DOC_TYPES = [
   {
     type: 'PORTRAIT_PHOTO',
     label: 'Ảnh chân dung 3x4',
     desc: 'Ảnh chụp không quá 6 tháng, rõ mặt',
+  },
+  {
+    type: 'STUDENT_CARD',
+    label: 'Thẻ Sinh viên',
+    desc: 'Ảnh mặt trước Thẻ Sinh viên (Nếu có)',
+  },
+  {
+    type: 'CCCD_FRONT',
+    label: 'CCCD Mặt trước',
+    desc: 'Ảnh chụp rõ nét, không lóa sáng',
+  },
+  {
+    type: 'CCCD_BACK',
+    label: 'CCCD Mặt sau',
+    desc: 'Ảnh chụp rõ nét, không lóa sáng',
   },
 ];
 
@@ -52,6 +68,7 @@ interface DocumentUploadBoxProps {
   doc: { type: string; label: string; desc: string };
   isUploaded: boolean;
   uploadedName: string | null | undefined;
+  previewUrl?: string;
   loading: boolean;
   onUpload: (type: string, file: File) => void;
 }
@@ -60,6 +77,7 @@ const DocumentUploadBox = ({
   doc,
   isUploaded,
   uploadedName,
+  previewUrl,
   loading,
   onUpload,
 }: DocumentUploadBoxProps) => {
@@ -95,8 +113,28 @@ const DocumentUploadBox = ({
     >
       <input type="file" hidden onChange={handleFileChange} disabled={loading} />
       {isUploaded ? (
-        <>
-          <CheckCircle sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {previewUrl ? (
+            <Box
+              component="img"
+              src={previewUrl}
+              alt={uploadedName || 'Preview'}
+              sx={{
+                width: '100%',
+                maxHeight: 120,
+                objectFit: 'contain',
+                borderRadius: 2,
+                mb: 1,
+                border: '1px solid',
+                borderColor: 'divider',
+              }}
+            />
+          ) : (
+            <IconifyIcon
+              icon="mingcute:check-circle-fill"
+              sx={{ fontSize: 40, color: 'success.main', mb: 1 }}
+            />
+          )}
           <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: 'success.main' }}>
             Đã tải lên
           </Typography>
@@ -105,7 +143,7 @@ const DocumentUploadBox = ({
             display="block"
             color="text.secondary"
             sx={{
-              mt: 1,
+              mt: 0.5,
               px: 1,
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -115,10 +153,13 @@ const DocumentUploadBox = ({
           >
             {uploadedName}
           </Typography>
-        </>
+        </Box>
       ) : (
         <>
-          <CloudUpload sx={{ fontSize: 40, color: 'primary.main', mb: 1, opacity: 0.8 }} />
+          <IconifyIcon
+            icon="mingcute:upload-fill"
+            sx={{ fontSize: 40, color: 'primary.main', mb: 1, opacity: 0.8 }}
+          />
           <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
             {doc.label}
           </Typography>
@@ -136,23 +177,34 @@ const DocumentUploadBox = ({
 import { IRegistrationFormData } from '@/hooks/useRegistration';
 
 interface DocumentUploadSectionProps {
-  error: string | null;
   uploadedDocs: Record<string, string | null>;
+  uploadedPreviews: Record<string, string>;
   handleUpload: (type: string, file: File) => void;
   loading: boolean;
   formData: IRegistrationFormData;
+  period: any;
+  targetGroup: string;
 }
 
 export default function DocumentUploadSection({
-  error,
   uploadedDocs,
+  uploadedPreviews,
   handleUpload,
   loading,
   formData,
+  period,
+  targetGroup,
 }: DocumentUploadSectionProps) {
   const extraDocs = (formData?.priorityCategories || [])
     .filter((p) => p !== 'NONE' && PRIORITY_DOC_MAP[p])
     .map((p) => PRIORITY_DOC_MAP[p]);
+
+  const displayDocTypes = DOC_TYPES.filter((doc) => {
+    if (doc.type === 'STUDENT_CARD' && (targetGroup === 'FRESHMAN' || period?.registrationType === 'NEW_STUDENT')) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <Box
@@ -162,25 +214,26 @@ export default function DocumentUploadSection({
         Tải lên hồ sơ minh chứng
       </Typography>
 
-
-
       <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-        I. Tài liệu bắt buộc chung ({DOC_TYPES.length} loại)
+        I. Tài liệu bắt buộc chung ({displayDocTypes.length} loại)
       </Typography>
 
-      <Box sx={{ 
-        display: 'grid', 
-        gridTemplateColumns: DOC_TYPES.length === 1 ? '1fr' : { xs: '1fr', sm: '1fr 1fr' }, 
-        gap: 3,
-        maxWidth: DOC_TYPES.length === 1 ? 400 : '100%',
-        mx: 'auto'
-      }}>
-        {DOC_TYPES.map((doc) => (
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: displayDocTypes.length === 1 ? '1fr' : { xs: '1fr', sm: '1fr 1fr' },
+          gap: 3,
+          maxWidth: displayDocTypes.length === 1 ? 400 : '100%',
+          mx: 'auto',
+        }}
+      >
+        {displayDocTypes.map((doc) => (
           <DocumentUploadBox
             key={doc.type}
             doc={doc}
             isUploaded={!!uploadedDocs[doc.type]}
             uploadedName={uploadedDocs[doc.type]}
+            previewUrl={uploadedPreviews?.[doc.type]}
             loading={loading}
             onUpload={handleUpload}
           />
@@ -196,19 +249,22 @@ export default function DocumentUploadSection({
             II. Tài liệu minh chứng diện ưu tiên ({extraDocs.length} loại)
           </Typography>
 
-          <Box sx={{ 
-            display: 'grid', 
-            gridTemplateColumns: extraDocs.length === 1 ? '1fr' : { xs: '1fr', sm: '1fr 1fr' }, 
-            gap: 3,
-            maxWidth: extraDocs.length === 1 ? 400 : '100%',
-            mx: 'auto'
-          }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: extraDocs.length === 1 ? '1fr' : { xs: '1fr', sm: '1fr 1fr' },
+              gap: 3,
+              maxWidth: extraDocs.length === 1 ? 400 : '100%',
+              mx: 'auto',
+            }}
+          >
             {extraDocs.map((doc) => (
               <DocumentUploadBox
                 key={doc.type}
                 doc={doc}
                 isUploaded={!!uploadedDocs[doc.type]}
                 uploadedName={uploadedDocs[doc.type]}
+                previewUrl={uploadedPreviews?.[doc.type]}
                 loading={loading}
                 onUpload={handleUpload}
               />

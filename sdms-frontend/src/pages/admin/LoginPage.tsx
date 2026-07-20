@@ -37,7 +37,7 @@ const LoginPage: React.FC<LoginPageProps> = () => {
         minHeight: '80vh',
       }}
     >
-      <Card sx={{ width: '100%', maxWidth: 460, mx: 'auto' }}>
+      <Card sx={{ width: '100%', maxWidth: 460, mx: 'auto', borderRadius: 4 }}>
         <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
           {/* Header / Icon */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
@@ -55,8 +55,8 @@ const LoginPage: React.FC<LoginPageProps> = () => {
             >
               <LockOutlined />
             </Box>
-            <Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>
-              Hệ thống Quản trị KTX
+            <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+              Hệ thống quản trị KTX
             </Typography>
             <Typography
               variant="body2"
@@ -151,7 +151,7 @@ const LoginPage: React.FC<LoginPageProps> = () => {
                 variant="text"
                 color="primary"
                 onClick={() => navigate('/admin/forgot-password')}
-                sx={{ textTransform: 'none', fontWeight: 500 }}
+                sx={{ textTransform: 'none', fontWeight: 'bold' }}
               >
                 Bạn quên mật khẩu?
               </Button>

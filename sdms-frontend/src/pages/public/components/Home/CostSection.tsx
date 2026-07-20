@@ -1,6 +1,7 @@
 import { PaymentsOutlined, BoltOutlined, ReceiptLongOutlined } from '@mui/icons-material';
 import { Box, Container, Typography, Paper, Stack } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { alpha } from '@mui/material/styles';
 
 const COST_ITEMS = [
   {
@@ -15,109 +16,114 @@ const COST_ITEMS = [
   },
   {
     icon: <ReceiptLongOutlined sx={{ fontSize: 24 }} />,
-    title: 'Thanh toán Tiền mặt',
-    desc: 'Hiện tại hệ thống thanh toán trực tuyến đang nâng cấp. Sinh viên vui lòng nộp phí lưu trú bằng tiền mặt tại Văn phòng KTX.',
+    title: 'Thanh toán linh hoạt',
+    desc: 'Hệ thống hỗ trợ sinh viên thanh toán phí lưu trú trực tuyến (Online qua mã QR) hoặc nộp tiền mặt trực tiếp tại Văn phòng Ký túc xá.',
   },
 ];
 
 export default function CostSection() {
   return (
-    <Box sx={{ py: 10, bgcolor: 'background.paper' }}>
-      <Container>
-        <Grid container spacing={6} alignItems="center">
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="h3" sx={{ fontWeight: 900, mb: 3 }}>
-              Chi phí Lưu trú
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ color: 'text.secondary', mb: 4, fontSize: '1.1rem', lineHeight: 1.8 }}
-            >
-              Trường Đại học Công nghệ Sài Gòn (STU) luôn hỗ trợ mức phí tốt nhất để tạo điều kiện
-              sinh hoạt và học tập cho sinh viên.
-            </Typography>
+      <Box sx={{ py: 10, bgcolor: 'background.paper' }}>
+        <Container maxWidth="lg">
+          <Grid container spacing={6} alignItems="center">
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Typography variant="h3" sx={{ fontWeight: 800, mb: 3, letterSpacing: '-0.5px' }}>
+                Chi phí lưu trú
+              </Typography>
+              <Typography
+                  variant="body1"
+                  sx={{ color: 'text.secondary', mb: 4, fontSize: '1.05rem', lineHeight: 1.8 }}
+              >
+                Trường Đại học Công nghệ Sài Gòn (STU) luôn áp dụng mức phí tối ưu nhất nhằm hỗ trợ
+                và tạo điều kiện thuận lợi cho đời sống sinh hoạt, học tập của sinh viên.
+              </Typography>
 
-            <Stack spacing={2}>
-              {COST_ITEMS.map((item, index) => (
-                <Paper
-                  key={index}
+              <Stack direction="column" spacing={2}>
+                {COST_ITEMS.map((item, index) => (
+                    <Paper
+                        key={index}
+                        elevation={0}
+                        sx={{
+                          p: 2.5,
+                          borderRadius: 4,
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          bgcolor: 'background.default',
+                          transition: 'all 0.2s ease-in-out',
+                          '&:hover': {
+                            borderColor: 'primary.main',
+                            boxShadow: (theme) => theme.shadows[1],
+                          },
+                        }}
+                    >
+                      <Stack direction="row" spacing={2.2} alignItems="flex-start">
+                        <Box
+                            sx={(theme) => ({
+                              width: 44,
+                              height: 44,
+                              borderRadius: 2.5,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              bgcolor: alpha(theme.palette.primary.main, 0.08),
+                              color: 'primary.main',
+                              flexShrink: 0,
+                            })}
+                        >
+                          {item.icon}
+                        </Box>
+                        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                          <Typography sx={{ fontWeight: 700 }} variant="h6">
+                            {item.title}
+                          </Typography>
+                          <Typography sx={{ color: 'text.secondary', lineHeight: 1.6, mt: 0.5, fontSize: '0.95rem' }}>
+                            {item.desc}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </Paper>
+                ))}
+              </Stack>
+
+              <Typography
+                  variant="body2"
+                  sx={{ color: 'text.secondary', mt: 3, fontStyle: 'italic' }}
+              >
+                * Lưu ý: Sinh viên cần tự chuẩn bị các vật dụng cá nhân khi dọn vào ở.
+              </Typography>
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper
                   elevation={0}
                   sx={{
-                    p: 2.25,
-                    borderRadius: 3,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    bgcolor: 'background.default',
+                    p: 0,
+                    borderRadius: 6,
+                    overflow: 'hidden',
+                    boxShadow: (theme) => theme.shadows[4],
                   }}
-                >
-                  <Stack direction="row" spacing={2.2} alignItems="flex-start">
-                    <Box
-                      sx={(theme) => ({
-                        width: 44,
-                        height: 44,
-                        borderRadius: 2.5,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        bgcolor: `${theme.palette.primary.main}14`,
-                        color: 'primary.main',
-                        flexShrink: 0,
-                      })}
-                    >
-                      {item.icon}
-                    </Box>
-                    <Box>
-                      <Typography sx={{ fontWeight: 700 }} variant="h6">
-                        {item.title}
-                      </Typography>
-                      <Typography sx={{ color: 'text.secondary', lineHeight: 1.7, mt: 0.3 }}>
-                        {item.desc}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Paper>
-              ))}
-            </Stack>
-
-            <Typography
-              variant="body2"
-              sx={{ color: 'text.secondary', mt: 3, fontStyle: 'italic' }}
-            >
-              * Lưu ý: Sinh viên cần tự chuẩn bị các vật dụng cá nhân khi dọn vào ở.
-            </Typography>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 0,
-                borderRadius: 6,
-                overflow: 'hidden',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
-              }}
-            >
-              <Box
-                sx={{
-                  height: 450,
-                  background: (theme) =>
-                    `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
               >
-                <Typography
-                  variant="h4"
-                  sx={{ color: 'common.white', fontWeight: 'bold', opacity: 0.8 }}
+                <Box
+                    sx={{
+                      height: 450,
+                      background: (theme) =>
+                          `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
                 >
-                  STU Dormitory
-                </Typography>
-              </Box>
-            </Paper>
+                  <Typography
+                      variant="h4"
+                      sx={{ color: 'common.white', fontWeight: 800, opacity: 0.85, letterSpacing: '0.5px' }}
+                  >
+                    STU Dormitory
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
           </Grid>
-        </Grid>
-      </Container>
-    </Box>
+        </Container>
+      </Box>
   );
 }

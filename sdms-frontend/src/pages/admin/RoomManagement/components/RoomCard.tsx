@@ -60,6 +60,7 @@ export default function RoomCard({
     <Card
       sx={{
         height: '100%',
+        borderRadius: 4,
         transition: 'all 0.2s ease-in-out',
         '&:hover': {
           transform: 'translateY(-4px)',
@@ -71,14 +72,14 @@ export default function RoomCard({
         {/* ── Header ─────────────────────────────────── */}
         <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={2}>
           <Box>
-            <Typography variant="h6" fontWeight={700} color="text.primary">
+            <Typography variant="h6" fontWeight="bold" color="text.primary">
               Phòng {room.roomCode}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               Tầng {room.floorNumber} · {room.buildingCode}
             </Typography>
             <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.5 }}>
-              <Typography variant="caption" color="primary" sx={{ fontWeight: 600 }}>
+              <Typography variant="caption" color="primary" sx={{ fontWeight: 'bold' }}>
                 PIN: {room.roomPinCode ? (showPin ? room.roomPinCode : '******') : 'Chưa có'}
               </Typography>
               {room.roomPinCode && (
@@ -101,7 +102,7 @@ export default function RoomCard({
               label={STATUS_LABEL[room.status] ?? room.status}
               color={STATUS_COLOR[room.status] ?? 'default'}
               size="small"
-              sx={{ fontWeight: 600 }}
+              sx={{ fontWeight: 'bold' }}
             />
             <RoomActionMenu
               roomId={room.roomId}
@@ -121,7 +122,7 @@ export default function RoomCard({
             <Typography variant="caption" color="text.secondary">
               Lấp đầy
             </Typography>
-            <Typography variant="caption" fontWeight={700}>
+            <Typography variant="caption" fontWeight="bold">
               {room.occupiedBeds}/{room.capacity} ({occupancyPercent}%)
             </Typography>
           </Stack>
@@ -158,7 +159,7 @@ export default function RoomCard({
             <BedOutlinedIcon fontSize="small" color="action" />
             <Typography
               variant="caption"
-              fontWeight={700}
+              fontWeight="bold"
               color="text.disabled"
               sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
             >
@@ -166,9 +167,9 @@ export default function RoomCard({
             </Typography>
           </Stack>
           <Grid container spacing={1}>
-            {(room.beds ?? []).map((bed, idx) => (
+            {(room.beds ?? []).map((bed) => (
               <Grid key={bed.bedId}>
-                <BedIcon bed={bed}  onClick={(b) => onBedClick(b, room)} />
+                <BedIcon bed={bed} onClick={(b) => onBedClick(b, room)} />
               </Grid>
             ))}
           </Grid>

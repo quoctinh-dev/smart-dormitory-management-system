@@ -25,7 +25,7 @@ public class RegistrationController {
     @Operation(summary = "Yêu cầu gửi mã OTP để xác thực Email trước khi đăng ký")
     @PostMapping("/request-otp")
     public ApiResponse<Void> requestOtp(@Valid @RequestBody SendOtpRequest request) {
-        registrationOtpService.generateAndSendOtp(request.getEmail());
+        registrationService.requestOtp(request.getEmail());
         return ApiResponse.success("Mã OTP đã được gửi đến email của bạn", null);
     }
 

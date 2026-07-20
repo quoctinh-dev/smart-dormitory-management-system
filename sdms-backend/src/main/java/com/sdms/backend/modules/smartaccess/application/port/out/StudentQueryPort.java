@@ -17,5 +17,5 @@ public interface StudentQueryPort {
     /**
      * Get all active RFID codes for offline caching in IoT devices.
      */
-    List<String> getActiveRfidWhitelists();
+    java.util.Map<java.util.UUID, List<String>> getActiveRfidWhitelistsByBuilding();
 }

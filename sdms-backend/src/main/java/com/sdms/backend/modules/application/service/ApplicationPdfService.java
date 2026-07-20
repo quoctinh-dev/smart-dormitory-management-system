@@ -4,6 +4,7 @@ import com.sdms.backend.modules.application.entity.ApplicationGeneratedDocument;
 import com.sdms.backend.modules.application.entity.ApplicationPriority;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.student.entity.StayExtension;
+import com.sdms.backend.modules.student.entity.Student;
 import com.sdms.backend.modules.application.enums.GeneratedDocumentType;
 import com.sdms.backend.modules.application.repository.ApplicationGeneratedDocumentRepository;
 import com.sdms.backend.modules.upload.service.CloudinaryService;
@@ -62,6 +63,17 @@ public class ApplicationPdfService {
                         .collect(Collectors.toSet()) : Collections.emptySet();
         context.setVariable("priorities", priorityCategories);
 
+        // Determine academicYear from registrationPeriod
+        String academicYear = "20..... - 20.....";
+        if (application.getRegistrationPeriod() != null && application.getRegistrationPeriod().getStayStartDate() != null) {
+            int startYear = application.getRegistrationPeriod().getStayStartDate().getYear();
+            academicYear = startYear + " - " + (startYear + 1);
+        } else {
+            int currentYear = java.time.LocalDate.now().getYear();
+            academicYear = currentYear + " - " + (currentYear + 1);
+        }
+        context.setVariable("academicYear", academicYear);
+
         // Find portrait photo
         String portraitPhotoUrl = null;
         if (application.getDocuments() != null) {
@@ -103,63 +115,90 @@ public class ApplicationPdfService {
         return fileUrl;
     }
 
+    /**
+     * [BUSINESS RULE: EXTENSION PDF GENERATION]
+     * Sinh 2 tài liệu PDF khi đơn gia hạn được DUYỆT — tái sử dụng đúng 2 template gốc:
+     *   1. registration_form.html  → Phiếu đăng ký (sinh viên ký)
+     *   2. commitment_form.html    → Bản cam kết (sinh viên cam kết)
+     *
+     * Data strategy:
+     *   - Các trường KHÔNG THAY ĐỔI (dob, gender, pob, ethnic, issueDate...) → lấy từ srcApp (đơn gốc)
+     *   - Các trường CÓ THỂ CẬP NHẬT (cccd, phone, permanentAddress, fatherName, motherName...) → lấy từ Student
+     *   Điều này đảm bảo PDF gia hạn luôn phản ánh đúng thông tin MỚI NHẤT của sinh viên.
+     *
+     * @return String[0] = contractPdfUrl (Phiếu đăng ký), String[1] = commitmentPdfUrl (Bản cam kết)
+     */
     public String[] generateExtensionPdfs(StayExtension extension) {
-        com.sdms.backend.modules.student.entity.Student student = extension.getStudent();
-        log.info("Generating Contract and Commitment for Extension: {}", student.getStudentCode());
-        
+        Student student = extension.getStudent();
+        log.info("Generating extension PDFs (reusing original templates) for student: {}", student.getStudentCode());
+
         DormitoryApplication srcApp = student.getSourceApplication();
+
+        // Build virtual app: srcApp làm nền (dob, gender, ethnic...) + Student override các trường cập nhật được
         DormitoryApplication virtualApp = new DormitoryApplication();
         virtualApp.setApplicationCode("EXT-" + student.getStudentCode());
-        virtualApp.setFullName(student.getFullName());
         virtualApp.setStudentCode(student.getStudentCode());
+        // Thông tin bất biến — lấy từ đơn gốc
+        virtualApp.setFullName(student.getFullName());
         virtualApp.setDob(srcApp != null ? srcApp.getDob() : null);
         virtualApp.setGender(srcApp != null ? srcApp.getGender() : null);
-        virtualApp.setIssueDate(srcApp != null ? srcApp.getIssueDate() : null);
-        virtualApp.setIssuePlace(srcApp != null ? srcApp.getIssuePlace() : null);
         virtualApp.setPob(srcApp != null ? srcApp.getPob() : null);
         virtualApp.setEthnic(srcApp != null ? srcApp.getEthnic() : null);
         virtualApp.setReligion(srcApp != null ? srcApp.getReligion() : null);
+        virtualApp.setIssueDate(srcApp != null ? srcApp.getIssueDate() : null);
+        virtualApp.setIssuePlace(srcApp != null ? srcApp.getIssuePlace() : null);
+        virtualApp.setCohort(srcApp != null ? srcApp.getCohort() : null);
+        virtualApp.setContactAddress(srcApp != null ? srcApp.getContactAddress() : null);
+        virtualApp.setFatherYob(srcApp != null ? srcApp.getFatherYob() : null);
+        virtualApp.setFatherJob(srcApp != null ? srcApp.getFatherJob() : null);
+        virtualApp.setMotherYob(srcApp != null ? srcApp.getMotherYob() : null);
+        virtualApp.setMotherJob(srcApp != null ? srcApp.getMotherJob() : null);
+        // Thông tin có thể cập nhật — lấy từ Student (luôn mới nhất)
         virtualApp.setCccd(student.getCccd());
         virtualApp.setFaculty(student.getFaculty());
-        // virtualApp.setAcademicYear(student.getAcademicYear());
-        virtualApp.setCohort(srcApp != null ? srcApp.getCohort() : null);
         virtualApp.setPermanentAddress(student.getPermanentAddress());
-        virtualApp.setContactAddress(srcApp != null ? srcApp.getContactAddress() : null);
         virtualApp.setPhone(student.getPhone());
         virtualApp.setEmail(student.getEmail());
         virtualApp.setFatherName(student.getFatherName());
-        virtualApp.setFatherYob(srcApp != null ? srcApp.getFatherYob() : null);
-        virtualApp.setFatherJob(srcApp != null ? srcApp.getFatherJob() : null);
         virtualApp.setFatherPhone(student.getFatherPhone());
         virtualApp.setMotherName(student.getMotherName());
-        virtualApp.setMotherYob(srcApp != null ? srcApp.getMotherYob() : null);
-        virtualApp.setMotherJob(srcApp != null ? srcApp.getMotherJob() : null);
         virtualApp.setMotherPhone(student.getMotherPhone());
-      //  virtualApp.setFamilyContact(srcApp != null ? srcApp.getFamilyContact() : null);
-        
-      //  if (extension.getOldExpectedCheckOutAt() != null) {
-         // virtualApp.setCheckInDate(extension.getOldExpectedCheckOutAt().toLocalDate());
-       // }
         virtualApp.setCreatedAt(extension.getCreatedAt());
-      // virtualApp.setPriorities(srcApp != null ? srcApp.getPriorities() : java.util.Collections.emptyList());
 
         Context context = new Context();
         context.setVariable("app", virtualApp);
         context.setVariable("portraitPhotoUrl", student.getAvatarUrl());
-        
-        Set<String> priorityCategories = virtualApp.getPriorities() != null ?
-                virtualApp.getPriorities().stream()
+        Set<String> priorityCategories = (srcApp != null && srcApp.getPriorities() != null)
+                ? srcApp.getPriorities().stream()
                         .map(ap -> ap.getPriorityCategory().name())
-                        .collect(Collectors.toSet()) : Collections.emptySet();
+                        .collect(Collectors.toSet())
+                : Collections.emptySet();
         context.setVariable("priorities", priorityCategories);
 
-        String htmlContract = templateEngine.process("pdf/registration_form", context);
-        String contractFileName = "contract_ext_" + student.getStudentCode() + "_" + extension.getExtensionId();
-        String contractUrl = generateAndUploadPdf(htmlContract, contractFileName);
+        // Determine academicYear for extension
+        String academicYear = "20..... - 20.....";
+        if (extension.getRegistrationPeriod() != null) {
+            int startYear = extension.getRegistrationPeriod().getStayStartDate().getYear();
+            int endYear = extension.getRegistrationPeriod().getStayEndDate().getYear();
+            academicYear = startYear + " - " + endYear;
+        } else if (srcApp != null && srcApp.getRegistrationPeriod() != null) {
+            int startYear = srcApp.getRegistrationPeriod().getStayStartDate().getYear();
+            int endYear = srcApp.getRegistrationPeriod().getStayEndDate().getYear();
+            academicYear = startYear + " - " + endYear;
+        }
+        context.setVariable("academicYear", academicYear);
 
+        // PDF 1: Phiếu đăng ký (dùng template gốc)
+        String htmlContract = templateEngine.process("pdf/registration_form", context);
+        String contractFileName = "ext_registration_" + student.getStudentCode() + "_" + extension.getExtensionId();
+        String contractUrl = generateAndUploadPdf(htmlContract, contractFileName);
+        log.info("Extension registration PDF uploaded: {}", contractUrl);
+
+        // PDF 2: Bản cam kết (dùng template gốc)
         String htmlCommitment = templateEngine.process("pdf/commitment_form", context);
-        String commitmentFileName = "commitment_ext_" + student.getStudentCode() + "_" + extension.getExtensionId();
+        String commitmentFileName = "ext_commitment_" + student.getStudentCode() + "_" + extension.getExtensionId();
         String commitmentUrl = generateAndUploadPdf(htmlCommitment, commitmentFileName);
+        log.info("Extension commitment PDF uploaded: {}", commitmentUrl);
 
         return new String[]{contractUrl, commitmentUrl};
     }

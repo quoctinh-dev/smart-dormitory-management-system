@@ -46,4 +46,17 @@ public class UtilityUsageController {
         utilityUsageManagementService.recordUtility(request, type);
         return ApiResponse.success("Lưu chỉ số điện nước thành công");
     }
+
+    @Operation(summary = "Hủy chốt chỉ số điện nước")
+    @DeleteMapping("/record")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ApiResponse<Void> cancelUtilityRecord(
+            @RequestParam UUID roomId,
+            @RequestParam int month,
+            @RequestParam int year,
+            @RequestParam UtilityType type
+    ) {
+        utilityUsageManagementService.cancelUtilityRecord(roomId, month, year, type);
+        return ApiResponse.success("Hủy chốt và xóa hóa đơn liên quan thành công");
+    }
 }

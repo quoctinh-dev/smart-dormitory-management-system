@@ -1,7 +1,8 @@
 // src/hooks/useRoomDashboard.ts
 import { useState, useEffect, useCallback } from 'react';
 
-import roomApi from '@/api/roomApi';
+import roomApi from '@/api/room-api';
+import { snackbar } from '@/helpers/snackbar';
 import type {
   BuildingResponse,
   FloorResponse,
@@ -9,7 +10,6 @@ import type {
   RoomResponse,
   BedResponse,
 } from '@/types/room';
-import { snackbar } from '@/utils/snackbar';
 
 export function useRoomDashboard() {
   const [buildings, setBuildings] = useState<BuildingResponse[]>([]);
@@ -18,7 +18,6 @@ export function useRoomDashboard() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('');
   const [selectedFloor, setSelectedFloor] = useState<string>('');
   const [loading, setLoading] = useState(false);
-
 
   // ── Giai đoạn 1: Tải toàn bộ Tòa nhà khi mount ──────────────────────────
   useEffect(() => {
@@ -108,6 +107,31 @@ export function useRoomDashboard() {
     }
   }, [selectedFloor, fetchRoomsAndBeds]);
 
+  const refresh = useCallback(() => {
+    if (selectedFloor) fetchRoomsAndBeds(selectedFloor);
+  }, [selectedFloor, fetchRoomsAndBeds]);
+
+  const handleBulkGeneratePins = async () => {
+    if (
+      !window.confirm(
+        'Hệ thống sẽ tự động tạo mã PIN cho TẤT CẢ các phòng hiện chưa có PIN. Bạn có chắc chắn không?'
+      )
+    )
+      return;
+    try {
+      setLoading(true);
+      const { default: roomPinApi } = await import('@/api/room-pin-api');
+      const res = await roomPinApi.bulkGeneratePins();
+      snackbar.success(`Đã tạo thành công PIN cho ${res.generatedCount} phòng.`);
+      refresh();
+    } catch (err: unknown) {
+      const { getErrorMessage } = await import('@/types/api');
+      snackbar.error(getErrorMessage(err, 'Lỗi khi tạo PIN hàng loạt'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     buildings,
     floors,
@@ -117,9 +141,7 @@ export function useRoomDashboard() {
     selectedFloor,
     setSelectedFloor,
     loading,
-
-    refresh: () => {
-      if (selectedFloor) fetchRoomsAndBeds(selectedFloor);
-    },
+    refresh,
+    handleBulkGeneratePins,
   };
 }

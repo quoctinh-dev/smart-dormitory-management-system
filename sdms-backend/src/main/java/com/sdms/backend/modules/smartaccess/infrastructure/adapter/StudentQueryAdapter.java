@@ -69,10 +69,14 @@ public class StudentQueryAdapter implements StudentQueryPort {
     }
 
     @Override
-    public List<String> getActiveRfidWhitelists() {
-        return studentRepository.findByStatusAndRfidCodeIsNotNull(StudentStatus.ACTIVE)
-                .stream()
-                .map(student -> student.getRfidCode())
-                .collect(Collectors.toList());
+    public java.util.Map<java.util.UUID, List<String>> getActiveRfidWhitelistsByBuilding() {
+        List<Object[]> results = assignmentRepository.findActiveRfidsGroupedByBuilding(com.sdms.backend.modules.room.enums.AssignmentStatus.OCCUPIED);
+        java.util.Map<java.util.UUID, List<String>> map = new java.util.HashMap<>();
+        for (Object[] row : results) {
+            java.util.UUID buildingId = (java.util.UUID) row[0];
+            String rfid = (String) row[1];
+            map.computeIfAbsent(buildingId, k -> new java.util.ArrayList<>()).add(rfid);
+        }
+        return map;
     }
 }

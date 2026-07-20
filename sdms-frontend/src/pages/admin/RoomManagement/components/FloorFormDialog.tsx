@@ -1,4 +1,3 @@
-// src/pages/admin/RoomManagement/components/FloorFormDialog.tsx
 import {
   Dialog,
   DialogTitle,
@@ -12,11 +11,10 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-import roomApi from '@/api/roomApi';
+import { useFloorForm } from '@/hooks/useFloorForm';
 import type { FloorResponse, BuildingResponse } from '@/types/room';
-import { snackbar } from '@/utils/snackbar';
 
 export interface FloorFormDialogProps {
   open: boolean;
@@ -35,54 +33,16 @@ export default function FloorFormDialog({
   floor,
   onSuccess,
 }: FloorFormDialogProps) {
-  const isEdit = Boolean(floor);
-  const [floorNumber, setFloorNumber] = useState<number | ''>('');
-  const [gender, setGender] = useState('MALE');
-  const [loading, setLoading] = useState(false);
-
-  // Xem tòa nhà có bị gò bó giới tính không
-  const isBuildingStrict =
-    currentBuilding?.gender === 'MALE' || currentBuilding?.gender === 'FEMALE';
-  const strictGender = isBuildingStrict ? currentBuilding.gender : null;
-
-  useEffect(() => {
-    if (open) {
-      if (floor) {
-        setFloorNumber(floor.floorNumber);
-        setGender(floor.gender || 'MALE');
-      } else {
-        setFloorNumber('');
-        setGender(strictGender || 'MALE');
-      }
-    }
-  }, [open, floor, strictGender]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (floorNumber === '' || !buildingId) return;
-
-    setLoading(true);
-    try {
-      if (isEdit) {
-        await roomApi.updateFloor(floor!.floorId, {
-          gender,
-        });
-        snackbar.success('Cập nhật tầng thành công');
-      } else {
-        await roomApi.createFloor({
-          buildingId,
-          floorNumber: Number(floorNumber),
-          gender,
-        });
-        snackbar.success('Thêm tầng mới thành công');
-      }
-      onSuccess();
-    } catch (err: any) {
-      snackbar.error(err?.response?.data?.message || 'Có lỗi xảy ra');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    isEdit,
+    floorNumber,
+    setFloorNumber,
+    gender,
+    setGender,
+    loading,
+    isBuildingStrict,
+    handleSubmit,
+  } = useFloorForm(open, buildingId, currentBuilding, floor, onSuccess, onClose);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>

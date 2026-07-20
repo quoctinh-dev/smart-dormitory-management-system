@@ -51,11 +51,12 @@ public class CloudinaryService {
         }
 
         try {
+            String publicId = fileName.endsWith(".pdf") ? fileName : fileName + ".pdf";
             Map uploadResult = cloudinary.uploader().upload(
                     pdfBytes,
                     ObjectUtils.asMap(
                             "folder", folder,
-                            "public_id", fileName.replace(".pdf", ""),
+                            "public_id", publicId,
                             "resource_type", "raw",
                             "access_mode", "public"
                     )

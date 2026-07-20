@@ -1,6 +1,6 @@
 package com.sdms.backend.modules.student.dto.response;
 
-import com.sdms.backend.modules.student.enums.ExtensionReason;
+
 import com.sdms.backend.modules.student.enums.ExtensionStatus;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +14,7 @@ public class StayExtensionResponse {
     private UUID studentId;
     private String studentCode;
     private String fullName;
-    private ExtensionReason reason;
+    private String reason;
     private ExtensionStatus status;
     private UUID currentBedId;
     private String currentBedCode;

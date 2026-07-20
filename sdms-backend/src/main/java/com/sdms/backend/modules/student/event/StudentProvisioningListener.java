@@ -59,10 +59,10 @@ public class StudentProvisioningListener {
         log.info("[StudentProvisioningListener] Khởi động luồng sinh hồ sơ tự động cho Đơn={}", event.getApplicationId());
 
         try {
-            // 1. Kiểm tra xem hồ sơ cư dân sinh viên này đã được khởi tạo trước đó chưa (Tránh double click sinh trùng)
-            boolean studentExists = studentRepository.existsBySourceApplication_ApplicationId(event.getApplicationId());
-            if (studentExists) {
-                log.warn("[StudentProvisioningListener] Hồ sơ sinh viên ứng với Đơn {} đã tồn tại. Hủy luồng cấp tài khoản.", event.getApplicationId());
+            // 1. Cấm sinh trùng lặp nếu Đơn đăng ký này đã được cấp tài khoản (Tránh Double click)
+            boolean processed = studentRepository.existsBySourceApplication_ApplicationId(event.getApplicationId());
+            if (processed) {
+                log.warn("[StudentProvisioningListener] Hồ sơ sinh viên ứng với Đơn {} đã được xử lý. Hủy luồng cấp tài khoản.", event.getApplicationId());
                 return;
             }
 
@@ -70,8 +70,18 @@ public class StudentProvisioningListener {
             DormitoryApplication application = applicationRepository.findById(event.getApplicationId())
                     .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đơn đăng ký gốc có ID: " + event.getApplicationId()));
 
-            // 3. KHỞI TẠO HỒ SƠ SINH VIÊN (STUDENT RESIDENT PROFILE)
-            Student student = new Student();
+            // 3. TÌM KIẾM SINH VIÊN CŨ HOẶC TẠO MỚI (Xử lý case sinh viên cũ quay lại KTX)
+            Student student = studentRepository.findByStudentCode(application.getStudentCode()).orElse(null);
+            boolean isNewStudent = false;
+
+            if (student == null) {
+                log.info("[StudentProvisioningListener] Sinh viên mới tinh, tiến hành tạo Profile mới: {}", application.getStudentCode());
+                student = new Student();
+                isNewStudent = true;
+            } else {
+                log.info("[StudentProvisioningListener] Phát hiện sinh viên cũ quay lại: {}. Tái sử dụng Profile hiện tại.", application.getStudentCode());
+            }
+
             student.setSourceApplication(application);
             student.setFullName(application.getFullName());
             student.setStudentCode(application.getStudentCode()); // Lấy chính xác Mã sinh viên gốc từ Đơn đăng ký
@@ -84,17 +94,15 @@ public class StudentProvisioningListener {
             // Sao chép chi tiết thông tin nhân thân để quầy lễ tân tra cứu
             student.setFatherName(application.getFatherName());
             student.setFatherPhone(application.getFatherPhone());
-            
             student.setMotherName(application.getMotherName());
             student.setMotherPhone(application.getMotherPhone());
-            
 
             // 🌟 ĐỒNG BỘ CHUẨN XÁC: Duyệt danh sách minh chứng tìm đúng file ảnh chân dung trên Cloudinary
             String portraitUrl = application.getDocuments().stream()
                     .filter(doc -> doc.getDocumentType() == VerificationDocumentType.PORTRAIT_PHOTO)
                     .map(VerificationDocument::getFileUrl)
                     .findFirst()
-                    .orElse("");
+                    .orElse(student.getAvatarUrl() != null ? student.getAvatarUrl() : ""); // Giữ ảnh cũ nếu không có ảnh mới
 
             student.setAvatarUrl(portraitUrl); // Đổ link ảnh Cloudinary vào đây để hết bị dính NULL dưới DB!
             student.setFaceImageUrl(portraitUrl);
@@ -105,25 +113,29 @@ public class StudentProvisioningListener {
             student = studentRepository.save(student);
             log.info("[StudentProvisioningListener] Đã lưu thành công Resident Profile cho Sinh viên: {}", student.getFullName());
 
-            // 4. KHỞI TẠO TÀI KHOẢN ĐĂNG NHẬP (USER ACCOUNT)
-            UserAccount account = new UserAccount();
-            account.setStudent(student);
-            account.setUsername(application.getStudentCode()); // Tài khoản đăng nhập mặc định là Mã sinh viên
-            account.setEmail(application.getEmail());
+            // 4. KHỞI TẠO TÀI KHOẢN ĐĂNG NHẬP (USER ACCOUNT) NẾU LÀ SINH VIÊN MỚI
+            if (isNewStudent) {
+                UserAccount account = new UserAccount();
+                account.setStudent(student);
+                account.setUsername(application.getStudentCode()); // Tài khoản đăng nhập mặc định là Mã sinh viên
+                account.setEmail(application.getEmail());
 
-            // 🌟 CHUẨN HÓA MẬT KHẨU TẠM THỜI: Mật khẩu tạm thời mặc định cũng là Mã sinh viên
-            // Đồng bộ 100% với form nhập liệu tại trang giao diện Frontend /activate-account
-            String rawTempPassword = application.getStudentCode();
-            account.setPassword(passwordEncoder.encode(rawTempPassword));
+                // 🌟 CHUẨN HÓA MẬT KHẨU TẠM THỜI: Mật khẩu tạm thời mặc định cũng là Mã sinh viên
+                // Đồng bộ 100% với form nhập liệu tại trang giao diện Frontend /activate-account
+                String rawTempPassword = application.getStudentCode();
+                account.setPassword(passwordEncoder.encode(rawTempPassword));
 
-            account.setRole(Role.STUDENT);
-            account.setStatus(AccountStatus.PENDING_ACTIVATION); // Chờ sinh viên kích hoạt đổi pass lần đầu
+                account.setRole(Role.STUDENT);
+                account.setStatus(AccountStatus.PENDING_ACTIVATION); // Chờ sinh viên kích hoạt đổi pass lần đầu
 
-            userAccountRepository.save(account);
-            log.info("[StudentProvisioningListener] Tài khoản UserAccount cho CCCD={} đã được tạo ở dạng PENDING_ACTIVATION.", application.getCccd());
+                userAccountRepository.save(account);
+                log.info("[StudentProvisioningListener] Tài khoản UserAccount mới cho CCCD={} đã được tạo ở dạng PENDING_ACTIVATION.", application.getCccd());
+            } else {
+                log.info("[StudentProvisioningListener] Sinh viên cũ đã có tài khoản UserAccount, bỏ qua bước sinh tài khoản mới.");
+            }
 
             // 5. PHÁT SỰ KIỆN LIÊN KẾT PHÒNG (Kích nổ RoomStudentLinkListener để map giường)
-            // Truyền đi thông tin ID Phân phòng (assignmentId) và ID sinh viên vừa tạo
+            // Truyền đi thông tin ID Phân phòng (assignmentId) và ID sinh viên (mới hoặc cũ)
             log.info("[StudentProvisioningListener] Kích nổ StudentCreatedEvent để thực hiện liên kết giường trống...");
             eventPublisher.publishEvent(new com.sdms.backend.modules.student.event.StudentCreatedEvent(
                     this,

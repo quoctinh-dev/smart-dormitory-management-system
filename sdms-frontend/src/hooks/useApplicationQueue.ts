@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 
-import applicationApi from '@/api/applicationApi';
+import applicationApi from '@/api/application-api';
+import { snackbar } from '@/helpers/snackbar';
 import type { ApplicationResponse } from '@/types/application';
-import { snackbar } from '@/utils/snackbar';
 
 export const useApplicationQueue = (
   page: number = 0,
@@ -12,6 +12,7 @@ export const useApplicationQueue = (
 ) => {
   const [applications, setApplications] = useState<ApplicationResponse[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalElements, setTotalElements] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,6 +31,7 @@ export const useApplicationQueue = (
 
       setApplications(res.content || []);
       setTotalPages(res.totalPages || Math.ceil((res.totalElements || 0) / size));
+      setTotalElements(res.totalElements || 0);
     } catch (err: any) {
       console.error('Failed to fetch applications', err);
       snackbar.error(err.response?.data?.message || 'Không thể tải danh sách hồ sơ hàng đợi.');
@@ -42,5 +44,5 @@ export const useApplicationQueue = (
     fetchApplications();
   }, [fetchApplications]);
 
-  return { applications, totalPages, loading, error, refreshQueue: fetchApplications };
+  return { applications, totalPages, totalElements, loading, error, refreshQueue: fetchApplications };
 };

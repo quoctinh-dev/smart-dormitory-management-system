@@ -1,4 +1,11 @@
-import { Edit, PlayCircleOutline, PauseCircleOutline, Group } from '@mui/icons-material';
+import {
+  Edit,
+  PlayCircleOutline,
+  PauseCircleOutline,
+  Group,
+  Search,
+  FilterList,
+} from '@mui/icons-material';
 import {
   Container,
   Typography,
@@ -21,10 +28,15 @@ import {
   CircularProgress,
   Chip,
   Tooltip,
-  Alert,
+  TablePagination,
+  FormControl,
+  InputLabel,
+  Select,
+  InputAdornment,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { alpha } from '@mui/material/styles';
+import { useState } from 'react';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useRegistrationManagerUi } from '@/hooks/useRegistrationManagerUi';
@@ -42,6 +54,15 @@ export default function RegistrationPeriodManager() {
     periods,
     loading,
     isSubmitting,
+    filterKeyword,
+    setFilterKeyword,
+    filterType,
+    setFilterType,
+    filterStatus,
+    setFilterStatus,
+    filterYear,
+    setFilterYear,
+    availableYears,
     openDialog,
     editMode,
     formData,
@@ -60,6 +81,11 @@ export default function RegistrationPeriodManager() {
     handleToggleStatus,
   } = useRegistrationManagerUi();
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const displayedPeriods = periods.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
   if (loading && periods.length === 0) {
     return (
       <Container sx={{ py: 4 }}>
@@ -73,23 +99,123 @@ export default function RegistrationPeriodManager() {
       {/* Top Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-          Quản lý Đợt đăng ký
+          Quản lý đợt đăng ký
         </Typography>
         <Button variant="contained" onClick={handleOpenCreate} sx={{ borderRadius: 2 }}>
           + Tạo đợt mới
         </Button>
       </Box>
 
+      {/* Filter Options */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: 2,
+          border: '1px solid',
+          borderColor: 'divider',
+          display: 'flex',
+          gap: 2,
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          bgcolor: 'background.paper',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2, color: 'text.secondary' }}>
+          <FilterList fontSize="small" />
+          <Typography variant="body2" fontWeight="bold">
+            Bộ lọc
+          </Typography>
+        </Box>
+        <TextField
+          variant="outlined"
+          size="small"
+          placeholder="Tìm kiếm theo tên đợt..."
+          value={filterKeyword}
+          onChange={(e) => {
+            setFilterKeyword(e.target.value);
+            setPage(0);
+          }}
+          sx={{ width: { xs: '100%', sm: 300 }, bgcolor: '#ffffff', borderRadius: 1 }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search fontSize="small" />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+        <FormControl
+          size="small"
+          variant="outlined"
+          sx={{ width: { xs: '100%', sm: 200 }, bgcolor: '#ffffff', borderRadius: 1 }}
+        >
+          <InputLabel>Loại cấu hình</InputLabel>
+          <Select
+            label="Loại cấu hình"
+            value={filterType}
+            onChange={(e) => {
+              setFilterType(e.target.value);
+              setPage(0);
+            }}
+          >
+            <MenuItem value="ALL">Tất cả loại</MenuItem>
+            <MenuItem value="OPEN_REGISTRATION">Mở tự do</MenuItem>
+            <MenuItem value="NEW_STUDENT">Tân sinh viên</MenuItem>
+            <MenuItem value="CURRENT_RESIDENT">Sinh viên đang lưu trú</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl
+          size="small"
+          variant="outlined"
+          sx={{ width: { xs: '100%', sm: 150 }, bgcolor: '#ffffff', borderRadius: 1 }}
+        >
+          <InputLabel>Năm học</InputLabel>
+          <Select
+            label="Năm học"
+            value={filterYear}
+            onChange={(e) => {
+              setFilterYear(e.target.value);
+              setPage(0);
+            }}
+          >
+            <MenuItem value="ALL">Tất cả năm</MenuItem>
+            {availableYears.map((year) => (
+              <MenuItem key={year} value={year}>
+                Năm {year}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl
+          size="small"
+          variant="outlined"
+          sx={{ width: { xs: '100%', sm: 200 }, bgcolor: '#ffffff', borderRadius: 1 }}
+        >
+          <InputLabel>Trạng thái</InputLabel>
+          <Select
+            label="Trạng thái"
+            value={filterStatus}
+            onChange={(e) => {
+              setFilterStatus(e.target.value);
+              setPage(0);
+            }}
+          >
+            <MenuItem value="ALL">Tất cả trạng thái</MenuItem>
+            <MenuItem value="ACTIVE">Đang hoạt động</MenuItem>
+            <MenuItem value="INACTIVE">Không hoạt động</MenuItem>
+          </Select>
+        </FormControl>
+      </Paper>
 
       {/* Main Grid/Table Wrapper */}
-      <TableContainer
-        component={Paper}
-        variant="outlined"
-        sx={{ borderRadius: 3, borderColor: 'divider', overflow: 'hidden' }}
-      >
+      <TableContainer component={Paper} sx={{ overflow: 'hidden' }}>
         <Table>
           <TableHead>
-            <TableRow sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04) }}>
+            <TableRow sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05) }}>
               <TableCell sx={{ fontWeight: 'bold' }}>Tên đợt</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Loại cấu hình</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Bắt đầu</TableCell>
@@ -112,11 +238,11 @@ export default function RegistrationPeriodManager() {
                 </TableCell>
               </TableRow>
             ) : (
-              periods.map((row) => (
+              displayedPeriods.map((row) => (
                 <TableRow key={row.periodId} hover>
                   <TableCell
                     sx={{
-                      fontWeight: 500,
+                      fontWeight: 'bold',
                       maxWidth: 220,
                       minWidth: 0,
                       overflow: 'hidden',
@@ -136,9 +262,10 @@ export default function RegistrationPeriodManager() {
                   <TableCell>
                     <Chip
                       label={row.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
-                      color={row.isActive ? 'success' : 'default'}
+                      color={row.isActive ? 'success' : 'warning'}
+                      variant={row.isActive ? 'filled' : 'outlined'}
                       size="small"
-                      sx={{ fontWeight: 600, borderRadius: 1.5 }}
+                      sx={{ fontWeight: 'bold', borderRadius: 1.5 }}
                     />
                   </TableCell>
                   <TableCell align="center">
@@ -150,17 +277,26 @@ export default function RegistrationPeriodManager() {
                         gap: 0.5,
                       }}
                     >
-                      {row.registrationType !== 'CURRENT_RESIDENT' && (
-                        <Tooltip title="Danh sách đủ điều kiện">
+                      <Tooltip
+                        title={
+                          row.registrationType === 'CURRENT_RESIDENT'
+                            ? 'Đợt gia hạn không dùng danh sách'
+                            : row.registrationType === 'OPEN_REGISTRATION'
+                              ? 'Danh sách ưu tiên'
+                              : 'Danh sách đủ điều kiện'
+                        }
+                      >
+                        <span>
                           <IconButton
                             color="info"
                             size="small"
                             onClick={handleOpenEligibility(row)}
+                            disabled={row.registrationType === 'CURRENT_RESIDENT'}
                           >
                             <Group fontSize="small" />
                           </IconButton>
-                        </Tooltip>
-                      )}
+                        </span>
+                      </Tooltip>
                       <Tooltip title="Chỉnh sửa">
                         <IconButton size="small" onClick={handleOpenEdit(row)}>
                           <Edit fontSize="small" />
@@ -187,6 +323,20 @@ export default function RegistrationPeriodManager() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        component="div"
+        count={periods.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(_, newPage) => setPage(newPage)}
+        onRowsPerPageChange={(event) => {
+          setRowsPerPage(parseInt(event.target.value, 10));
+          setPage(0);
+        }}
+        labelRowsPerPage="Số dòng:"
+      />
 
       {/* FORM DIALOG - CHUẨN HOÁ LOGIC CHỈNH SỬA & TRUYỀN TẢI DỮ LIỆU */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
@@ -293,7 +443,7 @@ export default function RegistrationPeriodManager() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle sx={{ fontWeight: 700 }}>Kích hoạt đợt đăng ký</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>Kích hoạt đợt đăng ký</DialogTitle>
         <DialogContent dividers>
           <Typography variant="body1">
             Kích hoạt đợt này sẽ tự động dừng các đợt đăng ký khác đang mở để đảm bảo chỉ có một đợt

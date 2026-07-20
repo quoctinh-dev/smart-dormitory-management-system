@@ -41,16 +41,17 @@ public class RegistrationEligibilityController {
         return ApiResponse.success("Import thành công", service.importEligibility(periodId, file));
     }
 
-    @Operation(summary = "Xem danh sách sinh viên đủ điều kiện của một đợt (Có phân trang)")
+    @Operation(summary = "Xem danh sách sinh viên đủ điều kiện của một đợt (Có phân trang & Tìm kiếm)")
     @GetMapping("/{periodId}/eligibilities")
     public ApiResponse<PageResponse<EligibilityResponse>> getEligibilities(
             @PathVariable UUID periodId,
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<EligibilityResponse> pageData = service.getEligibilities(periodId, pageable);
+        Page<EligibilityResponse> pageData = service.getEligibilities(periodId, keyword, pageable);
         return ApiResponse.success("Lấy danh sách thành công", PageResponse.of(pageData));
     }
 
@@ -62,5 +63,14 @@ public class RegistrationEligibilityController {
     ) {
         service.deleteEligibility(periodId, eligibilityId);
         return ApiResponse.success("Xóa thành công");
+    }
+
+    @Operation(summary = "Xóa toàn bộ sinh viên khỏi danh sách đủ điều kiện")
+    @DeleteMapping("/{periodId}/eligibilities")
+    public ApiResponse<Void> deleteAllEligibilities(
+            @PathVariable UUID periodId
+    ) {
+        service.deleteAllEligibilities(periodId);
+        return ApiResponse.success("Xóa toàn bộ thành công");
     }
 }

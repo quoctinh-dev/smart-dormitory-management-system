@@ -32,10 +32,11 @@ import {
 import { alpha } from '@mui/material/styles';
 import React, { useState, useEffect } from 'react';
 
-import axiosClient from '@/api/axiosClient';
+import axiosClient from '@/api/axios-client';
+import StudentProfileModal from './components/StudentProfileModal';
 import CustomSkeleton from '@/components/common/CustomSkeleton';
-import { snackbar } from '@/utils/snackbar';
-import { validatePassword } from '@/utils/validate';
+import { snackbar } from '@/helpers/snackbar';
+import { validatePassword } from '@/helpers/validate';
 
 interface UserAccount {
   accountId: string;
@@ -60,8 +61,6 @@ export default function AccountManagementPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalElements, setTotalElements] = useState(0);
 
-
-
   // Create Staff State
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [newStaff, setNewStaff] = useState({ username: '', email: '', password: '' });
@@ -71,18 +70,47 @@ export default function AccountManagementPage() {
   const [openProfileModal, setOpenProfileModal] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+
+  // Edit Academic Info State
+  const [openEditAcademicModal, setOpenEditAcademicModal] = useState(false);
+  const [editAcademicForm, setEditAcademicForm] = useState({ faculty: '', academicYear: '' });
+  const [savingAcademic, setSavingAcademic] = useState(false);
 
   const handleViewProfile = async (accountId: string) => {
+    setSelectedAccountId(accountId);
     setLoadingProfile(true);
     setOpenProfileModal(true);
     try {
       const res: any = await axiosClient.get(`/v1/admin/accounts/${accountId}/student-profile`);
       setSelectedProfile(res);
-    } catch (error: any) {
+      setEditAcademicForm({
+        faculty: res.faculty || '',
+        academicYear: res.academicYear || '',
+      });
+    } catch {
       snackbar.error('Không thể lấy thông tin hồ sơ sinh viên');
       setOpenProfileModal(false);
     } finally {
       setLoadingProfile(false);
+    }
+  };
+
+  const handleSaveAcademicInfo = async () => {
+    if (!editAcademicForm.faculty || !editAcademicForm.academicYear) {
+      snackbar.error('Vui lòng nhập đầy đủ Khoa và Khóa/Niên khóa!');
+      return;
+    }
+    setSavingAcademic(true);
+    try {
+      const res: any = await axiosClient.patch(`/v1/admin/accounts/${selectedAccountId}/student-profile/academic`, editAcademicForm);
+      snackbar.success('Cập nhật học vụ thành công!');
+      setSelectedProfile(res);
+      setOpenEditAcademicModal(false);
+    } catch (err: any) {
+      snackbar.error(err?.message || 'Lỗi khi cập nhật học vụ');
+    } finally {
+      setSavingAcademic(false);
     }
   };
 
@@ -137,7 +165,7 @@ export default function AccountManagementPage() {
       await axiosClient.put(`/v1/admin/accounts/${id}/toggle-lock`);
       snackbar.success('Cập nhật trạng thái thành công!');
       fetchAccounts(page, rowsPerPage, keyword, role, status);
-    } catch (error: any) {
+    } catch {
       snackbar.error('Lỗi khi cập nhật trạng thái');
     }
   };
@@ -148,7 +176,9 @@ export default function AccountManagementPage() {
       return;
     }
     if (!validatePassword(newStaff.password)) {
-      snackbar.error('Mật khẩu phải từ 8-50 ký tự, có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.');
+      snackbar.error(
+        'Mật khẩu phải từ 8-50 ký tự, có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.'
+      );
       return;
     }
     setCreating(true);
@@ -172,7 +202,7 @@ export default function AccountManagementPage() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-            Quản lý Tài khoản (Identity Management)
+            Quản lý tài khoản (identity management)
           </Typography>
           <Typography variant="body1" sx={{ color: 'text.secondary' }}>
             Quản lý quyền truy cập, danh tính và tài khoản hệ thống.
@@ -198,7 +228,7 @@ export default function AccountManagementPage() {
               },
             }}
           >
-            Thêm Nhân Viên Mới
+            Thêm nhân viên mới
           </Button>
         </Stack>
       </Box>
@@ -209,7 +239,7 @@ export default function AccountManagementPage() {
         sx={{
           p: 2,
           mb: 3,
-          borderRadius: 3,
+          borderRadius: 4,
           display: 'flex',
           gap: 2,
           alignItems: 'center',
@@ -267,12 +297,12 @@ export default function AccountManagementPage() {
       </Paper>
 
       {/* Table Lịch Sử / Danh sách */}
-      <Paper variant="outlined" sx={{ borderRadius: 3, mb: 4, overflow: 'hidden' }}>
+      <Paper sx={{ borderRadius: 4, mb: 4, overflow: 'hidden' }}>
         <Typography
           variant="h6"
           sx={{ p: 2.5, fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}
         >
-          Danh sách Tài khoản Hệ thống
+          Danh sách tài khoản hệ thống
         </Typography>
 
         {loading ? (
@@ -406,7 +436,7 @@ export default function AccountManagementPage() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle sx={{ fontWeight: 'bold' }}>Tạo tài khoản Nhân viên (Staff)</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>Tạo tài khoản nhân viên (staff)</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
             Tài khoản mới sẽ có quyền STAFF, cho phép quản lý nội dung ký túc xá nhưng không có
@@ -421,7 +451,7 @@ export default function AccountManagementPage() {
               autoFocus
             />
             <TextField
-              label="Địa chỉ Email"
+              label="Địa chỉ email"
               type="email"
               fullWidth
               value={newStaff.email}
@@ -446,85 +476,60 @@ export default function AccountManagementPage() {
             disabled={creating || !newStaff.username || !newStaff.email || !newStaff.password}
             sx={{ fontWeight: 'bold', px: 3, borderRadius: 2 }}
           >
-            {creating ? <CircularProgress size={24} color="inherit" /> : 'Xác Nhận Tạo'}
+            {creating ? <CircularProgress size={24} color="inherit" /> : 'Xác nhận tạo'}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Modal Xem Hồ sơ Sinh viên */}
-      <Dialog
+      <StudentProfileModal
         open={openProfileModal}
         onClose={() => setOpenProfileModal(false)}
-        maxWidth="md"
+        loading={loadingProfile}
+        profile={selectedProfile}
+        onOpenEditAcademic={() => setOpenEditAcademicModal(true)}
+      />
+
+      {/* Modal Sửa Học vụ */}
+      <Dialog
+        open={openEditAcademicModal}
+        onClose={() => setOpenEditAcademicModal(false)}
+        maxWidth="xs"
         fullWidth
       >
-        <DialogTitle sx={{ fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}>
-          Hồ sơ Sinh viên
-        </DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          {loadingProfile ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : selectedProfile ? (
-            <Stack spacing={2} sx={{ mt: 1 }}>
-              <Box
-                sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}
-              >
-                <Typography variant="body1">
-                  <strong>Mã sinh viên:</strong> {selectedProfile.studentCode}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Họ và tên:</strong> {selectedProfile.fullName}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Ngày sinh:</strong> {selectedProfile.dateOfBirth}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Giới tính:</strong> {selectedProfile.gender === 'MALE' ? 'Nam' : 'Nữ'}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Email:</strong> {selectedProfile.email}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Số điện thoại:</strong> {selectedProfile.phone}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>CCCD:</strong> {selectedProfile.nationalId}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Dân tộc:</strong> {selectedProfile.ethnicity}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Họ tên Cha:</strong> {selectedProfile.fatherName || 'N/A'}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>SĐT Cha:</strong> {selectedProfile.fatherPhone || 'N/A'}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Họ tên Mẹ:</strong> {selectedProfile.motherName || 'N/A'}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>SĐT Mẹ:</strong> {selectedProfile.motherPhone || 'N/A'}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Liên hệ khẩn cấp:</strong> {selectedProfile.emergencyContact || 'N/A'}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Mã thẻ RFID:</strong> {selectedProfile.rfidCode || 'Chưa gán'}
-                </Typography>
-              </Box>
-              <Typography variant="body1">
-                <strong>Địa chỉ thường trú:</strong> {selectedProfile.permanentAddress}
-              </Typography>
-            </Stack>
-          ) : (
-            <Typography color="error">Không có dữ liệu</Typography>
-          )}
+        <DialogTitle sx={{ fontWeight: 'bold' }}>Cập nhật Học vụ</DialogTitle>
+        <DialogContent sx={{ pt: 2 }}>
+          <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+            Thông tin Khoa/Khóa này sẽ được in trực tiếp lên Hợp đồng (Gia hạn) của sinh viên.
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}>
+            <TextField
+              label="Khoa"
+              fullWidth
+              value={editAcademicForm.faculty}
+              onChange={(e) => setEditAcademicForm({ ...editAcademicForm, faculty: e.target.value })}
+              placeholder="VD: Công nghệ thông tin"
+              autoFocus
+            />
+            <TextField
+              label="Khóa/Niên khóa"
+              fullWidth
+              value={editAcademicForm.academicYear}
+              onChange={(e) => setEditAcademicForm({ ...editAcademicForm, academicYear: e.target.value })}
+              placeholder="VD: K26"
+            />
+          </Box>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setOpenProfileModal(false)} variant="contained">
-            Đóng
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={() => setOpenEditAcademicModal(false)} sx={{ fontWeight: 'bold' }}>
+            Hủy bỏ
+          </Button>
+          <Button
+            onClick={handleSaveAcademicInfo}
+            variant="contained"
+            disabled={savingAcademic || !editAcademicForm.faculty || !editAcademicForm.academicYear}
+            sx={{ fontWeight: 'bold', px: 3, borderRadius: 2 }}
+          >
+            {savingAcademic ? <CircularProgress size={24} color="inherit" /> : 'Lưu cập nhật'}
           </Button>
         </DialogActions>
       </Dialog>

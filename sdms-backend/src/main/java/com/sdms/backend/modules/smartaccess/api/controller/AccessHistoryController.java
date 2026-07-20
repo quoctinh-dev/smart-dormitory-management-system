@@ -106,5 +106,24 @@ public class AccessHistoryController {
         Page<AccessHistory> page = accessHistoryRepository.findByBuildingId(buildingId, pageable);
         return ApiResponse.success("Lấy lịch sử theo tòa nhà thành công", PageResponse.of(page));
     }
+
+    @Operation(summary = "Lấy danh sách sinh viên đang ở ngoài", description = "Lấy đích danh các sinh viên chưa về KTX (hiện đang OUT)")
+    @GetMapping("/outside")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ApiResponse<java.util.List<com.sdms.backend.modules.smartaccess.api.dto.response.OutsideStudentDto>> getOutsideStudents() {
+        java.util.List<Object[]> rawList = accessHistoryRepository.findOccupiedStudentsCurrentlyOutside();
+        java.util.List<com.sdms.backend.modules.smartaccess.api.dto.response.OutsideStudentDto> result = new java.util.ArrayList<>();
+        for (Object[] row : rawList) {
+            result.add(com.sdms.backend.modules.smartaccess.api.dto.response.OutsideStudentDto.builder()
+                .studentId(java.util.UUID.fromString((String) row[0]))
+                .studentName((String) row[1])
+                .studentCode((String) row[2])
+                .roomCode((String) row[3])
+                .buildingName((String) row[4])
+                .lastOutTime(((java.sql.Timestamp) row[5]).toLocalDateTime())
+                .build());
+        }
+        return ApiResponse.success("Lấy danh sách sinh viên chưa về thành công", result);
+    }
 }
 

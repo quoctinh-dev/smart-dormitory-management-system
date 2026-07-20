@@ -64,7 +64,6 @@ export default function InfoSection({ formData, error, setFormData }: InfoSectio
         dưới đây.
       </Alert>
 
-
       {/* ---------------- I. THÔNG TIN CÁ NHÂN ---------------- */}
       <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main', mt: 2 }}>
         I. Thông tin cá nhân
@@ -85,7 +84,6 @@ export default function InfoSection({ formData, error, setFormData }: InfoSectio
           onChange={handleFieldChange('studentCode')}
           required
           fullWidth
-          helperText="Mã số sinh viên do trường cấp"
         />
       </Box>
 
@@ -271,7 +269,6 @@ export default function InfoSection({ formData, error, setFormData }: InfoSectio
         fullWidth
         sx={{ mt: 2 }}
       />
-
 
       {/* ---------------- III. ĐỐI TƯỢNG ƯU TIÊN ---------------- */}
       <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main', mt: 3 }}>

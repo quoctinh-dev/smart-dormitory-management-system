@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { faceApi } from '@/api';
-import { useAuth } from '@/auth/AuthContext';
-import { snackbar } from '@/utils/snackbar';
+import { snackbar } from '@/helpers/snackbar';
+import { useAuth } from '@/providers/AuthProvider';
 
 export interface IFaceProfile {
   profileId: string;
@@ -13,7 +13,7 @@ export interface IFaceProfile {
 }
 
 export const useFaceApproval = () => {
-  const { admin } = useAuth();
+  const { user } = useAuth();
   const [profiles, setProfiles] = useState<IFaceProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,7 +41,7 @@ export const useFaceApproval = () => {
   const handleApprove = async (profileId: string) => {
     try {
       setActionLoading(profileId);
-      const adminId = admin?.id || '00000000-0000-0000-0000-000000000000';
+      const adminId = user?.accountId || '00000000-0000-0000-0000-000000000000';
       await faceApi.approveFace(profileId, adminId);
       snackbar.success('Đã phê duyệt thành công! Trí tuệ nhân tạo (AI) đang xử lý...');
       fetchPendingFaces();
@@ -67,8 +67,6 @@ export const useFaceApproval = () => {
       setActionLoading(null);
     }
   };
-
-
 
   return {
     profiles,

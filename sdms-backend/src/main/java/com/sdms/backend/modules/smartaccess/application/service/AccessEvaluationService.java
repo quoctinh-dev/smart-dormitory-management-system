@@ -17,6 +17,7 @@ import com.sdms.backend.modules.smartaccess.domain.enums.VerificationMethod;
 import com.sdms.backend.modules.smartaccess.domain.entity.Gate;
 import com.sdms.backend.modules.smartaccess.domain.repository.AccessHistoryRepository;
 import com.sdms.backend.modules.smartaccess.domain.repository.GateRepository;
+import com.sdms.backend.modules.smartaccess.domain.repository.CurfewRequestRepository;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -34,6 +35,7 @@ public class AccessEvaluationService {
     private final TimeWindowEvaluationStrategy timeWindowEvaluationStrategy;
     private final AccessHistoryRepository accessHistoryRepository;
     private final GateRepository gateRepository;
+    private final CurfewRequestRepository curfewRequestRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -50,7 +52,7 @@ public class AccessEvaluationService {
         // Facade delegation to Anti-Corruption Layer
         Optional<StudentEligibilitySnapshot> eligibilityOpt = eligibilityEvaluationService.evaluateEligibility(studentId);
         if (eligibilityOpt.isEmpty()) {
-            recordAccess(studentId, gateId, null, now, AccessDecision.DENIED, "UNAUTHORIZED_OR_INACTIVE", method, snapshotUrl);
+            recordAccess(studentId, gateId, GateType.BUILDING_GATE, null, now, AccessDecision.DENIED, "UNAUTHORIZED_OR_INACTIVE", method, snapshotUrl);
             return;
         }
 
@@ -62,7 +64,7 @@ public class AccessEvaluationService {
         Optional<Gate> gateOpt = gateRepository.findById(gateId);
         if (gateOpt.isEmpty() || !gateOpt.get().isActive()) {
             log.warn("Access DENIED for student {}. Reason: UNREGISTERED_OR_INACTIVE_GATE ({})", studentId, gateId);
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "UNREGISTERED_OR_INACTIVE_GATE", method, snapshotUrl);
+            recordAccess(studentId, gateId, GateType.BUILDING_GATE, snapshot.getBuildingId(), now, AccessDecision.DENIED, "UNREGISTERED_OR_INACTIVE_GATE", method, snapshotUrl);
             return;
         }
         Gate gate = gateOpt.get();
@@ -71,36 +73,48 @@ public class AccessEvaluationService {
         if (gate.getGateType() == GateType.ROOM_DOOR) {
             if (gate.getRoom() == null || !gate.getRoom().getRoomId().equals(snapshot.getRoomId())) {
                 log.warn("Access DENIED for student {}. Reason: NOT_ASSIGNED_TO_ROOM", studentId);
-                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_ROOM", method, snapshotUrl);
+                recordAccess(studentId, gateId, gate.getGateType(), snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_ROOM", method, snapshotUrl);
                 return;
             }
+            // Room doors only verify authorization (room assignment). No curfew applies to room doors.
+            isAllowed = true;
         } else {
             // Building Gate Validation
             if (gate.getBuilding() != null && !gate.getBuilding().getBuildingId().equals(snapshot.getBuildingId())) {
                 log.warn("Access DENIED for student {}. Reason: NOT_ASSIGNED_TO_BUILDING (Gate Building: {}, Student Building: {})", 
                         studentId, gate.getBuilding().getBuildingId(), snapshot.getBuildingId());
-                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_BUILDING", method, snapshotUrl);
+                recordAccess(studentId, gateId, gate.getGateType(), snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_BUILDING", method, snapshotUrl);
                 return;
             }
-        }
-
-        // Strategy selection
-        if (snapshot.getResidentType() == ResidentType.BOARDING) {
-            isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);
-            if (!isAllowed) denialReason = "CURFEW_VIOLATION";
-        } else {
-            isAllowed = timeWindowEvaluationStrategy.isAllowed(snapshot.getBuildingId(), snapshot.getResidentType(), currentTime);
-            if (!isAllowed) denialReason = "OUTSIDE_TIME_WINDOW";
+            
+            // Strategy selection for Building Gates (Curfew and Time Windows)
+            if (snapshot.getResidentType() == ResidentType.BOARDING) {
+                isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);
+                if (!isAllowed) {
+                    // Check if student has an approved curfew request for today
+                    LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
+                    LocalDateTime endOfDay = now.toLocalDate().atTime(23, 59, 59, 999999999);
+                    if (curfewRequestRepository.hasApprovedRequestForDate(studentId, startOfDay, endOfDay)) {
+                        isAllowed = true;
+                        // Keep denialReason as null to grant access
+                    } else {
+                        denialReason = "CURFEW_VIOLATION";
+                    }
+                }
+            } else {
+                isAllowed = timeWindowEvaluationStrategy.isAllowed(snapshot.getBuildingId(), snapshot.getResidentType(), currentTime);
+                if (!isAllowed) denialReason = "OUTSIDE_TIME_WINDOW";
+            }
         }
 
         // Execute DB write (Append Only Constraint)
         if (isAllowed) {
             log.info("Access GRANTED for student {} at gate {}. Publishing UNLOCK MQTT command.", studentId, gateId);
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.GRANTED, null, method, snapshotUrl);
+            recordAccess(studentId, gateId, gate.getGateType(), snapshot.getBuildingId(), now, AccessDecision.GRANTED, null, method, snapshotUrl);
             eventPublisher.publishEvent(new com.sdms.backend.modules.smartaccess.event.GateCommandEvent(gateId, "UNLOCK", "Access Granted"));
         } else {
             log.warn("Access DENIED for student {} at gate {}. Reason: {}", studentId, gateId, denialReason);
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, denialReason, method, snapshotUrl);
+            recordAccess(studentId, gateId, gate.getGateType(), snapshot.getBuildingId(), now, AccessDecision.DENIED, denialReason, method, snapshotUrl);
             // Optional: Publish a deny event if IoT needs to buzz or display an error
         }
     }
@@ -112,7 +126,7 @@ public class AccessEvaluationService {
 
         Optional<StudentEligibilitySnapshot> eligibilityOpt = eligibilityEvaluationService.evaluateEligibility(studentId);
         if (eligibilityOpt.isEmpty()) {
-            recordAccess(studentId, gateId, null, now, AccessDecision.DENIED, "UNAUTHORIZED_OR_INACTIVE", method, null);
+            recordAccess(studentId, gateId, GateType.BUILDING_GATE, null, now, AccessDecision.DENIED, "UNAUTHORIZED_OR_INACTIVE", method, null);
             return AccessDecision.DENIED;
         }
 
@@ -123,7 +137,7 @@ public class AccessEvaluationService {
         // Check Gate Configuration
         Optional<Gate> gateOpt = gateRepository.findById(gateId);
         if (gateOpt.isEmpty() || !gateOpt.get().isActive()) {
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "UNREGISTERED_OR_INACTIVE_GATE", method, null);
+            recordAccess(studentId, gateId, GateType.BUILDING_GATE, snapshot.getBuildingId(), now, AccessDecision.DENIED, "UNREGISTERED_OR_INACTIVE_GATE", method, null);
             return AccessDecision.DENIED;
         }
         Gate gate = gateOpt.get();
@@ -131,40 +145,49 @@ public class AccessEvaluationService {
         // Structural Gate vs Room Door validation
         if (gate.getGateType() == GateType.ROOM_DOOR) {
             if (gate.getRoom() == null || !gate.getRoom().getRoomId().equals(snapshot.getRoomId())) {
-                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_ROOM", method, null);
+                recordAccess(studentId, gateId, gate.getGateType(), snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_ROOM", method, null);
                 return AccessDecision.DENIED;
             }
+            isAllowed = true;
         } else {
             // Building Gate Validation
             if (gate.getBuilding() != null && !gate.getBuilding().getBuildingId().equals(snapshot.getBuildingId())) {
-                recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_BUILDING", method, null);
+                recordAccess(studentId, gateId, gate.getGateType(), snapshot.getBuildingId(), now, AccessDecision.DENIED, "NOT_ASSIGNED_TO_BUILDING", method, null);
                 return AccessDecision.DENIED;
+            }
+            
+            if (snapshot.getResidentType() == ResidentType.BOARDING) {
+                isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);
+                if (!isAllowed) {
+                    LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
+                    LocalDateTime endOfDay = now.toLocalDate().atTime(23, 59, 59, 999999999);
+                    if (curfewRequestRepository.hasApprovedRequestForDate(studentId, startOfDay, endOfDay)) {
+                        isAllowed = true;
+                    } else {
+                        denialReason = "CURFEW_VIOLATION";
+                    }
+                }
+            } else {
+                isAllowed = timeWindowEvaluationStrategy.isAllowed(snapshot.getBuildingId(), snapshot.getResidentType(), currentTime);
+                if (!isAllowed) denialReason = "OUTSIDE_TIME_WINDOW";
             }
         }
 
-        if (snapshot.getResidentType() == ResidentType.BOARDING) {
-            isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);
-            if (!isAllowed) denialReason = "CURFEW_VIOLATION";
-        } else {
-            isAllowed = timeWindowEvaluationStrategy.isAllowed(snapshot.getBuildingId(), snapshot.getResidentType(), currentTime);
-            if (!isAllowed) denialReason = "OUTSIDE_TIME_WINDOW";
-        }
-
         if (isAllowed) {
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.GRANTED, null, method, null);
+            recordAccess(studentId, gateId, gate.getGateType(), snapshot.getBuildingId(), now, AccessDecision.GRANTED, null, method, null);
             return AccessDecision.GRANTED;
         } else {
-            recordAccess(studentId, gateId, snapshot.getBuildingId(), now, AccessDecision.DENIED, denialReason, method, null);
+            recordAccess(studentId, gateId, gate.getGateType(), snapshot.getBuildingId(), now, AccessDecision.DENIED, denialReason, method, null);
             return AccessDecision.DENIED;
         }
     }
 
-    private void recordAccess(UUID studentId, UUID gateId, UUID buildingId, LocalDateTime eventTimestamp, AccessDecision decision, String reason, VerificationMethod method, String snapshotUrl) {
+    private void recordAccess(UUID studentId, UUID gateId, GateType gateType, UUID buildingId, LocalDateTime eventTimestamp, AccessDecision decision, String reason, VerificationMethod method, String snapshotUrl) {
         UUID finalBuildingId = buildingId != null ? buildingId : UUID.fromString("00000000-0000-0000-0000-000000000000");
         
-        // Determine Direction (Toggle state)
+        // Determine Direction (Toggle state) ONLY for Building Gates
         GateDirection currentDirection = GateDirection.UNKNOWN;
-        if (decision == AccessDecision.GRANTED) {
+        if (decision == AccessDecision.GRANTED && gateType != GateType.ROOM_DOOR) {
             String lastDirection = accessHistoryRepository.findLastDirectionForStudent(studentId);
             if ("IN".equals(lastDirection)) {
                 currentDirection = GateDirection.OUT;

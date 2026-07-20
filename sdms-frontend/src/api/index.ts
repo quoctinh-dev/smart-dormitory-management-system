@@ -1,14 +1,10 @@
-// @ts-nocheck
-// src/api/index.js
-
-export { adminRegistrationApi, studentRegistrationApi } from './registrationApi';
-export { default as axiosClient } from './axiosClient';
-export { default as authApi } from './authApi';
-export { default as applicationApi } from './applicationApi';
-export { default as documentApi } from './documentApi';
-export { default as faceApi } from './faceApi';
-export { default as roomApi } from './roomApi';
-export * from './smartAccessApi';
-export { default as paymentApi } from './paymentApi';
-export { changeRoomApi } from './changeRoomApi';
-export { default as ocrApi } from './ocrApi';
+export { adminRegistrationApi, studentRegistrationApi } from './registration-api';
+export { default as axiosClient } from './axios-client';
+export { default as authApi } from './auth-api';
+export { default as applicationApi } from './application-api';
+export { default as documentApi } from './document-api';
+export { default as faceApi } from './face-api';
+export { default as roomApi } from './room-api';
+export * from './smart-access-api';
+export { default as paymentApi } from './payment-api';
+export { changeRoomApi } from './change-room-api';

@@ -24,7 +24,6 @@ import { AboutSection, CostSection, ProcessSection, ContactSection } from './com
 export default function HomePage() {
   const { searchEmail, setSearchEmail, handleNavigateRegister } = useHome();
 
-  // TỐI ƯU HIỆU NĂNG: Bọc các section thông tin tĩnh vào useMemo để cô lập
   const renderedStaticSections = useMemo(
     () => (
       <>
@@ -52,7 +51,7 @@ export default function HomePage() {
       >
         <Container maxWidth="md">
           <Chip
-            label="Portal đăng ký nội trú STU"
+            label="Cổng đăng ký lưu trú trực tuyến"
             sx={{
               mb: 2.5,
               px: 1.5,
@@ -61,28 +60,27 @@ export default function HomePage() {
               bgcolor: 'rgba(255,255,255,0.16)',
               color: 'common.white',
               border: '1px solid rgba(255,255,255,0.22)',
-              fontWeight: 700,
+              fontWeight: 'bold',
             }}
           />
-          <Typography variant="h2" sx={{ mb: 2, fontWeight: 800, letterSpacing: '-1px' }}>
-            Hệ thống Quản lý Ký túc xá Thông minh
+          <Typography variant="h2" sx={{ mb: 2, fontWeight: 'bold', letterSpacing: '-1px' }}>
+            Hệ thống đăng ký Ký túc xá STU
           </Typography>
-          <Typography variant="h6" sx={{ opacity: 0.9, mb: 6, fontWeight: 300 }}>
-            Nền tảng đăng ký, xét duyệt và quản lý lưu trú trực tuyến toàn diện.
+          <Typography variant="h6" sx={{ opacity: 0.9, mb: 6 }}>
+            Nền tảng nộp hồ sơ, xét duyệt và tra cứu kết quả nội trú nhanh chóng dành cho sinh viên Trường Đại học Công nghệ Sài Gòn.
           </Typography>
 
           {/* SEARCH BAR FOR ELIGIBILITY */}
           <Paper
-            elevation={0}
+            elevation={3}
             sx={{
-              p: 1,
+              p: 1.5,
               borderRadius: 4,
               display: 'flex',
               alignItems: 'center',
               maxWidth: 640,
               mx: 'auto',
               bgcolor: 'background.paper',
-              boxShadow: '0 15px 40px rgba(15, 23, 42, 0.16)',
             }}
           >
             <TextField
@@ -105,7 +103,7 @@ export default function HomePage() {
             <Button
               variant="contained"
               onClick={handleNavigateRegister}
-              sx={{ borderRadius: 3, px: 4, py: 1.5, fontWeight: 700, minWidth: '120px' }}
+              sx={{ borderRadius: 3, px: 4, py: 1.5, fontWeight: 'bold', minWidth: '120px' }}
             >
               Bắt đầu
             </Button>

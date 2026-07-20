@@ -9,6 +9,10 @@ import com.sdms.backend.modules.payment.entity.UtilityUsage;
 import com.sdms.backend.modules.payment.event.UtilityBillCalculatedEvent;
 import com.sdms.backend.modules.payment.repository.UtilityUsageRepository;
 import com.sdms.backend.modules.room.entity.Room;
+import com.sdms.backend.modules.payment.entity.Bill;
+import com.sdms.backend.modules.payment.enums.BillStatus;
+import com.sdms.backend.modules.payment.enums.BillType;
+import com.sdms.backend.modules.payment.repository.BillRepository;
 import com.sdms.backend.modules.room.repository.RoomRepository;
 import com.sdms.backend.modules.room.repository.RoomSpecification;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +35,7 @@ public class UtilityUsageManagementService {
 
     private final RoomRepository roomRepository;
     private final UtilityUsageRepository utilityUsageRepository;
+    private final BillRepository billRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
@@ -46,16 +51,32 @@ public class UtilityUsageManagementService {
         List<Room> rooms = roomRepository.findAll(spec);
 
         return rooms.stream().map(room -> {
-            // Find the last usage record for this room and utility type
-            Optional<UtilityUsage> lastUsageOpt = utilityUsageRepository
-                    .findTopByRoomIdAndUtilityTypeOrderByYearDescMonthDesc(room.getRoomId(), utilityType);
-            
-            // Default to 0 if this room has never been recorded
-            int oldReading = lastUsageOpt.map(UtilityUsage::getNewReading).orElse(0);
-
-            // Check if there is already a record for the requested month and year
+            // Tìm record của tháng đang truy vấn
             Optional<UtilityUsage> currentMonthUsageOpt = utilityUsageRepository
                     .findByRoomIdAndUtilityTypeAndMonthAndYear(room.getRoomId(), utilityType, month, year);
+
+            // Tìm record của tháng TRƯỚC ĐÓ (để làm oldReading chuẩn)
+            int prevMonth = month == 1 ? 12 : month - 1;
+            int prevYear = month == 1 ? year - 1 : year;
+            Optional<UtilityUsage> prevMonthUsageOpt = utilityUsageRepository
+                    .findByRoomIdAndUtilityTypeAndMonthAndYear(room.getRoomId(), utilityType, prevMonth, prevYear);
+            
+            // Tìm record MỚI NHẤT trong DB để xác định xem phòng này đã TỪNG được ghi bao giờ chưa
+            Optional<UtilityUsage> absoluteLastUsageOpt = utilityUsageRepository
+                    .findTopByRoomIdAndUtilityTypeOrderByYearDescMonthDesc(room.getRoomId(), utilityType);
+
+            int oldReading = 0;
+            if (currentMonthUsageOpt.isPresent()) {
+                // Nếu tháng này đã chốt, lấy chính xác oldReading lúc chốt
+                oldReading = currentMonthUsageOpt.get().getOldReading() != null ? currentMonthUsageOpt.get().getOldReading() : 0;
+            } else if (prevMonthUsageOpt.isPresent()) {
+                // Nếu tháng này chưa chốt, lấy newReading của tháng ngay trước đó
+                oldReading = prevMonthUsageOpt.get().getNewReading() != null ? prevMonthUsageOpt.get().getNewReading() : 0;
+            } else {
+                // Không có data tháng trước, set 0
+                oldReading = 0;
+            }
+
 
             Integer newReading = null;
             boolean isSettled = false;
@@ -72,7 +93,7 @@ public class UtilityUsageManagementService {
                     .oldReading(oldReading)
                     .newReading(newReading)
                     .isSettled(isSettled)
-                    .isFirstRecord(lastUsageOpt.isEmpty())
+                    .isFirstRecord(absoluteLastUsageOpt.isEmpty())
                     .build();
         }).collect(Collectors.toList());
     }
@@ -145,5 +166,38 @@ public class UtilityUsageManagementService {
                 request.getYear(), 
                 usage.getId()
         ));
+    }
+
+    @Transactional
+    public void cancelUtilityRecord(UUID roomId, int month, int year, UtilityType utilityType) {
+        // 1. Tìm bản ghi chốt điện tháng này
+        UtilityUsage usage = utilityUsageRepository
+                .findByRoomIdAndUtilityTypeAndMonthAndYear(roomId, utilityType, month, year)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy dữ liệu chốt số của tháng này"));
+
+        // 2. Tìm Hóa đơn (Bill) liên quan
+        BillType billType = utilityType == UtilityType.ELECTRICITY ? BillType.ELECTRIC_FEE : BillType.WATER_FEE;
+        String monthYearStr = String.format("tháng %d/%d", month, year);
+
+        List<Bill> relatedBills = billRepository.findByRoomIdAndBillType(roomId, billType).stream()
+                .filter(bill -> bill.getDescription() != null && bill.getDescription().contains(monthYearStr))
+                .toList();
+
+        // 3. Kiểm tra xem hóa đơn đã thanh toán chưa
+        for (Bill bill : relatedBills) {
+            if (bill.getStatus() == BillStatus.PAID || bill.getStatus() == BillStatus.PARTIALLY_PAID) {
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Không thể hủy chốt vì Hóa đơn đã được thanh toán hoặc thanh toán một phần.");
+            }
+        }
+
+        // 4. Nếu chưa thanh toán -> Xóa hóa đơn
+        if (!relatedBills.isEmpty()) {
+            billRepository.deleteAll(relatedBills);
+            log.info("Deleted {} unpaid bills for room {} for {} {}", relatedBills.size(), roomId, utilityType, monthYearStr);
+        }
+
+        // 5. Xóa bản ghi chốt điện
+        utilityUsageRepository.delete(usage);
+        log.info("Cancelled utility record for room {}, {} {}", roomId, utilityType, monthYearStr);
     }
 }

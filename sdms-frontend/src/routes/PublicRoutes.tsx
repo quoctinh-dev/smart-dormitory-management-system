@@ -1,9 +1,8 @@
-// 📄 File: src/routes/publicRoutes.js
 import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 
+import { wrap } from '@/helpers/route-utils';
 import PublicLayout from '@/layouts/PublicLayout';
-import { wrap } from '@/utils/routeUtils';
 
 // 1. Khai báo lazy loading các trang công khai
 const HomePage = lazy(() => import('@/pages/public/HomePage'));

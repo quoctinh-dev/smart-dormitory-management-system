@@ -61,7 +61,7 @@ public class EligibilityEvaluationService {
         return Optional.of(snapshot);
     }
 
-    public java.util.List<String> getActiveRfidWhitelists() {
-        return studentQueryPort.getActiveRfidWhitelists();
+    public java.util.Map<java.util.UUID, java.util.List<String>> getActiveRfidWhitelistsByBuilding() {
+        return studentQueryPort.getActiveRfidWhitelistsByBuilding();
     }
 }

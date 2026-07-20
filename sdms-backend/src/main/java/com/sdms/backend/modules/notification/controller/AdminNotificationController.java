@@ -5,11 +5,10 @@ import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.common.response.ApiResponse;
 import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.notification.entity.Notification;
-import com.sdms.backend.modules.notification.entity.NotificationDeliveryHistory;
+import com.sdms.backend.modules.notification.dto.NotificationDeliveryLog;
 import com.sdms.backend.modules.notification.enums.NotificationChannel;
 import com.sdms.backend.modules.notification.enums.NotificationStatus;
 import com.sdms.backend.modules.notification.enums.NotificationType;
-import com.sdms.backend.modules.notification.repository.NotificationDeliveryHistoryRepository;
 import com.sdms.backend.modules.notification.repository.NotificationRepository;
 import com.sdms.backend.modules.user.entity.UserAccount;
 import com.sdms.backend.modules.user.enums.Role;
@@ -40,23 +39,34 @@ import java.util.UUID;
 @Tag(name = "Admin - Quản lý thông báo", description = "Quản lý lịch sử và gửi thông báo hàng loạt")
 public class AdminNotificationController {
 
-    private final NotificationDeliveryHistoryRepository historyRepository;
     private final NotificationRepository notificationRepository;
     private final UserAccountRepository userAccountRepository;
 
     @Operation(summary = "Lấy lịch sử gửi thông báo")
     @GetMapping("/delivery-logs")
-    public ApiResponse<PageResponse<NotificationDeliveryHistory>> getDeliveryLogs(
+    public ApiResponse<PageResponse<NotificationDeliveryLog>> getDeliveryLogs(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) NotificationType type,
             @RequestParam(required = false) Boolean isBroadcast,
             @PageableDefault(size = 20, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC)
             Pageable pageable) {
-        Page<NotificationDeliveryHistory> page = historyRepository.findAll(
-                com.sdms.backend.modules.notification.repository.NotificationHistorySpecification.filter(keyword, type, isBroadcast), 
+        Page<Notification> page = notificationRepository.findAll(
+                com.sdms.backend.modules.notification.repository.NotificationSpecification.filter(keyword, type, isBroadcast), 
                 pageable
         );
-        return ApiResponse.success("Lấy lịch sử thông báo thành công", PageResponse.of(page));
+        // Map Notification to NotificationDeliveryLog for the DTO
+        Page<NotificationDeliveryLog> dtoPage = page.map(notif -> NotificationDeliveryLog.builder()
+                .id(notif.getId())
+                .recipient(notif.getRecipient() != null ? notif.getRecipient() : (notif.getUserId() != null ? notif.getUserId().toString() : "Unknown"))
+                .channel(notif.getChannel() != null ? notif.getChannel() : com.sdms.backend.modules.notification.enums.NotificationChannel.IN_APP)
+                .type(notif.getType())
+                .status(notif.getStatus() != null ? notif.getStatus() : com.sdms.backend.modules.notification.enums.NotificationStatus.SENT)
+                .eventId(notif.getEventId())
+                .payloadSnapshot(notif.getMessage())
+                .sentAt(notif.getCreatedAt())
+                .build());
+
+        return ApiResponse.success("Lấy lịch sử thông báo thành công", PageResponse.of(dtoPage));
     }
 
     @Operation(summary = "Gửi thông báo hàng loạt")
@@ -85,23 +95,14 @@ public class AdminNotificationController {
                         .actionUrl(null)
                         .type(type)
                         .isRead(false)
-                        .build())
-                .toList();
-
-        List<NotificationDeliveryHistory> histories = recipients.stream()
-                .map(user -> NotificationDeliveryHistory.builder()
-                        .recipient(user.getEmail())
-                        .channel(NotificationChannel.IN_APP)
-                        .type(type)
-                        .status(NotificationStatus.SENT)
                         .eventId(eventId)
-                        .payloadSnapshot("{\"targetAudience\":\"" + targetAudience + "\"}")
-                        .sentAt(sentAt)
+                        .recipient(user.getEmail())
+                        .channel(com.sdms.backend.modules.notification.enums.NotificationChannel.IN_APP)
+                        .status(com.sdms.backend.modules.notification.enums.NotificationStatus.SENT)
                         .build())
                 .toList();
 
         notificationRepository.saveAll(notifications);
-        historyRepository.saveAll(histories);
 
         return ApiResponse.success("Gửi thông báo hàng loạt thành công", new BroadcastResponse(
                 eventId,

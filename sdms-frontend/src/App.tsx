@@ -4,14 +4,12 @@ import { SnackbarProvider } from 'notistack';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
-import { AuthProvider } from '@/auth';
+import { SnackbarUtilsConfigurator } from '@/helpers/snackbar';
+import { AuthProvider } from '@/providers/AuthProvider';
 import AppRouter from '@/routes';
-import { createCustomTheme } from '@/theme';
-import { SnackbarUtilsConfigurator } from '@/utils/snackbar';
+import { theme } from '@/theme';
 
 const App: React.FC = () => {
-  const theme = createCustomTheme('light');
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

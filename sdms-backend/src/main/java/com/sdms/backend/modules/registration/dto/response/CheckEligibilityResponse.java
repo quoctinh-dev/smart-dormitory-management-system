@@ -26,6 +26,12 @@ public class CheckEligibilityResponse {
     @Schema(description = "Họ và tên của sinh viên (Nếu nằm trong danh sách eligible)", example = "Nguyễn Văn A")
     private String fullName;
 
+    @Schema(description = "CCCD từ danh sách (nếu có)")
+    private String cccd;
+
+    @Schema(description = "Mã số sinh viên từ danh sách (nếu có)")
+    private String studentCode;
+
     @Schema(description = "Đối tượng áp dụng (FRESHMAN, CURRENT_STUDENT, ALL) - Dùng để Frontend điều hướng Form", example = "FRESHMAN")
     private String target;
 

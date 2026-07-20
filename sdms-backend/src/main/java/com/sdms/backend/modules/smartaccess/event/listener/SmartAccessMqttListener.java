@@ -92,19 +92,30 @@ public class SmartAccessMqttListener {
         syncWhitelistToEdge();
     }
 
-    private void syncWhitelistToEdge() {
-        String topic = "sdms/gates/system/whitelist";
-        try {
-            List<String> activeRfids = eligibilityService.getActiveRfidWhitelists();
-            String payload = objectMapper.writeValueAsString(Map.of(
-                    "type", "WHITELIST_SYNC",
-                    "count", activeRfids.size(),
-                    "data", activeRfids,
-                    "timestamp", System.currentTimeMillis()
-            ));
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleStudentRoomChanged(com.sdms.backend.modules.student.event.StudentRoomChangedEvent event) {
+        log.info("Student {} changed room. Syncing RFID whitelist to edge devices.", event.getStudentId());
+        syncWhitelistToEdge();
+    }
 
-            mqttGateway.sendToMqtt(topic, payload);
-            log.info("Successfully published full RFID whitelist to edge devices.");
+    private void syncWhitelistToEdge() {
+        try {
+            Map<java.util.UUID, List<String>> activeRfidsByBuilding = eligibilityService.getActiveRfidWhitelistsByBuilding();
+            
+            for (Map.Entry<java.util.UUID, List<String>> entry : activeRfidsByBuilding.entrySet()) {
+                String topic = String.format("sdms/gates/building/%s/whitelist", entry.getKey());
+                List<String> activeRfids = entry.getValue();
+                
+                String payload = objectMapper.writeValueAsString(Map.of(
+                        "type", "WHITELIST_SYNC",
+                        "count", activeRfids.size(),
+                        "data", activeRfids,
+                        "timestamp", System.currentTimeMillis()
+                ));
+
+                mqttGateway.sendToMqtt(topic, payload);
+                log.info("Successfully published RFID whitelist to building {}: {} cards", entry.getKey(), activeRfids.size());
+            }
         } catch (Exception e) {
             log.error("Failed to sync RFID whitelist via MQTT", e);
         }

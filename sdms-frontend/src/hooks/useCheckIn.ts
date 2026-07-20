@@ -1,7 +1,7 @@
 import confetti from 'canvas-confetti';
 import { useState } from 'react';
 
-import checkInApi from '@/api/checkInApi';
+import checkInApi from '@/api/check-in-api';
 
 export interface ICheckInStudentData {
   assignmentId: string;

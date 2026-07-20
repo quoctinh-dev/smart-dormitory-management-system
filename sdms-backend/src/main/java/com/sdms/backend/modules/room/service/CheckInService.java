@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Slf4j
@@ -32,7 +33,8 @@ public class CheckInService {
 
     private final StudentHousingAssignmentRepository assignmentRepository;
     private final DormitoryApplicationRepository applicationRepository;
-    private final StudentRepository studentRepository; // 🌟 BỔ SUNG: Để gạch trạng thái cư dân
+    private final StudentRepository studentRepository; 
+    private final com.sdms.backend.modules.room.repository.BedRepository bedRepository; 
     private final ApplicationEventPublisher eventPublisher;
 
     // 📄 Thay thế chính xác đoạn map DTO này trong file: src/main/java/com/sdms/backend/modules/room/service/CheckInService.java
@@ -81,7 +83,15 @@ public class CheckInService {
 
         // 1. Chuyển trạng thái phân giường sang OCCUPIED (Chính thức dọn vào ở)
         assignment.setStatus(AssignmentStatus.OCCUPIED);
+        assignment.setCheckInAt(LocalDateTime.now());
         assignmentRepository.save(assignment);
+        
+        // 1.1 Chuyển trạng thái giường sang OCCUPIED
+        com.sdms.backend.modules.room.entity.Bed bed = assignment.getBed();
+        if (bed != null) {
+            bed.setStatus(com.sdms.backend.modules.room.enums.BedStatus.OCCUPIED);
+            bedRepository.save(bed);
+        }
 
         // 2. Chuyển trạng thái cư trú của Sinh viên từ PENDING_CHECKIN sang ACTIVE (Cư dân chính thức)
         Student student = assignment.getStudent();

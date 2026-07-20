@@ -72,9 +72,11 @@ public class StayExtensionService {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ sinh viên đang cư trú (ACTIVE) mới được phép nộp đơn gia hạn");
         }
 
-        // 3. Kiểm tra xem sinh viên đã nộp đơn gia hạn chưa
-        if (stayExtensionRepository.existsByStudent_StudentId(student.getStudentId())) {
-            throw new AppException(ErrorCode.VALIDATION_FAILED, "Sinh viên đã nộp đơn xin gia hạn trước đó");
+        // 3. Kiểm tra xem sinh viên đã nộp đơn gia hạn TRONG ĐỢT NÀY chưa
+        // gia hạn ở đợt mới sau khi đã gia hạn đợt cũ.
+        if (stayExtensionRepository.existsByStudent_StudentIdAndRegistrationPeriod_PeriodId(
+                student.getStudentId(), activeWave.getPeriodId())) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Sinh viên đã nộp đơn xin gia hạn trong đợt đăng ký này");
         }
 
         // 3.5. KIỂM TRA NỢ ĐỌNG: Luật luận văn chặt chẽ
@@ -88,14 +90,14 @@ public class StayExtensionService {
                 .findByStudent_StudentIdAndStatus(student.getStudentId(), AssignmentStatus.OCCUPIED)
                 .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Sinh viên hiện không lưu trú tại KTX"));
 
-        // 5. Tạo đơn gia hạn mới
+        // 5. Tạo đơn gia hạn mới — link với đợt đăng ký đang active
         StayExtension extension = new StayExtension();
         extension.setStudent(student);
+        extension.setRegistrationPeriod(activeWave);
         extension.setReason(request.getReason());
         extension.setDescription(request.getDescription());
         extension.setCurrentBed(activeAssignment.getBed());
         extension.setStatus(ExtensionStatus.PENDING);
-        extension.setPdfUrl(null);
         extension.setOldExpectedCheckOutAt(activeAssignment.getExpectedCheckOutAt());
         extension.setNewExpectedCheckOutAt(activeWave.getStayEndDate());
 
@@ -109,9 +111,18 @@ public class StayExtensionService {
             activeAssignment.setExpectedCheckOutAt(extension.getNewExpectedCheckOutAt());
             assignmentRepository.save(activeAssignment);
             
-            String[] pdfUrls = pdfService.generateExtensionPdfs(savedExtension);
-            savedExtension.setContractPdfUrl(pdfUrls[0]);
-            savedExtension.setCommitmentPdfUrl(pdfUrls[1]);
+            // Tính thời gian gia hạn để quyết định có sinh PDF hay không (Hè <= 3 tháng thì không sinh)
+            int startYear = extension.getRegistrationPeriod().getStayStartDate().getYear();
+            int startMonth = extension.getRegistrationPeriod().getStayStartDate().getMonthValue();
+            int endYear = extension.getRegistrationPeriod().getStayEndDate().getYear();
+            int endMonth = extension.getRegistrationPeriod().getStayEndDate().getMonthValue();
+            int totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+
+            if (totalMonths > 3) {
+                String[] pdfUrls = pdfService.generateExtensionPdfs(savedExtension);
+                savedExtension.setContractPdfUrl(pdfUrls[0]);
+                savedExtension.setCommitmentPdfUrl(pdfUrls[1]);
+            }
             stayExtensionRepository.save(savedExtension);
 
             eventPublisher.publishEvent(new ExtensionApprovedEvent(
@@ -140,8 +151,19 @@ public class StayExtensionService {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Tài khoản không liên kết với bất kỳ hồ sơ sinh viên nào");
         }
 
-        StayExtension extension = stayExtensionRepository.findByStudent_StudentCode(student.getStudentCode())
-                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Bạn chưa nộp đơn gia hạn nào"));
+        // [BUG FIX] Phải tìm theo đợt đang active, không dùng findByStudentCode toàn cục.
+        // Lý do: Nếu sinh viên đã gia hạn ở đợt cũ, findByStudentCode sẽ trả về nhiều kết quả
+        // → IncorrectResultSizeDataAccessException tại runtime.
+        RegistrationPeriod activeWave = registrationPeriodRepository.findAll()
+                .stream()
+                .filter(p -> Boolean.TRUE.equals(p.getIsActive()) && p.getRegistrationType() == RegistrationType.CURRENT_RESIDENT)
+                .findFirst()
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Hiện tại không có đợt gia hạn nào đang mở"));
+
+        StayExtension extension = stayExtensionRepository
+                .findByStudent_StudentIdAndRegistrationPeriod_PeriodId(
+                        student.getStudentId(), activeWave.getPeriodId())
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Bạn chưa nộp đơn gia hạn trong đợt này"));
 
         return buildResponse(extension);
     }
@@ -173,10 +195,20 @@ public class StayExtensionService {
             activeAssignment.setExpectedCheckOutAt(extension.getNewExpectedCheckOutAt());
             assignmentRepository.save(activeAssignment);
 
-            // Sinh PDF (Hợp đồng & Bản cam kết mới)
-            String[] pdfUrls = pdfService.generateExtensionPdfs(extension);
-            extension.setContractPdfUrl(pdfUrls[0]);
-            extension.setCommitmentPdfUrl(pdfUrls[1]);
+            // Tính thời gian gia hạn để quyết định có sinh PDF hay không
+            int startYear = extension.getRegistrationPeriod().getStayStartDate().getYear();
+            int startMonth = extension.getRegistrationPeriod().getStayStartDate().getMonthValue();
+            int endYear = extension.getRegistrationPeriod().getStayEndDate().getYear();
+            int endMonth = extension.getRegistrationPeriod().getStayEndDate().getMonthValue();
+            int totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+
+            if (totalMonths > 3) {
+                // Sinh PDF (Hợp đồng & Bản cam kết mới) cho đợt gia hạn dài hạn (HK1+HK2)
+                String[] pdfUrls = pdfService.generateExtensionPdfs(extension);
+                extension.setContractPdfUrl(pdfUrls[0]);
+                extension.setCommitmentPdfUrl(pdfUrls[1]);
+            }
+            
             extension.setStatus(ExtensionStatus.APPROVED);
             stayExtensionRepository.save(extension);
 
@@ -211,7 +243,8 @@ public class StayExtensionService {
                 .currentBedId(extension.getCurrentBed().getBedId())
                 .currentBedCode(extension.getCurrentBed().getBedCode())
                 .currentRoomCode(extension.getCurrentBed().getRoom().getRoomCode())
-                .pdfUrl(extension.getPdfUrl())
+                .contractPdfUrl(extension.getContractPdfUrl())
+                .commitmentPdfUrl(extension.getCommitmentPdfUrl())
                 .description(extension.getDescription())
                 .rejectReason(extension.getRejectReason())
                 .oldExpectedCheckOutAt(extension.getOldExpectedCheckOutAt())

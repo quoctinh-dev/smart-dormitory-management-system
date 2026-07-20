@@ -10,11 +10,12 @@ import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Component
@@ -24,25 +25,36 @@ public class PaymentIntegrationListener {
     private final DormitoryApplicationRepository applicationRepository;
     private final StudentHousingAssignmentRepository assignmentRepository;
 
+    /**
+     * Lắng nghe sự kiện PaymentSuccessEvent SAU KHI transaction payment đã COMMIT thành công.
+     *
+     * Dùng @TransactionalEventListener(phase = AFTER_COMMIT) thay vì @EventListener để tránh
+     * race condition: nếu dùng @EventListener, listener có thể chạy trước khi transaction
+     * gốc commit xong, dẫn đến đọc được dữ liệu cũ (stale read).
+     *
+     * Dùng @Transactional(propagation = REQUIRES_NEW) để tạo transaction mới hoàn toàn
+     * độc lập, không bị ảnh hưởng bởi transaction gốc.
+     */
     @Async
-    @EventListener
-    @Transactional
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handlePaymentSuccess(PaymentSuccessEvent event) {
         log.info("[PaymentIntegrationListener] Handling PaymentSuccessEvent for applicationId={} and assignmentId={}",
                 event.getApplicationId(), event.getAssignmentId());
 
         try {
             DormitoryApplication application = applicationRepository.findById(event.getApplicationId())
-                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đơn đăng ký với ID: " + event.getApplicationId()));
+                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND,
+                            "Không tìm thấy đơn đăng ký với ID: " + event.getApplicationId()));
 
             if (application.getStatus() == ApplicationStatus.WAITING_PAYMENT) {
                 application.setStatus(ApplicationStatus.APPROVED);
                 applicationRepository.save(application);
                 log.info("[PaymentIntegrationListener] Application {} status updated to APPROVED.", event.getApplicationId());
 
-                // Chỉ cập nhật assignment nếu application được cập nhật thành công
                 StudentHousingAssignment assignment = assignmentRepository.findById(event.getAssignmentId())
-                        .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy quyết định xếp phòng với ID: " + event.getAssignmentId()));
+                        .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND,
+                                "Không tìm thấy quyết định xếp phòng với ID: " + event.getAssignmentId()));
 
                 if (assignment.getStatus() == AssignmentStatus.RESERVED) {
                     assignment.setStatus(AssignmentStatus.PENDING_CHECKIN);

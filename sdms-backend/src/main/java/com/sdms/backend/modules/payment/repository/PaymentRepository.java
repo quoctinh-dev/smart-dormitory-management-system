@@ -12,6 +12,7 @@ import java.util.UUID;
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
     Optional<Payment> findByTransactionCode(String transactionCode);
+    Optional<Payment> findByBill_BillIdAndStatus(UUID billId, PaymentStatus status);
 
     List<Payment> findByStatus(PaymentStatus status);
 

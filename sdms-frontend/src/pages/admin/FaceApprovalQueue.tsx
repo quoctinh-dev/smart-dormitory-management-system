@@ -17,10 +17,11 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
+  Pagination,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { alpha } from '@mui/material/styles';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useFaceApproval } from '@/hooks/useFaceApproval';
@@ -40,6 +41,12 @@ export default function FaceApprovalQueue() {
   } = useFaceApproval();
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 12;
+
+  const displayedProfiles = useMemo(() => {
+    return profiles.slice((page - 1) * rowsPerPage, (page - 1) * rowsPerPage + rowsPerPage);
+  }, [profiles, page, rowsPerPage]);
 
   const onApproveClick = (profileId: string) => () => {
     handleApprove(profileId);
@@ -75,7 +82,7 @@ export default function FaceApprovalQueue() {
           sx={{
             p: 6,
             textAlign: 'center',
-            borderRadius: 3,
+            borderRadius: 4,
             bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04),
           }}
         >
@@ -84,7 +91,7 @@ export default function FaceApprovalQueue() {
             alt="Empty"
             style={{ width: 120, opacity: 0.5, marginBottom: 16 }}
           />
-          <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+          <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 'bold' }}>
             Tất cả đã được xử lý!
           </Typography>
           <Typography sx={{ color: 'text.secondary', mb: 3 }}>
@@ -95,74 +102,87 @@ export default function FaceApprovalQueue() {
           </Button>
         </Paper>
       ) : (
-        <Grid container spacing={3}>
-          {profiles.map((profile) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={profile.profileId}>
-              <Card
-                variant="outlined"
-                sx={{
-                  borderRadius: 3,
-                  boxShadow: 'none',
-                  transition: '0.2s',
-                  '&:hover': { borderColor: 'primary.main', boxShadow: 2 },
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  height="240"
-                  image={profile.faceImageUrl || 'https://via.placeholder.com/240?text=No+Image'}
-                  alt={profile.studentName || 'Sinh viên'}
-                  sx={{ objectFit: 'cover', cursor: 'pointer' }}
-                  onClick={() => setPreviewImage(profile.faceImageUrl || null)}
-                  title="Nhấn để phóng to ảnh"
-                />
-                <CardContent sx={{ p: 2 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold' }} noWrap>
-                    {profile.studentName || 'Hồ sơ Sinh viên'}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1.5 }} noWrap>
-                    Mã số SV: {profile.studentId}
-                  </Typography>
-                  <Chip
-                    label="Chờ xét duyệt"
-                    size="small"
-                    color="warning"
-                    sx={{ fontWeight: 600, borderRadius: 1.5 }}
+        <>
+          <Grid container spacing={3}>
+            {displayedProfiles.map((profile) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={profile.profileId}>
+                <Card
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 4,
+                    boxShadow: 'none',
+                    transition: '0.2s',
+                    '&:hover': { borderColor: 'primary.main', boxShadow: 2 },
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    height="240"
+                    image={profile.faceImageUrl || 'https://via.placeholder.com/240?text=No+Image'}
+                    alt={profile.studentName || 'Sinh viên'}
+                    sx={{ objectFit: 'cover', cursor: 'pointer' }}
+                    onClick={() => setPreviewImage(profile.faceImageUrl || null)}
+                    title="Nhấn để phóng to ảnh"
                   />
-                </CardContent>
-                <CardActions sx={{ px: 2, pb: 2, justifyContent: 'space-between', gap: 1 }}>
-                  <Button
-                    size="small"
-                    color="error"
-                    variant="outlined"
-                    onClick={onRejectClick(profile.profileId)}
-                    disabled={actionLoading === profile.profileId}
-                    fullWidth
-                    sx={{ borderRadius: 1.5 }}
-                  >
-                    Từ chối
-                  </Button>
-                  <Button
-                    size="small"
-                    color="success"
-                    variant="contained"
-                    onClick={onApproveClick(profile.profileId)}
-                    disabled={actionLoading === profile.profileId}
-                    disableElevation
-                    fullWidth
-                    sx={{ borderRadius: 1.5 }}
-                  >
-                    {actionLoading === profile.profileId ? (
-                      <CircularProgress size={20} color="inherit" />
-                    ) : (
-                      'Chấp nhận'
-                    )}
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }} noWrap>
+                      {profile.studentName || 'Hồ sơ Sinh viên'}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1.5 }} noWrap>
+                      Mã số SV: {profile.studentId}
+                    </Typography>
+                    <Chip
+                      label="Chờ xét duyệt"
+                      size="small"
+                      color="warning"
+                      sx={{ fontWeight: 'bold', borderRadius: 2 }}
+                    />
+                  </CardContent>
+                  <CardActions sx={{ px: 2, pb: 2, justifyContent: 'space-between', gap: 1 }}>
+                    <Button
+                      size="small"
+                      color="error"
+                      variant="outlined"
+                      onClick={onRejectClick(profile.profileId)}
+                      disabled={actionLoading === profile.profileId}
+                      fullWidth
+                      sx={{ borderRadius: 2 }}
+                    >
+                      Từ chối
+                    </Button>
+                    <Button
+                      size="small"
+                      color="success"
+                      variant="contained"
+                      onClick={onApproveClick(profile.profileId)}
+                      disabled={actionLoading === profile.profileId}
+                      disableElevation
+                      fullWidth
+                      sx={{ borderRadius: 2 }}
+                    >
+                      {actionLoading === profile.profileId ? (
+                        <CircularProgress size={20} color="inherit" />
+                      ) : (
+                        'Chấp nhận'
+                      )}
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+          {profiles.length > rowsPerPage && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <Pagination
+                count={Math.ceil(profiles.length / rowsPerPage)}
+                page={page}
+                onChange={(_, value) => setPage(value)}
+                color="primary"
+                shape="rounded"
+              />
+            </Box>
+          )}
+        </>
       )}
 
       {/* DIALOG NHẬP LÝ DO TỪ CHỐI ẢNH */}

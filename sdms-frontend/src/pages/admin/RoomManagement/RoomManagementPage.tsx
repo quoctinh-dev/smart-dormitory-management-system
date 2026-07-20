@@ -2,7 +2,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import {
-  Alert,
   Box,
   Button,
   Chip,
@@ -43,6 +42,7 @@ export default function RoomManagementPage() {
     setSelectedFloor,
     loading,
     refresh,
+    handleBulkGeneratePins,
   } = useRoomDashboard();
 
   const currentBuilding = buildings.find((b) => b.buildingId === selectedBuilding) || null;
@@ -70,7 +70,7 @@ export default function RoomManagementPage() {
         }}
       >
         <Box>
-          <Typography variant="h4" sx={{ color: 'text.primary', fontWeight: 700 }}>
+          <Typography variant="h4" sx={{ color: 'text.primary', fontWeight: 'bold' }}>
             Quản lý Phòng Ký túc xá
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mt: 0.5 }}>
@@ -98,7 +98,6 @@ export default function RoomManagementPage() {
         />
         <Chip label={`Tỷ lệ sử dụng: ${occupancyRate}%`} color="secondary" variant="outlined" />
       </Box>
-
 
       {/* ── Thanh lọc Cascade + Nút Thêm phòng ─────── */}
       <Stack
@@ -209,25 +208,7 @@ export default function RoomManagementPage() {
           <Button
             variant="outlined"
             color="secondary"
-            onClick={async () => {
-              if (
-                !window.confirm(
-                  'Hệ thống sẽ tự động tạo mã PIN cho TẤT CẢ các phòng hiện chưa có PIN. Bạn có chắc chắn không?'
-                )
-              )
-                return;
-              try {
-                const { default: roomPinApi } = await import('@/api/roomPinApi');
-                const { snackbar } = await import('@/utils/snackbar');
-                const res = await roomPinApi.bulkGeneratePins();
-                snackbar.success(`Đã tạo thành công PIN cho ${res.generatedCount} phòng.`);
-                refresh();
-              } catch (err: unknown) {
-                const { snackbar } = await import('@/utils/snackbar');
-                const { getErrorMessage } = await import('@/types/api');
-                snackbar.error(getErrorMessage(err, 'Lỗi khi tạo PIN hàng loạt'));
-              }
-            }}
+            onClick={handleBulkGeneratePins}
             sx={{ whiteSpace: 'nowrap', borderRadius: '12px', textTransform: 'none', px: 2 }}
           >
             Tạo PIN hàng loạt

@@ -1,6 +1,8 @@
 package com.sdms.backend.modules.notification.entity;
 
 import com.sdms.backend.common.entity.BaseEntity;
+import com.sdms.backend.modules.notification.enums.NotificationChannel;
+import com.sdms.backend.modules.notification.enums.NotificationStatus;
 import com.sdms.backend.modules.notification.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,7 +33,7 @@ public class Notification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id") // Made optional to support external email/SMS
     private UUID userId;
 
     @Column(name = "title", nullable = false)
@@ -53,4 +55,25 @@ public class Notification extends BaseEntity {
 
     @Column(name = "read_at")
     private LocalDateTime readAt;
+
+    // Delivery History fields
+    @Column(name = "recipient")
+    private String recipient;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "channel", length = 50)
+    private NotificationChannel channel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 50)
+    private NotificationStatus status;
+
+    @Column(name = "error_message", columnDefinition = "TEXT")
+    private String errorMessage;
+
+    @Column(name = "event_id")
+    private String eventId;
+
+    @Column(name = "sent_at")
+    private LocalDateTime sentAt;
 }

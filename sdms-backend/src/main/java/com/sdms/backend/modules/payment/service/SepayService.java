@@ -5,6 +5,9 @@ import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.modules.payment.dto.request.SepayWebhookPayload;
 import com.sdms.backend.modules.payment.entity.Payment;
 import com.sdms.backend.modules.payment.enums.PaymentStatus;
+import com.sdms.backend.modules.payment.entity.Bill;
+import com.sdms.backend.modules.payment.enums.BillStatus;
+import com.sdms.backend.modules.payment.repository.BillRepository;
 import com.sdms.backend.modules.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 public class SepayService {
 
     private final PaymentRepository paymentRepository;
+    private final BillRepository billRepository;
     private final PaymentService paymentService;
     private final ObjectMapper objectMapper;
 
@@ -73,9 +77,48 @@ public class SepayService {
             return;
         }
 
-        // 4. Find Pending Payment
-        Payment payment = paymentRepository.findByTransactionCode(transactionCode)
-                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy giao dịch với mã: " + transactionCode));
+        // 4. Find Pending Payment or Create from Bill
+        Payment payment = null;
+        Optional<Payment> optionalPayment = paymentRepository.findByTransactionCode(transactionCode);
+        
+        if (optionalPayment.isPresent()) {
+            payment = optionalPayment.get();
+        } else {
+            // Fallback: If no Payment session found, try to find the Bill by prefix and create a Payment session
+            if (transactionCode.startsWith("SDMS") && transactionCode.length() >= 12) {
+                String billCodePrefix = transactionCode.substring(4, 12).toLowerCase(); // "SDMS0AE9F057" -> "0ae9f057"
+                java.util.List<Bill> matchingBills = billRepository.findByBillIdPrefix(billCodePrefix);
+                
+                if (matchingBills.isEmpty()) {
+                    log.warn("[SepayService] Transaction code {} does not match any Payment or Bill", transactionCode);
+                    return;
+                }
+                
+                if (matchingBills.size() > 1) {
+                    log.warn("[SepayService] Multiple bills matched for prefix {}. Cannot process automatically.", billCodePrefix);
+                    return;
+                }
+                
+                Bill matchedBill = matchingBills.get(0);
+                
+                if (matchedBill.getStatus() == BillStatus.PAID) {
+                    log.warn("[SepayService] Bill {} is already PAID.", matchedBill.getBillId());
+                    return;
+                }
+                
+                // Create a PENDING payment record on the fly
+                payment = new Payment();
+                payment.setBill(matchedBill);
+                payment.setAmount(matchedBill.getAmount());
+                payment.setMethod(com.sdms.backend.modules.payment.enums.PaymentMethod.BANK_TRANSFER);
+                payment.setTransactionCode(transactionCode);
+                payment.setStatus(PaymentStatus.PENDING);
+                payment = paymentRepository.save(payment);
+            } else {
+                log.warn("[SepayService] Không tìm thấy giao dịch với mã: {}", transactionCode);
+                return;
+            }
+        }
 
         if (payment.getStatus() != PaymentStatus.PENDING) {
             log.warn("[SepayService] Payment {} is not PENDING (Status: {})", transactionCode, payment.getStatus());
@@ -93,10 +136,6 @@ public class SepayService {
         payment.setGatewayTransactionId(payload.getId());
         paymentRepository.save(payment); // Save gateway ID first to ensure uniqueness
         
-        // Execute the payment completion via PaymentService
-        // Wait, executePayment takes billId, amount, method, txnCode. But we already have the Payment entity.
-        // We should probably add a completePayment method or reuse logic.
-        // Since executePayment creates a new payment, we need a completeOnlinePayment method in PaymentService.
         paymentService.completeOnlinePayment(payment.getPaymentId(), payload.getTransferAmount());
     }
 

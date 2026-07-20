@@ -91,7 +91,11 @@ public class HousingAssignmentAdminController {
             @RequestParam(required = false) AssignmentStatus status,
             org.springframework.data.domain.Pageable pageable
     ) {
-        org.springframework.data.domain.Page<StudentHousingAssignment> page = assignmentRepository.searchForAudit(status, search, pageable);
+        List<AssignmentStatus> queryStatuses = status != null 
+                ? List.of(status) 
+                : List.of(AssignmentStatus.RESERVED, AssignmentStatus.PENDING_CHECKIN, AssignmentStatus.OCCUPIED);
+
+        org.springframework.data.domain.Page<StudentHousingAssignment> page = assignmentRepository.searchForAudit(queryStatuses, search, pageable);
         
         org.springframework.data.domain.Page<ActiveAssignmentByBedResponse> dtoPage = page.map(assignment -> {
             ActiveAssignmentByBedResponse.StudentSummary studentSummary = null;

@@ -24,20 +24,19 @@ import {
   TextField,
   InputAdornment,
   MenuItem,
+  TablePagination,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
-import React from 'react';
+import React, { useState } from 'react';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { usePaymentManagement } from '@/hooks/usePaymentManagement';
 
-// 🌟 FIX TẠI ĐÂY: Đổi key thành ACCOMMODATION_FEE cho khớp 100% tầng core DB Backend
 const BILL_TYPES: Record<string, string> = {
   ALL: 'Tất cả loại phí',
   ACCOMMODATION_FEE: 'Phí nội trú / Phòng',
-  SERVICE_FEE: 'Phí dịch vụ (Điện/Nước)',
-  FINE_FEE: 'Phí phạt vi phạm',
-  OTHER: 'Phí khác',
+  ELECTRIC_FEE: 'Tiền điện',
+  WATER_FEE: 'Tiền nước',
 };
 
 const STATUS_MAP: Record<
@@ -71,6 +70,11 @@ export default function PaymentManagement() {
     openConfirm,
   } = usePaymentManagement();
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const displayedBills = bills.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
   if (loading && bills.length === 0) {
     return (
       <Box sx={{ py: 4 }}>
@@ -82,7 +86,7 @@ export default function PaymentManagement() {
   return (
     <Box sx={{ py: 2 }}>
       <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
-        Quản lý Thanh toán & Hóa đơn
+        Quản lý thanh toán & hóa đơn
       </Typography>
       <Typography sx={{ color: 'text.secondary', mb: 4 }}>
         Theo dõi trạng thái thu tiền đóng phí, quản lý dòng tiền và phê duyệt thanh toán tiền mặt
@@ -90,7 +94,7 @@ export default function PaymentManagement() {
       </Typography>
 
       {/* TOOLBAR */}
-      <Paper variant="outlined" sx={{ borderRadius: 3, mb: 3, p: 2, borderColor: 'divider' }}>
+      <Paper sx={{ borderRadius: 4, mb: 3, p: 2, borderColor: 'divider' }}>
         <Box
           sx={{
             display: 'flex',
@@ -106,18 +110,22 @@ export default function PaymentManagement() {
             textColor="primary"
             indicatorColor="primary"
           >
-            <Tab label="Tất cả" value="ALL" sx={{ textTransform: 'none', fontWeight: 600 }} />
+            <Tab label="Tất cả" value="ALL" sx={{ textTransform: 'none', fontWeight: 'bold' }} />
             <Tab
               label="Chưa thanh toán"
               value="UNPAID"
-              sx={{ textTransform: 'none', fontWeight: 600 }}
+              sx={{ textTransform: 'none', fontWeight: 'bold' }}
             />
             <Tab
               label="Đã thanh toán"
               value="PAID"
-              sx={{ textTransform: 'none', fontWeight: 600 }}
+              sx={{ textTransform: 'none', fontWeight: 'bold' }}
             />
-            <Tab label="Đã hủy" value="CANCELLED" sx={{ textTransform: 'none', fontWeight: 600 }} />
+            <Tab
+              label="Đã hủy"
+              value="CANCELLED"
+              sx={{ textTransform: 'none', fontWeight: 'bold' }}
+            />
           </Tabs>
 
           <Box
@@ -166,15 +174,16 @@ export default function PaymentManagement() {
       <TableContainer
         component={Paper}
         variant="outlined"
-        sx={{ borderRadius: 3, borderColor: 'divider', overflow: 'hidden' }}
+        sx={{ borderRadius: 4, borderColor: 'divider', overflow: 'hidden' }}
       >
         <Table>
           <TableHead>
             <TableRow sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04) }}>
-              <TableCell sx={{ fontWeight: 'bold' }}>Mã Hóa Đơn</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Mã hóa đơn</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Sinh viên</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Phân loại phí</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Số tiền (VNĐ)</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Hạn đóng</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
               <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                 Hành động
@@ -193,7 +202,7 @@ export default function PaymentManagement() {
                 </TableCell>
               </TableRow>
             ) : (
-              bills.map((bill) => {
+              displayedBills.map((bill) => {
                 const statusStyle = STATUS_MAP[bill.status] || {
                   label: bill.status,
                   color: 'default',
@@ -201,29 +210,32 @@ export default function PaymentManagement() {
                 return (
                   <TableRow key={bill.billId} hover>
                     <TableCell
-                      sx={{ fontWeight: 600, fontFamily: 'monospace', color: 'primary.main' }}
+                      sx={{ fontWeight: 'bold', fontFamily: 'monospace', color: 'primary.main' }}
                     >
                       {bill.billCode}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 500 }}>{bill.studentName}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{bill.studentName}</TableCell>
                     <TableCell>
                       <Chip
                         label={BILL_TYPES[bill.billType] || bill.billType || 'Phí hệ thống'}
                         size="small"
                         color="primary"
                         variant="outlined"
-                        sx={{ fontWeight: 600 }}
+                        sx={{ fontWeight: 'bold' }}
                       />
                     </TableCell>
                     <TableCell sx={{ fontWeight: 'bold', color: 'text.primary' }}>
                       {bill.amount?.toLocaleString('vi-VN') || 0}
+                    </TableCell>
+                    <TableCell sx={{ color: bill.status === 'OVERDUE' ? 'error.main' : 'text.secondary', fontWeight: 'medium' }}>
+                      {bill.dueDate ? new Date(bill.dueDate).toLocaleDateString('vi-VN') : '—'}
                     </TableCell>
                     <TableCell>
                       <Chip
                         label={statusStyle.label}
                         color={statusStyle.color}
                         size="small"
-                        sx={{ fontWeight: 600, borderRadius: 1.5 }}
+                        sx={{ fontWeight: 'bold', borderRadius: 2 }}
                       />
                     </TableCell>
                     <TableCell align="center">
@@ -246,7 +258,7 @@ export default function PaymentManagement() {
                             color="success"
                             startIcon={<CheckCircleIcon />}
                             onClick={() => openConfirm(bill)}
-                            sx={{ textTransform: 'none', borderRadius: 1.5, fontWeight: 600 }}
+                            sx={{ textTransform: 'none', borderRadius: 2, fontWeight: 'bold' }}
                           >
                             Thu tiền mặt
                           </Button>
@@ -260,6 +272,20 @@ export default function PaymentManagement() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        component="div"
+        count={bills.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(_, newPage) => setPage(newPage)}
+        onRowsPerPageChange={(event) => {
+          setRowsPerPage(parseInt(event.target.value, 10));
+          setPage(0);
+        }}
+        labelRowsPerPage="Số dòng:"
+      />
 
       {/* CONFIRM DIALOG */}
       <Dialog open={confirmDialog} onClose={() => setConfirmDialog(false)} maxWidth="xs" fullWidth>
@@ -275,7 +301,7 @@ export default function PaymentManagement() {
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={() => setConfirmDialog(false)}>Hủy</Button>
           <Button variant="contained" color="success" onClick={handleConfirmCashPayment}>
-            Xác nhận Thu Tiền
+            Xác nhận thu tiền
           </Button>
         </DialogActions>
       </Dialog>
@@ -328,7 +354,7 @@ export default function PaymentManagement() {
                   borderColor: 'divider',
                 }}
               >
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                   Tổng nghĩa vụ tài chính:
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>

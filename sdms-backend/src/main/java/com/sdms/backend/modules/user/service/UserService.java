@@ -137,4 +137,22 @@ public class UserService {
 
         return StudentProfileResponse.fromEntity(account.getStudent());
     }
+
+    @Transactional
+    public StudentProfileResponse updateStudentAcademicInfo(UUID accountId, com.sdms.backend.modules.student.dto.request.UpdateAcademicInfoRequest request) {
+        UserAccount account = repository.findById(accountId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (account.getRole() != Role.STUDENT || account.getStudent() == null) {
+            throw new AppException(ErrorCode.STUDENT_PROFILE_NOT_FOUND);
+        }
+
+        com.sdms.backend.modules.student.entity.Student student = account.getStudent();
+        student.setFaculty(request.getFaculty());
+        student.setAcademicYear(request.getAcademicYear());
+
+        // Note: we rely on Cascade or EntityManager to save the Student entity since it's attached.
+        
+        return StudentProfileResponse.fromEntity(student);
+    }
 }

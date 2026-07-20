@@ -53,11 +53,12 @@ public class PaymentService {
         // 1. Validate the bill and amount
         Bill bill = validateBillAndAmount(billId, amount);
 
-        // 2. Generate a unique transaction code for SePay matching
-        String txnCode = "SDMS" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase();
+        // 2. Generate deterministic transaction code for SePay matching: "SDMS" + first 8 characters of Bill ID
+        String txnCode = "SDMS" + bill.getBillId().toString().substring(0, 8).toUpperCase();
 
-        // 3. Create a PENDING payment record
-        Payment payment = createPaymentRecord(bill, amount, method, txnCode, PaymentStatus.PENDING);
+        // 3. Find existing PENDING payment or create a new one
+        Payment payment = paymentRepository.findByBill_BillIdAndStatus(bill.getBillId(), PaymentStatus.PENDING)
+                .orElseGet(() -> createPaymentRecord(bill, amount, method, txnCode, PaymentStatus.PENDING));
 
         // 4. Generate the VietQR URL directly for the linked MBBank account
         // Format: https://qr.sepay.vn/img?acc={account}&bank={bank}&amount={amount}&des={description}
@@ -117,20 +118,18 @@ public class PaymentService {
 
         // Publish event if bill is fully paid
         if (bill.getStatus() == BillStatus.PAID) {
-            if (bill.getAssignmentId() != null && bill.getApplicationId() != null) {
-                eventPublisher.publishEvent(new PaymentSuccessEvent(
-                        this,
-                        bill.getBillId(),
-                        bill.getAssignmentId(),
-                        bill.getApplicationId(),
-                        bill.getStudentId(),
-                        null,
-                        null,
-                        bill.getAmount()
-                ));
-                log.info("[PaymentService] Published PaymentSuccessEvent for mock payment: bill={}, assignment={}",
-                        bill.getBillId(), bill.getAssignmentId());
-            }
+            eventPublisher.publishEvent(new PaymentSuccessEvent(
+                    this,
+                    bill.getBillId(),
+                    bill.getAssignmentId(),
+                    bill.getApplicationId(),
+                    bill.getStudentId(),
+                    null,
+                    null,
+                    bill.getAmount()
+            ));
+            log.info("[PaymentService] Published PaymentSuccessEvent for mock payment: bill={}, assignment={}",
+                    bill.getBillId(), bill.getAssignmentId());
         }
 
         return buildPaymentResponse(bill, payment);
@@ -205,20 +204,18 @@ public class PaymentService {
         updateBillAfterPayment(bill, payment.getAmount()); // Note: using original intended amount to apply to bill
         
         if (bill.getStatus() == BillStatus.PAID) {
-            if (bill.getAssignmentId() != null && bill.getApplicationId() != null) {
-                eventPublisher.publishEvent(new PaymentSuccessEvent(
-                        this,
-                        bill.getBillId(),
-                        bill.getAssignmentId(),
-                        bill.getApplicationId(),
-                        bill.getStudentId(),
-                        null,
-                        null,
-                        bill.getAmount()
-                ));
-                log.info("[PaymentService] Published PaymentSuccessEvent for bill={}, assignment={}",
-                        bill.getBillId(), bill.getAssignmentId());
-            }
+            eventPublisher.publishEvent(new PaymentSuccessEvent(
+                    this,
+                    bill.getBillId(),
+                    bill.getAssignmentId(),
+                    bill.getApplicationId(),
+                    bill.getStudentId(),
+                    null,
+                    null,
+                    bill.getAmount()
+            ));
+            log.info("[PaymentService] Published PaymentSuccessEvent for bill={}, assignment={}",
+                    bill.getBillId(), bill.getAssignmentId());
         }
     }
 
@@ -239,20 +236,18 @@ public class PaymentService {
             
             // Nếu hóa đơn đã được thanh toán hoàn toàn (PAID), phát sự kiện PaymentSuccessEvent
             if (bill.getStatus() == BillStatus.PAID) {
-                if (bill.getAssignmentId() != null && bill.getApplicationId() != null) {
-                    eventPublisher.publishEvent(new PaymentSuccessEvent(
-                            this,
-                            bill.getBillId(),
-                            bill.getAssignmentId(),
-                            bill.getApplicationId(),
-                            bill.getStudentId(),
-                            null,
-                            null,
-                            bill.getAmount()
-                    ));
-                    log.info("[PaymentService] Published PaymentSuccessEvent for bill={}, assignment={}",
-                            bill.getBillId(), bill.getAssignmentId());
-                }
+                eventPublisher.publishEvent(new PaymentSuccessEvent(
+                        this,
+                        bill.getBillId(),
+                        bill.getAssignmentId(),
+                        bill.getApplicationId(),
+                        bill.getStudentId(),
+                        null,
+                        null,
+                        bill.getAmount()
+                ));
+                log.info("[PaymentService] Published PaymentSuccessEvent for bill={}, assignment={}",
+                        bill.getBillId(), bill.getAssignmentId());
             }
         }
 

@@ -1,8 +1,7 @@
 // 📄 File: src/types/auth.ts
 
 export interface LoginData {
-  username?: string;
-  email?: string;
+  usernameOrEmail: string;
   password?: string;
 }
 
@@ -30,12 +29,16 @@ export interface ActivateData {
   newPassword?: string;
 }
 
-export interface User {
-  id: string;
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  tokenType?: string;
+}
+
+export interface UserProfile {
+  accountId: string;
   username: string;
   email: string;
-  campusId: string;
-  role: 'STUDENT' | 'STAFF' | 'ADMIN';
-  createdAt: string;
-  updatedAt: string;
+  role: 'STUDENT' | 'STAFF' | 'ADMIN' | string;
+  status: string;
 }

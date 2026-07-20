@@ -92,7 +92,7 @@ public class IotVerificationController {
     @GetMapping("/rfid-whitelist")
     public ApiResponse<Map<String, Object>> getRfidWhitelist() {
         log.info("[IoT] Fetching RFID Whitelist for offline mode sync");
-        java.util.List<String> rfids = eligibilityEvaluationService.getActiveRfidWhitelists();
+        java.util.Map<java.util.UUID, java.util.List<String>> rfids = eligibilityEvaluationService.getActiveRfidWhitelistsByBuilding();
         
         return ApiResponse.success(
             "Lấy danh sách whitelist thành công",

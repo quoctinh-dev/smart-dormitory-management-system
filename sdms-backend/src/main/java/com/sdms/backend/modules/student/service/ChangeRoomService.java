@@ -38,6 +38,7 @@ public class ChangeRoomService {
     private final StudentHousingAssignmentRepository assignmentRepository;
     private final StudentRepository studentRepository;
     private final RoomRepository roomRepository;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
     private final BedRepository bedRepository;
 
     @Transactional
@@ -102,6 +103,13 @@ public class ChangeRoomService {
             oldAssignment.setCheckOutAt(LocalDateTime.now());
             assignmentRepository.saveAndFlush(oldAssignment);
 
+            // Trả lại giường cũ
+            Bed oldBed = oldAssignment.getBed();
+            if (oldBed != null) {
+                oldBed.setStatus(com.sdms.backend.modules.room.enums.BedStatus.AVAILABLE);
+                bedRepository.save(oldBed);
+            }
+
             // Tạo assignment mới (OCCUPIED)
             StudentHousingAssignment newAssignment = new StudentHousingAssignment();
             newAssignment.setApplication(oldAssignment.getApplication());
@@ -113,7 +121,15 @@ public class ChangeRoomService {
             newAssignment.setExpectedCheckOutAt(oldAssignment.getExpectedCheckOutAt());
             assignmentRepository.save(newAssignment);
 
+            // Cập nhật giường mới
+            newBed.setStatus(com.sdms.backend.modules.room.enums.BedStatus.OCCUPIED);
+            bedRepository.save(newBed);
+
             request.setStatus(ChangeRoomRequestStatus.APPROVED);
+            
+            // Bắn sự kiện để đồng bộ lại whitelist IoT (cần thiết nếu đổi tòa nhà)
+            eventPublisher.publishEvent(new com.sdms.backend.modules.student.event.StudentRoomChangedEvent(
+                    this, oldAssignment.getStudent().getStudentId(), oldBed.getBedId(), newBed.getBedId()));
         } else {
             request.setStatus(ChangeRoomRequestStatus.REJECTED);
         }
@@ -126,11 +142,8 @@ public class ChangeRoomService {
         Room maintenanceRoom = roomRepository.findById(dto.getMaintenanceRoomId())
                 .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy phòng bảo trì"));
 
-        // Kiểm tra xem phòng có đang bảo trì không
-        if (maintenanceRoom.getStatus() != com.sdms.backend.modules.room.enums.RoomStatus.MAINTENANCE) {
-            // Có thể tự update thành MAINTENANCE luôn nếu business rule cho phép, ở đây ta throw exception
-            throw new AppException(ErrorCode.VALIDATION_FAILED, "Phòng chưa được đặt trạng thái BẢO TRÌ");
-        }
+        // Xóa điều kiện bắt buộc phòng phải đang BẢO TRÌ (Sửa lỗi Circular Dependency).
+        // Thay vào đó, sau khi dời xong, ta sẽ tự động cập nhật trạng thái phòng.
 
         for (MaintenanceRelocationDto.StudentRelocation relocation : dto.getRelocations()) {
             StudentHousingAssignment currentAssignment = assignmentRepository
@@ -153,6 +166,13 @@ public class ChangeRoomService {
             currentAssignment.setCheckOutAt(LocalDateTime.now());
             assignmentRepository.saveAndFlush(currentAssignment);
 
+            // Trả lại giường cũ
+            Bed oldBed = currentAssignment.getBed();
+            if (oldBed != null) {
+                oldBed.setStatus(com.sdms.backend.modules.room.enums.BedStatus.AVAILABLE);
+                bedRepository.save(oldBed);
+            }
+
             // Tạo assignment mới (OCCUPIED)
             StudentHousingAssignment newAssignment = new StudentHousingAssignment();
             newAssignment.setApplication(currentAssignment.getApplication());
@@ -163,6 +183,24 @@ public class ChangeRoomService {
             newAssignment.setCheckInAt(LocalDateTime.now());
             newAssignment.setExpectedCheckOutAt(currentAssignment.getExpectedCheckOutAt());
             assignmentRepository.save(newAssignment);
+
+            // Cập nhật giường mới
+            targetBed.setStatus(com.sdms.backend.modules.room.enums.BedStatus.OCCUPIED);
+            bedRepository.save(targetBed);
+            
+            // Bắn sự kiện để đồng bộ lại whitelist IoT (cần thiết nếu đổi tòa nhà)
+            eventPublisher.publishEvent(new com.sdms.backend.modules.student.event.StudentRoomChangedEvent(
+                    this, currentAssignment.getStudent().getStudentId(), oldBed.getBedId(), targetBed.getBedId()));
+        }
+
+        // Tự động chuyển phòng sang trạng thái BẢO TRÌ sau khi dời hết sinh viên
+        long remaining = assignmentRepository.countByBed_Room_RoomIdAndStatusIn(
+            dto.getMaintenanceRoomId(), 
+            List.of(AssignmentStatus.OCCUPIED, AssignmentStatus.RESERVED, AssignmentStatus.PENDING_CHECKIN)
+        );
+        if (remaining == 0) {
+            maintenanceRoom.setStatus(com.sdms.backend.modules.room.enums.RoomStatus.MAINTENANCE);
+            roomRepository.save(maintenanceRoom);
         }
     }
 

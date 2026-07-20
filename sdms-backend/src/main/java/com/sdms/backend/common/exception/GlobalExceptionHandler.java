@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -116,6 +119,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleJwtException(JwtException ex) {
         log.warn("JWT Error: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, ErrorCode.TOKEN_INVALID.getMessage(), null, ErrorCode.TOKEN_INVALID.name()));
+    }
+
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    public ResponseEntity<ApiResponse<?>> handleNotFoundException(Exception ex, WebRequest request) {
+        log.warn("Not Found Error URI: {} - Error: {}", request.getDescription(false), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(false, "Tài nguyên hoặc đường dẫn không tồn tại (404 Not Found)", null, "NOT_FOUND"));
     }
 
     // 6. Xử lý lỗi hệ thống không xác định (Fallback Exception) - Tuyến phòng thủ cuối cùng

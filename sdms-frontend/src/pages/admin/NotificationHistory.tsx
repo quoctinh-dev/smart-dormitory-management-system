@@ -1,108 +1,89 @@
 import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
 import SendIcon from '@mui/icons-material/Send';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import {
-  Alert,
   Box,
   Button,
   Chip,
-  CircularProgress,
+  Container,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Paper,
   Stack,
+  TextField,
+  Typography,
+  MenuItem,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
-  TextField,
-  Typography,
-  MenuItem,
+  TablePagination,
+  FormControl,
+  InputLabel,
+  Select,
+  InputAdornment,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { alpha } from '@mui/material/styles';
+import React from 'react';
 
-import { notificationApi, NotificationDeliveryLog } from '@/api/notificationApi';
-import { snackbar } from '@/utils/snackbar';
+import CustomSkeleton from '@/components/common/CustomSkeleton';
+import { useNotificationHistory } from '@/hooks/useNotificationHistory';
+
+const translateChannel = (channel: string) => {
+  switch (channel) {
+    case 'EMAIL':
+      return 'Email';
+    case 'IN_APP':
+    case 'APP':
+      return 'Ứng dụng';
+    case 'SMS':
+      return 'SMS';
+    default:
+      return channel;
+  }
+};
+
+const translateStatus = (status: string) => {
+  switch (status) {
+    case 'SENT':
+      return 'Thành công';
+    case 'FAILED':
+      return 'Thất bại';
+    case 'PENDING':
+      return 'Đang chờ';
+    default:
+      return status;
+  }
+};
 
 export default function NotificationHistory() {
-  const [logs, setLogs] = useState<NotificationDeliveryLog[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(20);
-  const [totalElements, setTotalElements] = useState(0);
-  const [openBroadcast, setOpenBroadcast] = useState(false);
-  const [broadcastForm, setBroadcastForm] = useState({
-    title: '',
-    message: '',
-    targetAudience: 'ALL',
-    type: 'ANNOUNCEMENT',
-  });
-  const [broadcasting, setBroadcasting] = useState(false);
-
-  const [filter, setFilter] = useState({ keyword: '', type: '', isBroadcast: '' });
-
-  const fetchLogs = async (nextPage: number, size: number, currentFilter: typeof filter) => {
-    setLoading(true);
-    try {
-      const typeParam = currentFilter.type === 'ALL' ? undefined : currentFilter.type || undefined;
-      const broadcastParam =
-        currentFilter.isBroadcast === 'BROADCAST'
-          ? true
-          : currentFilter.isBroadcast === 'SYSTEM'
-            ? false
-            : undefined;
-
-      const data = await notificationApi.getDeliveryLogs(
-        nextPage,
-        size,
-        currentFilter.keyword || undefined,
-        typeParam,
-        broadcastParam
-      );
-      setLogs(data.content || []);
-      setTotalElements(data.totalElements || 0);
-    } catch (requestError) {
-      console.error(requestError);
-      snackbar.error('Lỗi khi tải lịch sử thông báo');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchLogs(page, rowsPerPage, filter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, rowsPerPage, filter]);
-
-  const handleBroadcastSubmit = async () => {
-    if (!broadcastForm.title || !broadcastForm.message) return;
-
-    setBroadcasting(true);
-    try {
-      const result = await notificationApi.broadcastNotification(broadcastForm);
-      setOpenBroadcast(false);
-      setBroadcastForm({ title: '', message: '', targetAudience: 'ALL', type: 'ANNOUNCEMENT' });
-      setPage(0);
-      snackbar.success(`Da phat thong bao cho ${result.recipientCount} tai khoan.`);
-      fetchLogs(0, rowsPerPage, filter);
-    } catch (requestError) {
-      console.error(requestError);
-      snackbar.error('Loi khi gui broadcast');
-    } finally {
-      setBroadcasting(false);
-    }
-  };
-
-  const sentCount = logs.filter((row) => row.status === 'SENT').length;
-  const failedCount = logs.filter((row) => row.status === 'FAILED').length;
+  const {
+    logs,
+    loading,
+    page,
+    setPage,
+    rowsPerPage,
+    setRowsPerPage,
+    totalElements,
+    openBroadcast,
+    setOpenBroadcast,
+    broadcastForm,
+    setBroadcastForm,
+    broadcasting,
+    filter,
+    setFilter,
+    handleBroadcastSubmit,
+    sentCount,
+    failedCount,
+  } = useNotificationHistory();
 
   return (
-    <Box sx={{ p: { xs: 2, md: 3 } }}>
+    <Container sx={{ py: 4 }} maxWidth="lg">
       <Box
         sx={{
           display: 'flex',
@@ -110,11 +91,11 @@ export default function NotificationHistory() {
           justifyContent: 'space-between',
           alignItems: { xs: 'flex-start', md: 'center' },
           gap: 2,
-          mb: 3,
+          mb: 4,
         }}
       >
         <Box>
-          <Typography variant="h4" fontWeight={700}>
+          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
             Lịch sử thông báo
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
@@ -131,190 +112,273 @@ export default function NotificationHistory() {
         </Button>
       </Box>
 
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 4 }}>
         <Paper
-          sx={{ flex: 1, p: 2.25, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}
+          sx={{
+            flex: 1,
+            p: 3,
+            borderRadius: '24px',
+            background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(25, 118, 210, 0.15) 100%)',
+            border: '1px solid rgba(25, 118, 210, 0.2)',
+            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+            backdropFilter: 'blur(4px)',
+            transition: 'transform 0.2s',
+            '&:hover': { transform: 'translateY(-4px)' }
+          }}
         >
-          <Stack direction="row" spacing={1.25} alignItems="center">
-            <CampaignOutlinedIcon color="primary" />
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Box sx={{ p: 1.5, borderRadius: '16px', bgcolor: 'primary.main', color: 'white', display: 'flex', boxShadow: '0 4px 12px rgba(25, 118, 210, 0.4)' }}>
+              <CampaignOutlinedIcon fontSize="large" />
+            </Box>
             <Box>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" fontWeight="medium" textTransform="uppercase" letterSpacing={1}>
                 Tổng bản ghi
               </Typography>
-              <Typography variant="h6" fontWeight={700}>
-                {totalElements}
+              <Typography variant="h4" fontWeight="bold" color="primary.main">
+                {totalElements || 0}
               </Typography>
             </Box>
           </Stack>
         </Paper>
+        
         <Paper
-          sx={{ flex: 1, p: 2.25, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}
+          sx={{
+            flex: 1,
+            p: 3,
+            borderRadius: '24px',
+            background: 'linear-gradient(135deg, rgba(46, 125, 50, 0.05) 0%, rgba(46, 125, 50, 0.15) 100%)',
+            border: '1px solid rgba(46, 125, 50, 0.2)',
+            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+            backdropFilter: 'blur(4px)',
+            transition: 'transform 0.2s',
+            '&:hover': { transform: 'translateY(-4px)' }
+          }}
         >
-          <Stack direction="row" spacing={1.25} alignItems="center">
-            <CampaignOutlinedIcon color="success" />
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Box sx={{ p: 1.5, borderRadius: '16px', bgcolor: 'success.main', color: 'white', display: 'flex', boxShadow: '0 4px 12px rgba(46, 125, 50, 0.4)' }}>
+              <SendIcon fontSize="large" />
+            </Box>
             <Box>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" fontWeight="medium" textTransform="uppercase" letterSpacing={1}>
                 Gửi thành công
               </Typography>
-              <Typography variant="h6" fontWeight={700}>
-                {sentCount}
+              <Typography variant="h4" fontWeight="bold" color="success.main">
+                {sentCount || 0}
               </Typography>
             </Box>
           </Stack>
         </Paper>
+        
         <Paper
-          sx={{ flex: 1, p: 2.25, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}
+          sx={{
+            flex: 1,
+            p: 3,
+            borderRadius: '24px',
+            background: 'linear-gradient(135deg, rgba(211, 47, 47, 0.05) 0%, rgba(211, 47, 47, 0.15) 100%)',
+            border: '1px solid rgba(211, 47, 47, 0.2)',
+            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+            backdropFilter: 'blur(4px)',
+            transition: 'transform 0.2s',
+            '&:hover': { transform: 'translateY(-4px)' }
+          }}
         >
-          <Stack direction="row" spacing={1.25} alignItems="center">
-            <CampaignOutlinedIcon color="error" />
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Box sx={{ p: 1.5, borderRadius: '16px', bgcolor: 'error.main', color: 'white', display: 'flex', boxShadow: '0 4px 12px rgba(211, 47, 47, 0.4)' }}>
+              <CampaignOutlinedIcon fontSize="large" />
+            </Box>
             <Box>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" fontWeight="medium" textTransform="uppercase" letterSpacing={1}>
                 Gửi thất bại
               </Typography>
-              <Typography variant="h6" fontWeight={700}>
-                {failedCount}
+              <Typography variant="h4" fontWeight="bold" color="error.main">
+                {failedCount || 0}
               </Typography>
             </Box>
           </Stack>
         </Paper>
       </Stack>
 
-
-      <Paper sx={{ p: 2, mb: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-          <TextField
-            size="small"
-            label="Tìm kiếm người nhận hoặc Event ID"
-            variant="outlined"
-            fullWidth
-            value={filter.keyword}
-            onChange={(e) => {
-              setFilter((prev) => ({ ...prev, keyword: e.target.value }));
-              setPage(0);
-            }}
-          />
-          <TextField
-            select
-            size="small"
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: 2,
+          border: '1px solid',
+          borderColor: 'divider',
+          display: 'flex',
+          gap: 2,
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          bgcolor: 'background.paper',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2, color: 'text.secondary' }}>
+          <FilterListIcon fontSize="small" />
+          <Typography variant="body2" fontWeight="bold">
+            Bộ lọc
+          </Typography>
+        </Box>
+        <TextField
+          variant="outlined"
+          size="small"
+          placeholder="Tìm kiếm người nhận / Mã sự kiện"
+          value={filter.keyword}
+          onChange={(e) => {
+            setFilter((prev) => ({ ...prev, keyword: e.target.value }));
+            setPage(0);
+          }}
+          sx={{ width: { xs: '100%', sm: 300 }, bgcolor: '#ffffff', borderRadius: 1 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <FormControl
+          size="small"
+          variant="outlined"
+          sx={{ width: { xs: '100%', sm: 200 }, bgcolor: '#ffffff', borderRadius: 1 }}
+        >
+          <InputLabel>Nguồn tạo</InputLabel>
+          <Select
             label="Nguồn tạo"
             value={filter.isBroadcast}
             onChange={(e) => {
               setFilter((prev) => ({ ...prev, isBroadcast: e.target.value }));
               setPage(0);
             }}
-            sx={{ minWidth: 200 }}
           >
-            <MenuItem value="">Tất cả nguồn</MenuItem>
-            <MenuItem value="BROADCAST">Admin gửi Broadcast</MenuItem>
-            <MenuItem value="SYSTEM">Hệ thống tự động gửi</MenuItem>
-          </TextField>
-          <TextField
-            select
-            size="small"
+          <MenuItem value="">Tất cả nguồn</MenuItem>
+          <MenuItem value="BROADCAST">Admin gửi Broadcast</MenuItem>
+          <MenuItem value="SYSTEM">Hệ thống tự động gửi</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl
+          size="small"
+          variant="outlined"
+          sx={{ width: { xs: '100%', sm: 200 }, bgcolor: '#ffffff', borderRadius: 1 }}
+        >
+          <InputLabel>Loại thông báo</InputLabel>
+          <Select
             label="Loại thông báo"
             value={filter.type}
             onChange={(e) => {
               setFilter((prev) => ({ ...prev, type: e.target.value }));
               setPage(0);
             }}
-            sx={{ minWidth: 200 }}
           >
-            <MenuItem value="">Tất cả loại</MenuItem>
-            <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
-            <MenuItem value="SYSTEM">Hệ thống</MenuItem>
-            <MenuItem value="WARNING">Cảnh báo</MenuItem>
-            <MenuItem value="APPLICATION">Đơn đăng ký</MenuItem>
-            <MenuItem value="MAINTENANCE">Báo hỏng</MenuItem>
-            <MenuItem value="PAYMENT">Thanh toán</MenuItem>
-            <MenuItem value="ROOM">Đổi phòng/Phòng ở</MenuItem>
-          </TextField>
-        </Stack>
+          <MenuItem value="">Tất cả loại</MenuItem>
+          <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
+          <MenuItem value="SYSTEM">Hệ thống</MenuItem>
+          <MenuItem value="WARNING">Cảnh báo</MenuItem>
+          <MenuItem value="APPLICATION">Đơn đăng ký</MenuItem>
+          <MenuItem value="MAINTENANCE">Báo hỏng</MenuItem>
+          <MenuItem value="PAYMENT">Thanh toán</MenuItem>
+          <MenuItem value="ROOM">Đổi phòng/Phòng ở</MenuItem>
+          <MenuItem value="AUTH">Xác thực/Tài khoản</MenuItem>
+          <MenuItem value="FACE">Khuôn mặt (AI)</MenuItem>
+          <MenuItem value="SMART_ACCESS">Cửa ra vào/Cổng</MenuItem>
+          </Select>
+        </FormControl>
       </Paper>
 
-      <Paper sx={{ width: '100%', mb: 2, borderRadius: 3, overflow: 'hidden' }}>
-        <TableContainer sx={{ maxHeight: '70vh' }}>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>Thời gian</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Người nhận</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Kênh</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Trạng thái</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Event ID</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Chi tiết lỗi</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 5 }}>
-                    <CircularProgress />
-                  </TableCell>
+      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+        {loading ? (
+          <Box p={3}>
+            <CustomSkeleton type="table" count={5} />
+          </Box>
+        ) : (
+          <>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05) }}>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Thời gian</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Người nhận</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Kênh</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Mã sự kiện</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Chi tiết lỗi</TableCell>
                 </TableRow>
-              ) : logs.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 5 }}>
-                    Chưa có lịch sử thông báo nào.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                logs.map((row) => (
-                  <TableRow hover key={row.id}>
-                    <TableCell>{new Date(row.createdAt).toLocaleString('vi-VN')}</TableCell>
-                    <TableCell>{row.recipient}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={row.channel}
-                        size="small"
-                        color={row.channel === 'EMAIL' ? 'info' : 'primary'}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={row.status}
-                        size="small"
-                        color={
-                          row.status === 'SENT'
-                            ? 'success'
-                            : row.status === 'FAILED'
-                              ? 'error'
-                              : 'warning'
-                        }
-                      />
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.8rem', color: 'text.secondary' }}>
-                      {row.eventId}
-                    </TableCell>
-                    <TableCell sx={{ color: 'error.main', fontSize: '0.85rem' }}>
-                      {row.errorMessage || '-'}
+              </TableHead>
+              <TableBody>
+                {logs.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                      <Typography color="text.secondary">Không có dữ liệu.</Typography>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          component="div"
-          count={totalElements}
-          page={page}
-          onPageChange={(_, newPage) => setPage(newPage)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(event) => {
-            setRowsPerPage(parseInt(event.target.value, 10));
-            setPage(0);
-          }}
-          rowsPerPageOptions={[10, 20, 50]}
-          labelRowsPerPage="Số dòng/trang:"
-          labelDisplayedRows={({ from, to, count }) =>
-            `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`
-          }
-        />
-      </Paper>
+                ) : (
+                  logs.map((row) => (
+                    <TableRow key={row.id} hover>
+                      <TableCell>
+                        <Typography variant="body2" fontWeight="medium">
+                          {new Date(row.createdAt).toLocaleString('vi-VN')}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="subtitle2" fontWeight="bold">
+                          {row.recipient}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={translateChannel(row.channel)}
+                          size="small"
+                          color={row.channel === 'EMAIL' ? 'info' : 'primary'}
+                          sx={{ fontWeight: 'bold' }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={translateStatus(row.status)}
+                          size="small"
+                          color={
+                            row.status === 'SENT'
+                              ? 'success'
+                              : row.status === 'FAILED'
+                                ? 'error'
+                                : 'warning'
+                          }
+                          sx={{ fontWeight: 'bold' }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary' }}>
+                          {row.eventId}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{ color: 'error.main', fontSize: '0.85rem', maxWidth: 200 }} noWrap title={row.errorMessage || undefined}>
+                          {row.errorMessage || '-'}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+            <TablePagination
+              component="div"
+              count={totalElements || 0}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(e) => {
+                setRowsPerPage(parseInt(e.target.value, 10));
+                setPage(0);
+              }}
+              labelRowsPerPage="Số dòng/trang:"
+            />
+          </>
+        )}
+      </TableContainer>
 
-      <Dialog open={openBroadcast} onClose={() => setOpenBroadcast(false)} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ fontWeight: 700 }}>Gửi thông báo toàn hệ thống</DialogTitle>
-        <DialogContent>
+      <Dialog open={openBroadcast} onClose={() => setOpenBroadcast(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: '24px', p: 1 } }}>
+        <DialogTitle sx={{ fontWeight: 'bold', fontSize: '1.5rem', pb: 1 }}>Gửi thông báo Broadcast</DialogTitle>
+        <DialogContent dividers>
           <TextField
             autoFocus
             margin="dense"
@@ -369,17 +433,18 @@ export default function NotificationHistory() {
             }
           />
         </DialogContent>
-        <DialogActions sx={{ p: 2, pt: 0 }}>
-          <Button onClick={() => setOpenBroadcast(false)}>Hủy</Button>
+        <DialogActions sx={{ p: 3, pt: 2 }}>
+          <Button onClick={() => setOpenBroadcast(false)} sx={{ borderRadius: 2 }}>Hủy</Button>
           <Button
             onClick={handleBroadcastSubmit}
             variant="contained"
             disabled={broadcasting || !broadcastForm.title || !broadcastForm.message}
+            sx={{ borderRadius: 2, px: 3 }}
           >
             {broadcasting ? 'Đang gửi...' : 'Phát sóng'}
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Container>
   );
 }

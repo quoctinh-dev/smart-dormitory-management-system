@@ -74,6 +74,13 @@ public class StudentService {
         return StudentProfileResponse.fromEntity(updatedStudent);
     }
 
+    @Transactional(readOnly = true)
+    public StudentProfileResponse getStudentProfileById(java.util.UUID studentId) {
+        Student student = studentRepository.findById(studentId)
+            .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy sinh viên"));
+        return StudentProfileResponse.fromEntity(student);
+    }
+
     @Transactional
     public void assignRfidCode(java.util.UUID studentId, String rfidCode) {
         Student student = studentRepository.findById(studentId)

@@ -2,10 +2,10 @@ package com.sdms.backend.modules.notification.strategy;
 
 import com.sdms.backend.common.service.EmailService;
 import com.sdms.backend.modules.notification.core.payload.NotificationPayload;
-import com.sdms.backend.modules.notification.entity.NotificationDeliveryHistory;
+import com.sdms.backend.modules.notification.entity.Notification;
 import com.sdms.backend.modules.notification.enums.NotificationChannel;
 import com.sdms.backend.modules.notification.enums.NotificationStatus;
-import com.sdms.backend.modules.notification.repository.NotificationDeliveryHistoryRepository;
+import com.sdms.backend.modules.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class EmailNotificationStrategy implements NotificationStrategy {
 
     private final EmailService emailService;
-    private final NotificationDeliveryHistoryRepository historyRepository;
+    private final NotificationRepository notificationRepository;
     private final TemplateEngine templateEngine;
 
     @Override
@@ -35,12 +35,14 @@ public class EmailNotificationStrategy implements NotificationStrategy {
             return;
         }
 
-        NotificationDeliveryHistory history = NotificationDeliveryHistory.builder()
+        Notification history = Notification.builder()
                 .recipient(payload.getEmail())
                 .channel(NotificationChannel.EMAIL)
                 .type(payload.getType())
                 .status(NotificationStatus.PENDING)
                 .eventId(payload.getEventId())
+                .title(payload.getTitle() != null ? payload.getTitle() : "Email Notification")
+                .message("Email sent using template: " + payload.getEmailTemplateName())
                 .build();
 
         try {
@@ -50,7 +52,6 @@ public class EmailNotificationStrategy implements NotificationStrategy {
             }
 
             String htmlContent = templateEngine.process("notification/" + payload.getEmailTemplateName(), context);
-            history.setPayloadSnapshot("{\"templateName\": \"" + payload.getEmailTemplateName() + "\"}");
 
             // Assuming emailService.sendNotificationEmail handles asynchronous sending correctly
             emailService.sendNotificationEmail(payload.getEmail(), payload.getTitle(), htmlContent);
@@ -61,13 +62,10 @@ public class EmailNotificationStrategy implements NotificationStrategy {
         } catch (Exception e) {
             history.setStatus(NotificationStatus.FAILED);
             history.setErrorMessage(e.getMessage());
-            if (history.getPayloadSnapshot() == null) {
-                history.setPayloadSnapshot("Template Error: " + payload.getEmailTemplateName());
-            }
             log.error("EmailNotificationStrategy: Failed to send email for event {}", payload.getEventId(), e);
         } finally {
             try {
-                historyRepository.save(history);
+                notificationRepository.save(history);
             } catch (Exception dbEx) {
                 log.error("EmailNotificationStrategy: Failed to save delivery history", dbEx);
             }

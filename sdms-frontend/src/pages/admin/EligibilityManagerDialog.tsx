@@ -1,4 +1,4 @@
-import { Delete, CloudUpload } from '@mui/icons-material';
+import { Delete, CloudUpload, Search } from '@mui/icons-material';
 import {
   Dialog,
   DialogTitle,
@@ -16,10 +16,12 @@ import {
   Paper,
   IconButton,
   CircularProgress,
-  Alert,
   TablePagination,
+  alpha,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 import { useEligibilityManager } from '@/hooks/useEligibilityManager';
 import { RegistrationPeriodResponse } from '@/types/registration';
@@ -49,9 +51,14 @@ export default function EligibilityManagerDialog({
     setPage,
     setSize,
     setDeleteTarget,
+    keyword,
+    setKeyword,
     confirmDelete,
+    confirmDeleteAll,
     handleImportExcel,
   } = useEligibilityManager(period, open);
+
+  const [confirmDeleteAllOpen, setConfirmDeleteAllOpen] = useState(false);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -82,10 +89,12 @@ export default function EligibilityManagerDialog({
     <>
       <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
         <DialogTitle sx={{ fontWeight: 'bold' }}>
-          Danh sách đủ điều kiện - {period.periodName}
+          {period.registrationType === 'OPEN_REGISTRATION'
+            ? 'Danh sách ưu tiên'
+            : 'Danh sách đủ điều kiện'}{' '}
+          - {period.periodName}
         </DialogTitle>
         <DialogContent dividers sx={{ pb: 0 }}>
-
           <Box
             sx={{
               display: 'flex',
@@ -95,10 +104,43 @@ export default function EligibilityManagerDialog({
               gap: 2,
             }}
           >
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Tải lên file Excel (.xlsx) gồm các cột CCCD, Họ Tên, MSSV, Email để cấu hình bộ lọc
-              sinh viên hợp lệ.
+            <Typography variant="body2" sx={{ color: 'text.secondary', flex: 1 }}>
+              {period.registrationType === 'OPEN_REGISTRATION'
+                ? 'Tải lên file Excel (.xlsx) gồm các cột CCCD, Họ Tên, MSSV, Email để cấu hình danh sách sinh viên ưu tiên (VD: Năm nhất). Hệ thống vẫn cho phép tất cả sinh viên khác đăng ký bình thường.'
+                : 'Tải lên file Excel (.xlsx) gồm các cột CCCD, Họ Tên, MSSV, Email để cấu hình bộ lọc sinh viên hợp lệ.'}
             </Typography>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <TextField
+                variant="outlined"
+                size="small"
+                placeholder="Tìm kiếm sinh viên..."
+                value={keyword}
+                onChange={(e) => {
+                  setKeyword(e.target.value);
+                  setPage(0);
+                }}
+                sx={{ width: 220, bgcolor: '#ffffff', borderRadius: 1 }}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search fontSize="small" />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<Delete />}
+                onClick={() => setConfirmDeleteAllOpen(true)}
+                disabled={totalElements === 0}
+                sx={{ borderRadius: 2, whiteSpace: 'nowrap' }}
+              >
+                Xóa tất cả
+              </Button>
+            </Box>
 
             <Box>
               <input
@@ -128,33 +170,16 @@ export default function EligibilityManagerDialog({
             </Box>
           ) : (
             <>
-              <TableContainer
-                component={Paper}
-                variant="outlined"
-                sx={{ borderRadius: 2, maxHeight: '400px' }}
-              >
+              <TableContainer component={Paper} sx={{ overflow: 'hidden', maxHeight: '400px' }}>
                 <Table size="small" stickyHeader>
                   <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>
-                        STT
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>
-                        CCCD / CMND
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>
-                        Mã sinh viên
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>
-                        Email
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}>
-                        Họ và tên
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        sx={{ fontWeight: 'bold', bgcolor: 'action.hover' }}
-                      >
+                    <TableRow sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05) }}>
+                      <TableCell sx={{ fontWeight: 'bold' }}>STT</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>CCCD</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Mã sinh viên</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Email</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Họ và tên</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                         Hành động
                       </TableCell>
                     </TableRow>
@@ -177,13 +202,13 @@ export default function EligibilityManagerDialog({
                           {/* CHUẨN HÓA LOGIC: Tính số thứ tự tăng tiến chuẩn theo trang */}
                           <TableCell>{index + 1 + page * size}</TableCell>
                           <TableCell>{row.cccd || 'N/A'}</TableCell>
-                          <TableCell sx={{ color: 'primary.main', fontWeight: 500 }}>
+                          <TableCell sx={{ color: 'primary.main', fontWeight: 'bold' }}>
                             {row.studentCode || 'N/A'}
                           </TableCell>
-                          <TableCell sx={{ color: 'secondary.main', fontWeight: 500 }}>
+                          <TableCell sx={{ color: 'secondary.main', fontWeight: 'bold' }}>
                             {row.email || 'N/A'}
                           </TableCell>
-                          <TableCell sx={{ fontWeight: 500 }}>{row.fullName}</TableCell>
+                          <TableCell sx={{ fontWeight: 'bold' }}>{row.fullName}</TableCell>
                           <TableCell align="center">
                             <IconButton
                               color="error"
@@ -211,9 +236,6 @@ export default function EligibilityManagerDialog({
                   onRowsPerPageChange={handleChangeRowsPerPage}
                   rowsPerPageOptions={[5, 10, 20, 50]}
                   labelRowsPerPage="Số dòng/trang:"
-                  labelDisplayedRows={({ from, to, count }) =>
-                    `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`
-                  }
                   sx={{ borderTop: 'none', mt: 1 }}
                 />
               )}
@@ -240,6 +262,34 @@ export default function EligibilityManagerDialog({
           <Button onClick={() => setDeleteTarget(null)}>Hủy</Button>
           <Button onClick={confirmDelete} variant="contained" color="error">
             Xác Nhận Xóa
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* DIALOG XÁC NHẬN XÓA TẤT CẢ */}
+      <Dialog open={confirmDeleteAllOpen} onClose={() => setConfirmDeleteAllOpen(false)}>
+        <DialogTitle sx={{ fontWeight: 'bold', color: 'error.main' }}>
+          Xác nhận xóa toàn bộ
+        </DialogTitle>
+        <DialogContent sx={{ minWidth: 320 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Bạn có chắc chắn muốn xóa <strong>TẤT CẢ</strong> sinh viên hợp lệ của đợt này? Hành
+            động này không thể hoàn tác.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button onClick={() => setConfirmDeleteAllOpen(false)} sx={{ borderRadius: 1.5 }}>
+            Hủy bỏ
+          </Button>
+          <Button
+            onClick={() => {
+              confirmDeleteAll();
+              setConfirmDeleteAllOpen(false);
+            }}
+            variant="contained"
+            color="error"
+            sx={{ borderRadius: 1.5 }}
+          >
+            Xác nhận xóa tất cả
           </Button>
         </DialogActions>
       </Dialog>

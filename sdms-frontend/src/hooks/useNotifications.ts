@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 
-import notificationApi, { NotificationResponse } from '@/api/notificationApi';
+import notificationApi from '@/api/notification-api';
+import type { NotificationResponse } from '@/types/notification';
 
 export function useNotifications(userId: string | null) {
   const [notifications, setNotifications] = useState<NotificationResponse[]>([]);
@@ -51,8 +52,28 @@ export function useNotifications(userId: string | null) {
   useEffect(() => {
     if (userId) {
       fetchNotifications();
+
+      // TỐI ƯU GIAO DIỆN: Thêm Polling nhẹ (Lightweight Polling) mỗi 30s 
+      // để cập nhật số lượng thông báo (Unread Count) tạo cảm giác Real-time cho hệ thống
+      const interval = setInterval(async () => {
+        try {
+          const newCount = await notificationApi.getUnreadCount();
+          if (newCount !== unreadCount) {
+             setUnreadCount(newCount);
+             // Chỉ fetch lại list nếu có thông báo mới (tránh gọi API thừa)
+             if (newCount > unreadCount) {
+                 const newList = await notificationApi.getNotifications();
+                 setNotifications(newList || []);
+             }
+          }
+        } catch (e) {
+          // Ignore polling errors
+        }
+      }, 30000);
+
+      return () => clearInterval(interval);
     }
-  }, [userId, fetchNotifications]);
+  }, [userId, fetchNotifications, unreadCount]);
 
   return {
     notifications,

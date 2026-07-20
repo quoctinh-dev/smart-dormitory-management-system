@@ -22,12 +22,15 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { alpha } from '@mui/material/styles';
 
-import { notificationApi, NotificationResponse } from '@/api/notificationApi';
-import { useAuth } from '@/auth';
+import { notificationApi } from '@/api/notification-api';
+import { useAuth } from '@/providers/AuthProvider';
+import type { NotificationResponse } from '@/types/notification';
 
 export default function NotificationBell() {
-  const { admin } = useAuth();
+  const { user } = useAuth();
+  const accountId = user?.accountId || '';
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -39,7 +42,7 @@ export default function NotificationBell() {
   );
 
   useEffect(() => {
-    if (!admin) return;
+    if (!user) return;
 
     const fetchUnreadCount = async () => {
       try {
@@ -54,10 +57,10 @@ export default function NotificationBell() {
     const interval = setInterval(fetchUnreadCount, 60000);
 
     return () => clearInterval(interval);
-  }, [admin]);
+  }, [user]);
 
   const handleOpen = async (event: React.MouseEvent<HTMLElement>) => {
-    if (!admin) return;
+    if (!user) return;
 
     setAnchorEl(event.currentTarget);
     setLoading(true);
@@ -99,7 +102,7 @@ export default function NotificationBell() {
   };
 
   const handleMarkAllRead = async () => {
-    if (!admin) return;
+    if (!user) return;
 
     try {
       await notificationApi.markAllAsRead();
@@ -218,44 +221,79 @@ export default function NotificationBell() {
               <Chip
                 label="Tất cả"
                 size="small"
-                color={!filterType ? 'primary' : 'default'}
                 variant={!filterType ? 'filled' : 'outlined'}
                 onClick={() => setFilterType(null)}
+                sx={!filterType ? { bgcolor: (t) => alpha(t.palette.primary.main, 0.1), color: 'primary.dark', fontWeight: 'bold' } : {}}
+              />
+              <Chip
+                label="Chung"
+                size="small"
+                variant={filterType === 'ANNOUNCEMENT' ? 'filled' : 'outlined'}
+                onClick={() => setFilterType('ANNOUNCEMENT')}
+                sx={filterType === 'ANNOUNCEMENT' ? { bgcolor: (t) => alpha(t.palette.primary.main, 0.1), color: 'primary.dark', fontWeight: 'bold' } : {}}
               />
               <Chip
                 label="Báo hỏng"
                 size="small"
-                color={filterType === 'MAINTENANCE' ? 'error' : 'default'}
                 variant={filterType === 'MAINTENANCE' ? 'filled' : 'outlined'}
                 onClick={() => setFilterType('MAINTENANCE')}
+                sx={filterType === 'MAINTENANCE' ? { bgcolor: (t) => alpha(t.palette.error.main, 0.1), color: 'error.dark', fontWeight: 'bold' } : {}}
               />
               <Chip
                 label="Đăng ký"
                 size="small"
-                color={filterType === 'APPLICATION' ? 'info' : 'default'}
                 variant={filterType === 'APPLICATION' ? 'filled' : 'outlined'}
                 onClick={() => setFilterType('APPLICATION')}
+                sx={filterType === 'APPLICATION' ? { bgcolor: (t) => alpha(t.palette.info.main, 0.1), color: 'info.dark', fontWeight: 'bold' } : {}}
               />
               <Chip
                 label="Thanh toán"
                 size="small"
-                color={filterType === 'PAYMENT' ? 'success' : 'default'}
                 variant={filterType === 'PAYMENT' ? 'filled' : 'outlined'}
                 onClick={() => setFilterType('PAYMENT')}
+                sx={filterType === 'PAYMENT' ? { bgcolor: (t) => alpha(t.palette.success.main, 0.1), color: 'success.dark', fontWeight: 'bold' } : {}}
               />
               <Chip
                 label="Cảnh báo"
                 size="small"
-                color={filterType === 'WARNING' ? 'warning' : 'default'}
                 variant={filterType === 'WARNING' ? 'filled' : 'outlined'}
                 onClick={() => setFilterType('WARNING')}
+                sx={filterType === 'WARNING' ? { bgcolor: (t) => alpha(t.palette.warning.main, 0.1), color: 'warning.dark', fontWeight: 'bold' } : {}}
               />
               <Chip
                 label="Hệ thống"
                 size="small"
-                color={filterType === 'SYSTEM' ? 'primary' : 'default'}
                 variant={filterType === 'SYSTEM' ? 'filled' : 'outlined'}
                 onClick={() => setFilterType('SYSTEM')}
+                sx={filterType === 'SYSTEM' ? { bgcolor: (t) => alpha(t.palette.secondary.main, 0.1), color: 'secondary.dark', fontWeight: 'bold' } : {}}
+              />
+              <Chip
+                label="Phòng ở"
+                size="small"
+                variant={filterType === 'ROOM' ? 'filled' : 'outlined'}
+                onClick={() => setFilterType('ROOM')}
+                sx={filterType === 'ROOM' ? { bgcolor: (t) => alpha(t.palette.primary.main, 0.1), color: 'primary.dark', fontWeight: 'bold' } : {}}
+              />
+              <Chip
+                label="Tài khoản"
+                size="small"
+                variant={filterType === 'AUTH' ? 'filled' : 'outlined'}
+                onClick={() => setFilterType('AUTH')}
+                sx={filterType === 'AUTH' ? { bgcolor: (t) => alpha(t.palette.info.main, 0.1), color: 'info.dark', fontWeight: 'bold' } : {}}
+              />
+              <Chip
+                label="Khuôn mặt"
+                size="small"
+                variant={filterType === 'FACE' ? 'filled' : 'outlined'}
+                onClick={() => setFilterType('FACE')}
+                sx={filterType === 'FACE' ? { bgcolor: (t) => alpha(t.palette.secondary.main, 0.1), color: 'secondary.dark', fontWeight: 'bold' } : {}}
+              />
+              <Chip
+                label="Cửa ra vào"
+                size="small"
+                variant={filterType === 'SMART_ACCESS' ? 'filled' : 'outlined'}
+                onClick={() => setFilterType('SMART_ACCESS')}
+                sx={filterType === 'SMART_ACCESS' ? { bgcolor: (t) => alpha(t.palette.success.main, 0.1), color: 'success.dark', fontWeight: 'bold' } : {}}
               />
             </Stack>
           </Box>

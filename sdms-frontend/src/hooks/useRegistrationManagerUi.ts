@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 // CHUẨN HÓA TẠI ĐÂY: Gọi đúng phân hệ adminRegistrationApi từ cổng tổng tập trung @/api
 import { adminRegistrationApi } from '@/api';
-import { snackbar } from '@/utils/snackbar';
-
+import { snackbar } from '@/helpers/snackbar';
 import { RegistrationPeriodResponse } from '@/types/registration';
 
 const INITIAL_FORM_STATE = {
@@ -20,7 +19,6 @@ export function useRegistrationManagerUi() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-
   const [openDialog, setOpenDialog] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentPeriodId, setCurrentPeriodId] = useState<string | null>(null);
@@ -32,6 +30,38 @@ export function useRegistrationManagerUi() {
 
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
+  // States cho bộ lọc
+  const [filterKeyword, setFilterKeyword] = useState('');
+  const [filterType, setFilterType] = useState('ALL');
+  const [filterStatus, setFilterStatus] = useState('ALL');
+  const [filterYear, setFilterYear] = useState('ALL'); // Lọc theo năm
+
+  // Tạo danh sách các năm có trong dữ liệu đợt đăng ký (sắp xếp giảm dần)
+  const availableYears = useMemo(() => {
+    const years = periods
+      .map((p) => (p.startDate ? new Date(p.startDate).getFullYear().toString() : ''))
+      .filter((y) => y !== '');
+    return Array.from(new Set(years)).sort((a, b) => parseInt(b) - parseInt(a));
+  }, [periods]);
+
+  // Lọc danh sách (Memoized để tối ưu render)
+  const filteredPeriods = useMemo(() => {
+    return periods.filter((p) => {
+      const matchKeyword =
+        filterKeyword === '' || p.periodName.toLowerCase().includes(filterKeyword.toLowerCase());
+      const matchType = filterType === 'ALL' || p.registrationType === filterType;
+
+      let matchStatus = true;
+      if (filterStatus === 'ACTIVE') matchStatus = p.isActive === true;
+      if (filterStatus === 'INACTIVE') matchStatus = p.isActive === false;
+
+      const matchYear =
+        filterYear === 'ALL' ||
+        (p.startDate && new Date(p.startDate).getFullYear().toString() === filterYear);
+
+      return matchKeyword && matchType && matchStatus && matchYear;
+    });
+  }, [periods, filterKeyword, filterType, filterStatus, filterYear]);
 
   // Tải danh sách đợt (Khớp với cơ chế unwrap data của axiosClient)
   const fetchPeriods = useCallback(async () => {
@@ -144,10 +174,10 @@ export function useRegistrationManagerUi() {
       };
 
       if (editMode) {
-        await adminRegistrationApi.updatePeriod(currentPeriodId, payload);
+        await adminRegistrationApi.updatePeriod(currentPeriodId as string, payload as any);
         showSnackbar('Cập nhật đợt đăng ký thành công!', 'success');
       } else {
-        await adminRegistrationApi.createPeriod(payload);
+        await adminRegistrationApi.createPeriod(payload as any);
         showSnackbar('Tạo mới đợt đăng ký thành công!', 'success');
       }
       handleCloseDialog();
@@ -180,9 +210,19 @@ export function useRegistrationManagerUi() {
   );
 
   return {
-    periods,
+    periods: filteredPeriods, // Trả về danh sách đã lọc thay vì toàn bộ
+    rawPeriods: periods,
     loading,
     isSubmitting,
+    filterKeyword,
+    setFilterKeyword,
+    filterType,
+    setFilterType,
+    filterStatus,
+    setFilterStatus,
+    filterYear,
+    setFilterYear,
+    availableYears,
     openDialog,
     editMode,
     formData,

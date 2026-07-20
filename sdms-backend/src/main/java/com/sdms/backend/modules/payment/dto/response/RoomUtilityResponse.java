@@ -16,6 +16,10 @@ public class RoomUtilityResponse {
     private String roomCode;
     private int oldReading;
     private Integer newReading;
+    
+    @com.fasterxml.jackson.annotation.JsonProperty("isSettled")
     private boolean isSettled;
+    
+    @com.fasterxml.jackson.annotation.JsonProperty("isFirstRecord")
     private boolean isFirstRecord;
 }

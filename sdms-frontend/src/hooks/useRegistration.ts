@@ -1,32 +1,12 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { applicationApi, studentRegistrationApi, ocrApi } from '@/api';
-import { snackbar } from '@/utils/snackbar';
+import { applicationApi, studentRegistrationApi } from '@/api';
+import { snackbar } from '@/helpers/snackbar';
 
-interface IEligibilityResponse {
-  eligible: boolean;
-  periodId: string;
-  periodName: string;
-  registrationType: string;
-  target?: string;
-  fullName?: string;
-  message?: string;
-}
 
 interface IApplicationCreateResponse {
   applicationId: string;
-}
-
-interface IOcrResponse {
-  cccd?: string;
-  fullName?: string;
-  dob?: string;
-  gender?: string;
-  permanentAddress?: string;
-  pob?: string;
-  issueDate?: string;
-  issuePlace?: string;
 }
 
 interface IUploadResponse {
@@ -119,6 +99,7 @@ export const useRegistration = () => {
   });
 
   const [docUrls, setDocUrls] = useState<Record<string, string>>({});
+  const [uploadedPreviews, setUploadedPreviews] = useState<Record<string, string>>({});
 
   // Hàm helper để trích xuất câu lỗi từ đối tượng error kiểu unknown
   const getErrorMessage = (err: unknown): string => {
@@ -141,6 +122,13 @@ export const useRegistration = () => {
     const cleanEmail = formData.email.trim();
     if (!cleanEmail) {
       setError('Vui lòng nhập Email để nhận mã OTP.');
+      return;
+    }
+
+    // Kiểm tra định dạng Email trường STU
+    if (!cleanEmail.toLowerCase().endsWith('@student.stu.edu.vn')) {
+      setError('Hệ thống chỉ chấp nhận Email nội bộ của trường (@student.stu.edu.vn).');
+      snackbar.error('Sai định dạng Email trường.');
       return;
     }
 
@@ -171,20 +159,25 @@ export const useRegistration = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = (await studentRegistrationApi.checkEligibility({
+      const res = await studentRegistrationApi.checkEligibility({
         email: cleanEmail,
         otp: cleanOtp,
-      })) as unknown as IEligibilityResponse;
+      });
 
       if (res && res.eligible) {
         setPeriod({
-          periodId: res.periodId,
-          periodName: res.periodName,
-          registrationType: res.registrationType,
+          periodId: res.periodId ?? '',
+          periodName: res.periodName ?? '',
+          registrationType: res.registrationType ?? '',
         });
         setTargetGroup(res.target || 'ALL');
-        setFormData((prev) => ({ ...prev, fullName: res.fullName || '' }));
-        snackbar.success('Xác thực thành công! V vui lòng tiếp tục.');
+        setFormData((prev) => ({
+          ...prev,
+          fullName: res.fullName || prev.fullName,
+          cccd: res.cccd || prev.cccd,
+          studentCode: res.studentCode || prev.studentCode,
+        }));
+        snackbar.success('Xác thực thành công! Vui lòng tiếp tục.');
         setActiveStep(1);
       } else {
         const errorMsg = res?.message || 'Bạn không đủ điều kiện tham gia đợt đăng ký này.';
@@ -218,6 +211,23 @@ export const useRegistration = () => {
       return false;
     }
 
+    const stuCodeRegex = /^[A-Za-z]{2}\d{8}$/;
+    if (formData.studentCode && !stuCodeRegex.test(formData.studentCode.trim())) {
+      setError('Mã số sinh viên không đúng định dạng của trường (VD: DH52201580).');
+      snackbar.warning('Mã số sinh viên chưa hợp lệ.');
+      return false;
+    }
+
+    if (
+      formData.studentCode &&
+      formData.email &&
+      !formData.email.toLowerCase().startsWith(formData.studentCode.trim().toLowerCase())
+    ) {
+      setError('Mã số sinh viên không khớp với Email trường học đã nhập.');
+      snackbar.warning('Mã số sinh viên không khớp với Email.');
+      return false;
+    }
+
     for (const [key, label] of Object.entries(requiredFields)) {
       const value = formData[key];
       if (typeof value !== 'string' || !value.trim()) {
@@ -247,12 +257,6 @@ export const useRegistration = () => {
     if (activeStep === 0) {
       await handleCheckEligibility();
     } else if (activeStep === 1) {
-      if (!uploadedDocs.CCCD_FRONT || !uploadedDocs.CCCD_BACK) {
-        snackbar.warning('Vui lòng tải lên đầy đủ 2 mặt của Căn Cước Công Dân.');
-        return setError('Vui lòng tải lên đầy đủ 2 mặt của Căn Cước Công Dân.');
-      }
-      setActiveStep(2);
-    } else if (activeStep === 2) {
       if (!validateInfoSection()) return;
 
       setLoading(true);
@@ -296,7 +300,7 @@ export const useRegistration = () => {
         }
 
         snackbar.success('Đã lưu thông tin hồ sơ thành công!');
-        setActiveStep(3);
+        setActiveStep(2);
       } catch (err: any) {
         const errorMsg = getErrorMessage(err);
         setError(errorMsg);
@@ -304,7 +308,11 @@ export const useRegistration = () => {
       } finally {
         setLoading(false);
       }
-    } else if (activeStep === 3) {
+    } else if (activeStep === 2) {
+      if (!uploadedDocs.CCCD_FRONT || !uploadedDocs.CCCD_BACK) {
+        snackbar.warning('Vui lòng tải lên đầy đủ 2 mặt của Căn Cước Công Dân.');
+        return setError('Vui lòng tải lên đầy đủ 2 mặt của Căn Cước Công Dân.');
+      }
       if (!uploadedDocs.PORTRAIT_PHOTO) {
         snackbar.warning('Vui lòng tải lên Ảnh thẻ 3x4.');
         return setError('Vui lòng tải lên Ảnh thẻ 3x4.');
@@ -318,8 +326,8 @@ export const useRegistration = () => {
           return setError(`Vui lòng tải lên minh chứng cho diện ưu tiên [${p}] đã chọn.`);
         }
       }
-      setActiveStep(4);
-    } else if (activeStep === 4) {
+      setActiveStep(3);
+    } else if (activeStep === 3) {
       if (!formData.isCommitted) {
         snackbar.warning('Vui lòng xác nhận đồng ý với các cam kết.');
         return setError('Vui lòng đọc và đánh dấu xác nhận đồng ý với các cam kết lưu trú.');
@@ -328,7 +336,7 @@ export const useRegistration = () => {
       try {
         await applicationApi.submit(appId!);
         snackbar.success('Chúc mừng! Bạn đã nộp hồ sơ thành công.');
-        setActiveStep(5);
+        setActiveStep(4);
       } catch (err: any) {
         const errorMsg = getErrorMessage(err);
         setError(errorMsg);
@@ -346,34 +354,14 @@ export const useRegistration = () => {
     setError(null);
   };
 
-  const triggerOcr = async (frontUrl: string, backUrl: string) => {
-    snackbar.info('Đang phân tích thông tin CCCD...');
-    try {
-      const res = (await ocrApi.extractCccd({
-        frontImageUrl: frontUrl,
-        backImageUrl: backUrl,
-      })) as IOcrResponse;
-      if (res) {
-        setFormData((prev) => ({
-          ...prev,
-          cccd: res.cccd || prev.cccd,
-          fullName: res.fullName || prev.fullName,
-          dob: res.dob || prev.dob,
-          gender: res.gender || prev.gender,
-          permanentAddress: res.permanentAddress || prev.permanentAddress,
-          pob: res.pob || prev.pob,
-          issueDate: res.issueDate || prev.issueDate,
-          issuePlace: res.issuePlace || prev.issuePlace,
-        }));
-        snackbar.success('Đã trích xuất thông tin CCCD thành công!');
-      }
-    } catch (err: any) {
-      const errorMsg = getErrorMessage(err);
-      snackbar.warning(errorMsg + ' Vui lòng kiểm tra lại ảnh hoặc nhập thông tin bằng tay để tiếp tục.');
-    }
-  };
-
   const handleScanUpload = async (type: string, file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      const errorMsg = 'Kích thước file không được vượt quá 5MB.';
+      setError(errorMsg);
+      snackbar.error(errorMsg);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -386,14 +374,7 @@ export const useRegistration = () => {
 
       const newUrls = { ...docUrls, [type]: fileUrl };
       setDocUrls(newUrls);
-
-      if (
-        newUrls.CCCD_FRONT &&
-        newUrls.CCCD_BACK &&
-        (type === 'CCCD_FRONT' || type === 'CCCD_BACK')
-      ) {
-        await triggerOcr(newUrls.CCCD_FRONT, newUrls.CCCD_BACK);
-      }
+      setUploadedPreviews((prev) => ({ ...prev, [type]: fileUrl }));
     } catch (err: any) {
       const errorMsg = getErrorMessage(err);
       setError(errorMsg);
@@ -404,6 +385,13 @@ export const useRegistration = () => {
   };
 
   const handleUpload = async (type: string, file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      const errorMsg = 'Kích thước file không được vượt quá 5MB.';
+      setError(errorMsg);
+      snackbar.error(errorMsg);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -416,6 +404,7 @@ export const useRegistration = () => {
       await applicationApi.uploadDocument(appId!, type, fileUrl);
 
       setUploadedDocs((prev) => ({ ...prev, [type]: file.name }));
+      setUploadedPreviews((prev) => ({ ...prev, [type]: fileUrl }));
       snackbar.success(`Tải lên ${file.name} thành công!`);
     } catch (err: any) {
       const errorMsg = getErrorMessage(err);
@@ -439,6 +428,7 @@ export const useRegistration = () => {
     formData,
     setFormData,
     uploadedDocs,
+    uploadedPreviews,
     handleNext,
     handleBack,
     handleUpload,

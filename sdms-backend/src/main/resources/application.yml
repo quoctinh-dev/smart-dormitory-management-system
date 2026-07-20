@@ -60,7 +60,7 @@ server:
 
 payment:
   sepay:
-    api-key: ${SEPAY_API_KEY:default-api-key}
+    api-key: ${SEPAY_API_KEY}
 
 logging:
   level:
@@ -75,7 +75,3 @@ ai:
   face:
     engine:
       url: http://localhost:8000/api/v1/faces/extract
-
-fpt:
-  ai:
-    api-key: ${FPT_AI_API_KEY}

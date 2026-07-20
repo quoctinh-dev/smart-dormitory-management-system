@@ -18,8 +18,12 @@ import java.util.UUID;
 public interface RegistrationEligibilityRepository
         extends JpaRepository<RegistrationEligibility, UUID> {
 
-    // 1. Thay đổi từ List sang Page để hỗ trợ phân trang cho giao diện Admin (Tránh quá tải RAM/Mạng)
-    Page<RegistrationEligibility> findByRegistrationPeriod_PeriodId(UUID periodId, Pageable pageable);
+    // 1. Tìm kiếm và phân trang với Keyword (CCCD, Họ tên, MSSV, Email)
+    @Query("SELECT e FROM RegistrationEligibility e WHERE e.registrationPeriod.periodId = :periodId AND " +
+           "(:keyword IS NULL OR :keyword = '' OR LOWER(e.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(e.cccd) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(e.studentCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(e.email) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<RegistrationEligibility> searchEligibilities(@Param("periodId") UUID periodId, @Param("keyword") String keyword, Pageable pageable);
 
     // 2. Chỉ lấy danh sách chuỗi CCCD dạng Set để check trùng cực nhanh trên RAM, khử lỗi N+1 queries
     @Query("SELECT e.studentCode FROM RegistrationEligibility e WHERE e.registrationPeriod.periodId = :periodId")
@@ -39,4 +43,10 @@ public interface RegistrationEligibilityRepository
     @Modifying
     @Transactional
     void deleteByEligibilityId(UUID eligibilityId);
+
+    // 6. Xóa tất cả sinh viên trong đợt
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM RegistrationEligibility e WHERE e.registrationPeriod.periodId = :periodId")
+    void deleteAllByRegistrationPeriod_PeriodId(@Param("periodId") UUID periodId);
 }

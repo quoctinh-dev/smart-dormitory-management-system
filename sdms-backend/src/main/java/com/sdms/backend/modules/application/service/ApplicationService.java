@@ -72,11 +72,19 @@ public class ApplicationService {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Kỳ đăng ký hiện đã đóng hoặc chưa mở");
         }
 
-        if (period.getRegistrationType() != RegistrationType.OPEN_REGISTRATION) {
+        if (period.getRegistrationType() != RegistrationType.CURRENT_RESIDENT && period.getRegistrationType() != RegistrationType.OPEN_REGISTRATION) {
             boolean eligible = eligibilityRepository.existsByRegistrationPeriod_PeriodIdAndEmail(period.getPeriodId(), request.getEmail());
             if (!eligible) {
-                throw new AppException(ErrorCode.FORBIDDEN, "Bạn không có trong danh sách đủ điều kiện tham gia đợt này (Email không được tìm thấy)");
+                throw new AppException(ErrorCode.FORBIDDEN, "Bạn không có trong danh sách đủ điều kiện tham gia đợt này (Email không hợp lệ)");
             }
+        }
+
+        if (request.getStudentCode() != null && !request.getStudentCode().matches("^[A-Za-z]{2}\\d{8}$")) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Mã số sinh viên không đúng định dạng của trường (VD: DH52201580)");
+        }
+
+        if (request.getStudentCode() != null && !request.getEmail().toLowerCase().startsWith(request.getStudentCode().toLowerCase())) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Mã số sinh viên không khớp với Email đã xác thực");
         }
 
         Optional<DormitoryApplication> existingAppOpt = applicationRepository.findByEmailAndRegistrationPeriod_PeriodId(request.getEmail(), period.getPeriodId());
@@ -144,7 +152,13 @@ public class ApplicationService {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Không thể bổ sung tài liệu khi đơn đã được xử lý xong");
         }
 
-        VerificationDocument doc = new VerificationDocument();
+        // Xóa tài liệu cũ cùng loại (tránh bị lặp thẻ CCCD, Ảnh chân dung khi nộp lại nhiều lần ở bản nháp)
+        VerificationDocument doc = documentRepository.findByApplication_ApplicationId(applicationId)
+                .stream()
+                .filter(d -> d.getDocumentType() == type)
+                .findFirst()
+                .orElse(new VerificationDocument());
+
         doc.setApplication(application);
         doc.setDocumentType(type);
         doc.setFileUrl(fileUrl);

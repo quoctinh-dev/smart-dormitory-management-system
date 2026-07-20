@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { authApi } from '@/api';
-import { useAuth, authStorage } from '@/auth';
-import { getAuthErrorMessage } from '@/constants';
+import { getAuthErrorMessage } from '@/data';
+import { authStorage } from '@/helpers/auth-storage';
+import { useAuth } from '@/providers/AuthProvider';
 
 export const useLogin = () => {
   const navigate = useNavigate();

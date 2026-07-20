@@ -1,284 +1,382 @@
 # AI AGENT WORKFLOW FOR SDMS FRONTEND
 **Operational Manual for Frontend AI Agents (AGENTS.md)**
+**Phiên bản:** 2.0 | **Cập nhật:** 2026-07-19 | **Trạng thái:** BẮT BUỘC TUÂN THỦ
+
+---
 
 ## 1. GOVERNANCE HIERARCHY
-Ensure every document clearly defines this hierarchy:
-Business Documentation
-↓
-PROJECT_RULE
-↓
-AGENTS
-↓
-Implementation
-↓
-Testing
-↓
-Deployment
 
-Higher-level documents always have higher priority. Implementation must never violate higher-level documents.
+```
+Business Documentation  (docs/business/)
+         ↓
+   PROJECT_RULE.md      (.agents/PROJECT_RULE.md - đọc TRƯỚC)
+         ↓
+      AGENTS.md         (file này)
+         ↓
+   Implementation       (code .ts / .tsx)
+```
 
-## 2. MISSION & SCOPE
-- **Role:** AI Assistant working on the SDMS Frontend source code.
-- **Goal:** Execute UI implementations, fix bugs, and refactor code strictly following the engineering principles.
-- **Scope:** Work only within `sdms-frontend/`. Strictly ignore `node_modules/`, `dist/`.
+Higher-level documents always have higher priority. Never violate higher-level documents.
 
-## 3. WORKFLOW: BUSINESS & IMPACT ANALYSIS
-Before making any UI modifications, you MUST:
-- Read `PROJECT_RULE.md`.
-- Read Business Documentation (`docs/business/`) if business logic or UI requirements are affected.
-- Read Backend API Contracts, DTOs, and `ApiResponse`.
-- Read Hook boundaries and Route permissions.
-- **Perform Change Impact Analysis:** Evaluate the impact on Component Layouts, Router Navigation, Context States, and external API Contracts.
-- If the impact violates the Business Freeze Policy or breaks external contracts, STOP and report the conflict. **Never silently resolve conflicts.**
-
-## 4. WORKFLOW: PLANNING
-Formulate an execution plan:
-- **Scope:** Identify exactly which UI components, hooks, or API wrappers need to be modified.
-- **Traceability:** Map the code changes to the corresponding Business Rule or UI Workflow.
-
-## 5. WORKFLOW: IMPLEMENTATION
-Execute the plan strictly following `PROJECT_RULE.md`:
-- Make the minimum necessary changes.
-- Do not refactor unrelated code.
-- Do not silently modify `axiosClient`, Interceptors, global `Context`, or Folder structures.
-- Ensure the Definition of Done (DoD) from `PROJECT_RULE.md` is strictly followed.
-
-## 6. WORKFLOW: VERIFICATION & SYNCHRONIZATION
-After modifying code, you MUST self-verify:
-- **TypeScript Clean:** Ensure there are no type errors (`npm run build`).
-- **Lint Clean:** Ensure there are no linting warnings/errors (`npm run lint`).
-- **Validate:** Ensure API Contracts match the Backend. Check for Architecture violations.
-- **Synchronize Documentation:** Update any affected documentation (Business Workflows, Route Documentation, README). Implementation is NOT complete until documentation is synchronized.
-  - **Documentation Scope Boundaries:** ONLY store UI/UX specs, Frontend routing, and component logic in `sdms-frontend/docs/`. Do NOT store API contracts or backend domain models here (those belong to `docs/api` or backend).
-  - **Code is Truth (Audit by Code):** Do NOT blindly trust the markdown documentation. Documentation can be outdated. Always cross-check with the ACTUAL `.tsx`/`.ts` source code before drawing conclusions. If code and docs conflict, code is the truth.
-## 7. WORKFLOW: CHANGE SUMMARY
-At the end of every task, provide the user with a summary containing:
-- Files modified
-- Documentation modified (and the reason for the update)
-- Impact summary
-- Remaining technical debt
-- Next recommended task
-
-## ANTI-ASSUMPTION & TRUST BUT VERIFY RULE
-- **No Guessing/No Memory Reliance:** An AI Agent MUST NOT guess, assume, or rely on its previous context/memory when deleting, modifying, or rewriting files.
-- **Mandatory Content Verification:** You MUST strictly read the actual, current content of a file (e.g., using iew_file) BEFORE making any decisions to delete, move, or refactor it.
-- **Enforcement:** Skipping the read step to take a shortcut directly violates the 'Code is Truth' principle and is strictly forbidden.
-
-## DIRECTORY ORIENTATION RULE
-- **Mandatory Guidance:** Every major directory (especially docs/ and root project directories) MUST contain a README.md or an explicit index/orientation file.
-- **Purpose:** An AI Agent or human developer must immediately know what a directory contains, what its purpose is, and where to start reading when they first enter it. Do not leave files disconnected without a guide.
-
-## OPTIMAL SKILLS & PROJECT ORIENTATION RULE
-- **Skill Usage:** The Agent MUST utilize the most optimal and specialized tools/skills available for the task at hand. Avoid brute-force or overly generic commands when a specific tool exists.
-- **Project Orientation Alignment:** Every solution, code modification, or architectural decision MUST strictly align with the project's established orientation (Clean Architecture, Single Source of Truth). Do not introduce external libraries or design patterns that contradict the project's existing core rules.
-
-## ROADMAP COMPLETION RULE
-- **Cleanup Post-Execution:** When a future feature (roadmap item) is fully implemented and successfully tested, the Agent MUST delete the corresponding .md file from docs/roadmap/features/.
-- **Documentation Sync:** After deletion, the Agent MUST update all related technical and business documentation (e.g., SSR, API Contracts) to reflect the newly completed feature, ensuring no obsolete or 'future' data is left polluting the Single Source of Truth.
-
-## SESSION HISTORY RULE (LƯU LỊCH SỬ PHIÊN LÀM VIỆC)
-- **Mandatory Logging:** At the end of every work session or when completing major tasks, the Agent MUST create or update a work log summarizing the completed work.
-- **Location:** All session histories MUST be stored in the `docs/work_logs/` directory (e.g., `docs/work_logs/session_YYYY_MM_DD.md`).
-- **Separation:** Do NOT confuse this directory with `docs/handoff/`. The `docs/handoff/` directory is strictly for passing context between immediate agent sessions, while `docs/work_logs/` is for permanent historical tracking of project progress.
-
-## DOCUMENT PLACEMENT & JUSTIFICATION RULE
-- **Proper Location:** Whenever an Agent creates or modifies a document, it MUST place the document in the exact correct directory according to the system's governance and architectural rules (e.g., `docs/api/` for API specs, `sdms-frontend/docs/` for UI specs, `docs/work_logs/` for session histories).
-- **Mandatory Justification:** The Agent MUST explicitly state the reason (justification) for placing the document in that specific folder. This ensures no documents are lost and prevents the creation of untrackable junk files.
-
-## MANDATORY SELF-VERIFICATION RULE (LUẬT ÉP BUỘC TỰ KIỂM CHỨNG BẰNG COMMAND)
-- **Build & Test Before Success:** An Agent MUST NEVER declare a coding task complete without first running the project's native build/compile/test commands to verify there are no syntax or type errors. 
-- **Tool Usage:** Use `run_command` to execute `npm run build` (Frontend), `mvn compile` (Backend), `pytest` (AI), or `pio run` (IoT) immediately after editing files. If the build fails, the Agent MUST fix the errors before stopping.
-
-## NO GARBAGE & MEANINGFUL GENERATION RULE (LUẬT DỌN DẸP RÁC VÀ TÍNH CÓ NGHĨA)
-- **Meaningful Generation:** Every file, document, or piece of code generated by an Agent MUST have a clear, justifiable purpose. If it is meaningful, it must be properly named, placed in the correct directory, and easily retrievable by future Agents.
-- **Mandatory Cleanup:** If an Agent creates a temporary file, a mock script, or a test file, and it is no longer useful, the Agent MUST delete it immediately after use. Do not leave unused or unsuitable files polluting the repository.
-
-## DETAILED TESTING GUIDANCE RULE (LUẬT HƯỚNG DẪN KIỂM THỬ CHI TIẾT)
-- **Detailed Scenarios:** When instructing a user to perform an End-to-End (E2E) or Integration test, the Agent MUST provide concrete, step-by-step actions.
-- **Log Monitoring & Troubleshooting:** The Agent MUST specify exactly which logs or serial monitors to observe, what the expected success output looks like, and provide troubleshooting steps for common failures. Do not just say "test it".
-# AI AGENT WORKFLOW FOR SDMS FRONTEND
-**Operational Manual for Frontend AI Agents (AGENTS.md)**
-
-## 1. GOVERNANCE HIERARCHY
-Ensure every document clearly defines this hierarchy:
-Business Documentation
-↓
-PROJECT_RULE
-↓
-AGENTS
-↓
-Implementation
-↓
-Testing
-↓
-Deployment
-
-Higher-level documents always have higher priority. Implementation must never violate higher-level documents.
+---
 
 ## 2. MISSION & SCOPE
-- **Role:** AI Assistant working on the SDMS Frontend source code.
-- **Goal:** Execute UI implementations, fix bugs, and refactor code strictly following the engineering principles.
-- **Scope:** Work only within `sdms-frontend/`. Strictly ignore `node_modules/`, `dist/`.
 
-## 3. WORKFLOW: BUSINESS & IMPACT ANALYSIS
-Before making any UI modifications, you MUST:
-- Read `PROJECT_RULE.md`.
-- Read Business Documentation (`docs/business/`) if business logic or UI requirements are affected.
-- Read Backend API Contracts, DTOs, and `ApiResponse`.
-- Read Hook boundaries and Route permissions.
-- **Perform Change Impact Analysis:** Evaluate the impact on Component Layouts, Router Navigation, Context States, and external API Contracts.
-- If the impact violates the Business Freeze Policy or breaks external contracts, STOP and report the conflict. **Never silently resolve conflicts.**
+- **Role:** AI Agent làm việc trong thư mục `sdms-frontend/`.
+- **Goal:** Implement UI, fix bugs, refactor code theo đúng engineering principles.
+- **Scope:** Chỉ làm việc trong `sdms-frontend/`. Bỏ qua `node_modules/`, `dist/`.
+- **Blind Spot:** Agent ở sub-module KHÔNG thấy `sdms-backend/`. Muốn xem API contracts thực tế, phải đọc `docs/api/`.
 
-## 4. WORKFLOW: PLANNING
-Formulate an execution plan:
-- **Scope:** Identify exactly which UI components, hooks, or API wrappers need to be modified.
-- **Traceability:** Map the code changes to the corresponding Business Rule or UI Workflow.
+---
+
+## 3. BƯỚC BẮT BUỘC TRƯỚC KHI LÀM BẤT CỨ ĐIỀU GÌ
+
+Trước khi phân tích hoặc sửa code, Agent PHẢI:
+
+1. **Đọc `PROJECT_RULE.md`** - Toàn bộ, không skip.
+2. **Đọc tài liệu API liên quan** nếu task động đến API call: tìm trong `docs/api/`.
+3. **Audit code thực tế** (không đoán, không nhớ từ context cũ):
+   - Dùng `view_file` để đọc file trước khi sửa.
+   - Dùng `grep_search` để tìm pattern, import, usage.
+   - Dùng `list_dir` để xem cấu trúc thư mục thực tế.
+
+> **NGHIÊM CẤM**: Đoán mò, dựa vào memory của context cũ, hoặc bỏ qua bước đọc file.
+
+---
+
+## 4. WORKFLOW: PHÂN TÍCH & LẬP KẾ HOẠCH
+
+Khi nhận được task, thực hiện theo thứ tự:
+
+### Bước 4.1 - Xác định loại task
+| Task Type | Phải đọc thêm |
+|---|---|
+| Thêm/sửa API call | `docs/api/<feature>_api.md` + `src/types/<domain>.ts` |
+| Thêm trang mới | `src/routes/AdminRoutes.tsx` hoặc `PublicRoutes.tsx` |
+| Thêm component | `src/components/` - kiểm tra đã có chưa |
+| Sửa hook | File hook tương ứng + `PROJECT_RULE.md §7-15` |
+| Sửa theme | `src/theme/` + `PROJECT_RULE.md §12` |
+
+### Bước 4.2 - Change Impact Analysis
+Đánh giá impact trên:
+- Component Layout, Router Navigation, AuthContext state
+- Backend API Contract (DTO thay đổi → `src/types/` phải cập nhật)
+- Lint/Build (biến mới có được dùng không? Import có đúng không?)
+
+### Bước 4.3 - Lập kế hoạch
+- Liệt kê chính xác files cần sửa.
+- Nếu task ảnh hưởng Business Rule hoặc API Contract: DỪNG, báo cáo user trước.
+
+---
 
 ## 5. WORKFLOW: IMPLEMENTATION
-Execute the plan strictly following `PROJECT_RULE.md`:
-- Make the minimum necessary changes.
-- Do not refactor unrelated code.
-- Do not silently modify `axiosClient`, Interceptors, global `Context`, or Folder structures.
-- Ensure the Definition of Done (DoD) from `PROJECT_RULE.md` is strictly followed.
 
-## 6. WORKFLOW: VERIFICATION & SYNCHRONIZATION
-After modifying code, you MUST self-verify:
-- **TypeScript Clean:** Ensure there are no type errors (`npm run build`).
-- **Lint Clean:** Ensure there are no linting warnings/errors (`npm run lint`).
-- **Validate:** Ensure API Contracts match the Backend. Check for Architecture violations.
-- **Synchronize Documentation:** Update any affected documentation (Business Workflows, Route Documentation, README). Implementation is NOT complete until documentation is synchronized.
-  - **Documentation Scope Boundaries:** ONLY store UI/UX specs, Frontend routing, and component logic in `sdms-frontend/docs/`. Do NOT store API contracts or backend domain models here (those belong to `docs/api` or backend).
-  - **Code is Truth (Audit by Code):** Do NOT blindly trust the markdown documentation. Documentation can be outdated. Always cross-check with the ACTUAL `.tsx`/`.ts` source code before drawing conclusions. If code and docs conflict, code is the truth.
-## 7. WORKFLOW: CHANGE SUMMARY
-At the end of every task, provide the user with a summary containing:
-- Files modified
-- Documentation modified (and the reason for the update)
-- Impact summary
-- Remaining technical debt
-- Next recommended task
+### Rule 5.1 - Luồng code bắt buộc
+```
+Pages/Components → Custom Hooks → API Wrappers → axiosClient → Backend
+```
 
-## ANTI-ASSUMPTION & TRUST BUT VERIFY RULE
-- **No Guessing/No Memory Reliance:** An AI Agent MUST NOT guess, assume, or rely on its previous context/memory when deleting, modifying, or rewriting files.
-- **Mandatory Content Verification:** You MUST strictly read the actual, current content of a file (e.g., using  iew_file) BEFORE making any decisions to delete, move, or refactor it.
-- **Enforcement:** Skipping the read step to take a shortcut directly violates the 'Code is Truth' principle and is strictly forbidden.
+### Rule 5.2 - "Dumb Component" Pattern
+Mọi `Page` và `Component` phải là **Dumb (Presentational)**:
+- Nhận props, render UI, gọi callback.
+- Không chứa `useState` phức tạp, không gọi API trực tiếp.
+- Logic nghiệp vụ nằm trong **Custom Hooks** (`src/hooks/`).
 
-## DIRECTORY ORIENTATION RULE
-- **Mandatory Guidance:** Every major directory (especially docs/ and root project directories) MUST contain a README.md or an explicit index/orientation file.
-- **Purpose:** An AI Agent or human developer must immediately know what a directory contains, what its purpose is, and where to start reading when they first enter it. Do not leave files disconnected without a guide.
+### Rule 5.3 - Quy tắc Import bắt buộc
 
-## OPTIMAL SKILLS & PROJECT ORIENTATION RULE
-- **Skill Usage:** The Agent MUST utilize the most optimal and specialized tools/skills available for the task at hand. Avoid brute-force or overly generic commands when a specific tool exists.
-- **Project Orientation Alignment:** Every solution, code modification, or architectural decision MUST strictly align with the project's established orientation (Clean Architecture, Single Source of Truth). Do not introduce external libraries or design patterns that contradict the project's existing core rules.
+✅ **ĐÚNG:**
+```typescript
+// Kiểu dữ liệu → import từ src/types/
+import type { HousingAssignmentDto } from '@/types/check-in';
+import type { NotificationResponse } from '@/types/notification';
+import type { UserProfile } from '@/types/auth';
 
-## ROADMAP COMPLETION RULE
-- **Cleanup Post-Execution:** When a future feature (roadmap item) is fully implemented and successfully tested, the Agent MUST delete the corresponding .md file from docs/roadmap/features/.
-- **Documentation Sync:** After deletion, the Agent MUST update all related technical and business documentation (e.g., SSR, API Contracts) to reflect the newly completed feature, ensuring no obsolete or 'future' data is left polluting the Single Source of Truth.
+// API functions → import từ src/api/
+import checkInApi from '@/api/check-in-api';
+import { notificationApi } from '@/api/notification-api';
+import { adminRegistrationApi } from '@/api'; // barrel index.ts
 
-## SESSION HISTORY RULE (LƯU LỊCH SỬ PHIÊN LÀM VIỆC)
-- **Mandatory Logging:** At the end of every work session or when completing major tasks, the Agent MUST create or update a work log summarizing the completed work.
-- **Location:** All session histories MUST be stored in the `docs/work_logs/` directory (e.g., `docs/work_logs/session_YYYY_MM_DD.md`).
-- **Separation:** Do NOT confuse this directory with `docs/handoff/`. The `docs/handoff/` directory is strictly for passing context between immediate agent sessions, while `docs/work_logs/` is for permanent historical tracking of project progress.
+// PageResponse dùng chung: import từ api/notification-api
+import type { PageResponse } from '@/api/notification-api';
+```
 
-## DOCUMENT PLACEMENT & JUSTIFICATION RULE
-- **Proper Location:** Whenever an Agent creates or modifies a document, it MUST place the document in the exact correct directory according to the system's governance and architectural rules (e.g., `docs/api/` for API specs, `sdms-frontend/docs/` for UI specs, `docs/work_logs/` for session histories).
-- **Mandatory Justification:** The Agent MUST explicitly state the reason (justification) for placing the document in that specific folder. This ensures no documents are lost and prevents the creation of untrackable junk files.
+❌ **SAI** (Agent bị lỗi lint ngay lập tức):
+```typescript
+import checkInApi, { HousingAssignmentDto } from '@/api/check-in-api'; // type ở sai chỗ
+import { notificationApi, NotificationResponse } from '@/api/notification-api'; // type ở sai chỗ
+const { admin } = useAuth(); // 'admin' không tồn tại, phải là 'user'
+```
 
-## MANDATORY SELF-VERIFICATION RULE (LUẬT ÉP BUỘC TỰ KIỂM CHỨNG BẰNG COMMAND)
-- **Build & Test Before Success:** An Agent MUST NEVER declare a coding task complete without first running the project's native build/compile/test commands to verify there are no syntax or type errors. 
-- **Tool Usage:** Use `run_command` to execute `npm run build` (Frontend), `mvn compile` (Backend), `pytest` (AI), or `pio run` (IoT) immediately after editing files. If the build fails, the Agent MUST fix the errors before stopping.
+### Rule 5.4 - axiosClient đã unwrap data
+Interceptor của `axiosClient` đã xử lý `response.data?.data ?? response.data`.
 
-## NO GARBAGE & MEANINGFUL GENERATION RULE (LUẬT DỌN DẸP RÁC VÀ TÍNH CÓ NGHĨA)
-- **Meaningful Generation:** Every file, document, or piece of code generated by an Agent MUST have a clear, justifiable purpose. If it is meaningful, it must be properly named, placed in the correct directory, and easily retrievable by future Agents.
-- **Mandatory Cleanup:** If an Agent creates a temporary file, a mock script, or a test file, and it is no longer useful, the Agent MUST delete it immediately after use. Do not leave unused or unsuitable files polluting the repository.
+```typescript
+// ✅ ĐÚNG: data đã được unwrap
+const list = await roomApi.getList(params); // list là PageResponse<T>
+list.content; // Dùng ngay
 
-## DETAILED TESTING GUIDANCE RULE (LUẬT HƯỚNG DẪN KIỂM THỬ CHI TIẾT)
-- **Detailed Scenarios:** When instructing a user to perform an End-to-End (E2E) or Integration test, the Agent MUST provide concrete, step-by-step actions.
-- **Log Monitoring & Troubleshooting:** The Agent MUST specify exactly which logs or serial monitors to observe, what the expected success output looks like, and provide troubleshooting steps for common failures. Do not just say "test it".
+// ❌ SAI: unwrap thủ công
+const res = await roomApi.getList(params);
+const list = res?.data ? res.data : res; // KHÔNG CẦN, sẽ bị undefined
+```
 
-## STEP-BY-STEP REVIEW & CONFIRMATION RULE (LUẬT LÀM TỪNG BƯỚC VÀ CHỜ XÁC NHẬN)
-- **Mandatory Breakdown:** Every complex task MUST be broken down into small, manageable steps.
-- **Wait for Confirmation:** After completing a single step, the Agent MUST STOP, send a review/summary to the user, and EXPLICITLY ask for confirmation before proceeding to the next step.
-- **Enforcement:** Never execute multiple major changes across different domains or modules without the user's step-by-step approval.
+### Rule 5.5 - Error handling pattern
+```typescript
+// ✅ Pattern 1: dùng catch không có biến (khi không cần log lỗi)
+try {
+  await api.doSomething();
+  snackbar.success('Thành công!');
+} catch {
+  snackbar.error('Có lỗi xảy ra');
+}
 
-## API RESPONSE & EXCEPTION ARCHITECTURE CONTRACT (LUẬT CẤU TRÚC PHẢN HỒI & NGOẠI LỆ API)
-**Version:** 1.0
-**Status:** Mandatory
-**Scope:** Entire System (Frontend consumption & Backend generation)
+// ✅ Pattern 2: dùng err khi cần message từ backend
+try {
+  await api.doSomething();
+} catch (err: unknown) {
+  snackbar.error((err as any)?.message || 'Có lỗi xảy ra');
+}
 
-### 1. PURPOSE
-This document defines the only allowed API Response Contract and Exception Handling architecture in SDMS.
-Every new frontend API call, form submission, and error handling logic MUST follow this contract.
-
-### 2. CORE COMPONENTS (FRONTEND PERSPECTIVE)
-The frontend MUST expect ONLY this envelope structure for all responses:
-- `ApiResponse<T>`
-- `PageResponse<T>`
-Do not create custom parsing logic that bypasses this envelope.
-
-### 3. ApiResponse CONTRACT
-Every successful API response from Backend MUST follow:
-```json
-{
-    "success": true,
-    "message": "...",
-    "data": { ... }
+// ❌ SAI: khai báo err nhưng không dùng → lint error
+} catch (err: any) { // err bị khai báo nhưng chỉ dùng snackbar fixed string
+  snackbar.error('Có lỗi xảy ra');
 }
 ```
 
-Every failed API response MUST follow:
-```json
-{
-    "success": false,
-    "message": "...",
-    "errorCode": "...",
-    "data": null
-}
+### Rule 5.6 - useAuth() context
+```typescript
+// ✅ ĐÚNG (tên biến thực tế trong context là 'user'):
+const { user, isAuthenticated } = useAuth();
+if (!user) return;
+
+// ❌ SAI (tên cũ, không còn tồn tại):
+const { admin } = useAuth(); // Lỗi runtime
 ```
 
-Validation response:
-```json
-{
-    "success": false,
-    "message": "...",
-    "errorCode": "VALIDATION_FAILED",
-    "data": {
-        "fieldName": "validation message"
+### Rule 5.7 - Pagination pattern chuẩn
+```typescript
+const [page, setPage] = useState(0);           // 0-indexed
+const [rowsPerPage, setRowsPerPage] = useState(10);
+const [totalElements, setTotalElements] = useState(0);
+
+const res = await api.getList({ page, size: rowsPerPage });
+setData(res.content ?? []);
+setTotalElements(res.totalElements ?? 0);
+```
+
+### Rule 5.8 - MUI DataGrid slot names (v7)
+```typescript
+// ✅ ĐÚNG (MUI X DataGrid v7):
+type BasePaginationProps = GridSlotProps['pagination'];
+
+// ❌ SAI (v6 API, đã bị xóa):
+type BasePaginationProps = GridSlotProps['basePagination'];
+```
+
+### Rule 5.9 - Quy tắc Comment trong React (JSX)
+💡 **Quy tắc nhanh khi viết comment trong file React (.tsx / .jsx):**
+- **Bên ngoài lệnh return (Khu vực Logic & Object JavaScript):** Dùng `//` hoặc `/* */` bình thường. (Đặc biệt lưu ý khi viết code bên trong thuộc tính `sx={{ ... }}` của MUI, đây là object JavaScript thuần túy nên PHẢI dùng `//` hoặc `/* */`).
+- **Bên trong lệnh return (Khu vực Giao diện/JSX):** Bắt buộc phải bọc comment trong `{/* ... */}`. Nếu dùng HTML comment (`<!-- -->`) hoặc JS comment (`//`), React sẽ bị lỗi cú pháp hoặc render thẳng ra giao diện dưới dạng văn bản.
+
+---
+
+## 6. WORKFLOW: VERIFICATION (BẮT BUỘC sau mỗi thay đổi)
+
+Agent KHÔNG ĐƯỢC tuyên bố task hoàn thành mà không chạy:
+
+```bash
+npm run build        # Kiểm tra TypeScript (zero errors bắt buộc)
+npm run lint         # Kiểm tra ESLint
+npm run lint:fix     # Tự sửa lỗi auto-fixable trước khi lint
+```
+
+Nếu build fail → **Agent PHẢI sửa lỗi trước khi dừng**.
+
+### Checklist tự kiểm tra:
+- [ ] Không có unused variable / import (`unused-imports` plugin)
+- [ ] Không có biến `catch (err)` khai báo mà không dùng
+- [ ] `import type { ... }` dùng đúng cho type-only imports
+- [ ] Không có `const { admin } = useAuth()` → phải là `user`
+- [ ] Không có `.data?.data` manual unwrap sau khi gọi axiosClient
+- [ ] Không có `GridSlotProps['basePagination']` → phải là `pagination`
+
+---
+
+## 7. WORKFLOW: ĐỒNG BỘ DOCUMENTATION
+
+Sau khi sửa code, nếu task ảnh hưởng tới:
+
+| Thay đổi | Tài liệu cần cập nhật |
+|---|---|
+| Thêm/sửa route | Cập nhật `sdms-frontend/docs/routes.md` (nếu có) |
+| Thêm/sửa API call | Đối chiếu `docs/api/<feature>.md` |
+| Thêm DTO type mới | Tạo/cập nhật `src/types/<domain>.ts` |
+| Thêm hook mới | Cập nhật work log `docs/work_logs/session_YYYY_MM_DD.md` |
+| Hoàn thành roadmap feature | Xóa `docs/roadmap/features/<ID>_<NAME>.md` |
+
+---
+
+## 8. WORKFLOW: CHANGE SUMMARY
+
+Cuối mỗi task, cung cấp summary cho user:
+
+```
+## Tóm tắt thay đổi
+**Files đã sửa:**
+- `src/hooks/useXxx.ts` - [Lý do]
+- `src/pages/admin/Xxx.tsx` - [Lý do]
+
+**Documentation cập nhật:**
+- `docs/work_logs/session_YYYY_MM_DD.md` - Ghi lại session
+
+**Impact:**
+- [Mô tả impact ngắn gọn]
+
+**Technical Debt còn lại:**
+- [Liệt kê nếu có]
+
+**Task khuyến nghị tiếp theo:**
+- [Gợi ý task tiếp theo]
+```
+
+---
+
+## 9. ANTI-ASSUMPTION RULES
+
+- **Không đoán mò:** Đọc file trước khi sửa. Luôn luôn.
+- **Không nhớ từ context cũ:** Session mới = đọc lại từ đầu.
+- **Không tin tài liệu 100%:** Document có thể outdated. Code là sự thật. Đối chiếu.
+- **Không silent resolve conflict:** Nếu code và docs mâu thuẫn, báo user.
+
+---
+
+## 10. SESSION HISTORY RULE
+
+Cuối mỗi session hoặc hoàn thành major task:
+- **Tạo/cập nhật** `docs/work_logs/session_YYYY_MM_DD.md`
+- **Ghi lại:** Files thay đổi, lý do thay đổi, trạng thái hiện tại, next steps.
+- **Phân biệt:** `docs/work_logs/` = lịch sử vĩnh viễn | `docs/handoff/` = truyền context tức thì.
+
+---
+
+## 11. ROADMAP RULE
+
+Khi user đề xuất ý tưởng mới:
+1. **KHÔNG code ngay.**
+2. Tạo `docs/roadmap/features/[ID]_[FEATURE_NAME].md` với Vision, Business Flow, Implementation Plan.
+3. Khi feature hoàn thành → xóa file roadmap, cập nhật docs chính.
+
+---
+
+## 12. API DOCUMENT READING RULE (MỚI - QUAN TRỌNG)
+
+Khi task có liên quan đến API endpoint (thêm feature mới, sửa API call):
+
+1. **Tìm tài liệu API:** Tìm trong `docs/api/` file tương ứng với feature đó.
+2. **Đọc API contract:** Xác nhận endpoint URL, HTTP method, Request DTO, Response DTO.
+3. **Kiểm tra types:** Mở `src/types/<domain>.ts` để xem interfaces đã có.
+4. **Kiểm tra API wrapper:** Mở `src/api/<domain>-api.ts` để xem wrapper đã implement.
+5. **Nếu DTO thay đổi:** Cập nhật `src/types/<domain>.ts` TRƯỚC, sau đó mới sửa hook/component.
+6. **Nếu endpoint chưa có wrapper:** Tạo trong `src/api/<domain>-api.ts` theo pattern chuẩn.
+
+> **Nguyên tắc:** Tài liệu API trong `docs/api/` là nguồn chân lý cho Backend contract. Code trong `src/api/` và `src/types/` phải phản ánh đúng những gì tài liệu mô tả.
+
+---
+
+## 13. QUICK REFERENCE - CÁC PATTERNS HAY DÙNG
+
+### Hook mới (template):
+```typescript
+import { useState, useEffect, useCallback } from 'react';
+import { snackbar } from '@/helpers/snackbar';
+import type { PageResponse } from '@/api/notification-api';
+import domainApi from '@/api/domain-api';
+import type { DomainDto, DomainListParams } from '@/types/domain';
+
+export const useDomainList = () => {
+  const [data, setData] = useState<DomainDto[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalElements, setTotalElements] = useState(0);
+
+  const fetchList = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await domainApi.getList({ page, size: rowsPerPage });
+      setData(res.content ?? []);
+      setTotalElements(res.totalElements ?? 0);
+    } catch {
+      snackbar.error('Lỗi khi tải dữ liệu');
+    } finally {
+      setLoading(false);
     }
+  }, [page, rowsPerPage]);
+
+  useEffect(() => { fetchList(); }, [fetchList]);
+
+  return { data, loading, page, setPage, rowsPerPage, setRowsPerPage, totalElements, fetchList };
+};
+```
+
+### API Wrapper mới (template):
+```typescript
+import axiosClient from './axios-client';
+import type { PageResponse } from './notification-api';
+import type { DomainDto, DomainCreateRequest } from '@/types/domain';
+
+const domainApi = {
+  getList(params?: { page?: number; size?: number }): Promise<PageResponse<DomainDto>> {
+    return axiosClient.get('/v1/admin/domain', { params });
+  },
+  create(data: DomainCreateRequest): Promise<DomainDto> {
+    return axiosClient.post('/v1/admin/domain', data);
+  },
+  update(id: string, data: Partial<DomainCreateRequest>): Promise<DomainDto> {
+    return axiosClient.put(`/v1/admin/domain/${id}`, data);
+  },
+  delete(id: string): Promise<void> {
+    return axiosClient.delete(`/v1/admin/domain/${id}`);
+  },
+};
+
+export default domainApi;
+```
+
+### Type file mới (template):
+```typescript
+// src/types/domain.ts
+export interface DomainDto {
+  id: string;
+  name: string;
+  // ... other fields matching backend DTO
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface DomainCreateRequest {
+  name: string;
+  // ... other required fields
+}
+
+export interface DomainListParams {
+  page?: number;
+  size?: number;
+  search?: string;
 }
 ```
-No additional response format is allowed. Frontend code MUST parse this exact structure.
 
-### 4. ERROR CODE & HTTP STATUS
-All business errors are defined inside an `errorCode` string.
-HTTP Status represents transport status. `errorCode` represents business status.
-Examples:
-- `400` -> `VALIDATION_FAILED`
-- `401` -> `UNAUTHORIZED`
-- `403` -> `FORBIDDEN`
-- `404` -> `RESOURCE_NOT_FOUND`
-- `409` -> `APPLICATION_ALREADY_EXISTS`
-- `500` -> `INTERNAL_SERVER_ERROR`
+---
 
-### 5. FRONTEND EXCEPTION FLOW RULE
-When making an API request, the Frontend Agent MUST:
-✔ Use a centralized API client (e.g., Axios interceptor) to unwrap the `ApiResponse` if needed.
-✔ Always check the `success` field or HTTP Status to determine the flow.
-✔ Display the `message` from the backend to the user (unless a specific frontend override is needed for the `errorCode`).
-✔ Map validation errors (`errorCode === 'VALIDATION_FAILED'`) in the `data` object to the corresponding UI form fields.
+## 14. DIRECTORY ORIENTATION RULE
 
-**MUST NOT:**
-✘ Assume backend returns a direct object without the `ApiResponse` wrapper.
-✘ Re-invent error mapping by ignoring the backend's `errorCode`.
-✘ Hardcode success messages when the backend already provides a context-aware `message`.
+Mỗi thư mục quan trọng PHẢI có `README.md` hoặc file index. Agent phải tạo file này nếu chưa có khi làm việc trong thư mục đó.
 
-### 6. PAGINATION
-All paging APIs will return `ApiResponse<PageResponse<T>>`.
-The frontend table/list components MUST be built to consume `PageResponse` (containing `content`, `pageNumber`, `pageSize`, `totalElements`, etc.).
+---
 
-### 7. AGENT RESPONSIBILITY
-Before modifying any frontend API call or UI state, the agent MUST verify:
-- Are API responses strictly typed with `ApiResponse<T>`?
-- Are errors properly caught and their `errorCode` handled?
-- Is form validation utilizing the backend `VALIDATION_FAILED` data map?
+## 15. NO GARBAGE RULE
 
-If any existing code violates this architecture, the agent SHOULD refactor that code first before adding new functionality. All new frontend services and hooks MUST follow this contract. No alternative parsing structure is allowed.
+- Mọi file tạo ra phải có mục đích rõ ràng.
+- File tạm/test phải xóa ngay sau khi dùng.
+- Không để lại `TODO` chưa giải quyết khi kết thúc task.
+- Không để lại biến/import dư thừa (`unused-imports` plugin sẽ bắt ngay).

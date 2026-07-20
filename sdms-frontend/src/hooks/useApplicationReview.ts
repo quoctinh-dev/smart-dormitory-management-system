@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 
-import applicationApi from '@/api/applicationApi';
-import { useAuth } from '@/auth';
+import applicationApi from '@/api/application-api';
+import { snackbar } from '@/helpers/snackbar';
+import { useAuth } from '@/providers/AuthProvider';
 import { getErrorMessage } from '@/types/api';
-import { snackbar } from '@/utils/snackbar';
 import { ApplicationResponse } from '@/types/application';
 
 export const useApplicationReview = (id: string | undefined, navigate: NavigateFunction) => {
-  const { admin } = useAuth();
+  const { user } = useAuth();
 
   const [app, setApp] = useState<ApplicationResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -136,7 +136,7 @@ export const useApplicationReview = (id: string | undefined, navigate: NavigateF
   };
 
   return {
-    admin,
+    user,
     app,
     loading,
     dialogs,

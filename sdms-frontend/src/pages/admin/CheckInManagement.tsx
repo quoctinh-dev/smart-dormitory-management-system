@@ -19,50 +19,27 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import { alpha } from '@mui/material/styles';
+import React from 'react';
 
-import checkInApi from '@/api/checkInApi';
-import type { HousingAssignmentDto } from '@/api/checkInApi';
-import { snackbar } from '@/utils/snackbar';
+import { useCheckInManagement } from '@/hooks/useCheckInManagement';
 
 export default function CheckInManagement() {
-  const [data, setData] = useState<HousingAssignmentDto[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  // Phân trang
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [totalElements, setTotalElements] = useState(0);
-
-  // Bộ lọc
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('ALL'); // ALL | PENDING_CHECKIN | OCCUPIED
-
-  const fetchList = async () => {
-    setLoading(true);
-    try {
-      const res = await checkInApi.getList({
-        page,
-        size: rowsPerPage,
-        search: searchQuery,
-        status: filterStatus === 'ALL' ? undefined : filterStatus,
-      });
-      setData(res.content ?? []);
-      setTotalElements(res.totalElements ?? res.content?.length ?? 0);
-    } catch (err: unknown) {
-      console.error(err);
-      snackbar.error(
-        'Không thể tải danh sách kiểm soát Check-in. Backend cần implement API GET /v1/admin/housing-assignments'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, rowsPerPage, filterStatus]);
+  const {
+    data,
+    loading,
+    page,
+    setPage,
+    rowsPerPage,
+    setRowsPerPage,
+    totalElements,
+    searchQuery,
+    setSearchQuery,
+    filterStatus,
+    setFilterStatus,
+    fetchList,
+    handleManualCheckIn,
+  } = useCheckInManagement();
 
   const handleSearch = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter') {
@@ -71,22 +48,11 @@ export default function CheckInManagement() {
     }
   };
 
-  // Nút Check-in thủ công (Dự phòng cho App)
-  const handleManualCheckIn = async (assignmentId: string) => {
-    try {
-      await checkInApi.confirmCheckIn(assignmentId);
-      snackbar.success('Check-in thủ công thành công!');
-      fetchList(); // Reload table
-    } catch (err: any) {
-      snackbar.error(err?.response?.data?.message || 'Check-in thất bại');
-    }
-  };
-
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-          Quản Lý & Báo Cáo Nhận Phòng
+          Quản lý & báo cáo nhận phòng
         </Typography>
         <Typography sx={{ color: 'text.secondary', mt: 0.5 }}>
           Bảng đối soát danh sách sinh viên đã và đang chờ nhận phòng. Thao tác thực thi chính nên
@@ -94,7 +60,15 @@ export default function CheckInManagement() {
         </Typography>
       </Box>
 
-      <Paper variant="outlined" sx={{ borderRadius: 4, overflow: 'hidden' }}>
+      <Paper
+        variant="outlined"
+        sx={{
+          borderRadius: 4,
+          overflow: 'hidden',
+          borderColor: 'divider',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.02)',
+        }}
+      >
         {/* THANH CÔNG CỤ LỌC */}
         <Box
           sx={{
@@ -102,7 +76,7 @@ export default function CheckInManagement() {
             display: 'flex',
             gap: 2,
             alignItems: 'center',
-            bgcolor: 'background.default',
+            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.02),
             borderBottom: '1px solid',
             borderColor: 'divider',
           }}
@@ -113,7 +87,7 @@ export default function CheckInManagement() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleSearch}
-            sx={{ width: 300, bgcolor: 'background.paper' }}
+            sx={{ width: 300, bgcolor: 'background.paper', borderRadius: 2 }}
             slotProps={{
               input: {
                 startAdornment: (
@@ -134,6 +108,7 @@ export default function CheckInManagement() {
                 setFilterStatus(e.target.value);
                 setPage(0);
               }}
+              sx={{ borderRadius: 2 }}
             >
               <MenuItem value="ALL">Tất cả</MenuItem>
               <MenuItem value="PENDING_CHECKIN">Chưa nhận phòng (Chờ)</MenuItem>
@@ -148,8 +123,9 @@ export default function CheckInManagement() {
               setPage(0);
               fetchList();
             }}
+            sx={{ borderRadius: 2, boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)' }}
           >
-            Lọc Dữ Liệu
+            Lọc dữ liệu
           </Button>
         </Box>
 
@@ -157,24 +133,14 @@ export default function CheckInManagement() {
         <TableContainer sx={{ maxHeight: 600 }}>
           <Table stickyHeader>
             <TableHead>
-              <TableRow>
-                <TableCell>
-                  <b>Sinh viên</b>
-                </TableCell>
-                <TableCell>
-                  <b>MSSV</b>
-                </TableCell>
-                <TableCell>
-                  <b>Vị trí phòng</b>
-                </TableCell>
-                <TableCell>
-                  <b>Trạng thái</b>
-                </TableCell>
-                <TableCell>
-                  <b>Giờ nhận phòng</b>
-                </TableCell>
-                <TableCell align="right">
-                  <b>Thao tác (Dự phòng)</b>
+              <TableRow sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05) }}>
+                <TableCell sx={{ fontWeight: 'bold' }}>Sinh viên</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>MSSV</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Vị trí phòng</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Giờ nhận phòng</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                  Thao tác (Dự phòng)
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -248,6 +214,7 @@ export default function CheckInManagement() {
             setRowsPerPage(parseInt(e.target.value, 10));
             setPage(0);
           }}
+          rowsPerPageOptions={[10, 20, 50]}
           labelRowsPerPage="Số dòng mỗi trang:"
         />
       </Paper>

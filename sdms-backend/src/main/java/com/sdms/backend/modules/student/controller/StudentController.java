@@ -42,6 +42,13 @@ public class StudentController {
         return ApiResponse.success("Cập nhật hồ sơ thành công", profile);
     }
 
+    @Operation(summary = "Lấy hồ sơ sinh viên bằng ID", description = "Dành cho Admin/Manager xem hồ sơ sinh viên khi duyệt đơn")
+    @GetMapping("/{id}/profile")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ApiResponse<StudentProfileResponse> getStudentProfileById(@PathVariable java.util.UUID id) {
+        return ApiResponse.success("Lấy hồ sơ thành công", studentService.getStudentProfileById(id));
+    }
+
     @Operation(summary = "Gán thẻ RFID cho sinh viên", description = "Admin gán một thẻ RFID cho một sinh viên cụ thể.")
     @PostMapping("/{studentId}/rfid")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")

@@ -10,6 +10,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
   Chip,
   IconButton,
   Dialog,
@@ -24,12 +25,14 @@ import {
   FormControlLabel,
   Switch,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
 
-import gateApi, { GateResponse, GateRequest } from '@/api/gateApi';
-import roomApi from '@/api/roomApi';
+import gateApi from '@/api/gate-api';
+import roomApi from '@/api/room-api';
 import CustomSkeleton from '@/components/common/CustomSkeleton';
-import { snackbar } from '@/utils/snackbar';
+import { snackbar } from '@/helpers/snackbar';
+import type { GateResponse, GateRequest } from '@/types/gate';
 
 export default function GateManagement() {
   const [gates, setGates] = useState<GateResponse[]>([]);
@@ -43,6 +46,8 @@ export default function GateManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingGate, setEditingGate] = useState<GateResponse | null>(null);
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [formData, setFormData] = useState<GateRequest>({
     name: '',
@@ -52,6 +57,17 @@ export default function GateManagement() {
     macAddress: '',
     active: true,
   });
+
+  const [filterBuilding, setFilterBuilding] = useState<string>('');
+  const [filterGateType, setFilterGateType] = useState<string>('');
+
+  const filteredGates = gates.filter((gate) => {
+    if (filterBuilding && gate.buildingId !== filterBuilding) return false;
+    if (filterGateType && gate.gateType !== filterGateType) return false;
+    return true;
+  });
+
+  const paginatedGates = filteredGates.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const fetchData = async () => {
     try {
@@ -72,7 +88,6 @@ export default function GateManagement() {
 
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch Floors when Building changes and gate is ROOM_DOOR
@@ -88,7 +103,7 @@ export default function GateManagement() {
       setFloors([]);
       if (formData.gateType === 'ROOM_DOOR' && !formData.buildingId) {
         setSelectedFloorId('');
-        if (formData.roomId) setFormData((prev) => ({ ...prev, roomId: '' }));
+        if (formData.roomId) setFormData((prev: any) => ({ ...prev, roomId: '' }));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,7 +121,7 @@ export default function GateManagement() {
     } else {
       setRooms([]);
       if (formData.gateType === 'ROOM_DOOR' && formData.roomId) {
-        setFormData((prev) => ({ ...prev, roomId: '' }));
+        setFormData((prev: any) => ({ ...prev, roomId: '' }));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,7 +206,7 @@ export default function GateManagement() {
         await gateApi.deleteGate(id);
         snackbar.success('Xóa cổng thành công');
         fetchData();
-      } catch (error: any) {
+      } catch {
         snackbar.error('Lỗi khi xóa cổng');
       }
     }
@@ -201,14 +216,55 @@ export default function GateManagement() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h4" fontWeight="bold">
-          Quản lý Cổng (IoT Gates)
+          Quản lý cổng (IoT Gates)
         </Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
-          Thêm Cổng Mới
+          Thêm cổng mới
         </Button>
       </Box>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
+      <Paper sx={{ p: 2, mb: 3, display: 'flex', gap: 2, alignItems: 'center' }} elevation={0} variant="outlined">
+        <Typography variant="subtitle2" sx={{ mr: 1 }}>Bộ lọc:</Typography>
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel>Loại cổng</InputLabel>
+          <Select
+            value={filterGateType}
+            label="Loại cổng"
+            onChange={(e) => {
+              setFilterGateType(e.target.value);
+              setPage(0);
+            }}
+          >
+            <MenuItem value="">Tất cả loại</MenuItem>
+            <MenuItem value="BUILDING_GATE">Cổng tòa nhà</MenuItem>
+            <MenuItem value="ROOM_DOOR">Cửa phòng</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel>Tòa nhà</InputLabel>
+          <Select
+            value={filterBuilding}
+            label="Tòa nhà"
+            onChange={(e) => {
+              setFilterBuilding(e.target.value);
+              setPage(0);
+            }}
+          >
+            <MenuItem value="">Tất cả tòa nhà</MenuItem>
+            {buildings.map((b) => (
+              <MenuItem key={b.buildingId} value={b.buildingId}>
+                {b.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Paper>
+
+      <Paper
+        elevation={3}
+        sx={{ borderRadius: 4, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}
+      >
         {loading ? (
           <Box p={3}>
             <CustomSkeleton type="table" count={5} />
@@ -216,33 +272,21 @@ export default function GateManagement() {
         ) : (
           <TableContainer>
             <Table>
-              <TableHead sx={{ bgcolor: 'grey.50' }}>
+              <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04) }}>
                 <TableRow>
-                  <TableCell>
-                    <strong>Gate ID (UUID)</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Tên Cổng</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Loại Cổng</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Tòa Nhà / Phòng</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>MAC Address</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Trạng Thái</strong>
-                  </TableCell>
-                  <TableCell align="center">
-                    <strong>Hành động</strong>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Gate ID (UUID)</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Tên cổng</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Loại cổng</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Tòa nhà / phòng</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>MAC Address</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                    Hành động
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {gates.map((gate) => (
+                {paginatedGates.map((gate) => (
                   <TableRow key={gate.gateId}>
                     <TableCell sx={{ fontFamily: 'monospace' }}>{gate.gateId}</TableCell>
                     <TableCell>{gate.name}</TableCell>
@@ -276,25 +320,37 @@ export default function GateManagement() {
                 ))}
               </TableBody>
             </Table>
+            <TablePagination
+              component="div"
+              count={filteredGates.length}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(e) => {
+                setRowsPerPage(parseInt(e.target.value, 10));
+                setPage(0);
+              }}
+              labelRowsPerPage="Số dòng/trang:"
+            />
           </TableContainer>
         )}
       </Paper>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingGate ? 'Cập nhật Cổng' : 'Thêm Cổng Mới'}</DialogTitle>
+        <DialogTitle>{editingGate ? 'Cập nhật cổng' : 'Thêm cổng mới'}</DialogTitle>
         <DialogContent dividers>
           <TextField
             fullWidth
-            label="Tên Cổng"
+            label="Tên cổng"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             sx={{ mb: 2, mt: 1 }}
           />
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Loại Cổng</InputLabel>
+            <InputLabel>Loại cổng</InputLabel>
             <Select
               value={formData.gateType}
-              label="Loại Cổng"
+              label="Loại cổng"
               onChange={(e) => {
                 const newGateType = e.target.value as 'BUILDING_GATE' | 'ROOM_DOOR';
                 setFormData({
@@ -307,17 +363,17 @@ export default function GateManagement() {
                 }
               }}
             >
-              <MenuItem value="BUILDING_GATE">Cổng Tòa Nhà</MenuItem>
-              <MenuItem value="ROOM_DOOR">Cửa Phòng</MenuItem>
+              <MenuItem value="BUILDING_GATE">Cổng tòa nhà</MenuItem>
+              <MenuItem value="ROOM_DOOR">Cửa phòng</MenuItem>
             </Select>
           </FormControl>
 
           {/* Dù là cổng tòa nhà hay cửa phòng đều cần chọn tòa nhà */}
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Tòa Nhà</InputLabel>
+            <InputLabel>Tòa nhà</InputLabel>
             <Select
               value={formData.buildingId || ''}
-              label="Tòa Nhà"
+              label="Tòa nhà"
               onChange={(e) => {
                 setFormData({ ...formData, buildingId: e.target.value, roomId: '' });
                 setSelectedFloorId('');
@@ -386,7 +442,7 @@ export default function GateManagement() {
                 onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
               />
             }
-            label="Hoạt động (Active)"
+            label="Hoạt động (active)"
           />
         </DialogContent>
         <DialogActions>

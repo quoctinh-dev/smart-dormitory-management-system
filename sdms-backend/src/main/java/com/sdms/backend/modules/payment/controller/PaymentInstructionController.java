@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sdms.backend.common.response.ApiResponse;
 
 @RestController
-@RequestMapping("/v1/public/payment-instructions")
+@RequestMapping("/api/v1/public/payment-instructions")
 @RequiredArgsConstructor
 @Tag(name = "Hướng dẫn thanh toán (Payment Instruction)")
 public class PaymentInstructionController {

@@ -47,6 +47,8 @@ public interface StudentHousingAssignmentRepository extends JpaRepository<Studen
 
     long countByBed_Room_RoomIdAndStatus(UUID roomId, AssignmentStatus status);
 
+    long countByBed_Room_RoomIdAndStatusIn(UUID roomId, Collection<AssignmentStatus> statuses);
+
     long countByStatus(AssignmentStatus status);
 
     List<StudentHousingAssignment> findByBed_Room_RoomIdAndStatus(UUID roomId, AssignmentStatus status);
@@ -101,14 +103,14 @@ public interface StudentHousingAssignmentRepository extends JpaRepository<Studen
             "JOIN FETCH b.room r " +
             "JOIN FETCH r.floor f " +
             "JOIN FETCH f.building bd " +
-            "WHERE (:status IS NULL OR a.status = :status) " +
+            "WHERE (coalesce(:statuses, NULL) IS NULL OR a.status IN :statuses) " +
             "AND (:keyword IS NULL OR LOWER(s.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR s.studentCode LIKE CONCAT('%', :keyword, '%'))",
             countQuery = "SELECT COUNT(a) FROM StudentHousingAssignment a " +
                     "JOIN a.student s " +
-                    "WHERE (:status IS NULL OR a.status = :status) " +
+                    "WHERE (coalesce(:statuses, NULL) IS NULL OR a.status IN :statuses) " +
                     "AND (:keyword IS NULL OR LOWER(s.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR s.studentCode LIKE CONCAT('%', :keyword, '%'))")
     org.springframework.data.domain.Page<StudentHousingAssignment> searchForAudit(
-            @Param("status") AssignmentStatus status,
+            @Param("statuses") java.util.List<AssignmentStatus> statuses,
             @Param("keyword") String keyword,
             org.springframework.data.domain.Pageable pageable
     );
@@ -132,4 +134,13 @@ public interface StudentHousingAssignmentRepository extends JpaRepository<Studen
             @Param("gateId") UUID gateId,
             @Param("status") AssignmentStatus status
     );
+
+    @Query("SELECT bd.buildingId, s.rfidCode FROM StudentHousingAssignment a " +
+           "JOIN a.student s " +
+           "JOIN a.bed b " +
+           "JOIN b.room r " +
+           "JOIN r.floor f " +
+           "JOIN f.building bd " +
+           "WHERE a.status = :status AND s.rfidCode IS NOT NULL")
+    List<Object[]> findActiveRfidsGroupedByBuilding(@Param("status") AssignmentStatus status);
 }

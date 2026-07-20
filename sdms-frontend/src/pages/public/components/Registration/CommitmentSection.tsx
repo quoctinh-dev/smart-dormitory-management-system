@@ -1,4 +1,3 @@
-import { GavelRounded, ShieldOutlined, ChecklistRounded } from '@mui/icons-material';
 import {
   Box,
   Typography,
@@ -11,6 +10,8 @@ import {
   Stack,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
+
+import { IconifyIcon } from '@/components/base/IconifyIcon';
 
 const COMMITMENT_CLAUSES = [
   {
@@ -122,7 +123,10 @@ export default function CommitmentSection({
           alignItems="center"
           sx={{ mb: 1 }}
         >
-          <ShieldOutlined color="primary" />
+          <IconifyIcon
+            icon="mingcute:shield-check-fill"
+            sx={{ color: 'primary.main', fontSize: 28 }}
+          />
           <Typography variant="h5" sx={{ fontWeight: 800 }}>
             BẢN CAM KẾT LƯU TRÚ KÝ TÚC XÁ
           </Typography>
@@ -134,7 +138,7 @@ export default function CommitmentSection({
 
       <Alert
         severity="warning"
-        icon={<GavelRounded />}
+        icon={<IconifyIcon icon="mingcute:gavel-fill" />}
         sx={{
           borderRadius: 2,
           py: 1.25,
@@ -153,7 +157,7 @@ export default function CommitmentSection({
       <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden', boxShadow: 1 }}>
         <Box sx={{ bgcolor: 'primary.main', px: 3, py: 1.6 }}>
           <Stack direction="row" spacing={1} alignItems="center">
-            <ChecklistRounded sx={{ color: 'white' }} />
+            <IconifyIcon icon="mingcute:check-circle-line" sx={{ color: 'white', fontSize: 24 }} />
             <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'white' }}>
               11 Điều khoản cam kết thực hiện nghiêm chỉnh
             </Typography>
@@ -201,7 +205,7 @@ export default function CommitmentSection({
                       mt: 0.5,
                     }}
                   >
-                    👉 Hình thức xử lý: {clause.penalty}
+                    Hình thức xử lý: {clause.penalty}
                   </Typography>
                 </Box>
               </Box>
@@ -231,8 +235,6 @@ export default function CommitmentSection({
           nhất từ Ban Quản lý Ký túc xá và Nhà trường.
         </Typography>
       </Paper>
-
-
 
       <Box
         sx={{

@@ -18,6 +18,7 @@
             width: 100%;
             display: table;
             margin-bottom: 20px;
+            font-size: 13pt;
         }
         .header-left, .header-right {
             display: table-cell;
@@ -167,25 +168,25 @@
     </tr>
     <tr>
         <td class="col-num">7</td>
-        <td class="col-content"><strong>- Bảo quản tài sản, thiết bị của KTX, sử dụng đúng mục đích, đúng theo chức năng, mọi hư hỏng đều phải đền bù theo nguyên trạng.</strong></td>
+        <td class="col-content">- Bảo quản tài sản, thiết bị của KTX, sử dụng đúng mục đích, đúng theo chức năng, mọi hư hỏng đều phải đền bù theo nguyên trạng.</td>
         <td class="col-penalty">Xử lý theo<br/>Quy chế lưu trú</td>
     </tr>
     <tr>
         <td class="col-num">8</td>
         <td class="col-content">- Không xâm phạm trái phép khu vực kho tàng, phòng làm việc, phòng SV khác, khu vực cấm người không có phận sự.<br/>
-        <strong>- Nâng cao ý thức cảnh giác, phát hiện kịp thời bọn trộm cắp, báo ngay cho BQL KTX khi phát hiện người lạ mặt.<br/>
-        - Báo ngay cho BQL KTX khi phát hiện người có hành vi xâm phạm, phá hoại tài sản KTX.</strong></td>
+        - Nâng cao ý thức cảnh giác, phát hiện kịp thời bọn trộm cắp, báo ngay cho BQL KTX khi phát hiện người lạ mặt.<br/>
+        - Báo ngay cho BQL KTX khi phát hiện người có hành vi xâm phạm, phá hoại tài sản KTX.</td>
         <td class="col-penalty">Xử lý theo<br/>Quy chế lưu trú</td>
     </tr>
     <tr>
         <td class="col-num">9</td>
-        <td class="col-content"><strong>- Giữ trật tự và tắt chuông điện thoại sau 22h00.</strong><br/>
+        <td class="col-content">- Giữ trật tự và tắt chuông điện thoại sau 22h00.<br/>
         - Vệ sinh phòng theo lịch phân công và đổ rác đúng nơi quy định.</td>
         <td class="col-penalty">Xử lý theo<br/>Quy chế lưu trú</td>
     </tr>
     <tr>
         <td class="col-num">10</td>
-        <td class="col-content"><strong>- Có nghĩa vụ và trách nhiệm thực hiện Quy chế lưu trú KTX.</strong><br/>
+        <td class="col-content">- Có nghĩa vụ và trách nhiệm thực hiện Quy chế lưu trú KTX.<br/>
         - Có ý thức – kỷ luật, chấp hành việc sắp xếp chỗ ở theo quy định của KTX.<br/>
         - Có trách nhiệm với tập thể, bạn bè và chính bản thân mình.<br/>
         - Sinh viên tự chịu trách nhiệm và bảo quản tài sản cá nhân có giá trị (tiền, laptop, điện thoại, đồ trang sức...), công cụ, dụng cụ cá nhân.</td>
@@ -205,9 +206,9 @@
 <div class="footer" th:with="submitDate=${app.submittedAt != null ? app.submittedAt : app.createdAt}">
     <div class="footer-left"></div>
     <div class="footer-right">
-        ........, Ngày <span th:text="${#temporals.format(submitDate, 'dd')}"></span>
+        <i>TP.HCM, ngày <span th:text="${#temporals.format(submitDate, 'dd')}"></span>
         tháng <span th:text="${#temporals.format(submitDate, 'MM')}"></span>
-        năm <span th:text="${#temporals.format(submitDate, 'yyyy')}"></span><br/>
+        năm <span th:text="${#temporals.format(submitDate, 'yyyy')}"></span></i><br/>
         <strong>Sinh viên cam kết</strong><br/>
         <i>(Ký và ghi rõ họ tên)</i><br/>
         <div class="signature-box"></div>

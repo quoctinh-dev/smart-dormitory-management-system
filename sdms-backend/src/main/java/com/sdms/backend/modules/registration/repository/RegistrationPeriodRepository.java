@@ -15,7 +15,7 @@ import java.util.UUID;
 @Repository
 public interface RegistrationPeriodRepository extends JpaRepository<RegistrationPeriod, UUID> {
 
-    List<RegistrationPeriod> findByIsActiveTrueAndStartDateBeforeAndEndDateAfter(
+    List<RegistrationPeriod> findByIsActiveTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
             LocalDateTime now1,
             LocalDateTime now2
     );

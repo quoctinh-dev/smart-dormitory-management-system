@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 
-import applicationApi from '@/api/applicationApi';
-import paymentApi from '@/api/paymentApi';
+import applicationApi from '@/api/application-api';
+import paymentApi from '@/api/payment-api';
+import { snackbar } from '@/helpers/snackbar';
 import type { ApplicationResponse } from '@/types/application';
 import type { BillResponse, PaymentInstruction } from '@/types/payment';
-import { snackbar } from '@/utils/snackbar';
 
 export const usePayment = (applicationId: string) => {
   const [bill, setBill] = useState<BillResponse | null>(null);

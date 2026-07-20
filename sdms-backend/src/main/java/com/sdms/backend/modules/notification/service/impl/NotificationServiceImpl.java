@@ -1,11 +1,11 @@
 package com.sdms.backend.modules.notification.service.impl;
 
 import com.sdms.backend.common.service.EmailService;
-import com.sdms.backend.modules.notification.entity.NotificationDeliveryHistory;
+import com.sdms.backend.modules.notification.entity.Notification;
 import com.sdms.backend.modules.notification.enums.NotificationChannel;
 import com.sdms.backend.modules.notification.enums.NotificationStatus;
 import com.sdms.backend.modules.notification.enums.NotificationType;
-import com.sdms.backend.modules.notification.repository.NotificationDeliveryHistoryRepository;
+import com.sdms.backend.modules.notification.repository.NotificationRepository;
 import com.sdms.backend.modules.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import java.util.Map;
 public class NotificationServiceImpl implements NotificationService {
 
     private final EmailService emailService;
-    private final NotificationDeliveryHistoryRepository historyRepository;
+    private final NotificationRepository notificationRepository;
     private final TemplateEngine templateEngine;
 
     @Override
@@ -34,11 +34,13 @@ public class NotificationServiceImpl implements NotificationService {
         String htmlContent = "";
 
         // 1. Khởi tạo đối tượng lịch sử để chuẩn bị lưu log DB
-        NotificationDeliveryHistory history = NotificationDeliveryHistory.builder()
+        Notification history = Notification.builder()
                 .recipient(toEmail)
                 .channel(NotificationChannel.EMAIL)
                 .type(type)
                 .status(NotificationStatus.PENDING) // Đặt trạng thái ban đầu là PENDING
+                .title(title)
+                .message("Email sent using template: " + templateName)
                 .build();
 
         try {
@@ -50,7 +52,6 @@ public class NotificationServiceImpl implements NotificationService {
 
             // Đường dẫn trỏ chính xác vào thư mục con: templates/notification/
             htmlContent = templateEngine.process("notification/" + templateName, context);
-            history.setPayloadSnapshot("{\"templateName\": \"" + templateName + "\"}");
 
             // 3. Gọi phương thức gửi Email bất đồng bộ (@Async) qua API của Brevo
             emailService.sendNotificationEmail(toEmail, title, htmlContent);
@@ -62,15 +63,11 @@ public class NotificationServiceImpl implements NotificationService {
         } catch (Exception e) {
             history.setStatus(NotificationStatus.FAILED);
             history.setErrorMessage(e.getMessage());
-            // Ghi nhận nội dung tối thiểu nếu render lỗi để admin có thể đối soát
-            if (history.getPayloadSnapshot() == null) {
-                history.setPayloadSnapshot("Lỗi xảy ra trong quá trình biên dịch Template: " + templateName);
-            }
             log.error("Notification: Lỗi biên dịch hoặc đẩy luồng gửi email tới {}: {}", toEmail, e.getMessage());
         } finally {
             try {
                 // 4. Luôn luôn lưu vết vào cơ sở dữ liệu (Bọc thêm try-catch nhỏ để cô lập tuyệt đối, tránh lỗi DB làm hỏng luồng logic)
-                historyRepository.save(history);
+                notificationRepository.save(history);
             } catch (Exception dbEx) {
                 log.error("Notification: Không thể lưu lịch sử thông báo vào DB. Lý do: {}", dbEx.getMessage());
             }

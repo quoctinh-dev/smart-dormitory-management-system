@@ -2,13 +2,13 @@
 import { useState, useCallback } from 'react';
 
 import { authApi } from '@/api';
+import { snackbar } from '@/helpers/snackbar';
+import { validatePassword } from '@/helpers/validate';
 import { getErrorMessage } from '@/types/api';
-import { snackbar } from '@/utils/snackbar';
-import { validatePassword } from '@/utils/validate';
 
 export const useActivateAccount = () => {
   const [formData, setFormData] = useState({
-    email: '',
+    studentCode: '',
     tempPassword: '',
     newPassword: '',
     confirmPassword: '',
@@ -26,9 +26,9 @@ export const useActivateAccount = () => {
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
-      const { email, tempPassword, newPassword, confirmPassword } = formData;
+      const { studentCode, tempPassword, newPassword, confirmPassword } = formData;
 
-      if (!email || !tempPassword || !newPassword || !confirmPassword) {
+      if (!studentCode || !tempPassword || !newPassword || !confirmPassword) {
         snackbar.error('Vui lòng điền đầy đủ tất cả các trường thông tin.');
         return;
       }
@@ -46,7 +46,7 @@ export const useActivateAccount = () => {
       setLoading(true);
       try {
         await authApi.activate({
-          email: email.trim(),
+          studentCode: studentCode.trim(),
           tempPassword: tempPassword.trim(),
           newPassword: newPassword,
         });

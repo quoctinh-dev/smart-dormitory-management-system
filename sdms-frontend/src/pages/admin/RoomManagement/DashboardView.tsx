@@ -9,6 +9,7 @@ import type { RoomWithBeds, BedResponse } from '@/types/room';
 import BedDetailDrawer from './components/BedDetailDrawer';
 import RoomCard from './components/RoomCard';
 import UpdateRoomDialog from './components/UpdateRoomDialog';
+import MaintenanceRelocationDialog from './components/MaintenanceRelocationDialog';
 
 export interface DashboardViewProps {
   roomsWithBeds: RoomWithBeds[];
@@ -23,6 +24,10 @@ export default function DashboardView({ roomsWithBeds, onRefresh }: DashboardVie
   // State for Update Room
   const [editRoomOpen, setEditRoomOpen] = useState(false);
   const [roomToEdit, setRoomToEdit] = useState<RoomWithBeds | null>(null);
+
+  // State for Emergency Relocation
+  const [relocationDialogOpen, setRelocationDialogOpen] = useState(false);
+  const [roomToRelocate, setRoomToRelocate] = useState<RoomWithBeds | null>(null);
 
   if (!roomsWithBeds || roomsWithBeds.length === 0) {
     return (
@@ -39,7 +44,7 @@ export default function DashboardView({ roomsWithBeds, onRefresh }: DashboardVie
       >
         <Stack spacing={1.5} alignItems="center">
           <HomeWorkOutlinedIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
             Chưa có dữ liệu phòng
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -62,8 +67,22 @@ export default function DashboardView({ roomsWithBeds, onRefresh }: DashboardVie
   };
 
   const handleChangeStatus = async (roomId: string, status: string) => {
-    const { default: roomApi } = await import('@/api/roomApi');
-    const { snackbar } = await import('@/utils/snackbar');
+    if (status === 'MAINTENANCE') {
+      const room = roomsWithBeds.find((r) => r.roomId === roomId);
+      if (room) {
+        // Check for ANY active assignment (RESERVED or OCCUPIED) to match backend validation
+        const hasActiveBeds = room.beds.some(b => b.status === 'OCCUPIED' || b.status === 'RESERVED');
+        
+        if (hasActiveBeds) {
+          setRoomToRelocate(room);
+          setRelocationDialogOpen(true);
+          return;
+        }
+      }
+    }
+
+    const { default: roomApi } = await import('@/api/room-api');
+    const { snackbar } = await import('@/helpers/snackbar');
 
     try {
       await roomApi.patchRoomStatus(roomId, status as any);
@@ -105,6 +124,16 @@ export default function DashboardView({ roomsWithBeds, onRefresh }: DashboardVie
         room={roomToEdit}
         onSuccess={() => {
           setEditRoomOpen(false);
+          onRefresh();
+        }}
+      />
+
+      <MaintenanceRelocationDialog
+        open={relocationDialogOpen}
+        onClose={() => setRelocationDialogOpen(false)}
+        room={roomToRelocate}
+        onSuccess={() => {
+          setRelocationDialogOpen(false);
           onRefresh();
         }}
       />

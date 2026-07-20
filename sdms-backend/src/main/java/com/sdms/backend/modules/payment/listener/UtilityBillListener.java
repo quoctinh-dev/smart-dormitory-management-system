@@ -8,23 +8,17 @@ import com.sdms.backend.modules.payment.event.UtilityBillCalculatedEvent;
 import com.sdms.backend.modules.payment.entity.UtilityType;
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
+import com.sdms.backend.modules.room.enums.RoomRole;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.sdms.backend.modules.system.service.SystemConfigService;
-import org.springframework.beans.factory.annotation.Value;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.math.BigDecimal;;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -49,75 +43,57 @@ public class UtilityBillListener {
         LocalDate startOfMonth = billingMonth.atDay(1);
         LocalDate endOfMonth = billingMonth.atEndOfMonth();
 
-        // 1. Lấy tất cả assignment của phòng này (Đang ở hoặc Đã trả phòng)
-        List<StudentHousingAssignment> assignments = new ArrayList<>();
-        assignments.addAll(assignmentRepository.findByBed_Room_RoomIdAndStatus(event.getRoomId(), AssignmentStatus.OCCUPIED));
-        assignments.addAll(assignmentRepository.findByBed_Room_RoomIdAndStatus(event.getRoomId(), AssignmentStatus.CHECKED_OUT));
+        // 1. Lấy tất cả assignment của phòng này (Đang ở)
+        List<StudentHousingAssignment> assignments = assignmentRepository.findByBed_Room_RoomIdAndStatus(event.getRoomId(), AssignmentStatus.OCCUPIED);
 
-        // 2. Tính toán số ngày ở thực tế trong tháng của từng sinh viên
-        Map<StudentHousingAssignment, Long> studentDaysMap = new HashMap<>();
-        long totalStudentDays = 0;
-
-        for (StudentHousingAssignment assignment : assignments) {
-            LocalDate checkInDate = assignment.getCheckInAt() != null ? assignment.getCheckInAt().toLocalDate() : null;
-            LocalDate checkOutDate = assignment.getCheckOutAt() != null ? assignment.getCheckOutAt().toLocalDate() : null;
-
-            if (checkInDate == null || checkInDate.isAfter(endOfMonth)) {
-                continue; // Chưa check-in hoặc check-in sau tháng này
-            }
-            if (checkOutDate != null && checkOutDate.isBefore(startOfMonth)) {
-                continue; // Đã check-out từ tháng trước
-            }
-
-            LocalDate actualStart = checkInDate.isAfter(startOfMonth) ? checkInDate : startOfMonth;
-            LocalDate actualEnd = (checkOutDate != null && checkOutDate.isBefore(endOfMonth)) ? checkOutDate : endOfMonth;
-
-            long daysStayed = ChronoUnit.DAYS.between(actualStart, actualEnd) + 1; // Tính cả ngày đến và ngày đi
-            if (daysStayed > 0) {
-                studentDaysMap.put(assignment, daysStayed);
-                totalStudentDays += daysStayed;
-            }
-        }
-
-        // 3. Xử lý ngoại lệ: Nếu phòng không có ai ở nhưng vẫn phát sinh số
-        if (totalStudentDays == 0 || studentDaysMap.isEmpty()) {
+        if (assignments.isEmpty()) {
+            // Phòng trống hoàn toàn, gán bill cho phòng (không gán cho sinh viên)
             createRoomBill(event, totalAmount, billType, utilityName, unitName);
             return;
         }
 
-        // 4. Pro-rata: Chia tiền dựa trên tỷ lệ ngày ở
-        BigDecimal remainingAmount = totalAmount;
-        int i = 0;
-        int totalStudents = studentDaysMap.size();
+        // 2. Tìm người đại diện thanh toán (Ưu tiên: Trưởng phòng -> Phó phòng -> Người ở lâu nhất)
+        StudentHousingAssignment payer = assignments.stream()
+                .filter(a -> a.getRoomRole() == RoomRole.ROOM_LEADER)
+                .findFirst()
+                .orElse(null);
 
-        for (Map.Entry<StudentHousingAssignment, Long> entry : studentDaysMap.entrySet()) {
-            StudentHousingAssignment assignment = entry.getKey();
-            long days = entry.getValue();
-
-            BigDecimal fraction = new BigDecimal(days).divide(new BigDecimal(totalStudentDays), 10, RoundingMode.HALF_UP);
-            BigDecimal studentAmount = totalAmount.multiply(fraction).setScale(0, RoundingMode.HALF_UP);
-
-            i++;
-            if (i == totalStudents) { // Người cuối cùng chịu phần dư để làm tròn đúng tổng số tiền
-                studentAmount = remainingAmount;
-            } else {
-                remainingAmount = remainingAmount.subtract(studentAmount);
-            }
-
-            Bill bill = new Bill();
-            bill.setBillType(billType);
-            bill.setAmount(studentAmount);
-            bill.setPaidAmount(BigDecimal.ZERO);
-            bill.setStatus(BillStatus.UNPAID);
-            bill.setDueDate(LocalDate.now().plusDays(10));
-            bill.setDescription(String.format("Hóa đơn tiền %s tháng %d/%d (Tỷ lệ: %d/%d ngày). Số %s phòng: %d %s", 
-                    utilityName, event.getMonth(), event.getYear(), days, totalStudentDays, utilityName, event.getTotalUsage(), unitName));
-            bill.setRoomId(event.getRoomId());
-            bill.setStudentId(assignment.getStudent().getStudentId());
-            bill.setAssignmentId(assignment.getAssignmentId());
-
-            billRepository.save(bill);
+        if (payer == null) {
+            payer = assignments.stream()
+                    .filter(a -> a.getRoomRole() == RoomRole.DEPUTY_LEADER)
+                    .findFirst()
+                    .orElse(null);
         }
+
+        if (payer == null) {
+            // Fallback: Lấy người có ngày check-in sớm nhất
+            payer = assignments.stream()
+                    .min((a1, a2) -> {
+                        if (a1.getCheckInAt() == null) return 1;
+                        if (a2.getCheckInAt() == null) return -1;
+                        return a1.getCheckInAt().compareTo(a2.getCheckInAt());
+                    })
+                    .orElse(assignments.get(0));
+        }
+
+        // 3. Tạo duy nhất 1 hóa đơn gán cho người đại diện
+        Bill bill = new Bill();
+        bill.setBillType(billType);
+        bill.setAmount(totalAmount);
+        bill.setPaidAmount(BigDecimal.ZERO);
+        bill.setStatus(BillStatus.UNPAID);
+        bill.setDueDate(LocalDate.now().plusDays(10));
+        
+        String roleStr = payer.getRoomRole() == RoomRole.ROOM_LEADER ? "Trưởng phòng" : 
+                         payer.getRoomRole() == RoomRole.DEPUTY_LEADER ? "Phó phòng" : "Đại diện phòng";
+
+        bill.setDescription(String.format("Hóa đơn tiền %s tháng %d/%d (Thu từ %s). Số %s phòng: %d %s", 
+                utilityName, event.getMonth(), event.getYear(), roleStr, utilityName, event.getTotalUsage(), unitName));
+        bill.setRoomId(event.getRoomId());
+        bill.setStudentId(payer.getStudent().getStudentId());
+        bill.setAssignmentId(payer.getAssignmentId());
+
+        billRepository.save(bill);
     }
 
     private void createRoomBill(UtilityBillCalculatedEvent event, BigDecimal totalAmount, BillType billType, String utilityName, String unitName) {

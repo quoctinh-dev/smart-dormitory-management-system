@@ -71,7 +71,7 @@ export default function ApplicationReviewDetail() {
           Quay lại danh sách
         </Button>
         <Typography variant="h4" sx={{ fontWeight: 'bold', ml: 3 }}>
-          Kiểm Duyệt Chi Tiết Hồ Sơ
+          Kiểm duyệt chi tiết hồ sơ
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
         {(app.status === 'PENDING' || app.status === 'UNDER_REVIEW') && (
@@ -82,7 +82,7 @@ export default function ApplicationReviewDetail() {
               startIcon={<Cancel />}
               onClick={() => toggleDialog('reject', true)}
             >
-              Từ Chối
+              Từ chối
             </Button>
             <Button
               variant="outlined"
@@ -90,7 +90,7 @@ export default function ApplicationReviewDetail() {
               startIcon={<ReplayCircleFilled />}
               onClick={() => toggleDialog('revision', true)}
             >
-              Yêu Cầu Bổ Sung
+              Yêu cầu bổ sung
             </Button>
             <Button
               variant="contained"
@@ -98,7 +98,7 @@ export default function ApplicationReviewDetail() {
               startIcon={<CheckCircle />}
               onClick={handleApprove}
             >
-              Duyệt Hợp Lệ
+              Duyệt hợp lệ
             </Button>
           </Box>
         )}
@@ -115,9 +115,9 @@ export default function ApplicationReviewDetail() {
       <Grid container spacing={3}>
         {/* THÔNG TIN SINH VIÊN */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
+          <Paper sx={{ p: 3, borderRadius: 4 }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
-              Thông Tin Sinh Viên
+              Thông tin sinh viên
             </Typography>
             <List dense sx={{ p: 0 }}>
               <ListItem disableGutters>
@@ -165,9 +165,9 @@ export default function ApplicationReviewDetail() {
 
           {/* HIỂN THỊ PHÂN PHÒNG DỰ KIẾN (AUTO-ASSIGNED TỪ HỆ THỐNG) */}
           {app.assignment && (
-            <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, mt: 3, bgcolor: 'primary.50' }}>
+            <Paper sx={{ p: 3, borderRadius: 4, mt: 3, bgcolor: 'primary.50' }}>
               <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: 'primary.main' }}>
-                Xếp Phòng Dự Kiến
+                Xếp phòng dự kiến
               </Typography>
               <Typography
                 variant="body2"
@@ -198,12 +198,12 @@ export default function ApplicationReviewDetail() {
           <Grid container spacing={3}>
             {/* FILE PDF HỆ THỐNG TỰ SINH */}
             <Grid size={{ xs: 12 }}>
-              <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
+              <Paper sx={{ p: 3, borderRadius: 4 }}>
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}
                 >
-                  <PictureAsPdf sx={{ mr: 1, color: 'error.main' }} /> Tài Liệu Sinh Tự Động (Cần
+                  <PictureAsPdf sx={{ mr: 1, color: 'error.main' }} /> Tài liệu sinh tự động (cần
                   đối chiếu)
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
@@ -214,17 +214,12 @@ export default function ApplicationReviewDetail() {
                     {app.registrationFormPdfUrl && (
                       <DocumentPreview
                         url={app.registrationFormPdfUrl}
-                        title="Phiếu Đăng Ký (PDF)"
-                        
+                        title="Phiếu đăng ký (PDF)"
                       />
                     )}
 
                     {app.commitmentFormPdfUrl && (
-                      <DocumentPreview
-                        url={app.commitmentFormPdfUrl}
-                        title="Bản Cam Kết (PDF)"
-                        
-                      />
+                      <DocumentPreview url={app.commitmentFormPdfUrl} title="Bản cam kết (PDF)" />
                     )}
                   </Box>
                 ) : (
@@ -237,12 +232,12 @@ export default function ApplicationReviewDetail() {
 
             {/* DANH SÁCH ẢNH MINH CHỨNG */}
             <Grid size={{ xs: 12 }}>
-              <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
+              <Paper sx={{ p: 3, borderRadius: 4 }}>
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}
                 >
-                  <Assignment sx={{ mr: 1, color: 'primary.main' }} /> Minh Chứng Kèm Theo (Sinh
+                  <Assignment sx={{ mr: 1, color: 'primary.main' }} /> Minh chứng kèm theo (sinh
                   viên nộp)
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
@@ -256,7 +251,7 @@ export default function ApplicationReviewDetail() {
                           <Card
                             variant="outlined"
                             sx={{
-                              borderRadius: 2,
+                              borderRadius: 4,
                               borderColor: () =>
                                 isValid ? 'success.main' : isInvalid ? 'error.main' : 'divider',
                             }}
@@ -270,7 +265,7 @@ export default function ApplicationReviewDetail() {
                               <DocumentPreview
                                 url={doc.fileUrl}
                                 title={doc.documentType}
-                                
+
                                 compact
                               />
                             </Box>
@@ -361,7 +356,7 @@ export default function ApplicationReviewDetail() {
             color="error"
             disabled={!notes.reject.trim()}
           >
-            Từ Chối
+            Từ chối
           </Button>
         </DialogActions>
       </Dialog>
@@ -395,7 +390,7 @@ export default function ApplicationReviewDetail() {
             color="error"
             disabled={!notes.doc.trim()}
           >
-            Xác Nhận
+            Xác nhận
           </Button>
         </DialogActions>
       </Dialog>
@@ -432,7 +427,7 @@ export default function ApplicationReviewDetail() {
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
           <Button onClick={() => toggleDialog('revision', false)}>Hủy</Button>
           <Button onClick={handleRequestRevision} variant="contained" color="warning">
-            Gửi Yêu Cầu
+            Gửi yêu cầu
           </Button>
         </DialogActions>
       </Dialog>

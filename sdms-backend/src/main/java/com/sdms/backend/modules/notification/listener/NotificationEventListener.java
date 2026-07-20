@@ -21,12 +21,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.sdms.backend.modules.room.enums.AssignmentStatus;
+import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import com.sdms.backend.modules.application.entity.DormitoryApplication;
+import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
+import com.sdms.backend.modules.payment.event.ReservationPaymentExpiredEvent;
+import com.sdms.backend.modules.smartaccess.event.RoomPinChangedEvent;
+import com.sdms.backend.modules.notification.service.NotificationService;
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationEventListener {
 
     private final NotificationRouter notificationRouter;
+    private final NotificationService notificationService;
+    private final DormitoryApplicationRepository applicationRepository;
+    private final StudentHousingAssignmentRepository assignmentRepository;
 
     /**
      * 1. Hứng sự kiện sinh viên NỘP ĐƠN đăng ký phòng thành công
@@ -108,30 +121,47 @@ public class NotificationEventListener {
     public void handlePaymentSuccess(PaymentSuccessEvent event) {
         log.info("Notification-Event: Nhận sự kiện đối soát hóa đơn thành công cho Mã đơn: {}", event.getApplicationId());
         try {
-            if (event.getEmail() == null) {
-                log.warn("PaymentSuccessEvent lacks email, skipping notification for bill {}", event.getBillId());
-                return;
+            String studentName = event.getStudentName();
+            String email = event.getEmail();
+            
+            if ((studentName == null || email == null) && event.getApplicationId() != null) {
+                DormitoryApplication app = applicationRepository.findById(event.getApplicationId()).orElse(null);
+                if (app != null) {
+                    if (studentName == null) studentName = app.getFullName();
+                    if (email == null) email = app.getEmail();
+                }
             }
 
+            if (studentName == null) studentName = "Sinh viên";
+
+            // TỐI ƯU CHI PHÍ: Nếu là thanh toán của sinh viên đã vô app (vd: tiền điện nước) -> Chỉ dùng IN_APP
+            // Nếu là thanh toán của ứng viên mới (chưa có tài khoản) -> Dùng EMAIL + IN_APP
+            Set<NotificationChannel> channels = event.getApplicationId() != null 
+                    ? Set.of(NotificationChannel.IN_APP, NotificationChannel.EMAIL) 
+                    : Set.of(NotificationChannel.IN_APP);
+
             Map<String, Object> variables = new HashMap<>();
-            variables.put("studentName", event.getStudentName());
+            variables.put("studentName", studentName);
             variables.put("billId", event.getBillId().toString());
             variables.put("amount", event.getAmount());
 
-            NotificationPayload payload = NotificationPayload.builder()
+            NotificationPayload.NotificationPayloadBuilder builder = NotificationPayload.builder()
                     .eventId("PAYMENT_" + event.getBillId())
                     .type(NotificationType.PAYMENT)
-                    .channels(event.getStudentId() != null ? Set.of(NotificationChannel.EMAIL, NotificationChannel.IN_APP) : Set.of(NotificationChannel.EMAIL))
+                    .channels(channels)
                     .studentId(event.getStudentId())
-                    .email(event.getEmail())
-                    .recipientName(event.getStudentName())
-                    .title("SDMS - Xác nhận hoàn tất nghĩa vụ thanh toán hóa đơn thành công")
-                    .emailTemplateName("payment-success")
+                    .email(email)
+                    .recipientName(studentName)
+                    .title("Xác nhận hoàn tất nghĩa vụ thanh toán hóa đơn")
                     .inAppMessage("Thanh toán hóa đơn phòng KTX thành công. Số tiền: " + event.getAmount() + " VNĐ.")
                     .templateData(variables)
-                    .build();
+                    .actionUrl("/student/bills/" + event.getBillId());
 
-            notificationRouter.route(payload);
+            if (channels.contains(NotificationChannel.EMAIL)) {
+                 builder.emailTemplateName("payment-success");
+            }
+
+            notificationRouter.route(builder.build());
         } catch (Exception e) {
             log.error("Notification-Event: Thất bại khi xử lý gửi thông báo thanh toán hóa đơn {}. Lý do: {}", event.getBillId(), e.getMessage(), e);
         }
@@ -158,14 +188,11 @@ public class NotificationEventListener {
             NotificationPayload payload = NotificationPayload.builder()
                     .eventId("FACE_" + event.profileId())
                     .type(NotificationType.FACE)
-                    .channels(Set.of(NotificationChannel.EMAIL, NotificationChannel.IN_APP))
+                    .channels(Set.of(NotificationChannel.IN_APP)) // Đã là sinh viên -> Chỉ In-App
                     .studentId(event.studentId())
-                    .email(event.email())
                     .recipientName(event.studentName())
-                    .title("SDMS - Thông báo trạng thái đăng ký dữ liệu Face ID")
-                    .emailTemplateName("face-status")
+                    .title("Thông báo kết quả Face ID")
                     .inAppMessage("Hồ sơ khuôn mặt của bạn đã được phê duyệt thành công.")
-                    .templateData(variables)
                     .build();
 
             notificationRouter.route(payload);
@@ -190,14 +217,12 @@ public class NotificationEventListener {
             NotificationPayload payload = NotificationPayload.builder()
                     .eventId("CHECKIN_" + event.getAssignmentId())
                     .type(NotificationType.ROOM)
-                    .channels(Set.of(NotificationChannel.EMAIL, NotificationChannel.IN_APP))
+                    .channels(Set.of(NotificationChannel.IN_APP)) // Sinh viên đã vô app -> Chỉ In-App
                     .studentId(event.getStudentId())
-                    .email(event.getEmail())
                     .recipientName(event.getStudentName())
-                    .title("SDMS - Xác nhận hoàn tất thủ tục nhận phòng ở thực tế")
-                    .emailTemplateName("checkin-completed")
-                    .inAppMessage("Bạn đã hoàn tất nhận phòng thành công: Phòng " + event.getRoomCode() + ", Giường " + event.getBedCode() + ".")
-                    .templateData(variables)
+                    .title("Nhận phòng KTX thành công")
+                    .inAppMessage("Chào mừng bạn! Bạn đã nhận phòng " + event.getRoomCode() + ", Giường " + event.getBedCode() + " thành công.")
+                    .actionUrl("/student/room")
                     .build();
 
             notificationRouter.route(payload);
@@ -232,19 +257,74 @@ public class NotificationEventListener {
             NotificationPayload payload = NotificationPayload.builder()
                     .eventId("EXT_APPROVE_" + event.getExtensionId())
                     .type(NotificationType.APPLICATION)
-                    .channels(channels)
+                    .channels(Set.of(NotificationChannel.IN_APP)) // Gia hạn lưu trú -> Chỉ IN_APP
                     .studentId(event.getStudentId())
-                    .email(event.getStudentEmail())
                     .recipientName(event.getStudentFullName())
-                    .title("SDMS - Thông báo kết quả đơn xin gia hạn Ký túc xá")
-                    .emailTemplateName("application-status")
+                    .title("Kết quả gia hạn lưu trú")
                     .inAppMessage("Đơn gia hạn KTX của bạn đã được phê duyệt. Vui lòng thanh toán hóa đơn mới được tạo.")
-                    .templateData(variables)
+                    .actionUrl("/student/bills")
                     .build();
 
             notificationRouter.route(payload);
         } catch (Exception e) {
             log.error("Lỗi xử lý gửi thông báo duyệt đơn gia hạn: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 7. Hứng sự kiện Hết hạn thanh toán phí giữ chỗ
+     */
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleReservationPaymentExpired(ReservationPaymentExpiredEvent event) {
+        log.info("[Notification] Processing ReservationPaymentExpiredEvent for applicationId: {}", event.getApplicationId());
+        try {
+            java.util.Optional<DormitoryApplication> applicationOpt = applicationRepository.findById(event.getApplicationId());
+            if (applicationOpt.isPresent()) {
+                DormitoryApplication app = applicationOpt.get();
+                Map<String, Object> vars = new HashMap<>();
+                vars.put("studentName", app.getFullName());
+                vars.put("message", "Đơn đăng ký chỗ ở của bạn đã bị hủy do quá hạn thanh toán hóa đơn giữ chỗ 48 giờ. Vui lòng liên hệ BQL nếu có sai sót.");
+
+                notificationService.sendHtmlEmail(
+                        app.getEmail(),
+                        "Thông báo Hủy chỗ do quá hạn thanh toán",
+                        "generic-notification",
+                        vars,
+                        NotificationType.ROOM
+                );
+            }
+        } catch (Exception e) {
+            log.error("Failed to send expiry notification: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 8. Hứng sự kiện Mã PIN phòng bị thay đổi
+     */
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleRoomPinChangedEvent(RoomPinChangedEvent event) {
+        log.info("[Notification] Processing RoomPinChangedEvent for roomId: {}", event.getRoomId());
+        try {
+            List<StudentHousingAssignment> assignments = assignmentRepository.findByBed_Room_RoomIdAndStatus(event.getRoomId(), AssignmentStatus.OCCUPIED);
+            for (StudentHousingAssignment assignment : assignments) {
+                if (assignment.getStudent() != null) {
+                    NotificationPayload payload = NotificationPayload.builder()
+                            .eventId(java.util.UUID.randomUUID().toString())
+                            .studentId(assignment.getStudent().getStudentId())
+                            .title("Cập nhật mã PIN phòng " + event.getRoomCode())
+                            .inAppMessage("Mã PIN phòng " + event.getRoomCode() + " đã được thay đổi. Mã mới của bạn là: " + event.getNewPin())
+                            .type(NotificationType.ROOM)
+                            .channels(Set.of(NotificationChannel.IN_APP)) // Đổi PIN -> Chỉ gửi IN_APP
+                            .actionUrl("/student/room")
+                            .build();
+
+                    notificationRouter.route(payload);
+                }
+            }
+        } catch (Exception e) {
+            log.error("[Notification] Error sending RoomPinChanged notification: {}", e.getMessage(), e);
         }
     }
 }

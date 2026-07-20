@@ -46,6 +46,37 @@ public interface AccessHistoryRepository extends Repository<AccessHistory, UUID>
     long countOccupiedStudentsCurrentlyOutside();
 
     @Query(value = """
+        SELECT CAST(sha.student_id AS VARCHAR) as student_id, 
+               s.full_name as student_name, 
+               s.student_code as student_code, 
+               r.room_code as room_code, 
+               b.name as building_name, 
+               ah.event_timestamp as last_out_time
+        FROM student_housing_assignments sha
+        JOIN students s ON sha.student_id = s.student_id
+        JOIN beds bd ON sha.bed_id = bd.bed_id
+        JOIN rooms r ON bd.room_id = r.room_id
+        JOIN floors f ON r.floor_id = f.floor_id
+        JOIN buildings b ON f.building_id = b.building_id
+        JOIN access_history ah ON sha.student_id = ah.student_id
+        JOIN gates g ON ah.gate_id = g.gate_id
+        WHERE sha.status = 'OCCUPIED'
+        AND g.gate_type IN ('MAIN_GATE', 'BUILDING_GATE')
+        AND ah.id = (
+            SELECT ah2.id
+            FROM access_history ah2
+            JOIN gates g2 ON ah2.gate_id = g2.gate_id
+            WHERE ah2.student_id = sha.student_id
+            AND g2.gate_type IN ('MAIN_GATE', 'BUILDING_GATE')
+            ORDER BY ah2.event_timestamp DESC
+            LIMIT 1
+        )
+        AND ah.direction = 'OUT'
+        ORDER BY ah.event_timestamp ASC
+        """, nativeQuery = true)
+    List<Object[]> findOccupiedStudentsCurrentlyOutside();
+
+    @Query(value = """
         SELECT EXTRACT(HOUR FROM ah.event_timestamp) as hour, ah.direction, COUNT(*) as count
         FROM access_history ah
         JOIN gates g ON ah.gate_id = g.gate_id

@@ -17,11 +17,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import com.sdms.backend.modules.notification.dto.IssueReportRequest;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.user.repository.UserAccountRepository;
 import com.sdms.backend.modules.user.enums.Role;
 import com.sdms.backend.modules.notification.enums.NotificationType;
+import com.sdms.backend.modules.notification.enums.NotificationChannel;
+import com.sdms.backend.modules.notification.enums.NotificationStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,8 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserAccountRepository userAccountRepository;
+    private final com.sdms.backend.modules.room.repository.RoomRepository roomRepository;
+    private final StudentHousingAssignmentRepository assignmentRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -103,7 +108,23 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
     @Override
     @Transactional
     public void reportIssue(IssueReportRequest request) {
-        UUID studentId = getCurrentUserId();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserAccount account = (UserAccount) authentication.getPrincipal();
+        
+        String studentName = account.getStudent() != null ? account.getStudent().getFullName() : account.getUsername();
+        
+        String roomCode = "Khu vực chung";
+        if (request.isCommonArea()) {
+            roomCode = "Khu vực chung";
+        } else if (request.getRoomId() != null) {
+            roomCode = roomRepository.findById(request.getRoomId())
+                    .map(com.sdms.backend.modules.room.entity.Room::getRoomCode)
+                    .orElse(request.getRoomId().toString());
+        } else if (account.getStudent() != null) {
+            roomCode = assignmentRepository.findByStudent_StudentIdAndStatus(account.getStudent().getStudentId(), AssignmentStatus.OCCUPIED)
+                    .map(assignment -> assignment.getBed().getRoom().getRoomCode())
+                    .orElse("Khu vực chung (Chưa phân phòng)");
+        }
         
         // Find all admins and staff to notify
         List<UserAccount> admins = userAccountRepository.findByRole(Role.ADMIN);
@@ -111,14 +132,15 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
         
         String title = "Báo hỏng thiết bị từ sinh viên";
         String message = String.format("Sinh viên %s báo hỏng thiết bị tại phòng %s. Mô tả: %s", 
-                studentId, request.getRoomId(), request.getDescription());
+                studentName, roomCode, request.getDescription());
                 
         // Create notification for each admin/staff
-        admins.forEach(admin -> createNotification(admin.getAccountId(), title, message, request.getImageUrl()));
-        staffs.forEach(staff -> createNotification(staff.getAccountId(), title, message, request.getImageUrl()));
+        String eventId = "issue-" + UUID.randomUUID();
+        admins.forEach(admin -> createNotification(admin.getAccountId(), admin.getEmail(), title, message, null, eventId));
+        staffs.forEach(staff -> createNotification(staff.getAccountId(), staff.getEmail(), title, message, null, eventId));
     }
 
-    private void createNotification(UUID recipientId, String title, String message, String imageUrl) {
+    private void createNotification(UUID recipientId, String email, String title, String message, String imageUrl, String eventId) {
         Notification notification = Notification.builder()
                 .userId(recipientId)
                 .title(title)
@@ -126,6 +148,10 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
                 .actionUrl(imageUrl) // using actionUrl to pass imageUrl for now
                 .type(NotificationType.MAINTENANCE)
                 .isRead(false)
+                .recipient(email)
+                .channel(NotificationChannel.IN_APP)
+                .status(NotificationStatus.SENT)
+                .eventId(eventId)
                 .build();
         notificationRepository.save(notification);
     }

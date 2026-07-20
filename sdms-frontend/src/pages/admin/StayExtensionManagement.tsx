@@ -4,13 +4,6 @@ import {
   Box,
   Typography,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
   Chip,
   Button,
   Dialog,
@@ -18,226 +11,216 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  CircularProgress,
   Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  IconButton,
 } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import { alpha } from '@mui/material/styles';
+import React from 'react';
 
-import { stayExtensionApi, StayExtensionResponse } from '@/api/stayExtensionApi';
-import { snackbar } from '@/utils/snackbar';
+import CustomSkeleton from '@/components/common/CustomSkeleton';
+import { useStayExtensionManagement } from '@/hooks/useStayExtensionManagement';
+import StudentProfileModal from './components/StudentProfileModal';
 
 export default function StayExtensionManagement() {
-  const [extensions, setExtensions] = useState<StayExtensionResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [totalElements, setTotalElements] = useState(0);
-
-  const [openReview, setOpenReview] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState<StayExtensionResponse | null>(null);
-  const [reviewStatus, setReviewStatus] = useState<'APPROVED' | 'REJECTED'>('APPROVED');
-  const [rejectReason, setRejectReason] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  const fetchExtensions = async (p: number, size: number) => {
-    setLoading(true);
-    try {
-      const data = await stayExtensionApi.getAllExtensions(p, size);
-      setExtensions(data.content || []);
-      setTotalElements(data.totalElements || 0);
-    } catch (err: any) {
-      console.error(err);
-      snackbar.error('Lỗi khi tải danh sách gia hạn');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchExtensions(page, rowsPerPage);
-  }, [page, rowsPerPage]);
-
-  const handleOpenReview = (request: StayExtensionResponse, status: 'APPROVED' | 'REJECTED') => {
-    setSelectedRequest(request);
-    setReviewStatus(status);
-    setRejectReason('');
-    setOpenReview(true);
-  };
-
-  const handleReviewSubmit = async () => {
-    if (!selectedRequest) return;
-    if (reviewStatus === 'REJECTED' && !rejectReason.trim()) {
-      snackbar.error('Vui lòng nhập lý do từ chối');
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      await stayExtensionApi.reviewExtension(selectedRequest.extensionId, {
-        status: reviewStatus,
-        rejectReason: reviewStatus === 'REJECTED' ? rejectReason : undefined,
-      });
-      snackbar.success('Xét duyệt đơn gia hạn thành công!');
-      setOpenReview(false);
-      fetchExtensions(page, rowsPerPage);
-    } catch (err: any) {
-      console.error(err);
-      snackbar.error(err.response?.data?.message || 'Lỗi khi duyệt đơn');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const {
+    extensions,
+    loading,
+    page,
+    setPage,
+    rowsPerPage,
+    setRowsPerPage,
+    totalElements,
+    openReview,
+    setOpenReview,
+    selectedRequest,
+    reviewStatus,
+    rejectReason,
+    setRejectReason,
+    submitting,
+    handleOpenReview,
+    handleReviewSubmit,
+    openProfileModal,
+    setOpenProfileModal,
+    selectedProfile,
+    loadingProfile,
+    handleOpenProfile,
+  } = useStayExtensionManagement();
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight="bold" sx={{ mb: 3 }}>
-        Quản Lý Gia Hạn Lưu Trú
-      </Typography>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" fontWeight="bold">
+          Quản lý gia hạn lưu trú
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          Duyệt hoặc từ chối các đơn xin gia hạn thời gian lưu trú của sinh viên.
+        </Typography>
+      </Box>
 
-      <Paper sx={{ width: '100%', mb: 2, borderRadius: 3, overflow: 'hidden' }}>
-        <TableContainer sx={{ maxHeight: '70vh' }}>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Sinh Viên</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Giường Hiện Tại</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Thời Gian</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Lý Do</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Trạng Thái</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Hành Động</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
+      <Paper
+        elevation={3}
+        sx={{ borderRadius: 4, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}
+      >
+        {loading ? (
+          <Box p={3}>
+            <CustomSkeleton type="table" count={5} />
+          </Box>
+        ) : (
+          <TableContainer>
+            <Table>
+              <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04) }}>
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 5 }}>
-                    <CircularProgress />
-                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Sinh viên</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Phòng hiện tại</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Thời gian thay đổi</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Lý do xin gia hạn</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>Hành động</TableCell>
                 </TableRow>
-              ) : extensions.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 5 }}>
-                    Chưa có đơn gia hạn nào.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                extensions.map((row) => (
-                  <TableRow hover key={row.extensionId}>
-                    <TableCell>
-                      <Typography variant="subtitle2">{row.fullName}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {row.studentCode}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">P.{row.currentRoomCode}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Giường {row.currentBedCode}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-                        Cũ:{' '}
-                        {row.oldExpectedCheckOutAt
-                          ? new Date(row.oldExpectedCheckOutAt).toLocaleDateString('vi-VN')
-                          : '-'}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{ fontSize: '0.8rem', color: 'success.main', fontWeight: 'bold' }}
-                      >
-                        Mới: {new Date(row.newExpectedCheckOutAt).toLocaleDateString('vi-VN')}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ maxWidth: 200 }}>
-                      <Typography variant="body2" noWrap title={row.reason}>
-                        {row.reason}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" noWrap>
-                        {row.description}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={row.status}
-                        size="small"
-                        color={
-                          row.status === 'APPROVED'
-                            ? 'success'
-                            : row.status === 'REJECTED'
-                              ? 'error'
-                              : 'warning'
-                        }
-                      />
-                    </TableCell>
-                    <TableCell align="center">
-                      {row.status === 'PENDING' && (
-                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                          <Button
-                            variant="contained"
-                            color="success"
-                            size="small"
-                            onClick={() => handleOpenReview(row, 'APPROVED')}
-                            sx={{ minWidth: 40, p: 0.5 }}
-                          >
-                            <CheckCircleIcon fontSize="small" />
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            size="small"
-                            onClick={() => handleOpenReview(row, 'REJECTED')}
-                            sx={{ minWidth: 40, p: 0.5 }}
-                          >
-                            <CancelIcon fontSize="small" />
-                          </Button>
-                        </Box>
-                      )}
-                      {row.status === 'APPROVED' && row.pdfUrl && (
-                        <Button variant="outlined" size="small" href={row.pdfUrl} target="_blank">
-                          Xem Hợp Đồng
-                        </Button>
-                      )}
-                      {row.status === 'REJECTED' && row.rejectReason && (
-                        <Typography variant="caption" color="error.main" display="block">
-                          {row.rejectReason}
-                        </Typography>
-                      )}
+              </TableHead>
+              <TableBody>
+                {extensions.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                      <Typography color="text.secondary">Không có dữ liệu.</Typography>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 20, 50]}
-          component="div"
-          count={totalElements}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={(e, p) => setPage(p)}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
-          labelRowsPerPage="Số dòng/trang:"
-          labelDisplayedRows={({ from, to, count }) =>
-            `${from}–${to} trong ${count !== -1 ? count : `hơn ${to}`}`
-          }
-        />
+                ) : (
+                  extensions.map((row) => {
+                    const isApproved = row.status === 'APPROVED';
+                    const isRejected = row.status === 'REJECTED';
+                    return (
+                      <TableRow key={row.extensionId} hover>
+                        <TableCell>
+                          <Typography variant="subtitle2" fontWeight="bold">
+                            {row.fullName}
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="caption" color="text.secondary">
+                              {row.studentCode}
+                            </Typography>
+                            <Button 
+                              size="small" 
+                              variant="text" 
+                              sx={{ p: 0, minWidth: 'auto', fontSize: '0.7rem' }}
+                              onClick={() => handleOpenProfile(row.studentId)}
+                            >
+                              Xem hồ sơ
+                            </Button>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight="medium">
+                            P.{row.currentRoomCode}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Giường {row.currentBedCode}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                            Cũ:{' '}
+                            {row.oldExpectedCheckOutAt
+                              ? new Date(row.oldExpectedCheckOutAt).toLocaleDateString('vi-VN')
+                              : '-'}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ fontSize: '0.8rem', color: 'success.main', fontWeight: 'bold' }}
+                          >
+                            Mới: {new Date(row.newExpectedCheckOutAt).toLocaleDateString('vi-VN')}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" noWrap title={row.reason} sx={{ maxWidth: 200 }}>
+                            {row.reason}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ maxWidth: 200, display: 'block' }}>
+                            {row.description}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={isApproved ? 'Đã duyệt' : isRejected ? 'Từ chối' : 'Chờ duyệt'}
+                            size="small"
+                            color={isApproved ? 'success' : isRejected ? 'error' : 'warning'}
+                            sx={{ fontWeight: 'bold' }}
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.status === 'PENDING' && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                              <IconButton
+                                color="success"
+                                size="small"
+                                onClick={() => handleOpenReview(row, 'APPROVED')}
+                              >
+                                <CheckCircleIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton
+                                color="error"
+                                size="small"
+                                onClick={() => handleOpenReview(row, 'REJECTED')}
+                              >
+                                <CancelIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
+                          )}
+                          {row.status === 'APPROVED' && row.contractPdfUrl && (
+                            <Button variant="outlined" size="small" href={row.contractPdfUrl} target="_blank" sx={{ borderRadius: 2, mr: 1 }}>
+                              Hợp đồng
+                            </Button>
+                          )}
+                          {row.status === 'APPROVED' && row.commitmentPdfUrl && (
+                            <Button variant="outlined" size="small" href={row.commitmentPdfUrl} target="_blank" sx={{ borderRadius: 2 }}>
+                              Cam kết
+                            </Button>
+                          )}
+                          {row.status === 'REJECTED' && row.rejectReason && (
+                            <Typography variant="caption" color="error.main" title={row.rejectReason} noWrap sx={{ maxWidth: 100 }}>
+                              {row.rejectReason}
+                            </Typography>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+            <TablePagination
+              component="div"
+              count={totalElements || 0}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(e) => {
+                setRowsPerPage(parseInt(e.target.value, 10));
+                setPage(0);
+              }}
+              labelRowsPerPage="Số dòng/trang:"
+            />
+          </TableContainer>
+        )}
       </Paper>
 
       {/* Review Dialog */}
-      <Dialog open={openReview} onClose={() => setOpenReview(false)} fullWidth maxWidth="sm">
+      <Dialog open={openReview} onClose={() => setOpenReview(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3 } }}>
         <DialogTitle sx={{ fontWeight: 'bold' }}>
-          {reviewStatus === 'APPROVED' ? 'Xác nhận Duyệt Gia Hạn' : 'Xác nhận Từ Chối Gia Hạn'}
+          {reviewStatus === 'APPROVED' ? 'Xác nhận duyệt gia hạn' : 'Xác nhận từ chối gia hạn'}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           <Typography variant="body1" sx={{ mb: 2 }}>
             Bạn đang thao tác với đơn gia hạn của sinh viên <b>{selectedRequest?.fullName}</b>.
             {reviewStatus === 'APPROVED' && (
-              <Alert severity="info" sx={{ mt: 2 }}>
+              <Alert severity="info" sx={{ mt: 2, borderRadius: 2 }}>
                 Sau khi duyệt, hệ thống sẽ kéo dài hợp đồng và tự động sinh hóa đơn thu tiền cho đợt
                 lưu trú mới.
               </Alert>
@@ -257,8 +240,8 @@ export default function StayExtensionManagement() {
             />
           )}
         </DialogContent>
-        <DialogActions sx={{ p: 2, pt: 0 }}>
-          <Button onClick={() => setOpenReview(false)} disabled={submitting}>
+        <DialogActions sx={{ p: 3, pt: 2 }}>
+          <Button onClick={() => setOpenReview(false)} disabled={submitting} sx={{ borderRadius: 2 }}>
             Hủy
           </Button>
           <Button
@@ -266,11 +249,21 @@ export default function StayExtensionManagement() {
             variant="contained"
             color={reviewStatus === 'APPROVED' ? 'success' : 'error'}
             disabled={submitting || (reviewStatus === 'REJECTED' && !rejectReason.trim())}
+            sx={{ borderRadius: 2, px: 3 }}
           >
             {submitting ? 'Đang xử lý...' : 'Xác nhận'}
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Reused Profile Modal */}
+      <StudentProfileModal
+        open={openProfileModal}
+        onClose={() => setOpenProfileModal(false)}
+        loading={loadingProfile}
+        profile={selectedProfile}
+        hideEditButton={true}
+      />
     </Box>
   );
 }

@@ -1,5 +1,3 @@
-// 📄 File: src/types/registration.ts
-
 export type RegistrationType = 'CURRENT_RESIDENT' | 'NEW_STUDENT' | 'OPEN_REGISTRATION';
 
 export interface RegistrationPeriodResponse {
@@ -9,8 +7,8 @@ export interface RegistrationPeriodResponse {
   startDate: string;
   endDate: string;
   isActive: boolean;
-  stayStartDate?: string;
-  stayEndDate?: string;
+  stayStartDate: string;
+  stayEndDate: string;
 }
 
 export interface CreateRegistrationPeriodRequest {
@@ -18,36 +16,31 @@ export interface CreateRegistrationPeriodRequest {
   registrationType: RegistrationType;
   startDate: string;
   endDate: string;
-  stayStartDate?: string;
-  stayEndDate?: string;
+  stayStartDate: string;
+  stayEndDate: string;
 }
 
 export interface UpdateRegistrationPeriodRequest {
-  periodName?: string;
-  registrationType?: RegistrationType;
-  startDate?: string;
-  endDate?: string;
-  stayStartDate?: string;
-  stayEndDate?: string;
+  periodName: string;
+  registrationType: RegistrationType;
+  startDate: string;
+  endDate: string;
+  stayStartDate: string;
+  stayEndDate: string;
 }
 
 export interface EligibilityImportResponse {
-  total: number;
-  imported: number;
-  skipped: number;
-  errors: string[];
+  totalRows: number;
+  importedRows: number;
+  skippedRows: number;
 }
 
-export interface Eligibility {
-  id: string;
-  student: {
-    id: string;
-    fullName: string;
-    cccd: string;
-    studentId: string;
-  };
-  registered: boolean;
-  createdAt: string;
+export interface EligibilityResponse {
+  eligibilityId: string;
+  cccd: string;
+  fullName: string;
+  studentCode: string;
+  email: string;
 }
 
 export interface Page<T> {
@@ -65,13 +58,18 @@ export interface Page<T> {
 }
 
 export interface CheckEligibilityRequest {
-  cccd: string;
+  email: string;
+  otp: string;
 }
 
 export interface CheckEligibilityResponse {
   eligible: boolean;
   periodId: string | null;
-  target: RegistrationType | null;
+  periodName: string | null;
+  registrationType: RegistrationType | null;
   fullName: string | null;
+  cccd: string | null;
+  studentCode: string | null;
+  target: string | null;
   message: string;
 }

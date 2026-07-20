@@ -46,11 +46,9 @@ export default function EligibilitySection({
       </Typography>
 
       <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
-        Vui lòng nhập Email (sử dụng Email cá nhân hoặc Email trường cấp) để hệ thống gửi mã xác
-        thực (OTP) trước khi tiến hành tạo đơn đăng ký.
+        Vui lòng nhập Email trường cấp để hệ thống gửi mã xác thực (OTP) trước khi tiến hành tạo đơn
+        đăng ký.
       </Typography>
-
-      {/* Đã xóa các thẻ <Alert> ở đây để nhường chỗ cho Snackbar */}
 
       <TextField
         label="Địa chỉ Email"
@@ -62,7 +60,7 @@ export default function EligibilitySection({
         required
         disabled={otpSent}
         autoFocus={!otpSent}
-        placeholder="VD: nguyenvana@gmail.com"
+        placeholder="VD: dh52201580@student.stu.edu.vn"
       />
 
       {!otpSent ? (
@@ -85,8 +83,8 @@ export default function EligibilitySection({
           required
           autoFocus
           placeholder="Nhập 6 số mã xác thực"
-          error={!!error} // Viền đỏ tự động hiện nếu có lỗi
-          helperText={error ? error : "Bấm 'Tiếp tục' sau khi điền xong OTP."} // Ưu tiên hiện câu báo lỗi, không thì hiện hướng dẫn
+          error={!!error}
+          helperText={error ? error : "Bấm 'Tiếp tục' sau khi điền xong OTP."}
           slotProps={{
             htmlInput: {
               maxLength: 6,

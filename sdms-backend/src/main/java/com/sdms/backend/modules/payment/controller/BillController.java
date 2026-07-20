@@ -1,18 +1,21 @@
 package com.sdms.backend.modules.payment.controller;
 
 import com.sdms.backend.common.response.ApiResponse;
+import com.sdms.backend.common.response.PageResponse;
+import com.sdms.backend.modules.payment.dto.response.BillResponse;
 import com.sdms.backend.modules.payment.entity.Bill;
-import com.sdms.backend.modules.payment.repository.BillRepository;
-import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
-import lombok.RequiredArgsConstructor;
-import com.sdms.backend.common.exception.AppException;
-import com.sdms.backend.common.exception.ErrorCode;
+import com.sdms.backend.modules.payment.service.BillService;
+import com.sdms.backend.modules.user.entity.UserAccount;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -21,79 +24,42 @@ import java.util.UUID;
 @Tag(name = "Hóa đơn (Bill)", description = "Quản lý hóa đơn")
 public class BillController {
 
-    private final BillRepository billRepository;
-    private final DormitoryApplicationRepository applicationRepository;
+    private final BillService billService;
 
     @Operation(summary = "Lấy hóa đơn theo hồ sơ đăng ký")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'STUDENT')")
     @GetMapping("/application/{applicationId}")
-    public ApiResponse<Bill> getBillByApplicationId(@PathVariable UUID applicationId) {
-        List<Bill> bills = billRepository.findByApplicationId(applicationId);
-        if (bills.isEmpty()) {
-            throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hóa đơn cho hồ sơ này");
-        }
-        // Giả sử lấy bill mới nhất hoặc hóa đơn phí lưu trú
-        Bill accommodationBill = bills.get(0);
-        return ApiResponse.success("Lấy thông tin hóa đơn thành công", accommodationBill);
+    public ApiResponse<BillResponse> getBillByApplicationId(@PathVariable UUID applicationId) {
+        BillResponse response = billService.getBillByApplicationId(applicationId);
+        return ApiResponse.success("Lấy thông tin hóa đơn thành công", response);
     }
 
-    @Operation(summary = "Lấy lịch sử hóa đơn của tôi")
+    @Operation(summary = "Lấy lịch sử hóa đơn của tôi (danh sách)")
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/me")
-    public ApiResponse<List<Bill>> getMyBills(
-            @org.springframework.security.core.annotation.AuthenticationPrincipal com.sdms.backend.modules.user.entity.UserAccount currentUser
+    public ApiResponse<List<BillResponse>> getMyBills(
+            @AuthenticationPrincipal UserAccount currentUser
     ) {
-        if (currentUser.getStudent() == null) {
-            throw new AppException(ErrorCode.UNAUTHORIZED, "Tài khoản chưa được liên kết sinh viên");
-        }
-        // Giả sử Student có applicationId, hoặc ta lấy bill thông qua logic nghiệp vụ.
-        // Tạm thời lấy danh sách rỗng hoặc lấy tất cả nếu DB thiết kế Bill link với StudentId
-        // Vì Bill liên kết qua applicationId, cần tìm application của student theo CCCD
-        List<com.sdms.backend.modules.application.entity.DormitoryApplication> apps = applicationRepository.findByCccd(currentUser.getStudent().getCccd());
-        List<Bill> myBills = new java.util.ArrayList<>();
-        for (var app : apps) {
-            myBills.addAll(billRepository.findByApplicationId(app.getApplicationId()));
-        }
+        List<BillResponse> myBills = billService.getMyBills(currentUser);
         return ApiResponse.success("Lấy lịch sử thanh toán thành công", myBills);
     }
 
-    @Operation(summary = "Lấy tất cả hóa đơn (Admin)")
+    @Operation(summary = "Lấy lịch sử hóa đơn của tôi (phân trang - Mobile App)")
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/me/paged")
+    public ApiResponse<PageResponse<BillResponse>> getMyBillsPaged(
+            @AuthenticationPrincipal UserAccount currentUser,
+            Pageable pageable
+    ) {
+        PageResponse<BillResponse> result = billService.getMyBillsPaged(currentUser, pageable);
+        return ApiResponse.success("Lấy lịch sử hóa đơn thành công", result);
+    }
+
+    @Operation(summary = "Lấy tất cả hóa đơn (Admin/Staff)")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @GetMapping
-    public ApiResponse<com.sdms.backend.common.response.PageResponse<java.util.Map<String, Object>>> getAllBills(
-            org.springframework.data.domain.Pageable pageable
-    ) {
-        org.springframework.data.domain.Page<Bill> billPage = billRepository.findAll(pageable);
-        List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
-        
-        for (Bill bill : billPage.getContent()) {
-            java.util.Map<String, Object> map = new java.util.HashMap<>();
-            map.put("billId", bill.getBillId());
-            // Lấy 8 ký tự đầu của UUID làm mã hiển thị cho đẹp
-            map.put("billCode", bill.getBillId().toString().substring(0, 8).toUpperCase());
-            map.put("amount", bill.getAmount());
-            map.put("billType", bill.getBillType());
-            map.put("status", bill.getStatus());
-            map.put("dueDate", bill.getDueDate());
-            
-            // Tìm tên sinh viên từ application_id
-            if (bill.getApplicationId() != null) {
-                map.put("applicationId", bill.getApplicationId());
-                try {
-                    applicationRepository.findById(bill.getApplicationId()).ifPresent(app -> {
-                        map.put("studentName", app.getFullName());
-                    });
-                } catch (Exception e) {}
-            }
-            if (!map.containsKey("studentName")) {
-                map.put("studentName", "Khách " + map.get("billCode"));
-            }
-            result.add(map);
-        }
-        
-        com.sdms.backend.common.response.PageResponse<java.util.Map<String, Object>> pageResponse = 
-            com.sdms.backend.common.response.PageResponse.fromPage(billPage, result);
-
+    public ApiResponse<PageResponse<Map<String, Object>>> getAllBills(Pageable pageable) {
+        PageResponse<Map<String, Object>> pageResponse = billService.getAllBillsPaged(pageable);
         return ApiResponse.success("Lấy danh sách hóa đơn thành công", pageResponse);
     }
 }

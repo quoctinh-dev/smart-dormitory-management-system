@@ -5,6 +5,7 @@ import com.sdms.backend.modules.payment.enums.BillStatus;
 import com.sdms.backend.modules.payment.repository.BillRepository;
 import com.sdms.backend.modules.room.event.HousingReservationExpiredEvent;
 import com.sdms.backend.modules.room.event.AssignmentCancelledEvent;
+import com.sdms.backend.modules.student.event.StudentCheckedOutEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.Optional;
+import java.util.List;
 
 /**
  * Mục tiêu/Nghiệp vụ: Dọn dẹp các hóa đơn (Bill) rác khi có sự kiện hủy phòng hoặc quá hạn giữ chỗ. Đảm bảo hệ thống tài chính không bị treo các khoản nợ ảo.
@@ -32,22 +33,23 @@ public class BillEventListener {
     public void handleHousingReservationExpired(HousingReservationExpiredEvent event) {
         log.info("[BillEventListener] Handling HousingReservationExpiredEvent for assignment={}", event.getAssignmentId());
 
-        Optional<Bill> billOpt = billRepository.findByAssignmentId(event.getAssignmentId());
-        if (billOpt.isEmpty()) {
+        List<Bill> bills = billRepository.findByAssignmentId(event.getAssignmentId());
+        if (bills.isEmpty()) {
             log.warn("[BillEventListener] No bill found for expired assignment={}", event.getAssignmentId());
             return;
         }
 
-        Bill bill = billOpt.get();
-        if (bill.getStatus() == BillStatus.PAID) {
-            log.info("[BillEventListener] Bill={} is already PAID, ignoring expiry for assignment={}", bill.getBillId(), event.getAssignmentId());
-            return;
-        }
+        for (Bill bill : bills) {
+            if (bill.getStatus() == BillStatus.PAID) {
+                log.info("[BillEventListener] Bill={} is already PAID, ignoring expiry for assignment={}", bill.getBillId(), event.getAssignmentId());
+                continue;
+            }
 
-        if (bill.getStatus() == BillStatus.UNPAID || bill.getStatus() == BillStatus.PARTIALLY_PAID) {
-            bill.setStatus(BillStatus.CANCELLED);
-            billRepository.save(bill);
-            log.info("[BillEventListener] Bill={} CANCELLED for expired assignment={}", bill.getBillId(), event.getAssignmentId());
+            if (bill.getStatus() == BillStatus.UNPAID || bill.getStatus() == BillStatus.PARTIALLY_PAID) {
+                bill.setStatus(BillStatus.CANCELLED);
+                billRepository.save(bill);
+                log.info("[BillEventListener] Bill={} CANCELLED for expired assignment={}", bill.getBillId(), event.getAssignmentId());
+            }
         }
     }
 
@@ -56,20 +58,36 @@ public class BillEventListener {
     public void handleAssignmentCancelledEvent(AssignmentCancelledEvent event) {
         log.info("[BillEventListener] Handling AssignmentCancelledEvent for assignment={}, reason={}", event.getAssignmentId(), event.getReason());
 
-        Optional<Bill> billOpt = billRepository.findByAssignmentId(event.getAssignmentId());
-        if (billOpt.isEmpty()) {
+        List<Bill> bills = billRepository.findByAssignmentId(event.getAssignmentId());
+        if (bills.isEmpty()) {
             return;
         }
 
-        Bill bill = billOpt.get();
-        if (bill.getStatus() == BillStatus.PAID) {
-            return;
-        }
+        for (Bill bill : bills) {
+            if (bill.getStatus() == BillStatus.PAID) {
+                continue;
+            }
 
-        if (bill.getStatus() == BillStatus.UNPAID || bill.getStatus() == BillStatus.PARTIALLY_PAID) {
-            bill.setStatus(BillStatus.CANCELLED);
-            billRepository.save(bill);
-            log.info("[BillEventListener] Bill={} CANCELLED due to AssignmentCancelledEvent", bill.getBillId());
+            if (bill.getStatus() == BillStatus.UNPAID || bill.getStatus() == BillStatus.PARTIALLY_PAID) {
+                bill.setStatus(BillStatus.CANCELLED);
+                billRepository.save(bill);
+                log.info("[BillEventListener] Bill={} CANCELLED due to AssignmentCancelledEvent", bill.getBillId());
+            }
+        }
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void handleStudentCheckedOutEvent(StudentCheckedOutEvent event) {
+        log.info("[BillEventListener] Handling StudentCheckedOutEvent for assignment={}. Canceling future unpaid chunks.", event.getAssignmentId());
+
+        List<Bill> bills = billRepository.findByAssignmentId(event.getAssignmentId());
+        for (Bill bill : bills) {
+            if (bill.getStatus() == BillStatus.UNPAID || bill.getStatus() == BillStatus.PARTIALLY_PAID) {
+                bill.setStatus(BillStatus.CANCELLED);
+                billRepository.save(bill);
+                log.info("[BillEventListener] Future chunk Bill={} CANCELLED due to Early Checkout", bill.getBillId());
+            }
         }
     }
 }

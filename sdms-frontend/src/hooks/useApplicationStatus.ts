@@ -1,11 +1,11 @@
 import { useState, useCallback } from 'react';
 
-import applicationApi from '@/api/applicationApi';
-import paymentApi from '@/api/paymentApi';
-import { getErrorMessage, isNotFoundError } from '@/types/api';
+import applicationApi from '@/api/application-api';
+import paymentApi from '@/api/payment-api';
+import { snackbar } from '@/helpers/snackbar';
+import { isNotFoundError } from '@/types/api';
 import type { AssignmentInfo, DocumentResponse } from '@/types/application';
 import type { BillResponse } from '@/types/payment';
-import { snackbar } from '@/utils/snackbar';
 
 interface ApplicationStatusState {
   applicationId: string;
@@ -21,6 +21,7 @@ interface ApplicationStatusState {
 export const useApplicationStatus = () => {
   const [loading, setLoading] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [uploadingDocId, setUploadingDocId] = useState<string | null>(null);
   const [application, setApplication] = useState<ApplicationStatusState | null>(null);
 
   const fetchStatus = useCallback(async (studentCode: string) => {
@@ -98,11 +99,35 @@ export const useApplicationStatus = () => {
     [application, fetchStatus]
   );
 
+  const handleResubmit = useCallback(
+    async (docId: string, file: File) => {
+      if (!file || !application?.applicationId) return;
+      setUploadingDocId(docId);
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const uploadRes = await applicationApi.uploadFileToCloud(formData);
+        const fileUrl = uploadRes.url;
+
+        await applicationApi.resubmitDocument(application.applicationId, docId, fileUrl);
+        snackbar.success('Nộp lại tài liệu thành công!');
+        fetchStatus(application.studentCode);
+      } catch (err: any) {
+        snackbar.error('Lỗi khi nộp lại: ' + (err.response?.data?.message || err.message));
+      } finally {
+        setUploadingDocId(null);
+      }
+    },
+    [application, fetchStatus]
+  );
+
   return {
     application,
     loading,
     paymentLoading,
+    uploadingDocId,
     fetchStatus,
     handleOnlinePayment,
+    handleResubmit,
   };
 };

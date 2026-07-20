@@ -28,6 +28,7 @@ public class ApplicationPriorityService {
     private final ApplicationPriorityRepository priorityRepository;
     private final DormitoryApplicationRepository applicationRepository;
     private final VerificationDocumentRepository documentRepository;
+    private final com.sdms.backend.modules.registration.repository.RegistrationEligibilityRepository eligibilityRepository;
 
     /**
      * Gán các diện ưu tiên cho đơn đăng ký.
@@ -86,22 +87,18 @@ public class ApplicationPriorityService {
         }
 
         application.setPriorityScore(maxScore);
-        
-        // 🌟 BỔ SUNG LOGIC: Đợt tự do ưu tiên Tân Sinh Viên
-        int currentYear = java.time.LocalDateTime.now().getYear();
-        boolean isFirstYear = false;
-        
-        // Kiểm tra dựa trên khóa học (cohort) hoặc năm sinh (dob)
-        if (application.getCohort() != null && application.getCohort().equals(String.valueOf(currentYear))) {
-            isFirstYear = true;
-        } else if (application.getDob() != null && application.getDob().getYear() == currentYear - 18) {
-            isFirstYear = true;
-        }
+        // 🌟 BỔ SUNG LOGIC: Đợt tự do (Free Wave) ưu tiên Tân Sinh Viên thông qua danh sách Eligible
+        if (application.getRegistrationPeriod().getRegistrationType() == com.sdms.backend.modules.registration.enums.RegistrationType.OPEN_REGISTRATION) {
+            // Kiểm tra xem sinh viên này có nằm trong danh sách ưu tiên (Tân sinh viên do trường gửi) không
+            boolean isEligibleFreshman = eligibilityRepository
+                    .findByRegistrationPeriod_PeriodIdAndEmail(application.getRegistrationPeriod().getPeriodId(), application.getEmail())
+                    .isPresent();
 
-        if (isFirstYear && application.getRegistrationPeriod().getRegistrationType() == com.sdms.backend.modules.registration.enums.RegistrationType.OPEN_REGISTRATION) {
-            // Cộng điểm cực cao để luôn đứng đầu danh sách đợt tự do
-            application.setPriorityScore(maxScore + 1000);
-            log.info("Cộng 1000 điểm ưu tiên cho Tân sinh viên trong Đợt tự do: {}", applicationId);
+            if (isEligibleFreshman) {
+                // Cộng điểm cực cao để luôn đứng đầu danh sách đợt tự do
+                application.setPriorityScore(maxScore + 1000);
+                log.info("Cộng 1000 điểm ưu tiên cho Tân sinh viên (thuộc danh sách Eligible) trong Đợt tự do: {}", applicationId);
+            }
         }
 
         applicationRepository.save(application);

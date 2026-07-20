@@ -1,17 +1,14 @@
 // src/types/room.ts
 // ⚠️ SOURCE OF TRUTH: Map 1-1 với Backend DTO. KHÔNG tự ý sửa enum/field mà không kiểm tra Backend trước.
 
-// ─── ENUMS (phải khớp chính xác với Java Enum trong backend) ─────────────────
 export type BuildingStatus = 'ACTIVE' | 'MAINTENANCE' | 'CLOSED';
 export type BuildingGender = 'MALE' | 'FEMALE' | 'MIXED';
-// RoomStatus: AVAILABLE, FULL, MAINTENANCE, CLOSED (đã có FULL từ HousingAssignmentService)
 export type RoomStatus = 'AVAILABLE' | 'FULL' | 'MAINTENANCE' | 'CLOSED';
-// BedStatus: AVAILABLE, RESERVED, OCCUPIED, MAINTENANCE (từ BedStatus.java)
 export type BedStatus = 'AVAILABLE' | 'RESERVED' | 'OCCUPIED' | 'MAINTENANCE';
 export type AssignmentStatus =
   'RESERVED' | 'PENDING_CHECKIN' | 'OCCUPIED' | 'CANCELLED' | 'EXPIRED' | 'CHECKED_OUT';
 
-// ─── BUILDING (khớp BuildingResponse.java) ───────────────────────────────────
+// ─── BUILDING  ───
 export interface BuildingResponse {
   buildingId: string; // UUID
   code: string;
@@ -22,7 +19,7 @@ export interface BuildingResponse {
   createdAt: string;
 }
 
-// ─── FLOOR (khớp FloorResponse.java) ─────────────────────────────────────────
+// ─── FLOOR  ───
 export interface FloorResponse {
   floorId: string; // UUID
   floorNumber: number;
@@ -32,7 +29,7 @@ export interface FloorResponse {
   buildingName: string;
 }
 
-// ─── ROOM (khớp RoomResponse.java) ───────────────────────────────────────────
+// ─── ROOM  ───
 export interface RoomResponse {
   roomId: string; // UUID
   roomCode: string;
@@ -48,7 +45,7 @@ export interface RoomResponse {
   roomPinCode?: string;
 }
 
-// ─── BED (khớp BedResponse.java) ─────────────────────────────────────────────
+// ─── BED ───
 export interface BedResponse {
   bedId: string; // UUID
   bedCode: string;
@@ -62,12 +59,12 @@ export interface BedResponse {
   buildingCode: string;
 }
 
-// ─── COMPOSITE (dùng trong Dashboard - gộp Room + Beds) ──────────────────────
+// ─── COMPOSITE ───
 export interface RoomWithBeds extends RoomResponse {
   beds: BedResponse[];
 }
 
-// ─── STUDENT INFO (trả về khi bấm vào giường đang ở - Bed Drill-down) ────────
+// ─── STUDENT INFO ───
 export interface StudentInfo {
   studentId: string;
   studentCode: string;
@@ -76,7 +73,7 @@ export interface StudentInfo {
   avatarUrl?: string;
 }
 
-// ─── ACTIVE ASSIGNMENT (khớp với endpoint GET /housing-assignments/active/bed/{bedId}) ──
+// ─── ACTIVE ASSIGNMENT ───
 export interface ActiveAssignmentResponse {
   assignmentId: string;
   status: AssignmentStatus;

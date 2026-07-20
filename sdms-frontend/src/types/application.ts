@@ -12,10 +12,9 @@ export type DocumentStatus = 'PENDING' | 'VALID' | 'INVALID';
 export interface DocumentResponse {
   documentId: string;
   documentType: string;
-  documentName: string;
   fileUrl: string;
   status: DocumentStatus;
-  remarks: string;
+  note: string;
 }
 
 export interface AssignmentInfo {

@@ -49,8 +49,9 @@ public class RegistrationEligibilityService {
         RegistrationPeriod period = periodRepository.findById(periodId)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đợt đăng ký"));
 
-        if (period.getRegistrationType() == RegistrationType.OPEN_REGISTRATION) {
-            throw new AppException(ErrorCode.VALIDATION_FAILED, "Đợt đăng ký tự do không cần import danh sách");
+        // Đợt gia hạn (CURRENT_RESIDENT) không cần import danh sách, hệ thống tự kiểm tra theo hợp đồng/kỷ luật sau.
+        if (period.getRegistrationType() == RegistrationType.CURRENT_RESIDENT) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Đợt gia hạn không cần import danh sách");
         }
 
         Set<String> existingStudentCodes = eligibilityRepository.findStudentCodeByRegistrationPeriod_PeriodId(periodId);
@@ -114,11 +115,11 @@ public class RegistrationEligibilityService {
      * Xem danh sách phân trang (ReadOnly tối ưu kết nối DB)
      */
     @Transactional(readOnly = true)
-    public Page<EligibilityResponse> getEligibilities(UUID periodId, Pageable pageable) {
+    public Page<EligibilityResponse> getEligibilities(UUID periodId, String keyword, Pageable pageable) {
         if (!periodRepository.existsById(periodId)) {
             throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đợt đăng ký");
         }
-        return eligibilityRepository.findByRegistrationPeriod_PeriodId(periodId, pageable)
+        return eligibilityRepository.searchEligibilities(periodId, keyword, pageable)
                 .map(e -> new EligibilityResponse(e.getEligibilityId(), e.getCccd(), e.getFullName(), e.getStudentCode(), e.getEmail()));
     }
 
@@ -135,6 +136,17 @@ public class RegistrationEligibilityService {
         }
 
         eligibilityRepository.delete(e);
+    }
+
+    /**
+     * Xóa toàn bộ sinh viên hợp lệ trong một đợt
+     */
+    @Transactional
+    public void deleteAllEligibilities(UUID periodId) {
+        if (!periodRepository.existsById(periodId)) {
+            throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đợt đăng ký");
+        }
+        eligibilityRepository.deleteAllByRegistrationPeriod_PeriodId(periodId);
     }
 
     private String getCellValue(Cell cell) {

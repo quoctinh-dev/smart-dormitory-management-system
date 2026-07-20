@@ -1,3 +1,9 @@
+import CloseIcon from '@mui/icons-material/Close';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import LocalPhoneOutlinedIcon from '@mui/icons-material/LocalPhoneOutlined';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import MenuIcon from '@mui/icons-material/Menu';
+import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import {
   Box,
   AppBar,
@@ -8,10 +14,17 @@ import {
   Stack,
   Link,
   CssBaseline,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
 } from '@mui/material';
-import { Outlet, Link as RouterLink } from 'react-router-dom';
+import { useState } from 'react';
+import { Outlet, Link as RouterLink, useLocation } from 'react-router-dom';
 
-const FOOTER_LINKS = [
+const NAV_LINKS = [
   { text: 'Trang chủ', path: '/' },
   { text: 'Đăng ký lưu trú', path: '/register' },
   { text: 'Tra cứu hồ sơ', path: '/status' },
@@ -19,46 +32,199 @@ const FOOTER_LINKS = [
 ];
 
 export default function PublicLayout() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+        position: 'relative',
+        backgroundColor: '#f8fafc',
+        '&::before': {
+          content: '""',
+          position: 'fixed',
+          top: '-10%',
+          left: '-10%',
+          width: '50vw',
+          height: '50vw',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(14,165,233,0.1) 0%, rgba(255,255,255,0) 70%)',
+          zIndex: 0,
+          pointerEvents: 'none',
+        },
+        // Nền hiệu ứng chuyển màu phía dưới
+        '&::after': {
+          content: '""',
+          position: 'fixed',
+          bottom: '-10%',
+          right: '-10%',
+          width: '60vw',
+          height: '60vw',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, rgba(255,255,255,0) 70%)',
+          zIndex: 0,
+          pointerEvents: 'none',
+        },
+      }}
+    >
       <CssBaseline />
 
-      {/* NAVBAR */}
-      <AppBar
-        elevation={0}
-        sx={{
-          position: 'sticky',
-          bgcolor: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(8px)',
-          borderBottom: 1,
-          borderColor: 'divider',
-        }}
-      >
-        <Container>
-          <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
-            <Stack
-              component={RouterLink}
-              to="/"
-              direction="row"
-              alignItems="center"
-              spacing={1.5}
-              sx={{ textDecoration: 'none', color: 'text.primary' }}
-            >
-              <Avatar sx={{ bgcolor: 'primary.main', width: 36, height: 36 }}>K</Avatar>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 800, display: { xs: 'none', sm: 'block' } }}
+      {/* NAVBAR (AURORA GLASSMORPHISM) */}
+      <Box sx={{ position: 'relative', zIndex: 1100, pt: { xs: 2, md: 2 }, px: { xs: 2, md: 3 } }}>
+        <AppBar
+          elevation={0}
+          position="static"
+          sx={{
+            bgcolor: 'rgba(255, 255, 255, 0.65)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.5)',
+            borderRadius: '20px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.04)',
+          }}
+        >
+          <Container maxWidth="lg">
+            <Toolbar disableGutters sx={{ justifyContent: 'space-between', height: 70 }}>
+              {/* LOGO */}
+              <Stack
+                component={RouterLink}
+                to="/"
+                direction="row"
+                alignItems="center"
+                spacing={1.5}
+                sx={{ textDecoration: 'none' }}
               >
-                KTX portal
-              </Typography>
-            </Stack>
+                <Avatar
+                  sx={{
+                    background: 'linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%)',
+                    width: 40,
+                    height: 40,
+                    fontWeight: 800,
+                    fontSize: '1.2rem',
+                    boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)',
+                  }}
+                >
+                  S
+                </Avatar>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 800,
+                    letterSpacing: '-0.5px',
+                    background: 'linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  STU Dorm
+                </Typography>
+              </Stack>
 
-            <Stack direction="row" spacing={1} />
-          </Toolbar>
-        </Container>
-      </AppBar>
+              {/* DESKTOP NAV MENU */}
+              <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
+                {NAV_LINKS.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.text}
+                      component={RouterLink}
+                      to={item.path}
+                      underline="none"
+                      variant="body2"
+                      sx={{
+                        px: 2.5,
+                        py: 1,
+                        borderRadius: '12px',
+                        fontWeight: isActive ? 700 : 600,
+                        color: isActive ? 'primary.main' : 'text.secondary',
+                        position: 'relative',
+                        transition: 'all 0.2s ease-in-out',
+                        '&:hover': {
+                          color: 'primary.main',
+                          bgcolor: 'rgba(14, 165, 233, 0.06)',
+                        },
+                        ...(isActive && {
+                          '&::after': {
+                            content: '""',
+                            position: 'absolute',
+                            bottom: 4,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: 20,
+                            height: 3,
+                            borderRadius: 2,
+                            backgroundColor: 'primary.main',
+                          },
+                        }),
+                      }}
+                    >
+                      {item.text}
+                    </Link>
+                  );
+                })}
+              </Stack>
 
-      {/* MAIN CONTENT */}
+              {/* MOBILE MENU BUTTON */}
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleDrawerToggle}
+                sx={{ display: { md: 'none' }, color: 'text.primary' }}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Toolbar>
+          </Container>
+        </AppBar>
+      </Box>
+
+      {/* MOBILE DRAWER NAV */}
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{ keepMounted: true }}
+        PaperProps={{ sx: { width: 280, bgcolor: 'background.paper' } }}
+      >
+        <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <IconButton onClick={handleDrawerToggle}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <List sx={{ px: 2 }}>
+          {NAV_LINKS.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+                <ListItemButton
+                  component={RouterLink}
+                  to={item.path}
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    borderRadius: '8px',
+                    bgcolor: isActive ? 'action.selected' : 'transparent',
+                    color: isActive ? 'primary.main' : 'text.primary',
+                  }}
+                >
+                  <ListItemText
+                    primary={item.text}
+                    primaryTypographyProps={{ fontWeight: isActive ? 700 : 500, variant: 'body1' }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
+        </List>
+      </Drawer>
+
+      {/* MAIN CONTENT CONTAINER */}
       <Box component="main" sx={{ flexGrow: 1 }}>
         <Outlet />
       </Box>
@@ -67,52 +233,61 @@ export default function PublicLayout() {
       <Box
         component="footer"
         sx={{
-          bgcolor: 'grey.900',
-          color: 'grey.400',
+          bgcolor: '#0f172a',
+          color: '#94a3b8',
           pt: 8,
-          pb: 4,
+          pb: 6,
           mt: 'auto',
           borderTop: '1px solid',
-          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderColor: '#1e293b',
         }}
       >
-        <Container>
+        <Container maxWidth="lg">
           <Stack
             direction={{ xs: 'column', md: 'row' }}
             justifyContent="space-between"
             spacing={6}
             sx={{ mb: 6 }}
           >
+            {/* Cột trái: Giới thiệu */}
             <Box sx={{ maxWidth: 400 }}>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: 'common.white', mb: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#f8fafc', mb: 2 }}>
                 Ký túc xá STU
               </Typography>
-              <Typography variant="body2" sx={{ lineHeight: 1.8, mb: 2 }}>
-                Giải pháp đăng ký trực tuyến nhanh chóng, minh bạch thuộc hệ sinh thái Đại học Công
-                nghệ Sài Gòn.
+              <Typography variant="body2" sx={{ lineHeight: 1.8, mb: 3 }}>
+                Giải pháp đăng ký trực tuyến nhanh chóng, minh bạch thuộc Trường Đại học Công nghệ Sài Gòn.
               </Typography>
-              <Typography variant="body2" sx={{ color: 'common.white' }}>
-                📍 180 Cao Lỗ, Phường 4, Quận 8, TP.HCM
-              </Typography>
+              <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                <LocationOnOutlinedIcon sx={{ color: 'primary.light', fontSize: 20, mt: 0.3 }} />
+                <Typography variant="body2" sx={{ color: '#cbd5e1' }}>
+                  180 Cao Lỗ, Phường 4, Quận 8, TP.HCM
+                </Typography>
+              </Stack>
             </Box>
 
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={8}>
+            {/* Các cột phải: Menu & Support */}
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 5, sm: 10 }}>
+              {/* Cột giữa: Liên kết nhanh */}
               <Box>
                 <Typography
                   variant="subtitle2"
-                  sx={{ fontWeight: 'bold', color: 'common.white', mb: 2 }}
+                  sx={{ fontWeight: 700, color: '#f8fafc', mb: 2.5, letterSpacing: '0.5px' }}
                 >
-                  Liên kết nhanh
+                  LIÊN KẾT NHANH
                 </Typography>
-                <Stack spacing={1.5}>
-                  {FOOTER_LINKS.map((item) => (
+                <Stack direction="column" spacing={2}>
+                  {NAV_LINKS.map((item) => (
                     <Link
                       key={item.text}
                       component={RouterLink}
                       to={item.path}
                       color="inherit"
-                      underline="hover"
+                      underline="none"
                       variant="body2"
+                      sx={{
+                        transition: 'color 0.15s ease',
+                        '&:hover': { color: '#f8fafc' },
+                      }}
                     >
                       {item.text}
                     </Link>
@@ -120,36 +295,44 @@ export default function PublicLayout() {
                 </Stack>
               </Box>
 
+              {/* Cột phải: Thông tin liên hệ */}
               <Box>
                 <Typography
                   variant="subtitle2"
-                  sx={{ fontWeight: 'bold', color: 'common.white', mb: 2 }}
+                  sx={{ fontWeight: 700, color: '#f8fafc', mb: 2.5, letterSpacing: '0.5px' }}
                 >
-                  Thông tin hỗ trợ
+                  THÔNG TIN HỖ TRỢ
                 </Typography>
-                <Stack spacing={1.5}>
-                  <Typography variant="body2">
-                    📞 Hotline: <strong>0902.992.306</strong>
-                  </Typography>
-                  <Typography variant="body2">☎️ Phòng hành chính: (028) 38.505.520</Typography>
-                  <Typography variant="body2">✉️ Email: ktx@stu.edu.vn</Typography>
+                <Stack direction="column" spacing={2}>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <PhoneOutlinedIcon sx={{ color: 'primary.light', fontSize: 18 }} />
+                    <Typography variant="body2">
+                      Hotline: <strong style={{ color: '#fff' }}>0902.992.306</strong>
+                    </Typography>
+                  </Stack>
+
+                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                    <LocalPhoneOutlinedIcon sx={{ color: 'primary.light', fontSize: 18, mt: 0.3 }} />
+                    <Typography variant="body2">Phòng hành chính: (028) 38.505.520</Typography>
+                  </Stack>
+
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <EmailOutlinedIcon sx={{ color: 'primary.light', fontSize: 18 }} />
+                    <Typography variant="body2">
+                      <Link
+                        href="mailto:ktx@stu.edu.vn"
+                        color="inherit"
+                        underline="hover"
+                        sx={{ '&:hover': { color: '#fff' } }}
+                      >
+                        ktx@stu.edu.vn
+                      </Link>
+                    </Typography>
+                  </Stack>
                 </Stack>
               </Box>
             </Stack>
           </Stack>
-
-          <Box
-            sx={{
-              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-              pt: 4,
-              textAlign: 'center',
-            }}
-          >
-            <Typography variant="caption">
-              © {new Date().getFullYear()} Bản quyền thuộc về ban quản lý ký túc xá - Trường Đại học
-              Công nghệ Sài Gòn (STU).
-            </Typography>
-          </Box>
         </Container>
       </Box>
     </Box>

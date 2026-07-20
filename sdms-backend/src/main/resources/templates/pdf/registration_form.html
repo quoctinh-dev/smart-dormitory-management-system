@@ -18,6 +18,7 @@
             width: 100%;
             display: table;
             margin-bottom: 20px;
+            font-size: 13pt;
         }
         .header-left, .header-right {
             display: table-cell;
@@ -34,10 +35,10 @@
         .title-container {
             text-align: center;
             font-weight: bold;
-            font-size: 16pt;
+            font-size: 15pt;
             margin-top: 10px;
             margin-bottom: 20px;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         .kinh-gui {
             text-align: center;
@@ -65,9 +66,17 @@
         .info-container {
             display: table-cell;
             vertical-align: top;
+            padding-left: 15px;
+            width: 100%;
         }
-        .field {
-            margin-bottom: 6px;
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13pt;
+        }
+        .info-table td {
+            padding: 4px 0;
+            vertical-align: top;
         }
         .value {
             font-weight: bold;
@@ -144,51 +153,55 @@
         </div>
     </div>
     <div class="info-container">
-        <div class="field">
-            Tôi tên: <span class="value" style="text-transform: uppercase;" th:text="${app.fullName}"></span>
-            <span style="float: right;">Nam /Nữ: <span class="value" th:text="${app.gender == T(com.sdms.backend.common.enums.Gender).MALE ? 'Nam' : 'Nữ'}"></span></span>
-        </div>
-        <div class="field">
-            Ngày sinh: <span class="value" th:text="${#temporals.format(app.dob, 'dd/MM/yyyy')}"></span>
-            <span style="float: right;">Nơi sinh: <span class="value" th:text="${app.pob}"></span></span>
-        </div>
-        <div class="field">
-            Dân tộc: <span class="value" th:text="${app.ethnic}"></span>
-            <span style="float: right;">Tôn giáo: <span class="value" th:text="${app.religion}"></span></span>
-        </div>
-        <div class="field">
-            Mã số SV: <span class="value" th:text="${app.studentCode != null ? app.studentCode : '....................'}"></span>
-            <span style="margin-left: 20px;">Khoa: <span class="value" th:text="${app.faculty}"></span></span>
-            <span style="float: right;">ĐTDĐ: <span class="value" th:text="${app.phone}"></span></span>
-        </div>
-        <div class="field">
-            Số CMND: <span class="value" th:text="${app.cccd}"></span>
-            <span style="margin-left: 10px;">Ngày cấp: <span class="value" th:text="${app.issueDate != null ? #temporals.format(app.issueDate, 'dd/MM/yyyy') : '..................'}"></span></span>
-            <span style="float: right;">Nơi cấp: <span class="value" th:text="${app.issuePlace}"></span></span>
-        </div>
-        <div class="field">
-            Hộ khẩu thường trú: <span class="value" th:text="${app.permanentAddress}"></span>
-        </div>
-        <div style="border-top: 1px dotted #000; margin: 10px 0;"></div>
-        <div class="field">
-            Họ tên cha: <span class="value" th:text="${app.fatherName}"></span>
-            <span style="float: right;">Điện thoại: <span class="value" th:text="${app.fatherPhone}"></span></span>
-        </div>
-        <div class="field">
-            Năm sinh: <span class="value" th:text="${app.fatherYob}"></span>
-            <span style="float: right;">Nghề nghiệp: <span class="value" th:text="${app.fatherJob}"></span></span>
-        </div>
-        <div class="field">
-            Họ tên mẹ: <span class="value" th:text="${app.motherName}"></span>
-            <span style="float: right;">Điện thoại: <span class="value" th:text="${app.motherPhone}"></span></span>
-        </div>
-        <div class="field">
-            Năm sinh: <span class="value" th:text="${app.motherYob}"></span>
-            <span style="float: right;">Nghề nghiệp: <span class="value" th:text="${app.motherJob}"></span></span>
-        </div>
-        <div class="field">
-            Địa chỉ liên hệ: <span class="value" th:text="${app.contactAddress}"></span>
-        </div>
+        <table class="info-table">
+            <tr>
+                <td colspan="2" style="width: 70%;">Tôi tên: <span class="value" style="text-transform: uppercase;" th:text="${app.fullName}"></span></td>
+                <td style="width: 30%;">Nam /Nữ: <span class="value" th:text="${app.gender == T(com.sdms.backend.common.enums.Gender).MALE ? 'Nam' : 'Nữ'}"></span></td>
+            </tr>
+            <tr>
+                <td colspan="2">Ngày sinh: <span class="value" th:text="${app.dob != null ? #temporals.format(app.dob, 'dd/MM/yyyy') : '..................'}"></span></td>
+                <td>Nơi sinh: <span class="value" th:text="${app.pob}"></span></td>
+            </tr>
+            <tr>
+                <td colspan="2">Dân tộc: <span class="value" th:text="${app.ethnic}"></span></td>
+                <td>Tôn giáo: <span class="value" th:text="${app.religion}"></span></td>
+            </tr>
+            <tr>
+                <td style="width: 40%;">Mã số SV: <span class="value" th:text="${app.studentCode != null ? app.studentCode : '....................'}"></span></td>
+                <td style="width: 30%;">Khoa: <span class="value" th:text="${app.faculty}"></span></td>
+                <td style="width: 30%;">ĐTDĐ: <span class="value" th:text="${app.phone}"></span></td>
+            </tr>
+            <tr>
+                <td>Số CMND: <span class="value" th:text="${app.cccd}"></span></td>
+                <td>Ngày cấp: <span class="value" th:text="${app.issueDate != null ? #temporals.format(app.issueDate, 'dd/MM/yyyy') : '..................'}"></span></td>
+                <td>Nơi cấp: <span class="value" th:text="${app.issuePlace}"></span></td>
+            </tr>
+            <tr>
+                <td colspan="3">Hộ khẩu thường trú: <span class="value" th:text="${app.permanentAddress}"></span></td>
+            </tr>
+            <tr>
+                <td colspan="3"><div style="border-top: 1px dotted #000; margin: 5px 0;"></div></td>
+            </tr>
+            <tr>
+                <td colspan="2">Họ tên cha: <span class="value" th:text="${app.fatherName}"></span></td>
+                <td>Điện thoại: <span class="value" th:text="${app.fatherPhone}"></span></td>
+            </tr>
+            <tr>
+                <td colspan="2">Năm sinh: <span class="value" th:text="${app.fatherYob}"></span></td>
+                <td>Nghề nghiệp: <span class="value" th:text="${app.fatherJob}"></span></td>
+            </tr>
+            <tr>
+                <td colspan="2">Họ tên mẹ: <span class="value" th:text="${app.motherName}"></span></td>
+                <td>Điện thoại: <span class="value" th:text="${app.motherPhone}"></span></td>
+            </tr>
+            <tr>
+                <td colspan="2">Năm sinh: <span class="value" th:text="${app.motherYob}"></span></td>
+                <td>Nghề nghiệp: <span class="value" th:text="${app.motherJob}"></span></td>
+            </tr>
+            <tr>
+                <td colspan="3">Địa chỉ liên hệ: <span class="value" th:text="${app.contactAddress}"></span></td>
+            </tr>
+        </table>
     </div>
 </div>
 
@@ -229,7 +242,7 @@
         </div>
     </div>
     <div class="footer-right">
-        <i>Tp. Hồ Chí Minh, ngày <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'dd')}"></span> 
+        <i>TP.HCM, ngày <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'dd')}"></span> 
         tháng <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'MM')}"></span> 
         năm <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'yyyy')}"></span></i><br/>
         <strong>Kính đơn</strong><br/>
