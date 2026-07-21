@@ -56,7 +56,7 @@ export const useSmartAccess = () => {
       page: number,
       size: number,
       searchStudentId?: string,
-      filters?: { gateId?: string; decision?: string; startDate?: string; endDate?: string }
+      filters?: { gateId?: string; decision?: string; denialReason?: string; startDate?: string; endDate?: string }
     ) => {
       try {
         setLoading(true);
@@ -72,6 +72,7 @@ export const useSmartAccess = () => {
             size,
             gateId: filters?.gateId,
             decision: filters?.decision,
+            denialReason: filters?.denialReason,
             startDate: filters?.startDate,
             endDate: filters?.endDate,
           })) as any;

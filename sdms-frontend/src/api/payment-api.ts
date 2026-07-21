@@ -19,6 +19,17 @@ export const paymentApi = {
     return await axiosClient.get(`/v1/bills/application/${applicationId}`);
   },
 
+  createManualBill: async (data: {
+    studentId: string;
+    roomId?: string;
+    amount: number;
+    description: string;
+    billType: string;
+    dueDate: string;
+  }): Promise<BillResponse> => {
+    return await axiosClient.post('/v1/bills/manual', data);
+  },
+
   // 2. Xử lý thanh toán
   processOnlinePayment: async (data: OnlinePaymentRequest): Promise<PaymentActionResponse> => {
     return await axiosClient.post('/v1/payments/online', data);

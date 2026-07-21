@@ -77,6 +77,34 @@ public class BillService {
     }
 
     /**
+     * Tạo hóa đơn thủ công (Đền bù tài sản, Phạt vi phạm, etc.)
+     */
+    @Transactional
+    public BillResponse createManualBill(com.sdms.backend.modules.payment.dto.request.CreateManualBillRequest request) {
+        // Validate student existence
+        studentRepository.findById(request.getStudentId())
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy sinh viên"));
+
+        if (request.getRoomId() != null) {
+            roomRepository.findById(request.getRoomId())
+                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy phòng"));
+        }
+
+        Bill bill = new Bill();
+        bill.setStudentId(request.getStudentId());
+        bill.setRoomId(request.getRoomId());
+        bill.setBillType(request.getBillType());
+        bill.setAmount(request.getAmount());
+        bill.setPaidAmount(BigDecimal.ZERO);
+        bill.setStatus(BillStatus.UNPAID);
+        bill.setDueDate(request.getDueDate());
+        bill.setDescription(request.getDescription());
+        
+        Bill savedBill = billRepository.save(bill);
+        return toBillResponse(savedBill);
+    }
+
+    /**
      * Lấy hóa đơn mới nhất theo applicationId.
      */
     @Transactional(readOnly = true)

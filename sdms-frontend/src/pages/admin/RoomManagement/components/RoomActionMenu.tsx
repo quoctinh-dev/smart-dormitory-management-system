@@ -21,14 +21,14 @@ export interface RoomActionMenuProps {
 }
 
 export default function RoomActionMenu({
-  roomId,
-  roomStatus,
-  bedsCount = 0,
-  capacity = 0,
-  onChangeStatus,
-  onEditRoom,
-  onRefresh,
-}: RoomActionMenuProps) {
+                                         roomId,
+                                         roomStatus,
+                                         bedsCount = 0,
+                                         capacity = 0,
+                                         onChangeStatus,
+                                         onEditRoom,
+                                         onRefresh,
+                                       }: RoomActionMenuProps) {
   const {
     anchorEl,
     open,
@@ -45,70 +45,89 @@ export default function RoomActionMenu({
   const canGenerateBeds = bedsCount < capacity;
 
   return (
-    <>
-      <IconButton size="small" onClick={handleOpen} sx={{ ml: 0.5 }}>
-        <MoreVertIcon fontSize="small" />
-      </IconButton>
+      <>
+        <IconButton
+            size="small"
+            onClick={handleOpen}
+            sx={{ ml: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1.5, color: 'text.secondary' }}
+        >
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
 
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-      >
-        {/* Edit Room */}
-        <MenuItem onClick={handleEditRoom}>
-          <ListItemIcon>
-            <EditIcon fontSize="small" color="info" />
-          </ListItemIcon>
-          <ListItemText>Sửa thông tin phòng</ListItemText>
-        </MenuItem>
-
-        {/* Reset PIN */}
-        <MenuItem onClick={handleResetPin}>
-          <ListItemIcon>
-            <LockIcon fontSize="small" color="secondary" />
-          </ListItemIcon>
-          <ListItemText>Tạo mới mã PIN (Reset)</ListItemText>
-        </MenuItem>
-
-        {/* Generate Beds (chỉ hiện nếu số giường < sức chứa) */}
-        {canGenerateBeds && (
-          <MenuItem onClick={handleAutoGenerateBeds}>
+        <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            PaperProps={{
+              sx: {
+                borderRadius: 2,
+                minWidth: 220,
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+              },
+            }}
+        >
+          {/* Edit Room */}
+          <MenuItem onClick={handleEditRoom} sx={{ py: 1.25 }}>
             <ListItemIcon>
-              <AddTaskIcon fontSize="small" color="primary" />
+              <EditIcon fontSize="small" color="info" />
             </ListItemIcon>
-            <ListItemText>Sinh giường tự động ({capacity - bedsCount} giường)</ListItemText>
+            <ListItemText primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}>
+              Sửa thông tin phòng
+            </ListItemText>
           </MenuItem>
-        )}
 
-        <Divider />
+          {/* Reset PIN */}
+          <MenuItem onClick={handleResetPin} sx={{ py: 1.25 }}>
+            <ListItemIcon>
+              <LockIcon fontSize="small" color="secondary" />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}>
+              Tạo mới mã PIN (Reset)
+            </ListItemText>
+          </MenuItem>
 
-        {/* Toggle Maintenance */}
-        <MenuItem onClick={() => handleStatus(isMaintenance ? 'AVAILABLE' : 'MAINTENANCE')}>
-          <ListItemIcon>
-            <BuildIcon fontSize="small" color={isMaintenance ? 'success' : 'warning'} />
-          </ListItemIcon>
-          <ListItemText>
-            {isMaintenance ? 'Mở lại phòng (AVAILABLE)' : 'Chuyển sang Bảo trì'}
-          </ListItemText>
-        </MenuItem>
+          {/* Generate Beds (chỉ hiện nếu số giường < sức chứa) */}
+          {canGenerateBeds && (
+              <MenuItem onClick={handleAutoGenerateBeds} sx={{ py: 1.25 }}>
+                <ListItemIcon>
+                  <AddTaskIcon fontSize="small" color="primary" />
+                </ListItemIcon>
+                <ListItemText primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}>
+                  Sinh giường tự động ({capacity - bedsCount} giường)
+                </ListItemText>
+              </MenuItem>
+          )}
 
-        {/* Toggle Closed */}
-        <MenuItem onClick={() => handleStatus(isClosed ? 'AVAILABLE' : 'CLOSED')}>
-          <ListItemIcon>
-            {isClosed ? (
-              <LockOpenIcon fontSize="small" color="success" />
-            ) : (
-              <LockIcon fontSize="small" color="error" />
-            )}
-          </ListItemIcon>
-          <ListItemText>
-            {isClosed ? 'Mở lại phòng (AVAILABLE)' : 'Đóng phòng (CLOSED)'}
-          </ListItemText>
-        </MenuItem>
-      </Menu>
-    </>
+          <Divider sx={{ my: '4px !important' }} />
+
+          {/* Toggle Maintenance */}
+          <MenuItem onClick={() => handleStatus(isMaintenance ? 'AVAILABLE' : 'MAINTENANCE')} sx={{ py: 1.25 }}>
+            <ListItemIcon>
+              <BuildIcon fontSize="small" color={isMaintenance ? 'success' : 'warning'} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}>
+              {isMaintenance ? 'Mở lại phòng (AVAILABLE)' : 'Chuyển sang Bảo trì'}
+            </ListItemText>
+          </MenuItem>
+
+          {/* Toggle Closed */}
+          <MenuItem onClick={() => handleStatus(isClosed ? 'AVAILABLE' : 'CLOSED')} sx={{ py: 1.25 }}>
+            <ListItemIcon>
+              {isClosed ? (
+                  <LockOpenIcon fontSize="small" color="success" />
+              ) : (
+                  <LockIcon fontSize="small" color="error" />
+              )}
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}>
+              {isClosed ? 'Mở lại phòng (AVAILABLE)' : 'Đóng phòng (CLOSED)'}
+            </ListItemText>
+          </MenuItem>
+        </Menu>
+      </>
   );
 }

@@ -48,11 +48,12 @@ public class AccessHistoryController {
             @RequestParam(required = false) UUID studentId,
             @RequestParam(required = false) UUID gateId,
             @RequestParam(required = false) String decision,
+            @RequestParam(required = false) String denialReason,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             Pageable pageable) {
         
-        Specification<AccessHistory> spec = AccessHistorySpecification.filter(studentId, gateId, decision, startDate, endDate);
+        Specification<AccessHistory> spec = AccessHistorySpecification.filter(studentId, gateId, decision, denialReason, startDate, endDate);
         Page<AccessHistory> page = accessHistoryRepository.findAll(spec, pageable);
         return ApiResponse.success("Lấy danh sách lịch sử thành công", PageResponse.of(page));
     }

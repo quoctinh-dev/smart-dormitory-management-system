@@ -58,6 +58,19 @@ export const usePaymentManagement = () => {
     }
   };
 
+  const handleCreateManualBill = async (data: { studentId: string; roomId?: string; amount: number; description: string; billType: string; dueDate: string }) => {
+    try {
+      await paymentApi.createManualBill(data);
+      snackbar.success('Tạo hóa đơn thành công!');
+      fetchBills();
+      return true;
+    } catch (error: any) {
+      console.error('Failed to create manual bill:', error);
+      snackbar.error(error.message || 'Lỗi hệ thống khi tạo hóa đơn.');
+      return false;
+    }
+  };
+
   // 🌟 KHỚP LOGIC MULTI-FILTER TRÁNH TRỐNG UI
   const filteredBills = useMemo(() => {
     return bills.filter((bill) => {
@@ -107,6 +120,7 @@ export const usePaymentManagement = () => {
     setConfirmDialog,
     setDetailsDialog,
     handleConfirmCashPayment,
+    handleCreateManualBill,
     openDetails,
     openConfirm,
   };

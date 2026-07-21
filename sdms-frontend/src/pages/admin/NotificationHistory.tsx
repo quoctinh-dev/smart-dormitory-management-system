@@ -2,31 +2,32 @@ import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
 import SendIcon from '@mui/icons-material/Send';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import {
-  Box,
-  Button,
-  Chip,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-  MenuItem,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  FormControl,
-  InputLabel,
-  Select,
-  InputAdornment,
+    Box,
+    Button,
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Paper,
+    Stack,
+    TextField,
+    Typography,
+    MenuItem,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TablePagination,
+    FormControl,
+    InputLabel,
+    Select,
+    InputAdornment,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import React from 'react';
@@ -35,413 +36,448 @@ import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useNotificationHistory } from '@/hooks/useNotificationHistory';
 
 const translateChannel = (channel: string) => {
-  switch (channel) {
-    case 'EMAIL':
-      return 'Email';
-    case 'IN_APP':
-    case 'APP':
-      return 'Ứng dụng';
-    case 'SMS':
-      return 'SMS';
-    default:
-      return channel;
-  }
+    switch (channel) {
+        case 'EMAIL':
+            return 'Email';
+        case 'IN_APP':
+        case 'APP':
+            return 'Ứng dụng';
+        case 'SMS':
+            return 'SMS';
+        default:
+            return channel;
+    }
 };
 
 const translateStatus = (status: string) => {
-  switch (status) {
-    case 'SENT':
-      return 'Thành công';
-    case 'FAILED':
-      return 'Thất bại';
-    case 'PENDING':
-      return 'Đang chờ';
-    default:
-      return status;
-  }
+    switch (status) {
+        case 'SENT':
+            return 'Thành công';
+        case 'FAILED':
+            return 'Thất bại';
+        case 'PENDING':
+            return 'Đang chờ';
+        default:
+            return status;
+    }
 };
 
 export default function NotificationHistory() {
-  const {
-    logs,
-    loading,
-    page,
-    setPage,
-    rowsPerPage,
-    setRowsPerPage,
-    totalElements,
-    openBroadcast,
-    setOpenBroadcast,
-    broadcastForm,
-    setBroadcastForm,
-    broadcasting,
-    filter,
-    setFilter,
-    handleBroadcastSubmit,
-    sentCount,
-    failedCount,
-  } = useNotificationHistory();
+    const {
+        logs,
+        loading,
+        page,
+        setPage,
+        rowsPerPage,
+        setRowsPerPage,
+        totalElements,
+        openBroadcast,
+        setOpenBroadcast,
+        broadcastForm,
+        setBroadcastForm,
+        broadcasting,
+        filter,
+        setFilter,
+        handleBroadcastSubmit,
+        sentCount,
+        failedCount,
+    } = useNotificationHistory();
 
-  return (
-    <Box>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', md: 'center' },
-          gap: 2,
-          mb: 4,
-        }}
-      >
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-            Lịch sử Thông báo Hệ thống
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Xem chi tiết lịch sử gửi thông báo và quản lý các tác vụ Broadcast tới người dùng.
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<SendIcon />}
-          onClick={() => setOpenBroadcast(true)}
-          sx={{ borderRadius: 2, px: 2.5 }}
-        >
-          Gửi thông báo broadcast
-        </Button>
-      </Box>
+    return (
+        <Box sx={{ p: { xs: 2, md: 3 } }}>
+            {/* Header */}
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', md: 'row' },
+                    justifyContent: 'space-between',
+                    alignItems: { xs: 'flex-start', md: 'center' },
+                    gap: 2,
+                    mb: 3,
+                }}
+            >
+                <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
+                        Lịch sử thông báo hệ thống
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Xem chi tiết lịch sử gửi thông báo và phát sóng (broadcast) thông điệp đến người dùng.
+                    </Typography>
+                </Box>
+                <Button
+                    variant="contained"
+                    startIcon={<SendIcon fontSize="small" />}
+                    onClick={() => setOpenBroadcast(true)}
+                    disableElevation
+                    sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
+                >
+                    Gửi thông báo đồng loạt
+                </Button>
+            </Box>
 
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 4 }}>
-        <Paper
-          sx={{
-            flex: 1,
-            p: 3,
-            borderRadius: '24px',
-            background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(25, 118, 210, 0.15) 100%)',
-            border: '1px solid rgba(25, 118, 210, 0.2)',
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
-            backdropFilter: 'blur(4px)',
-            transition: 'transform 0.2s',
-            '&:hover': { transform: 'translateY(-4px)' }
-          }}
-        >
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Box sx={{ p: 1.5, borderRadius: '16px', bgcolor: 'primary.main', color: 'white', display: 'flex', boxShadow: '0 4px 12px rgba(25, 118, 210, 0.4)' }}>
-              <CampaignOutlinedIcon fontSize="large" />
-            </Box>
-            <Box>
-              <Typography variant="body2" color="text.secondary" fontWeight="medium" textTransform="uppercase" letterSpacing={1}>
-                Tổng bản ghi
-              </Typography>
-              <Typography variant="h4" fontWeight="bold" color="primary.main">
-                {totalElements || 0}
-              </Typography>
-            </Box>
-          </Stack>
-        </Paper>
-        
-        <Paper
-          sx={{
-            flex: 1,
-            p: 3,
-            borderRadius: '24px',
-            background: 'linear-gradient(135deg, rgba(46, 125, 50, 0.05) 0%, rgba(46, 125, 50, 0.15) 100%)',
-            border: '1px solid rgba(46, 125, 50, 0.2)',
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
-            backdropFilter: 'blur(4px)',
-            transition: 'transform 0.2s',
-            '&:hover': { transform: 'translateY(-4px)' }
-          }}
-        >
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Box sx={{ p: 1.5, borderRadius: '16px', bgcolor: 'success.main', color: 'white', display: 'flex', boxShadow: '0 4px 12px rgba(46, 125, 50, 0.4)' }}>
-              <SendIcon fontSize="large" />
-            </Box>
-            <Box>
-              <Typography variant="body2" color="text.secondary" fontWeight="medium" textTransform="uppercase" letterSpacing={1}>
-                Gửi thành công
-              </Typography>
-              <Typography variant="h4" fontWeight="bold" color="success.main">
-                {sentCount || 0}
-              </Typography>
-            </Box>
-          </Stack>
-        </Paper>
-        
-        <Paper
-          sx={{
-            flex: 1,
-            p: 3,
-            borderRadius: '24px',
-            background: 'linear-gradient(135deg, rgba(211, 47, 47, 0.05) 0%, rgba(211, 47, 47, 0.15) 100%)',
-            border: '1px solid rgba(211, 47, 47, 0.2)',
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
-            backdropFilter: 'blur(4px)',
-            transition: 'transform 0.2s',
-            '&:hover': { transform: 'translateY(-4px)' }
-          }}
-        >
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Box sx={{ p: 1.5, borderRadius: '16px', bgcolor: 'error.main', color: 'white', display: 'flex', boxShadow: '0 4px 12px rgba(211, 47, 47, 0.4)' }}>
-              <CampaignOutlinedIcon fontSize="large" />
-            </Box>
-            <Box>
-              <Typography variant="body2" color="text.secondary" fontWeight="medium" textTransform="uppercase" letterSpacing={1}>
-                Gửi thất bại
-              </Typography>
-              <Typography variant="h4" fontWeight="bold" color="error.main">
-                {failedCount || 0}
-              </Typography>
-            </Box>
-          </Stack>
-        </Paper>
-      </Stack>
+            {/* Thống kê nhanh */}
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        flex: 1,
+                        p: 2.5,
+                        borderRadius: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                    }}
+                >
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            borderRadius: 1.5,
+                            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                            color: 'primary.main',
+                            display: 'flex',
+                        }}
+                    >
+                        <CampaignOutlinedIcon />
+                    </Box>
+                    <Box>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                            Tổng số thông báo
+                        </Typography>
+                        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                            {totalElements?.toLocaleString('vi-VN') || 0}
+                        </Typography>
+                    </Box>
+                </Paper>
 
-      <Paper
-        elevation={0}
-        sx={{
-          p: 2,
-          mb: 3,
-          borderRadius: 2,
-          border: '1px solid',
-          borderColor: 'divider',
-          display: 'flex',
-          gap: 2,
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          bgcolor: 'background.paper',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2, color: 'text.secondary' }}>
-          <FilterListIcon fontSize="small" />
-          <Typography variant="body2" fontWeight="bold">
-            Bộ lọc
-          </Typography>
-        </Box>
-        <TextField
-          variant="outlined"
-          size="small"
-          placeholder="Tìm kiếm người nhận / Mã sự kiện"
-          value={filter.keyword}
-          onChange={(e) => {
-            setFilter((prev) => ({ ...prev, keyword: e.target.value }));
-            setPage(0);
-          }}
-          sx={{ width: { xs: '100%', sm: 300 }, bgcolor: '#ffffff', borderRadius: 1 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          }}
-        />
-        <FormControl
-          size="small"
-          variant="outlined"
-          sx={{ width: { xs: '100%', sm: 200 }, bgcolor: '#ffffff', borderRadius: 1 }}
-        >
-          <InputLabel>Nguồn tạo</InputLabel>
-          <Select
-            label="Nguồn tạo"
-            value={filter.isBroadcast}
-            onChange={(e) => {
-              setFilter((prev) => ({ ...prev, isBroadcast: e.target.value }));
-              setPage(0);
-            }}
-          >
-          <MenuItem value="">Tất cả nguồn</MenuItem>
-          <MenuItem value="BROADCAST">Admin gửi Broadcast</MenuItem>
-          <MenuItem value="SYSTEM">Hệ thống tự động gửi</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl
-          size="small"
-          variant="outlined"
-          sx={{ width: { xs: '100%', sm: 200 }, bgcolor: '#ffffff', borderRadius: 1 }}
-        >
-          <InputLabel>Loại thông báo</InputLabel>
-          <Select
-            label="Loại thông báo"
-            value={filter.type}
-            onChange={(e) => {
-              setFilter((prev) => ({ ...prev, type: e.target.value }));
-              setPage(0);
-            }}
-          >
-          <MenuItem value="">Tất cả loại</MenuItem>
-          <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
-          <MenuItem value="SYSTEM">Hệ thống</MenuItem>
-          <MenuItem value="WARNING">Cảnh báo</MenuItem>
-          <MenuItem value="APPLICATION">Đơn đăng ký</MenuItem>
-          <MenuItem value="MAINTENANCE">Báo hỏng</MenuItem>
-          <MenuItem value="PAYMENT">Thanh toán</MenuItem>
-          <MenuItem value="ROOM">Đổi phòng/Phòng ở</MenuItem>
-          </Select>
-        </FormControl>
-      </Paper>
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        flex: 1,
+                        p: 2.5,
+                        borderRadius: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                    }}
+                >
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            borderRadius: 1.5,
+                            bgcolor: (theme) => alpha(theme.palette.success.main, 0.1),
+                            color: 'success.main',
+                            display: 'flex',
+                        }}
+                    >
+                        <CheckCircleOutlineIcon />
+                    </Box>
+                    <Box>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                            Gửi thành công
+                        </Typography>
+                        <Typography variant="h5" sx={{ fontWeight: 700, color: 'success.main' }}>
+                            {sentCount?.toLocaleString('vi-VN') || 0}
+                        </Typography>
+                    </Box>
+                </Paper>
 
-      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
-        {loading ? (
-          <Box p={3}>
-            <CustomSkeleton type="table" count={5} />
-          </Box>
-        ) : (
-          <>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05) }}>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Thời gian</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Người nhận</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Kênh</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Mã sự kiện</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Chi tiết lỗi</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {logs.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                      <Typography color="text.secondary">Không có dữ liệu.</Typography>
-                    </TableCell>
-                  </TableRow>
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        flex: 1,
+                        p: 2.5,
+                        borderRadius: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                    }}
+                >
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            borderRadius: 1.5,
+                            bgcolor: (theme) => alpha(theme.palette.error.main, 0.1),
+                            color: 'error.main',
+                            display: 'flex',
+                        }}
+                    >
+                        <ErrorOutlineIcon />
+                    </Box>
+                    <Box>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                            Gửi thất bại
+                        </Typography>
+                        <Typography variant="h5" sx={{ fontWeight: 700, color: 'error.main' }}>
+                            {failedCount?.toLocaleString('vi-VN') || 0}
+                        </Typography>
+                    </Box>
+                </Paper>
+            </Stack>
+
+            {/* Bộ lọc */}
+            <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary', minWidth: 'max-content' }}>
+                        <FilterListIcon fontSize="small" />
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            Bộ lọc
+                        </Typography>
+                    </Box>
+
+                    <TextField
+                        fullWidth
+                        size="small"
+                        placeholder="Tìm theo người nhận hoặc mã sự kiện..."
+                        value={filter.keyword}
+                        onChange={(e) => {
+                            setFilter((prev) => ({ ...prev, keyword: e.target.value }));
+                            setPage(0);
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+
+                    <FormControl size="small" sx={{ minWidth: 200, width: { xs: '100%', sm: 'auto' } }}>
+                        <InputLabel>Nguồn tạo</InputLabel>
+                        <Select
+                            label="Nguồn tạo"
+                            value={filter.isBroadcast}
+                            onChange={(e) => {
+                                setFilter((prev) => ({ ...prev, isBroadcast: e.target.value }));
+                                setPage(0);
+                            }}
+                        >
+                            <MenuItem value="">Tất cả nguồn</MenuItem>
+                            <MenuItem value="BROADCAST">Gửi đồng loạt (Broadcast)</MenuItem>
+                            <MenuItem value="SYSTEM">Hệ thống tự động</MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <FormControl size="small" sx={{ minWidth: 200, width: { xs: '100%', sm: 'auto' } }}>
+                        <InputLabel>Loại thông báo</InputLabel>
+                        <Select
+                            label="Loại thông báo"
+                            value={filter.type}
+                            onChange={(e) => {
+                                setFilter((prev) => ({ ...prev, type: e.target.value }));
+                                setPage(0);
+                            }}
+                        >
+                            <MenuItem value="">Tất cả loại</MenuItem>
+                            <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
+                            <MenuItem value="SYSTEM">Hệ thống</MenuItem>
+                            <MenuItem value="WARNING">Cảnh báo</MenuItem>
+                            <MenuItem value="APPLICATION">Đơn đăng ký</MenuItem>
+                            <MenuItem value="MAINTENANCE">Báo hỏng</MenuItem>
+                            <MenuItem value="PAYMENT">Thanh toán</MenuItem>
+                            <MenuItem value="ROOM">Phòng ở</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Stack>
+            </Paper>
+
+            {/* Bảng dữ liệu */}
+            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
+                {loading ? (
+                    <Box p={3}>
+                        <CustomSkeleton type="table" count={5} />
+                    </Box>
                 ) : (
-                  logs.map((row) => (
-                    <TableRow key={row.id} hover>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight="medium">
-                          {new Date(row.sentAt).toLocaleString('vi-VN')}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="subtitle2" fontWeight="bold">
-                          {row.recipient}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={translateChannel(row.channel)}
-                          size="small"
-                          color={row.channel === 'EMAIL' ? 'info' : 'primary'}
-                          sx={{ fontWeight: 'bold' }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={translateStatus(row.status)}
-                          size="small"
-                          color={
-                            row.status === 'SENT'
-                              ? 'success'
-                              : row.status === 'FAILED'
-                                ? 'error'
-                                : 'warning'
-                          }
-                          sx={{ fontWeight: 'bold' }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary' }}>
-                          {row.eventId}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography sx={{ color: 'error.main', fontSize: '0.85rem', maxWidth: 200 }} noWrap title={row.errorMessage || undefined}>
-                          {row.errorMessage || '-'}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-            <TablePagination
-              component="div"
-              count={totalElements || 0}
-              page={page}
-              onPageChange={(_, newPage) => setPage(newPage)}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={(e) => {
-                setRowsPerPage(parseInt(e.target.value, 10));
-                setPage(0);
-              }}
-              labelRowsPerPage="Số dòng/trang:"
-            />
-          </>
-        )}
-      </TableContainer>
+                    <TableContainer>
+                        <Table sx={{ minWidth: 800 }}>
+                            <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
+                                <TableRow>
+                                    <TableCell sx={{ fontWeight: 600 }}>Thời gian</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>Người nhận</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>Kênh nhận</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>Mã tham chiếu</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>Chi tiết lỗi</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {logs.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                                            <Typography color="text.secondary" variant="body2">
+                                                Không tìm thấy dữ liệu thông báo nào phù hợp.
+                                            </Typography>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    logs.map((row) => (
+                                        <TableRow key={row.id} hover>
+                                            <TableCell>
+                                                <Typography variant="body2">
+                                                    {new Date(row.sentAt).toLocaleString('vi-VN')}
+                                                </Typography>
+                                            </TableCell>
 
-      <Dialog open={openBroadcast} onClose={() => setOpenBroadcast(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: '24px', p: 1 } }}>
-        <DialogTitle sx={{ fontWeight: 'bold', fontSize: '1.5rem', pb: 1 }}>Gửi thông báo Broadcast</DialogTitle>
-        <DialogContent dividers>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Tiêu đề"
-            fullWidth
-            value={broadcastForm.title}
-            onChange={(event) =>
-              setBroadcastForm((prev) => ({ ...prev, title: event.target.value }))
-            }
-            sx={{ mb: 2, mt: 1 }}
-          />
-          <TextField
-            select
-            margin="dense"
-            label="Loại thông báo"
-            fullWidth
-            value={broadcastForm.type}
-            onChange={(event) =>
-              setBroadcastForm((prev) => ({ ...prev, type: event.target.value }))
-            }
-            sx={{ mb: 2 }}
-          >
-            <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
-            <MenuItem value="SYSTEM">Hệ thống</MenuItem>
-            <MenuItem value="WARNING">Cảnh báo</MenuItem>
-          </TextField>
-          <TextField
-            select
-            margin="dense"
-            label="Đối tượng nhận"
-            fullWidth
-            value={broadcastForm.targetAudience}
-            onChange={(event) =>
-              setBroadcastForm((prev) => ({ ...prev, targetAudience: event.target.value }))
-            }
-            sx={{ mb: 2 }}
-          >
-            <MenuItem value="ALL">Tất cả mọi người</MenuItem>
-            <MenuItem value="STUDENT">Chỉ Sinh viên</MenuItem>
-            <MenuItem value="STAFF">Chỉ Nhân viên</MenuItem>
-            <MenuItem value="ADMIN">Chỉ Admin</MenuItem>
-          </TextField>
-          <TextField
-            margin="dense"
-            label="Nội dung"
-            fullWidth
-            multiline
-            rows={4}
-            value={broadcastForm.message}
-            onChange={(event) =>
-              setBroadcastForm((prev) => ({ ...prev, message: event.target.value }))
-            }
-          />
-        </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 2 }}>
-          <Button onClick={() => setOpenBroadcast(false)} sx={{ borderRadius: 2 }}>Hủy</Button>
-          <Button
-            onClick={handleBroadcastSubmit}
-            variant="contained"
-            disabled={broadcasting || !broadcastForm.title || !broadcastForm.message}
-            sx={{ borderRadius: 2, px: 3 }}
-          >
-            {broadcasting ? 'Đang gửi...' : 'Phát sóng'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
-  );
+                                            <TableCell>
+                                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                    {row.recipient}
+                                                </Typography>
+                                            </TableCell>
+
+                                            <TableCell>
+                                                <Chip
+                                                    label={translateChannel(row.channel)}
+                                                    size="small"
+                                                    variant="outlined"
+                                                    color={row.channel === 'EMAIL' ? 'info' : 'primary'}
+                                                    sx={{ fontWeight: 500 }}
+                                                />
+                                            </TableCell>
+
+                                            <TableCell>
+                                                <Chip
+                                                    label={translateStatus(row.status)}
+                                                    size="small"
+                                                    color={
+                                                        row.status === 'SENT'
+                                                            ? 'success'
+                                                            : row.status === 'FAILED'
+                                                                ? 'error'
+                                                                : 'warning'
+                                                    }
+                                                    sx={{ fontWeight: 600 }}
+                                                />
+                                            </TableCell>
+
+                                            <TableCell>
+                                                <Typography variant="body2" sx={{ color: 'text.secondary', fontFamily: 'monospace' }}>
+                                                    {row.eventId || '-'}
+                                                </Typography>
+                                            </TableCell>
+
+                                            <TableCell>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="error.main"
+                                                    noWrap
+                                                    title={row.errorMessage || undefined}
+                                                    sx={{ maxWidth: 220 }}
+                                                >
+                                                    {row.errorMessage || '-'}
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                )}
+
+                {!loading && (
+                    <TablePagination
+                        component="div"
+                        count={totalElements || 0}
+                        page={page}
+                        onPageChange={(_, newPage) => setPage(newPage)}
+                        rowsPerPage={rowsPerPage}
+                        onRowsPerPageChange={(e) => {
+                            setRowsPerPage(parseInt(e.target.value, 10));
+                            setPage(0);
+                        }}
+                        labelRowsPerPage="Số dòng mỗi trang:"
+                        rowsPerPageOptions={[10, 25, 50, 100]}
+                    />
+                )}
+            </Paper>
+
+            {/* Dialog gửi thông báo đồng loạt */}
+            <Dialog
+                open={openBroadcast}
+                onClose={() => setOpenBroadcast(false)}
+                fullWidth
+                maxWidth="sm"
+                PaperProps={{ sx: { borderRadius: 2 } }}
+            >
+                <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>
+                    Gửi thông báo đồng loạt (Broadcast)
+                </DialogTitle>
+                <DialogContent dividers sx={{ py: 2 }}>
+                    <Stack spacing={2.5} sx={{ mt: 1 }}>
+                        <TextField
+                            label="Tiêu đề thông báo"
+                            fullWidth
+                            size="small"
+                            value={broadcastForm.title}
+                            onChange={(event) =>
+                                setBroadcastForm((prev) => ({ ...prev, title: event.target.value }))
+                            }
+                            placeholder="Nhập tiêu đề..."
+                        />
+
+                        <TextField
+                            select
+                            label="Loại thông báo"
+                            fullWidth
+                            size="small"
+                            value={broadcastForm.type}
+                            onChange={(event) =>
+                                setBroadcastForm((prev) => ({ ...prev, type: event.target.value }))
+                            }
+                        >
+                            <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
+                            <MenuItem value="SYSTEM">Tin nhắn từ hệ thống</MenuItem>
+                            <MenuItem value="WARNING">Cảnh báo an ninh / nội quy</MenuItem>
+                        </TextField>
+
+                        <TextField
+                            select
+                            label="Đối tượng nhận"
+                            fullWidth
+                            size="small"
+                            value={broadcastForm.targetAudience}
+                            onChange={(event) =>
+                                setBroadcastForm((prev) => ({ ...prev, targetAudience: event.target.value }))
+                            }
+                        >
+                            <MenuItem value="ALL">Gửi đến tất cả mọi người</MenuItem>
+                            <MenuItem value="STUDENT">Chỉ gửi cho sinh viên</MenuItem>
+                            <MenuItem value="STAFF">Chỉ gửi cho nhân viên</MenuItem>
+                            <MenuItem value="ADMIN">Chỉ gửi cho quản trị viên</MenuItem>
+                        </TextField>
+
+                        <TextField
+                            label="Nội dung thông điệp"
+                            fullWidth
+                            multiline
+                            rows={4}
+                            value={broadcastForm.message}
+                            onChange={(event) =>
+                                setBroadcastForm((prev) => ({ ...prev, message: event.target.value }))
+                            }
+                            placeholder="Nhập nội dung cần truyền đạt..."
+                        />
+                    </Stack>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, py: 2 }}>
+                    <Button
+                        onClick={() => setOpenBroadcast(false)}
+                        color="inherit"
+                        sx={{ borderRadius: 1.5, textTransform: 'none' }}
+                    >
+                        Hủy bỏ
+                    </Button>
+                    <Button
+                        onClick={handleBroadcastSubmit}
+                        variant="contained"
+                        disableElevation
+                        disabled={broadcasting || !broadcastForm.title || !broadcastForm.message}
+                        sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
+                    >
+                        {broadcasting ? 'Đang gửi đi...' : 'Phát sóng ngay'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Box>
+    );
 }

@@ -1,4 +1,10 @@
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Download as DownloadIcon, UploadFile as UploadFileIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Download as DownloadIcon,
+  UploadFile as UploadFileIcon
+} from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -18,6 +24,7 @@ import {
   TableRow,
   Tooltip,
   Typography,
+  Stack,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { useEffect, useRef, useState } from 'react';
@@ -32,11 +39,16 @@ import GateDialog from './components/GateDialog';
 import GateImportPreviewDialog from './components/GateImportPreviewDialog';
 import { handleDownloadTemplate, parseExcelFile } from './helpers/gateExcelHelper';
 
+const GATE_TYPE_MAP: Record<string, string> = {
+  BUILDING_GATE: 'Cổng tòa nhà',
+  ROOM_DOOR: 'Cửa phòng',
+};
+
 export default function GateManagement() {
   const [gates, setGates] = useState<GateResponse[]>([]);
   const [buildings, setBuildings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingGate, setEditingGate] = useState<GateResponse | null>(null);
 
@@ -70,7 +82,7 @@ export default function GateManagement() {
       setBuildings(Array.isArray(buildingsRes) ? buildingsRes : (buildingsRes as any)?.data || []);
     } catch (error: any) {
       console.error('Failed to fetch data', error);
-      snackbar.error('Lỗi khi tải dữ liệu');
+      snackbar.error('Không thể tải dữ liệu. Vui lòng thử lại sau.');
     } finally {
       setLoading(false);
     }
@@ -86,13 +98,13 @@ export default function GateManagement() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa cổng này?')) {
+    if (window.confirm('Bạn có chắc chắn muốn xóa thiết bị cổng này không?')) {
       try {
         await gateApi.deleteGate(id);
-        snackbar.success('Xóa cổng thành công');
+        snackbar.success('Xóa thiết bị cổng thành công');
         fetchData();
       } catch {
-        snackbar.error('Lỗi khi xóa cổng');
+        snackbar.error('Có lỗi xảy ra khi xóa cổng');
       }
     }
   };
@@ -100,194 +112,247 @@ export default function GateManagement() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     try {
       const parsedRows = await parseExcelFile(file);
       setImportRows(parsedRows);
       setImportDialogOpen(true);
     } catch (error) {
-      snackbar.error('Lỗi khi đọc file Excel');
+      snackbar.error('Lỗi khi đọc file Excel. Vui lòng kiểm tra lại định dạng.');
     }
-    
+
     // Reset input
     e.target.value = '';
   };
 
   return (
-    <Box>
-      {/* ===== Header toolbar ===== */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" fontWeight="bold">
-          Quản lý cổng (IoT Gates)
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx,.xls"
-            style={{ display: 'none' }}
-            onChange={handleFileChange}
-          />
-          <Tooltip title="Tải file mẫu Excel (.xlsx)">
-            <Button
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              onClick={handleDownloadTemplate}
-              sx={{ textTransform: 'none', fontWeight: 600 }}
-            >
-              Tải Template
-            </Button>
-          </Tooltip>
-          <Tooltip title="Import danh sách cổng từ file Excel">
-            <Button
-              variant="outlined"
-              color="success"
-              startIcon={<UploadFileIcon />}
-              onClick={() => fileInputRef.current?.click()}
-              sx={{ textTransform: 'none', fontWeight: 600 }}
-            >
-              Import Excel
-            </Button>
-          </Tooltip>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
-            sx={{ textTransform: 'none', fontWeight: 600 }}
-          >
-            Thêm cổng mới
-          </Button>
-        </Box>
-      </Box>
-
-      <Paper sx={{ p: 2, mb: 3, display: 'flex', gap: 2, alignItems: 'center' }} elevation={0} variant="outlined">
-        <Typography variant="subtitle2" sx={{ mr: 1 }}>Bộ lọc:</Typography>
-        <FormControl size="small" sx={{ minWidth: 200 }}>
-          <InputLabel>Loại cổng</InputLabel>
-          <Select
-            value={filterGateType}
-            label="Loại cổng"
-            onChange={(e) => {
-              setFilterGateType(e.target.value);
-              setPage(0);
-            }}
-          >
-            <MenuItem value="">Tất cả loại</MenuItem>
-            <MenuItem value="BUILDING_GATE">Cổng tòa nhà</MenuItem>
-            <MenuItem value="ROOM_DOOR">Cửa phòng</MenuItem>
-          </Select>
-        </FormControl>
-
-        <FormControl size="small" sx={{ minWidth: 200 }}>
-          <InputLabel>Tòa nhà</InputLabel>
-          <Select
-            value={filterBuilding}
-            label="Tòa nhà"
-            onChange={(e) => {
-              setFilterBuilding(e.target.value);
-              setPage(0);
-            }}
-          >
-            <MenuItem value="">Tất cả tòa nhà</MenuItem>
-            {buildings.map((b) => (
-              <MenuItem key={b.buildingId} value={b.buildingId}>
-                {b.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Paper>
-
-      <Paper
-        elevation={3}
-        sx={{ borderRadius: 4, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}
-      >
-        {loading ? (
-          <Box p={3}>
-            <CustomSkeleton type="table" count={5} />
+      <Box sx={{ p: { xs: 2, md: 3 } }}>
+        {/* Header trang */}
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, gap: 2, mb: 3 }}>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
+              Quản lý cổng kiểm soát (IoT)
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Quản lý danh sách thiết bị cổng, cửa và cấu hình định danh MAC Address.
+            </Typography>
           </Box>
-        ) : (
-          <TableContainer>
-            <Table>
-              <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04) }}>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Gate ID (UUID)</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Tên cổng</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Loại cổng</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Tòa nhà / phòng</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>MAC Address</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-                    Hành động
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedGates.map((gate) => (
-                  <TableRow key={gate.gateId}>
-                    <TableCell sx={{ fontFamily: 'monospace' }}>{gate.gateId}</TableCell>
-                    <TableCell>{gate.name}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={gate.gateType}
-                        color={gate.gateType === 'BUILDING_GATE' ? 'primary' : 'secondary'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {gate.gateType === 'BUILDING_GATE' ? gate.buildingName : gate.roomCode}
-                    </TableCell>
-                    <TableCell sx={{ fontFamily: 'monospace' }}>{gate.macAddress || '-'}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={gate.active ? 'ACTIVE' : 'INACTIVE'}
-                        color={gate.active ? 'success' : 'default'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell align="center">
-                      <IconButton color="primary" onClick={() => handleOpenDialog(gate)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton color="error" onClick={() => handleDelete(gate.gateId)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <TablePagination
-              component="div"
-              count={filteredGates.length}
-              page={page}
-              onPageChange={(_, newPage) => setPage(newPage)}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={(e) => {
-                setRowsPerPage(parseInt(e.target.value, 10));
-                setPage(0);
-              }}
-              labelRowsPerPage="Số dòng/trang:"
+          <Stack direction="row" spacing={1.5} flexWrap="wrap">
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.xls"
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
             />
-          </TableContainer>
-        )}
-      </Paper>
+            <Tooltip title="Tải file mẫu Excel (.xlsx)">
+              <Button
+                  variant="outlined"
+                  color="inherit"
+                  startIcon={<DownloadIcon fontSize="small" />}
+                  onClick={handleDownloadTemplate}
+                  sx={{ textTransform: 'none', borderRadius: 1.5 }}
+              >
+                Tải Template
+              </Button>
+            </Tooltip>
+            <Tooltip title="Nhập danh sách cổng từ file Excel">
+              <Button
+                  variant="outlined"
+                  color="success"
+                  startIcon={<UploadFileIcon fontSize="small" />}
+                  onClick={() => fileInputRef.current?.click()}
+                  sx={{ textTransform: 'none', borderRadius: 1.5 }}
+              >
+                Nhập Excel
+              </Button>
+            </Tooltip>
+            <Button
+                variant="contained"
+                startIcon={<AddIcon fontSize="small" />}
+                onClick={() => handleOpenDialog()}
+                disableElevation
+                sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5 }}
+            >
+              Thêm thiết bị mới
+            </Button>
+          </Stack>
+        </Box>
 
-      <GateDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        editingGate={editingGate}
-        buildings={buildings}
-        onSuccess={fetchData}
-      />
+        {/* Bộ lọc */}
+        <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+            <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary', minWidth: 'max-content' }}>
+              Bộ lọc dữ liệu
+            </Typography>
 
-      <GateImportPreviewDialog
-        open={importDialogOpen}
-        onClose={() => setImportDialogOpen(false)}
-        importRows={importRows}
-        setImportRows={setImportRows}
-        onSuccess={fetchData}
-      />
-    </Box>
+            <FormControl size="small" sx={{ minWidth: 200, width: { xs: '100%', sm: 'auto' } }}>
+              <InputLabel>Loại cổng</InputLabel>
+              <Select
+                  value={filterGateType}
+                  label="Loại cổng"
+                  onChange={(e) => {
+                    setFilterGateType(e.target.value);
+                    setPage(0);
+                  }}
+              >
+                <MenuItem value="">Tất cả loại</MenuItem>
+                <MenuItem value="BUILDING_GATE">Cổng tòa nhà</MenuItem>
+                <MenuItem value="ROOM_DOOR">Cửa phòng</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 200, width: { xs: '100%', sm: 'auto' } }}>
+              <InputLabel>Tòa nhà</InputLabel>
+              <Select
+                  value={filterBuilding}
+                  label="Tòa nhà"
+                  onChange={(e) => {
+                    setFilterBuilding(e.target.value);
+                    setPage(0);
+                  }}
+              >
+                <MenuItem value="">Tất cả tòa nhà</MenuItem>
+                {buildings.map((b) => (
+                    <MenuItem key={b.buildingId} value={b.buildingId}>
+                      {b.name}
+                    </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
+        </Paper>
+
+        {/* Bảng dữ liệu */}
+        <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
+          {loading ? (
+              <Box p={3}>
+                <CustomSkeleton type="table" count={5} />
+              </Box>
+          ) : (
+              <TableContainer>
+                <Table sx={{ minWidth: 700 }}>
+                  <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600 }}>Gate ID (UUID)</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Tên thiết bị</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Phân loại</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Khu vực (Tòa/Phòng)</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>MAC Address</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 600 }}>Thao tác</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {paginatedGates.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
+                            <Typography color="text.secondary" variant="body2">
+                              Không tìm thấy dữ liệu thiết bị nào phù hợp.
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                    ) : (
+                        paginatedGates.map((gate) => (
+                            <TableRow key={gate.gateId} hover>
+                              <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.85rem', color: 'text.secondary' }}>
+                                {gate.gateId}
+                              </TableCell>
+
+                              <TableCell>
+                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                  {gate.name}
+                                </Typography>
+                              </TableCell>
+
+                              <TableCell>
+                                <Chip
+                                    label={GATE_TYPE_MAP[gate.gateType] || gate.gateType}
+                                    color={gate.gateType === 'BUILDING_GATE' ? 'primary' : 'default'}
+                                    size="small"
+                                    variant={gate.gateType === 'BUILDING_GATE' ? 'filled' : 'outlined'}
+                                    sx={{ fontWeight: 500 }}
+                                />
+                              </TableCell>
+
+                              <TableCell>
+                                <Typography variant="body2">
+                                  {gate.gateType === 'BUILDING_GATE' ? gate.buildingName : gate.roomCode}
+                                </Typography>
+                              </TableCell>
+
+                              <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>
+                                {gate.macAddress || '-'}
+                              </TableCell>
+
+                              <TableCell>
+                                <Chip
+                                    label={gate.active ? 'Hoạt động' : 'Tạm ngưng'}
+                                    color={gate.active ? 'success' : 'default'}
+                                    size="small"
+                                    sx={{ fontWeight: 600 }}
+                                />
+                              </TableCell>
+
+                              <TableCell align="center">
+                                <Stack direction="row" spacing={0.5} justifyContent="center">
+                                  <IconButton
+                                      color="primary"
+                                      size="small"
+                                      title="Chỉnh sửa thiết bị"
+                                      onClick={() => handleOpenDialog(gate)}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                  <IconButton
+                                      color="error"
+                                      size="small"
+                                      title="Xóa thiết bị"
+                                      onClick={() => handleDelete(gate.gateId)}
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </Stack>
+                              </TableCell>
+                            </TableRow>
+                        ))
+                    )}
+                  </TableBody>
+                </Table>
+                <TablePagination
+                    component="div"
+                    count={filteredGates.length}
+                    page={page}
+                    onPageChange={(_, newPage) => setPage(newPage)}
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={(e) => {
+                      setRowsPerPage(parseInt(e.target.value, 10));
+                      setPage(0);
+                    }}
+                    labelRowsPerPage="Số dòng mỗi trang:"
+                    rowsPerPageOptions={[10, 25, 50, 100]}
+                />
+              </TableContainer>
+          )}
+        </Paper>
+
+        {/* Dialog thêm/sửa thiết bị */}
+        <GateDialog
+            open={dialogOpen}
+            onClose={() => setDialogOpen(false)}
+            editingGate={editingGate}
+            buildings={buildings}
+            onSuccess={fetchData}
+        />
+
+        {/* Dialog xác nhận import dữ liệu */}
+        <GateImportPreviewDialog
+            open={importDialogOpen}
+            onClose={() => setImportDialogOpen(false)}
+            importRows={importRows}
+            setImportRows={setImportRows}
+            onSuccess={fetchData}
+        />
+      </Box>
   );
 }

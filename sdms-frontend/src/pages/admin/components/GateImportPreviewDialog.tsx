@@ -34,12 +34,12 @@ interface GateImportPreviewDialogProps {
 }
 
 export default function GateImportPreviewDialog({
-  open,
-  onClose,
-  importRows,
-  setImportRows,
-  onSuccess,
-}: GateImportPreviewDialogProps) {
+                                                  open,
+                                                  onClose,
+                                                  importRows,
+                                                  setImportRows,
+                                                  onSuccess,
+                                                }: GateImportPreviewDialogProps) {
   const [importProgress, setImportProgress] = useState<number | null>(null);
   const [importDone, setImportDone] = useState(false);
 
@@ -75,7 +75,7 @@ export default function GateImportPreviewDialog({
         let roomId: string | undefined;
         if (row.gateType === 'ROOM_DOOR' && row.roomCode) {
           const foundRoom = allRooms.find(
-            (r) => String(r.roomCode).trim() === String(row.roomCode).trim()
+              (r) => String(r.roomCode).trim() === String(row.roomCode).trim()
           );
           if (!foundRoom) {
             row._status = 'error';
@@ -123,134 +123,163 @@ export default function GateImportPreviewDialog({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ fontWeight: 'bold' }}>
-        📋 Preview Import Excel — {importRows.length} dòng
-      </DialogTitle>
-      <DialogContent dividers>
-        {importProgress !== null && (
-          <Box sx={{ mb: 2 }}>
-            <LinearProgress
-              variant="determinate"
-              value={importProgress}
-              sx={{ borderRadius: 2, height: 8 }}
-            />
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-              Đang import... {importProgress}%
-            </Typography>
-          </Box>
-        )}
-        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
-          <Table size="small">
-            <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.06) }}>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Dòng</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Tên cổng</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Loại</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Mã phòng</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>MAC</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {importRows.map((row, idx) => (
-                <TableRow
-                  key={idx}
-                  sx={{
-                    bgcolor:
-                      row._status === 'success'
-                        ? (theme) => alpha(theme.palette.success.main, 0.06)
-                        : row._status === 'error' || row._errors.length > 0
-                        ? (theme) => alpha(theme.palette.error.main, 0.06)
-                        : 'inherit',
-                  }}
-                >
-                  <TableCell>{row._row}</TableCell>
-                  <TableCell>
-                    {row.name || (
-                      <Typography color="error" variant="caption">
-                        Trống
-                      </Typography>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={row.gateType}
-                      size="small"
-                      color={row.gateType === 'ROOM_DOOR' ? 'info' : 'primary'}
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell>{row.roomCode || '—'}</TableCell>
-                  <TableCell sx={{ fontFamily: 'monospace', fontSize: 12 }}>
-                    {row.macAddress || '—'}
-                  </TableCell>
-                  <TableCell>
-                    {row._status === 'success' ? (
-                      <Chip label="✅ Thành công" size="small" color="success" />
-                    ) : row._status === 'error' ? (
-                      <Chip
-                        label={`❌ ${row._message}`}
-                        size="small"
-                        color="error"
-                        sx={{ maxWidth: 200 }}
-                      />
-                    ) : row._errors.length > 0 ? (
-                      <Chip
-                        label={`⚠️ ${row._errors.join(', ')}`}
-                        size="small"
-                        color="warning"
-                        sx={{ maxWidth: 200 }}
-                      />
-                    ) : (
-                      <Chip label="⏳ Chờ import" size="small" variant="outlined" />
-                    )}
-                  </TableCell>
+      <Dialog
+          open={open}
+          onClose={handleClose}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{ sx: { borderRadius: 2 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>
+          Xem trước dữ liệu Import Excel — Tổng số {importRows.length} dòng
+        </DialogTitle>
+        <DialogContent dividers sx={{ py: 2 }}>
+          {importProgress !== null && (
+              <Box sx={{ mb: 3 }}>
+                <LinearProgress
+                    variant="determinate"
+                    value={importProgress}
+                    sx={{ borderRadius: 1, height: 6 }}
+                />
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block', fontWeight: 500 }}>
+                  Đang tiến hành import... {importProgress}%
+                </Typography>
+              </Box>
+          )}
+
+          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+            <Table size="small">
+              <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 600 }}>Dòng</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Tên cổng</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Loại</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Mã phòng</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>MAC</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {importRows.length > 0 && (
-          <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-            <Chip
-              label={`✅ Hợp lệ: ${importRows.filter((r) => r._errors.length === 0).length}`}
-              color="success"
-              size="small"
-            />
-            <Chip
-              label={`⚠️ Lỗi validate: ${importRows.filter((r) => r._errors.length > 0).length}`}
-              color="warning"
-              size="small"
-            />
-            {importDone && (
-              <Chip
-                label={`🎉 Đã import: ${importRows.filter((r) => r._status === 'success').length}`}
-                color="info"
-                size="small"
-              />
-            )}
-          </Box>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} disabled={importProgress !== null && !importDone}>
-          {importDone ? 'Đóng' : 'Hủy'}
-        </Button>
-        {!importDone && (
+              </TableHead>
+              <TableBody>
+                {importRows.map((row, idx) => (
+                    <TableRow
+                        key={idx}
+                        sx={{
+                          bgcolor:
+                              row._status === 'success'
+                                  ? (theme) => alpha(theme.palette.success.main, 0.05)
+                                  : row._status === 'error' || row._errors.length > 0
+                                      ? (theme) => alpha(theme.palette.error.main, 0.05)
+                                      : 'inherit',
+                        }}
+                    >
+                      <TableCell>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          {row._row}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        {row.name || (
+                            <Typography color="error" variant="caption" sx={{ fontStyle: 'italic' }}>
+                              Trống
+                            </Typography>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                            label={row.gateType}
+                            size="small"
+                            color={row.gateType === 'ROOM_DOOR' ? 'info' : 'primary'}
+                            variant="outlined"
+                            sx={{ fontWeight: 600, borderRadius: 1 }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" fontFamily="monospace">
+                          {row.roomCode || '—'}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.8rem', color: 'text.secondary' }}>
+                          {row.macAddress || '—'}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        {row._status === 'success' ? (
+                            <Chip label="Thành công" size="small" color="success" sx={{ fontWeight: 600, borderRadius: 1 }} />
+                        ) : row._status === 'error' ? (
+                            <Chip
+                                label={row._message}
+                                size="small"
+                                color="error"
+                                sx={{ maxWidth: 200, fontWeight: 600, borderRadius: 1 }}
+                            />
+                        ) : row._errors.length > 0 ? (
+                            <Chip
+                                label={row._errors.join(', ')}
+                                size="small"
+                                color="warning"
+                                sx={{ maxWidth: 200, fontWeight: 600, borderRadius: 1 }}
+                            />
+                        ) : (
+                            <Chip label="Chờ import" size="small" variant="outlined" sx={{ fontWeight: 500, borderRadius: 1 }} />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {importRows.length > 0 && (
+              <Box sx={{ mt: 2.5, display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                <Chip
+                    label={`Hợp lệ: ${importRows.filter((r) => r._errors.length === 0).length}`}
+                    color="success"
+                    size="small"
+                    sx={{ fontWeight: 600, borderRadius: 1 }}
+                />
+                <Chip
+                    label={`Lỗi validate: ${importRows.filter((r) => r._errors.length > 0).length}`}
+                    color="warning"
+                    size="small"
+                    sx={{ fontWeight: 600, borderRadius: 1 }}
+                />
+                {importDone && (
+                    <Chip
+                        label={`Đã import: ${importRows.filter((r) => r._status === 'success').length}`}
+                        color="info"
+                        size="small"
+                        sx={{ fontWeight: 600, borderRadius: 1 }}
+                    />
+                )}
+              </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2 }}>
           <Button
-            variant="contained"
-            color="success"
-            onClick={handleImportConfirm}
-            disabled={
-              importProgress !== null || importRows.filter((r) => r._errors.length === 0).length === 0
-            }
-            startIcon={<UploadFileIcon />}
+              onClick={handleClose}
+              disabled={importProgress !== null && !importDone}
+              color="inherit"
+              sx={{ textTransform: 'none', fontWeight: 500, borderRadius: 1.5, color: 'text.secondary' }}
           >
-            Import {importRows.filter((r) => r._errors.length === 0).length} dòng hợp lệ
+            {importDone ? 'Đóng' : 'Hủy bỏ'}
           </Button>
-        )}
-      </DialogActions>
-    </Dialog>
+          {!importDone && (
+              <Button
+                  variant="contained"
+                  disableElevation
+                  color="success"
+                  onClick={handleImportConfirm}
+                  disabled={
+                      importProgress !== null || importRows.filter((r) => r._errors.length === 0).length === 0
+                  }
+                  startIcon={<UploadFileIcon fontSize="small" />}
+                  sx={{ textTransform: 'none', fontWeight: 600, px: 3, borderRadius: 1.5 }}
+              >
+                Import {importRows.filter((r) => r._errors.length === 0).length} dòng hợp lệ
+              </Button>
+          )}
+        </DialogActions>
+      </Dialog>
   );
 }

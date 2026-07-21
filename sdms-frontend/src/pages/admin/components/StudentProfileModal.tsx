@@ -1,4 +1,3 @@
-import React from 'react';
 import BadgeIcon from '@mui/icons-material/Badge';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
@@ -21,6 +20,7 @@ import {
     Typography,
 } from '@mui/material';
 import {alpha, useTheme} from '@mui/material/styles';
+import React from 'react';
 
 // 1. Interface rõ ràng thay vì 'any'
 export interface StudentProfile {
@@ -65,11 +65,11 @@ interface InfoItemProps {
 
 const InfoItem: React.FC<InfoItemProps> = ({label, children, xs = 12, sm = 6, md = 4}) => (
     <Grid item xs={xs} sm={sm} md={md}>
-        <Typography variant="caption" color="text.secondary" display="block">
+        <Typography variant="caption" color="text.secondary" display="block" sx={{mb: 0.5}}>
             {label}
         </Typography>
         {typeof children === 'string' || typeof children === 'number' ? (
-            <Typography variant="body2" fontWeight="bold">
+            <Typography variant="body2" fontWeight="600" color="text.primary">
                 {children || '—'}
             </Typography>
         ) : (
@@ -97,17 +97,17 @@ export default function StudentProfileModal({
             maxWidth="md"
             fullWidth
             PaperProps={{
-                sx: {borderRadius: 4, overflow: 'hidden'},
+                sx: {borderRadius: 2, overflow: 'hidden'},
             }}
         >
             {/* ── Header Modal ───────────────────────── */}
             <DialogTitle
                 sx={{
-                    fontWeight: 800,
-                    bgcolor: alpha(theme.palette.primary.main, 0.03),
+                    fontWeight: 700,
+                    bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04),
                     borderBottom: '1px solid',
                     borderColor: 'divider',
-                    py: 2.5,
+                    py: 2,
                     px: 3,
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -115,11 +115,11 @@ export default function StudentProfileModal({
                 }}
             >
                 <Box display="flex" alignItems="center" gap={1.5}>
-                    <Avatar sx={{bgcolor: theme.palette.primary.main}}>
-                        <BadgeIcon/>
+                    <Avatar sx={{bgcolor: theme.palette.primary.main, width: 36, height: 36}}>
+                        <BadgeIcon fontSize="small"/>
                     </Avatar>
                     <Box>
-                        <Typography variant="h6" fontWeight="bold" lineHeight={1.2}>
+                        <Typography variant="subtitle1" fontWeight="700" lineHeight={1.2}>
                             Hồ sơ Sinh viên
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
@@ -128,42 +128,43 @@ export default function StudentProfileModal({
                     </Box>
                 </Box>
                 <IconButton onClick={onClose} size="small" sx={{color: 'text.secondary'}}>
-                    <CloseIcon/>
+                    <CloseIcon fontSize="small"/>
                 </IconButton>
             </DialogTitle>
 
             {/* ── Content Modal ───────────────────────── */}
-            <DialogContent sx={{p: 4, bgcolor: alpha(theme.palette.background.default, 0.4)}}>
+            <DialogContent sx={{p: 3, bgcolor: (theme) => alpha(theme.palette.background.default, 0.5)}}>
                 {loading ? (
-                    <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', py: 8, gap: 2}}>
-                        <CircularProgress/>
+                    <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', py: 6, gap: 2}}>
+                        <CircularProgress size={32}/>
                         <Typography variant="body2" color="text.secondary">
                             Đang tải dữ liệu...
                         </Typography>
                     </Box>
                 ) : profile ? (
-                    <Grid container spacing={3}>
+                    <Grid container spacing={2.5}>
                         {/* Nhóm 1: Thông tin học vụ */}
                         <Grid item xs={12}>
-                            <Paper variant="outlined" sx={{p: 3, borderRadius: 3, borderStyle: 'dashed'}}>
+                            <Paper variant="outlined" sx={{p: 2.5, borderRadius: 2, bgcolor: 'background.paper'}}>
                                 <Typography
                                     variant="subtitle2"
                                     sx={{
-                                        fontWeight: 'bold',
+                                        fontWeight: 700,
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: 1,
-                                        mb: 2.5,
+                                        mb: 2,
                                         color: 'primary.main',
                                         textTransform: 'uppercase',
                                         letterSpacing: '0.5px',
+                                        fontSize: '0.8rem',
                                     }}
                                 >
                                     <SchoolIcon fontSize="small"/> THÔNG TIN HỌC VỤ & HỆ THỐNG
                                 </Typography>
-                                <Grid container spacing={2.5}>
+                                <Grid container spacing={2}>
                                     <InfoItem label="Mã sinh viên" md={3}>
-                                        <Typography variant="body2" fontWeight="bold" color="primary.main">
+                                        <Typography variant="body2" fontWeight="700" color="primary.main" fontFamily="monospace">
                                             {profile.studentCode || '—'}
                                         </Typography>
                                     </InfoItem>
@@ -174,17 +175,20 @@ export default function StudentProfileModal({
                                                 component="span"
                                                 sx={{
                                                     fontFamily: 'monospace',
+                                                    fontSize: '0.85rem',
                                                     bgcolor: alpha(theme.palette.success.main, 0.08),
                                                     color: theme.palette.success.dark,
                                                     px: 1,
-                                                    py: 0.2,
+                                                    py: 0.3,
                                                     borderRadius: 1,
+                                                    display: 'inline-block',
+                                                    fontWeight: 600,
                                                 }}
                                             >
                                                 {profile.rfidCode}
                                             </Box>
                                         ) : (
-                                            <Typography variant="caption" color="text.disabled">
+                                            <Typography variant="caption" color="text.disabled" sx={{fontStyle: 'italic'}}>
                                                 Chưa được gán
                                             </Typography>
                                         )}
@@ -192,7 +196,7 @@ export default function StudentProfileModal({
 
                                     <InfoItem label="Khoa / Chuyên ngành" md={3}>
                                         <Box display="flex" alignItems="center" gap={1}>
-                                            <Typography variant="body2" fontWeight="bold">
+                                            <Typography variant="body2" fontWeight="600">
                                                 {profile.faculty || '—'}
                                             </Typography>
                                             {!hideEditButton && (
@@ -229,23 +233,24 @@ export default function StudentProfileModal({
 
                         {/* Nhóm 2: Thông tin cá nhân & liên hệ */}
                         <Grid item xs={12}>
-                            <Paper variant="outlined" sx={{p: 3, borderRadius: 3, borderStyle: 'dashed'}}>
+                            <Paper variant="outlined" sx={{p: 2.5, borderRadius: 2, bgcolor: 'background.paper'}}>
                                 <Typography
                                     variant="subtitle2"
                                     sx={{
-                                        fontWeight: 'bold',
+                                        fontWeight: 700,
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: 1,
-                                        mb: 2.5,
+                                        mb: 2,
                                         color: 'primary.main',
                                         textTransform: 'uppercase',
                                         letterSpacing: '0.5px',
+                                        fontSize: '0.8rem',
                                     }}
                                 >
                                     <FingerprintIcon fontSize="small"/> DANH TÍNH CÁ NHÂN & LIÊN HỆ
                                 </Typography>
-                                <Grid container spacing={2.5}>
+                                <Grid container spacing={2}>
                                     <InfoItem label="Họ và tên">{profile.fullName}</InfoItem>
                                     <InfoItem label="Giới tính">
                                         {profile.gender === 'MALE' ? 'Nam' : profile.gender === 'FEMALE' ? 'Nữ' : '—'}
@@ -256,13 +261,13 @@ export default function StudentProfileModal({
                                     <InfoItem label="Số điện thoại liên hệ">{profile.phone}</InfoItem>
 
                                     <InfoItem label="Địa chỉ Email học tập">
-                                        <Typography variant="body2" fontWeight="medium" color="primary.main">
+                                        <Typography variant="body2" fontWeight="600" color="primary.main">
                                             {profile.email || '—'}
                                         </Typography>
                                     </InfoItem>
 
                                     <InfoItem label="Địa chỉ thường trú" sm={8} md={8}>
-                                        <Typography variant="body2" fontWeight="medium">
+                                        <Typography variant="body2" fontWeight="600">
                                             {profile.permanentAddress || '—'}
                                         </Typography>
                                     </InfoItem>
@@ -271,27 +276,26 @@ export default function StudentProfileModal({
                         </Grid>
 
                         {/* Nhóm 3: Thông tin gia đình */}
-                        {/* Nhóm 3: Thông tin gia đình */}
                         <Grid item xs={12}>
-                            <Paper variant="outlined" sx={{p: 3, borderRadius: 3, borderStyle: 'dashed'}}>
+                            <Paper variant="outlined" sx={{p: 2.5, borderRadius: 2, bgcolor: 'background.paper'}}>
                                 <Typography
                                     variant="subtitle2"
                                     sx={{
-                                        fontWeight: 'bold',
+                                        fontWeight: 700,
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: 1,
-                                        mb: 2.5,
+                                        mb: 2,
                                         color: 'primary.main',
                                         textTransform: 'uppercase',
                                         letterSpacing: '0.5px',
+                                        fontSize: '0.8rem',
                                     }}
                                 >
                                     <FamilyRestroomIcon fontSize="small"/> QUAN HỆ GIA ĐÌNH & KHẨN CẤP
                                 </Typography>
 
-                                <Grid container spacing={2.5}>
-                                    {/* HÀNG 1: BỐ */}
+                                <Grid container spacing={2}>
                                     <InfoItem label="Họ tên Cha" sm={6} md={6}>
                                         {profile.fatherName}
                                     </InfoItem>
@@ -299,7 +303,6 @@ export default function StudentProfileModal({
                                         {profile.fatherPhone}
                                     </InfoItem>
 
-                                    {/* HÀNG 2: MẸ */}
                                     <InfoItem label="Họ tên Mẹ" sm={6} md={6}>
                                         {profile.motherName}
                                     </InfoItem>
@@ -307,9 +310,8 @@ export default function StudentProfileModal({
                                         {profile.motherPhone}
                                     </InfoItem>
 
-                                    {/* HÀNG 3: ĐỊA CHỈ KHẨN CẤP */}
                                     <InfoItem label="Địa chỉ liên hệ của gia đình (báo tin khi cần)" sm={12} md={12}>
-                                        <Typography variant="body2" fontWeight="bold" color="error.main">
+                                        <Typography variant="body2" fontWeight="600" color="error.main">
                                             {profile.contactAddress || '—'}
                                         </Typography>
                                     </InfoItem>
@@ -325,15 +327,16 @@ export default function StudentProfileModal({
             </DialogContent>
 
             {/* ── Actions Modal ───────────────────────── */}
-            <DialogActions sx={{px: 3, py: 2.5, borderTop: '1px solid', borderColor: 'divider'}}>
+            <DialogActions sx={{px: 3, py: 2, borderTop: '1px solid', borderColor: 'divider'}}>
                 <Button
                     onClick={onClose}
                     variant="contained"
+                    disableElevation
                     sx={{
-                        borderRadius: 2,
+                        borderRadius: 1.5,
                         textTransform: 'none',
-                        fontWeight: 'bold',
-                        px: 4,
+                        fontWeight: 600,
+                        px: 3,
                     }}
                 >
                     Đóng hồ sơ

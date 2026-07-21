@@ -10,6 +10,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Stack,
 } from '@mui/material';
 import React from 'react';
 
@@ -26,13 +27,13 @@ export interface FloorFormDialogProps {
 }
 
 export default function FloorFormDialog({
-  open,
-  onClose,
-  buildingId,
-  currentBuilding,
-  floor,
-  onSuccess,
-}: FloorFormDialogProps) {
+                                          open,
+                                          onClose,
+                                          buildingId,
+                                          currentBuilding,
+                                          floor,
+                                          onSuccess,
+                                        }: FloorFormDialogProps) {
   const {
     isEdit,
     floorNumber,
@@ -45,49 +46,61 @@ export default function FloorFormDialog({
   } = useFloorForm(open, buildingId, currentBuilding, floor, onSuccess, onClose);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>{isEdit ? 'Sửa thông tin Tầng' : 'Thêm Tầng Mới'}</DialogTitle>
-        <DialogContent dividers>
-          <TextField
-            margin="dense"
-            label="Số tầng (VD: 1, 2, 3)"
-            type="number"
-            fullWidth
-            value={floorNumber}
-            onChange={(e) => setFloorNumber(e.target.value ? Number(e.target.value) : '')}
-            disabled={isEdit} // Không cho đổi số tầng khi sửa
-            required
-            sx={{ mb: 2 }}
-          />
+      <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 2 } }}>
+        <form onSubmit={handleSubmit}>
+          <DialogTitle sx={{ fontWeight: 600, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+            {isEdit ? 'Sửa thông tin Tầng' : 'Thêm Tầng Mới'}
+          </DialogTitle>
+          <DialogContent dividers sx={{ py: 2.5, overflow: 'visible' }}>
+            <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
+              <TextField
+                  label="Số tầng (VD: 1, 2, 3)"
+                  type="number"
+                  fullWidth
+                  size="small"
+                  value={floorNumber}
+                  onChange={(e) => setFloorNumber(e.target.value ? Number(e.target.value) : '')}
+                  disabled={isEdit} // Không cho đổi số tầng khi sửa
+                  required
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+              />
 
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Giới tính Tầng</InputLabel>
-            <Select
-              value={gender}
-              label="Giới tính Tầng"
-              onChange={(e) => setGender(e.target.value)}
-              disabled={isBuildingStrict} // Khóa lại nếu Tòa nhà đã chốt giới tính
+              <FormControl fullWidth size="small">
+                <InputLabel>Giới tính Tầng</InputLabel>
+                <Select
+                    value={gender}
+                    label="Giới tính Tầng"
+                    onChange={(e) => setGender(e.target.value)}
+                    disabled={isBuildingStrict} // Khóa lại nếu Tòa nhà đã chốt giới tính
+                    sx={{ borderRadius: 1.5 }}
+                >
+                  <MenuItem value="MALE">Dành cho Nam (MALE)</MenuItem>
+                  <MenuItem value="FEMALE">Dành cho Nữ (FEMALE)</MenuItem>
+                </Select>
+              </FormControl>
+            </Stack>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2 }}>
+            <Button
+                onClick={onClose}
+                color="inherit"
+                disabled={loading}
+                sx={{ textTransform: 'none', borderRadius: 1.5, color: 'text.secondary' }}
             >
-              <MenuItem value="MALE">Dành cho Nam (MALE)</MenuItem>
-              <MenuItem value="FEMALE">Dành cho Nữ (FEMALE)</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={onClose} color="inherit" disabled={loading}>
-            Hủy
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={loading || floorNumber === ''}
-            startIcon={loading ? <CircularProgress size={20} /> : undefined}
-          >
-            {isEdit ? 'Lưu thay đổi' : 'Tạo mới'}
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+              Hủy
+            </Button>
+            <Button
+                type="submit"
+                variant="contained"
+                disableElevation
+                disabled={loading || floorNumber === ''}
+                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : undefined}
+                sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5, px: 3 }}
+            >
+              {isEdit ? 'Lưu thay đổi' : 'Tạo mới'}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
   );
 }

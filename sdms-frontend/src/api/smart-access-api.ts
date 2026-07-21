@@ -10,6 +10,7 @@ export const smartAccessApi = {
     studentId?: string;
     gateId?: string;
     decision?: string;
+    denialReason?: string;
     startDate?: string;
     endDate?: string;
   }) {

@@ -5,6 +5,7 @@ import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.payment.dto.response.BillResponse;
 import com.sdms.backend.modules.payment.entity.Bill;
 import com.sdms.backend.modules.payment.service.BillService;
+import com.sdms.backend.modules.payment.dto.request.CreateManualBillRequest;
 import com.sdms.backend.modules.user.entity.UserAccount;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Map;
@@ -61,5 +63,13 @@ public class BillController {
     public ApiResponse<PageResponse<Map<String, Object>>> getAllBills(Pageable pageable) {
         PageResponse<Map<String, Object>> pageResponse = billService.getAllBillsPaged(pageable);
         return ApiResponse.success("Lấy danh sách hóa đơn thành công", pageResponse);
+    }
+
+    @Operation(summary = "Tạo hóa đơn thủ công (Đền bù, Phạt vi phạm)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PostMapping("/manual")
+    public ApiResponse<BillResponse> createManualBill(@Valid @RequestBody CreateManualBillRequest request) {
+        BillResponse response = billService.createManualBill(request);
+        return ApiResponse.success("Tạo hóa đơn thủ công thành công", response);
     }
 }

@@ -128,3 +128,57 @@ Sau khi kiểm tra `IotVerificationController.java` và `SmartAccessMqttListener
 ### Kết quả build
 - Backend: `mvn compile` ✅
 - Frontend: `npm run build` ✅ (4.08s)
+
+---
+
+## Module 3: Frontend — Admin Smart Access Management UI
+
+**Thời gian:** 2026-07-21 23:10 (GMT+7)
+
+### Công việc đã thực hiện:
+- Ánh xạ enum `OFFLINE_SYNC_VIOLATION` thành chữ **"Vượt rào cúp điện"** trong biến `DENIAL_REASONS_MAP`.
+- Ánh xạ enum `OFFLINE_MASTER_PIN_GRANT` thành chữ **"Mở bằng mã khẩn cấp"** trong biến `DENIAL_REASONS_MAP`.
+- Cập nhật UI bảng điều khiển (Bảng **Lịch sử ra vào**):
+  - Hiển thị chữ màu đỏ (`error.main`) cho **"Vượt rào cúp điện"**.
+  - Hiển thị chữ màu vàng (`warning.main`) cho **"Mở bằng mã khẩn cấp"**.
+  - Áp dụng font-weight 600 để nhấn mạnh hai trường hợp khẩn cấp/phạt nguội trên.
+- Đã chạy lệnh `npm run lint:fix` để sửa toàn bộ lỗi Prettier và chuẩn hóa code (trước đó có hơn 20k warnings/errors format của toàn bộ Frontend).
+- Đã fix lỗi TypeScript `variant="body2"` không hợp lệ trên thẻ `TableCell` trong file `EligibilityManagerDialog.tsx` gây lỗi build.
+- Đã fix lỗi thông báo native `alert()` không đúng chuẩn trong file `CheckoutManagement.tsx` (thay bằng `snackbar.warning`).
+- Đã chạy `npm run build` thành công 100% không còn bất kỳ lỗi type nào.
+
+---
+
+## Module 4: Fullstack — Tính năng Lọc Lịch sử theo Lý do/Phạt nguội
+
+**Thời gian:** 2026-07-22 00:00 (GMT+7)
+
+### Công việc đã thực hiện:
+- **Backend**:
+  - Sửa đổi `AccessHistorySpecification.java` để thêm tiêu chí query (Predicate) theo `denialReason`.
+  - Cập nhật REST Controller `AccessHistoryController.java` (`getAllHistory`) hỗ trợ tham số request `@RequestParam denialReason`.
+  - Đã chạy `mvnw compile` thành công toàn bộ.
+- **Frontend**:
+  - Cập nhật interface `getAccessHistory` trong `smart-access-api.ts` để truyền param `denialReason`.
+  - Cập nhật custom hook `useSmartAccess.ts` để handle dữ liệu bộ lọc.
+  - Thêm mới UI Select Dropdown (Bộ lọc "Phân loại/Phạt nguội") vào trang `SmartAccessManagement.tsx`, bổ sung đầy đủ các lý do.
+  - Chạy `npm run build` thành công hoàn toàn (`✓ built in 6.40s`).
+
+---
+
+## Module 5: Fullstack — Tính năng Khởi tạo Hóa đơn Thủ công (Penalty Bill)
+
+**Thời gian:** 2026-07-22 00:20 (GMT+7)
+
+### Công việc đã thực hiện:
+- **Ngữ cảnh (Business Logic):** Phát triển tính năng tạo "Hóa đơn đền bù / Phạt vi phạm" trực tiếp, giúp Admin có công cụ thu phí bất thường khép kín 100% vòng đời CRUD tài chính KTX.
+- **Backend**:
+  - Tạo mới DTO `CreateManualBillRequest.java` với các validate chặt chẽ (`@NotNull`, `@DecimalMin`).
+  - Mở rộng `BillService.java` thêm phương thức `createManualBill` liên kết trực tiếp với Sinh viên và Phòng (nếu có).
+  - Khai báo endpoint `POST /api/v1/bills/manual` tại `BillController.java`.
+  - Biên dịch thành công 100% bằng `./mvnw compile`.
+- **Frontend**:
+  - Khai báo hàm gọi Axios API `createManualBill` trong `payment-api.ts`.
+  - Thiết kế UI Modal (Dialog) nhập liệu tại trang `PaymentManagement.tsx` kèm nút khởi tạo màu đỏ (`error` color) cảnh báo.
+  - Tích hợp custom hook `usePaymentManagement.ts` để handle logic call API và reload danh sách tự động.
+  - Biên dịch React Type-check `npm run build` thành công xuất sắc (`✓ built in 3.76s`).

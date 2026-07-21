@@ -55,6 +55,8 @@ const DENIAL_REASONS_MAP: Record<string, string> = {
   UNREGISTERED_OR_INACTIVE_GATE: 'Cổng không khả dụng',
   NOT_ASSIGNED_TO_ROOM: 'Chưa phân phòng hoặc không có quyền',
   NOT_ASSIGNED_TO_BUILDING: 'Không thuộc tòa nhà này',
+  OFFLINE_SYNC_VIOLATION: 'Vượt rào cúp điện',
+  OFFLINE_MASTER_PIN_GRANT: 'Mở bằng mã khẩn cấp',
 };
 
 export default function SmartAccessManagement() {
@@ -196,6 +198,7 @@ export default function SmartAccessManagement() {
   const [searchStudentId, setSearchStudentId] = useState('');
   const [filterGateId, setFilterGateId] = useState('');
   const [filterDecision, setFilterDecision] = useState('');
+  const [filterReason, setFilterReason] = useState('');
   const [filterBuildingId, setFilterBuildingId] = useState('');
   const [filterSelectedGate, setFilterSelectedGate] = useState<GateResponse | null>(null);
   const [filterSelectedStudent, setFilterSelectedStudent] = useState<StudentProfileResponse | null>(null);
@@ -261,6 +264,7 @@ export default function SmartAccessManagement() {
       fetchHistory(page, rowsPerPage, searchStudentId, {
         gateId: filterGateId,
         decision: filterDecision,
+        denialReason: filterReason,
         startDate: filterStartDate ? new Date(filterStartDate).toISOString() : undefined,
         endDate: filterEndDate ? new Date(filterEndDate).toISOString() : undefined,
       });
@@ -278,6 +282,7 @@ export default function SmartAccessManagement() {
     fetchHistory(0, rowsPerPage, searchStudentId, {
       gateId: filterGateId,
       decision: filterDecision,
+      denialReason: filterReason,
       startDate: filterStartDate ? new Date(filterStartDate).toISOString() : undefined,
       endDate: filterEndDate ? new Date(filterEndDate).toISOString() : undefined,
     });
@@ -287,6 +292,7 @@ export default function SmartAccessManagement() {
     setSearchStudentId('');
     setFilterGateId('');
     setFilterDecision('');
+    setFilterReason('');
     setFilterStartDate('');
     setFilterEndDate('');
     setFilterBuildingId('');
@@ -526,6 +532,24 @@ export default function SmartAccessManagement() {
                     </FormControl>
                   </Grid>
 
+                  <Grid item xs={12} sm={6} md={2}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Phân loại/Phạt nguội</InputLabel>
+                      <Select
+                          value={filterReason}
+                          label="Phân loại/Phạt nguội"
+                          onChange={(e) => setFilterReason(e.target.value)}
+                      >
+                        <MenuItem value="">Tất cả</MenuItem>
+                        <MenuItem value="OFFLINE_SYNC_VIOLATION">Vượt rào cúp điện</MenuItem>
+                        <MenuItem value="OFFLINE_MASTER_PIN_GRANT">Mở mã khẩn cấp</MenuItem>
+                        <MenuItem value="CURFEW_VIOLATION">Vi phạm giờ giới nghiêm</MenuItem>
+                        <MenuItem value="OUTSIDE_TIME_WINDOW">Sai khung giờ</MenuItem>
+                        <MenuItem value="UNAUTHORIZED_OR_INACTIVE">Thẻ không hợp lệ</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
                   <Grid item xs={12} sm={6} md={3}>
                     <TextField
                         size="small"
@@ -662,7 +686,11 @@ export default function SmartAccessManagement() {
                                     </TableCell>
                                     <TableCell>
                                       {row.denialReason ? (
-                                          <Typography variant="body2" color="error.main">
+                                          <Typography 
+                                              variant="body2" 
+                                              color={row.denialReason === 'OFFLINE_MASTER_PIN_GRANT' ? 'warning.main' : 'error.main'}
+                                              sx={{ fontWeight: (row.denialReason === 'OFFLINE_SYNC_VIOLATION' || row.denialReason === 'OFFLINE_MASTER_PIN_GRANT') ? 600 : 400 }}
+                                          >
                                             {DENIAL_REASONS_MAP[row.denialReason] || row.denialReason}
                                           </Typography>
                                       ) : (

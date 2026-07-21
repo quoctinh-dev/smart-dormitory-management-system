@@ -15,6 +15,7 @@ public class AccessHistorySpecification {
             UUID studentId, 
             UUID gateId, 
             String decision, 
+            String denialReason,
             LocalDateTime startDate, 
             LocalDateTime endDate) {
             
@@ -29,6 +30,9 @@ public class AccessHistorySpecification {
             }
             if (decision != null && !decision.isEmpty()) {
                 predicates.add(criteriaBuilder.equal(root.get("decision").as(String.class), decision));
+            }
+            if (denialReason != null && !denialReason.isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("denialReason").as(String.class), denialReason));
             }
             if (startDate != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventTimestamp"), startDate));
