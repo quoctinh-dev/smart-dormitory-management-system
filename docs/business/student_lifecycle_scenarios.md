@@ -1,4 +1,4 @@
-# PHÂN TÍCH VÒNG ĐỜI SINH VIÊN (STUDENT LIFECYCLE) VÀ XỬ LÝ CÁC KỊCH BẢN NGOẠI LỆ
+``# PHÂN TÍCH VÒNG ĐỜI SINH VIÊN (STUDENT LIFECYCLE) VÀ XỬ LÝ CÁC KỊCH BẢN NGOẠI LỆ
 
 Tài liệu này mô tả chi tiết Vòng đời trạng thái (State Machine Lifecycle) của một sinh viên từ khi bắt đầu nộp đơn đăng ký đến khi kết thúc lưu trú, bao gồm các kịch bản lặp lại theo chu kỳ học kỳ/năm học và các trường hợp ngoại lệ (Edge Cases) thường gặp trong thực tế quản lý Ký túc xá.
 

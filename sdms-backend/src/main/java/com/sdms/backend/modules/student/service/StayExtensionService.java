@@ -119,7 +119,7 @@ public class StayExtensionService {
             int totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
 
             if (totalMonths > 3) {
-                String[] pdfUrls = pdfService.generateExtensionPdfs(savedExtension);
+                String[] pdfUrls = pdfService.generateExtensionPdfs(savedExtension, "Hệ thống tự động");
                 savedExtension.setContractPdfUrl(pdfUrls[0]);
                 savedExtension.setCommitmentPdfUrl(pdfUrls[1]);
             }
@@ -178,7 +178,7 @@ public class StayExtensionService {
     }
 
     @Transactional
-    public StayExtensionResponse reviewExtension(UUID extensionId, StayExtensionReviewRequest request) {
+    public StayExtensionResponse reviewExtension(UUID extensionId, StayExtensionReviewRequest request, String reviewerName) {
         StayExtension extension = stayExtensionRepository.findById(extensionId)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đơn gia hạn"));
 
@@ -204,7 +204,7 @@ public class StayExtensionService {
 
             if (totalMonths > 3) {
                 // Sinh PDF (Hợp đồng & Bản cam kết mới) cho đợt gia hạn dài hạn (HK1+HK2)
-                String[] pdfUrls = pdfService.generateExtensionPdfs(extension);
+                String[] pdfUrls = pdfService.generateExtensionPdfs(extension, reviewerName);
                 extension.setContractPdfUrl(pdfUrls[0]);
                 extension.setCommitmentPdfUrl(pdfUrls[1]);
             }

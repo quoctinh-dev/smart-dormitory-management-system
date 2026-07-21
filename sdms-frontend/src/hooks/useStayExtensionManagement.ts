@@ -76,7 +76,7 @@ export const useStayExtensionManagement = () => {
     setOpenProfileModal(true);
     setLoadingProfile(true);
     try {
-      const { data } = await axiosClient.get(`/api/v1/students/${studentId}/profile`);
+      const { data } = await axiosClient.get(`/v1/students/${studentId}/profile`);
       setSelectedProfile(data.data);
     } catch (error) {
       console.error(error);

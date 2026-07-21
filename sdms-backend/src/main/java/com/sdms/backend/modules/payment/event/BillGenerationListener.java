@@ -23,6 +23,7 @@ public class BillGenerationListener {
     private final BillService billService;
     private final com.sdms.backend.modules.system.service.SystemConfigService systemConfigService;
     private final com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository assignmentRepository;
+    private final com.sdms.backend.modules.student.repository.StayExtensionRepository stayExtensionRepository;
 
     /**
      * Lắng nghe sự kiện một giường đã được giữ chỗ thành công (BedReservedEvent).
@@ -43,34 +44,54 @@ public class BillGenerationListener {
                     .orElseThrow(() -> new RuntimeException("Assignment not found"));
             com.sdms.backend.modules.registration.entity.RegistrationPeriod period = assignment.getApplication().getRegistrationPeriod();
             
-            // Tính toán số tháng lưu trú (Month Count)
-            int startYear = period.getStayStartDate().getYear();
-            int startMonth = period.getStayStartDate().getMonthValue();
-            int endYear = period.getStayEndDate().getYear();
-            int endMonth = period.getStayEndDate().getMonthValue();
-            int totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+            // Tính toán Pro-rata (Tháng chẵn + Ngày lẻ)
+            java.time.LocalDate start = period.getStayStartDate().toLocalDate();
+            java.time.LocalDate end = period.getStayEndDate().toLocalDate().plusDays(1); // inclusive end
+            java.time.Period stayPeriod = java.time.Period.between(start, end);
+
+            int fullMonths = stayPeriod.getYears() * 12 + stayPeriod.getMonths();
+            int extraDays = stayPeriod.getDays();
             
-            // Lấy đơn giá mỗi tháng từ SystemConfig, mặc định 350.000 VNĐ
             BigDecimal monthlyFee = new BigDecimal(systemConfigService.getConfigValue("MONTHLY_ROOM_FEE", "350000"));
+            BigDecimal dailyFee = monthlyFee.divide(new BigDecimal("30"), 0, java.math.RoundingMode.HALF_UP);
             
             // Lấy cấu hình số tháng mỗi đợt thanh toán (mặc định 3 tháng/quý)
             int chunkSize = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_CHUNK_MONTHS", "3"));
-            int remainingMonths = totalMonths;
-            int currentDelay = 0; // Số tháng cộng dồn cho DueDate
+            int deadlineDays = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_DEADLINE_DAYS", "3"));
             
-            while (remainingMonths > 0) {
-                int currentChunk = Math.min(chunkSize, remainingMonths);
-                BigDecimal billAmount = monthlyFee.multiply(new BigDecimal(currentChunk));
+            int remainingMonths = fullMonths;
+            int currentDelayMonths = 0; // Số tháng cộng dồn cho DueDate
+            
+            while (remainingMonths > 0 || extraDays > 0) {
+                int currentChunkMonths = Math.min(chunkSize, remainingMonths);
+                BigDecimal billAmount = monthlyFee.multiply(new BigDecimal(currentChunkMonths));
+                
+                remainingMonths -= currentChunkMonths;
+                
+                // Gom ngày lẻ vào chunk cuối cùng
+                if (remainingMonths == 0 && extraDays > 0) {
+                    billAmount = billAmount.add(dailyFee.multiply(new BigDecimal(extraDays)));
+                    extraDays = 0; // consume days
+                }
+
+                if (billAmount.compareTo(BigDecimal.ZERO) == 0) break;
+
+                // Đơn đầu tiên: Tính từ ngày hôm nay (now). Các đơn sau: Tính từ ngày bắt đầu lưu trú + số tháng đã ở
+                java.time.LocalDate dueDate;
+                if (currentDelayMonths == 0) {
+                    dueDate = java.time.LocalDate.now().plusDays(deadlineDays);
+                } else {
+                    dueDate = start.plusMonths(currentDelayMonths).plusDays(deadlineDays);
+                }
 
                 billService.createAccommodationBill(
                         event.getAssignmentId(),
                         event.getApplicationId(),
                         null, // studentId is null for new assignments
                         billAmount,
-                        currentDelay
+                        dueDate
                 );
-                remainingMonths -= currentChunk;
-                currentDelay += currentChunk;
+                currentDelayMonths += currentChunkMonths;
             }
 
             log.info("[BillGenerationListener] Successfully created chunked accommodation bills for assignmentId={}",
@@ -92,38 +113,59 @@ public class BillGenerationListener {
     public void handleExtensionApprovedEvent(ExtensionApprovedEvent event) {
         log.info("[BillGenerationListener] Handling ExtensionApprovedEvent for extensionId={}", event.getExtensionId());
         try {
-            // Tìm Assignment để lấy RegistrationPeriod (nếu là gia hạn thì dùng kỳ hiện tại của Assignment)
-            com.sdms.backend.modules.room.entity.StudentHousingAssignment assignment = assignmentRepository.findById(event.getAssignmentId())
-                    .orElseThrow(() -> new RuntimeException("Assignment not found"));
-            com.sdms.backend.modules.registration.entity.RegistrationPeriod period = assignment.getApplication().getRegistrationPeriod();
+            // [BUG FIX] Tìm StayExtension thay vì Assignment cũ để lấy đúng RegistrationPeriod của đợt gia hạn
+            com.sdms.backend.modules.student.entity.StayExtension extension = stayExtensionRepository.findById(event.getExtensionId())
+                    .orElseThrow(() -> new RuntimeException("Extension not found"));
+            com.sdms.backend.modules.registration.entity.RegistrationPeriod period = extension.getRegistrationPeriod();
             
-            // Tính số tháng
-            int startYear = period.getStayStartDate().getYear();
-            int startMonth = period.getStayStartDate().getMonthValue();
-            int endYear = period.getStayEndDate().getYear();
-            int endMonth = period.getStayEndDate().getMonthValue();
-            int totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+            // Tính toán Pro-rata (Tháng chẵn + Ngày lẻ)
+            java.time.LocalDate start = period.getStayStartDate().toLocalDate();
+            java.time.LocalDate end = period.getStayEndDate().toLocalDate().plusDays(1);
+            java.time.Period stayPeriod = java.time.Period.between(start, end);
+
+            int fullMonths = stayPeriod.getYears() * 12 + stayPeriod.getMonths();
+            int extraDays = stayPeriod.getDays();
             
             BigDecimal monthlyFee = new BigDecimal(systemConfigService.getConfigValue("MONTHLY_ROOM_FEE", "350000"));
+            BigDecimal dailyFee = monthlyFee.divide(new BigDecimal("30"), 0, java.math.RoundingMode.HALF_UP);
             
             // Lấy cấu hình số tháng mỗi đợt thanh toán (mặc định 3 tháng/quý)
             int chunkSize = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_CHUNK_MONTHS", "3"));
-            int remainingMonths = totalMonths;
-            int currentDelay = 0; // Số tháng cộng dồn cho DueDate
+            int deadlineDays = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_DEADLINE_DAYS", "3"));
             
-            while (remainingMonths > 0) {
-                int currentChunk = Math.min(chunkSize, remainingMonths);
-                BigDecimal billAmount = monthlyFee.multiply(new BigDecimal(currentChunk));
+            int remainingMonths = fullMonths;
+            int currentDelayMonths = 0; // Số tháng cộng dồn cho DueDate
+            
+            while (remainingMonths > 0 || extraDays > 0) {
+                int currentChunkMonths = Math.min(chunkSize, remainingMonths);
+                BigDecimal billAmount = monthlyFee.multiply(new BigDecimal(currentChunkMonths));
+                
+                remainingMonths -= currentChunkMonths;
+                
+                // Gom ngày lẻ vào chunk cuối cùng
+                if (remainingMonths == 0 && extraDays > 0) {
+                    billAmount = billAmount.add(dailyFee.multiply(new BigDecimal(extraDays)));
+                    extraDays = 0; // consume days
+                }
+
+                if (billAmount.compareTo(BigDecimal.ZERO) == 0) break;
+
+                // Đơn đầu tiên: Tính từ ngày hôm nay (now). Các đơn sau: Tính từ ngày bắt đầu lưu trú mới + số tháng đã ở
+                java.time.LocalDate dueDate;
+                if (currentDelayMonths == 0) {
+                    dueDate = java.time.LocalDate.now().plusDays(deadlineDays);
+                } else {
+                    dueDate = start.plusMonths(currentDelayMonths).plusDays(deadlineDays);
+                }
 
                 billService.createAccommodationBill(
                         event.getAssignmentId(),
                         null, // Đơn gia hạn không gắn với ApplicationId (Registration) của năm đầu
                         event.getStudentId(),
                         billAmount,
-                        currentDelay
+                        dueDate
                 );
-                remainingMonths -= currentChunk;
-                currentDelay += currentChunk;
+                currentDelayMonths += currentChunkMonths;
             }
 
             log.info("[BillGenerationListener] Successfully created chunked accommodation bills for extensionId={}",

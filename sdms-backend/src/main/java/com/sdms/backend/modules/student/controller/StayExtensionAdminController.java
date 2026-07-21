@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -40,9 +41,10 @@ public class StayExtensionAdminController {
     @PutMapping("/{id}/status")
     public ApiResponse<StayExtensionResponse> reviewExtension(
             @PathVariable UUID id,
-            @Valid @RequestBody StayExtensionReviewRequest request) {
+            @Valid @RequestBody StayExtensionReviewRequest request,
+            @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
 
-        StayExtensionResponse response = stayExtensionService.reviewExtension(id, request);
+        StayExtensionResponse response = stayExtensionService.reviewExtension(id, request, userDetails.getUsername());
 
         return ApiResponse.success("Đã duyệt đơn gia hạn thành công", response);
     }

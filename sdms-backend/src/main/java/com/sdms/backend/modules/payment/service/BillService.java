@@ -55,7 +55,7 @@ public class BillService {
             UUID applicationId,
             UUID studentId,
             BigDecimal amount,
-            int delayMonths
+            LocalDate dueDate
     ) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Số tiền hóa đơn không hợp lệ");
@@ -71,8 +71,7 @@ public class BillService {
         bill.setAmount(amount);
         bill.setPaidAmount(BigDecimal.ZERO);
         bill.setStatus(BillStatus.UNPAID);
-        // Stagger the due date based on the chunk sequence
-        bill.setDueDate(LocalDate.now().plusMonths(delayMonths).plusDays(deadlineDays));
+        bill.setDueDate(dueDate);
         bill.setDescription("Accommodation fee");
         return billRepository.save(bill);
     }

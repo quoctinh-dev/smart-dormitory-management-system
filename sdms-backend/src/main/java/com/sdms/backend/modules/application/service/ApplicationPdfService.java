@@ -8,6 +8,7 @@ import com.sdms.backend.modules.student.entity.Student;
 import com.sdms.backend.modules.application.enums.GeneratedDocumentType;
 import com.sdms.backend.modules.application.repository.ApplicationGeneratedDocumentRepository;
 import com.sdms.backend.modules.upload.service.CloudinaryService;
+import com.sdms.backend.modules.user.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,7 @@ public class ApplicationPdfService {
     private final TemplateEngine templateEngine;
     private final CloudinaryService cloudinaryService;
     private final ApplicationGeneratedDocumentRepository generatedDocumentRepository;
+    private final UserAccountRepository userAccountRepository;
 
     public String generateAndUploadRegistrationFormPdf(DormitoryApplication application) {
         log.info("Generating registration form PDF for application code: {}", application.getApplicationCode());
@@ -84,6 +86,11 @@ public class ApplicationPdfService {
                     .orElse(null);
         }
         context.setVariable("portraitPhotoUrl", portraitPhotoUrl);
+
+        if (application.getReviewedByUserId() != null) {
+            userAccountRepository.findById(application.getReviewedByUserId())
+                .ifPresent(user -> context.setVariable("reviewerName", user.getUsername()));
+        }
 
         String htmlContent = templateEngine.process("pdf/registration_form", context);
         String fileName = "registration_form_" + application.getApplicationCode();
@@ -128,10 +135,10 @@ public class ApplicationPdfService {
      *
      * @return String[0] = contractPdfUrl (Phiếu đăng ký), String[1] = commitmentPdfUrl (Bản cam kết)
      */
-    public String[] generateExtensionPdfs(StayExtension extension) {
-        Student student = extension.getStudent();
-        log.info("Generating extension PDFs (reusing original templates) for student: {}", student.getStudentCode());
+    public String[] generateExtensionPdfs(StayExtension extension, String reviewerName) {
+        log.info("Generating extension PDFs for extension id: {}", extension.getExtensionId());
 
+        Student student = extension.getStudent();
         DormitoryApplication srcApp = student.getSourceApplication();
 
         // Build virtual app: srcApp làm nền (dob, gender, ethnic...) + Student override các trường cập nhật được
@@ -166,6 +173,9 @@ public class ApplicationPdfService {
         virtualApp.setCreatedAt(extension.getCreatedAt());
 
         Context context = new Context();
+        if (reviewerName != null) {
+            context.setVariable("reviewerName", reviewerName);
+        }
         context.setVariable("app", virtualApp);
         context.setVariable("portraitPhotoUrl", student.getAvatarUrl());
         Set<String> priorityCategories = (srcApp != null && srcApp.getPriorities() != null)
@@ -187,6 +197,11 @@ public class ApplicationPdfService {
             academicYear = startYear + " - " + endYear;
         }
         context.setVariable("academicYear", academicYear);
+
+        // Passed explicitly by StayExtensionService if possible, or fallback
+        if (context.getVariable("reviewerName") == null) {
+            context.setVariable("reviewerName", "Hệ thống / Ban Quản lý");
+        }
 
         // PDF 1: Phiếu đăng ký (dùng template gốc)
         String htmlContract = templateEngine.process("pdf/registration_form", context);

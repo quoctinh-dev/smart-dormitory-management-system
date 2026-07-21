@@ -20,6 +20,8 @@ import {
   TableRow,
   TablePagination,
   IconButton,
+  CircularProgress,
+  Stack,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import React from 'react';
@@ -27,6 +29,57 @@ import React from 'react';
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useStayExtensionManagement } from '@/hooks/useStayExtensionManagement';
 import StudentProfileModal from './components/StudentProfileModal';
+import { DownloadRounded } from '@mui/icons-material';
+import { useState, useEffect } from 'react';
+
+function InlinePdfPreviewButton({ url, title, buttonText }: { url: string; title: string; buttonText: string }) {
+  const [open, setOpen] = useState(false);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (open && !pdfBlobUrl) {
+      setLoading(true);
+      setError(false);
+      fetch(url)
+        .then(res => { if (!res.ok) throw new Error(); return res.blob(); })
+        .then(blob => {
+          setPdfBlobUrl(URL.createObjectURL(new Blob([blob], { type: 'application/pdf' })));
+          setLoading(false);
+        })
+        .catch(() => {
+          setError(true);
+          setLoading(false);
+        });
+    }
+  }, [open, url, pdfBlobUrl]);
+
+  return (
+    <>
+      <Button variant="outlined" size="small" onClick={() => setOpen(true)} sx={{ borderRadius: 2, mr: 1 }}>
+        {buttonText}
+      </Button>
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="lg" fullWidth>
+        <DialogTitle sx={{ fontWeight: 700 }}>{title}</DialogTitle>
+        <DialogContent dividers sx={{ p: 0, bgcolor: 'grey.100', minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {loading ? <CircularProgress size={50} /> : error ? (
+            <Stack alignItems="center" spacing={2}>
+              <Typography color="error">Không thể xem trước tệp tin trực tuyến.</Typography>
+              <Button href={url} target="_blank" download startIcon={<DownloadRounded />} variant="contained">Tải xuống PDF</Button>
+            </Stack>
+          ) : (
+            <iframe src={pdfBlobUrl || ''} title={title} width="100%" height="780px" style={{ border: 'none' }} />
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpen(false)}>Đóng</Button>
+          <Button href={pdfBlobUrl || url} download target="_blank" startIcon={<DownloadRounded />} variant="contained">Tải xuống</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+}
 
 export default function StayExtensionManagement() {
   const {
@@ -174,14 +227,18 @@ export default function StayExtensionManagement() {
                             </Box>
                           )}
                           {row.status === 'APPROVED' && row.contractPdfUrl && (
-                            <Button variant="outlined" size="small" href={row.contractPdfUrl} target="_blank" sx={{ borderRadius: 2, mr: 1 }}>
-                              Hợp đồng
-                            </Button>
+                            <InlinePdfPreviewButton 
+                                url={row.contractPdfUrl} 
+                                title="Hợp đồng gia hạn" 
+                                buttonText="Hợp đồng" 
+                            />
                           )}
                           {row.status === 'APPROVED' && row.commitmentPdfUrl && (
-                            <Button variant="outlined" size="small" href={row.commitmentPdfUrl} target="_blank" sx={{ borderRadius: 2 }}>
-                              Cam kết
-                            </Button>
+                            <InlinePdfPreviewButton 
+                                url={row.commitmentPdfUrl} 
+                                title="Bản cam kết" 
+                                buttonText="Cam kết" 
+                            />
                           )}
                           {row.status === 'REJECTED' && row.rejectReason && (
                             <Typography variant="caption" color="error.main" title={row.rejectReason} noWrap sx={{ maxWidth: 100 }}>
