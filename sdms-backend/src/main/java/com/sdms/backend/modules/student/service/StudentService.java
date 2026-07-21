@@ -9,6 +9,9 @@ import com.sdms.backend.modules.student.repository.StudentRepository;
 import com.sdms.backend.modules.user.entity.UserAccount;
 import com.sdms.backend.modules.user.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
  * Giải pháp Công nghệ/Mẫu thiết kế (Design Pattern): Cập nhật thông tin qua cơ chế PATCH (chỉ update các trường có dữ liệu) thay vì PUT (ghi đè toàn bộ). Lấy thông tin sinh viên hiện hành trực tiếp từ SecurityContextHolder của Spring Security.
  * Lưu ý Kiến thức (Dành cho phản biện): Tại sao lấy thông tin từ SecurityContextHolder thay vì bắt Frontend truyền studentId: Đây là cơ chế bảo mật quan trọng để chống lỗ hổng IDOR (Insecure Direct Object Reference). Việc lấy thông tin từ JWT Token giải mã tại backend đảm bảo sinh viên A không thể tùy tiện cập nhật profile của sinh viên B bằng cách chặn bắt và thay đổi ID trên request.
  */
+import com.sdms.backend.modules.student.repository.StudentSpecification;
+import com.sdms.backend.modules.student.enums.StudentStatus;
 import org.springframework.context.ApplicationEventPublisher;
 import com.sdms.backend.modules.student.event.StudentRfidAssignedEvent;
 
@@ -63,7 +68,7 @@ public class StudentService {
         if (request.getFatherPhone() != null) student.setFatherPhone(request.getFatherPhone());
         if (request.getMotherName() != null) student.setMotherName(request.getMotherName());
         if (request.getMotherPhone() != null) student.setMotherPhone(request.getMotherPhone());
-        if (request.getEmergencyContact() != null) student.setEmergencyContact(request.getEmergencyContact());
+        if (request.getContactAddress() != null) student.setContactAddress(request.getContactAddress());
         if (request.getPermanentAddress() != null) student.setPermanentAddress(request.getPermanentAddress());
         if (request.getAvatarUrl() != null) student.setAvatarUrl(request.getAvatarUrl());
 
@@ -82,6 +87,30 @@ public class StudentService {
     }
 
     @Transactional
+    public StudentProfileResponse updateStudentProfile(java.util.UUID studentId, com.sdms.backend.modules.student.dto.request.AdminUpdateStudentProfileRequest request) {
+        Student student = studentRepository.findById(studentId)
+            .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ sinh viên"));
+
+        // Update fields if provided
+        if (request.getFullName() != null) student.setFullName(request.getFullName());
+        if (request.getCccd() != null) student.setCccd(request.getCccd());
+        if (request.getEmail() != null) student.setEmail(request.getEmail());
+        if (request.getPhone() != null) student.setPhone(request.getPhone());
+        if (request.getFatherName() != null) student.setFatherName(request.getFatherName());
+        if (request.getFatherPhone() != null) student.setFatherPhone(request.getFatherPhone());
+        if (request.getMotherName() != null) student.setMotherName(request.getMotherName());
+        if (request.getMotherPhone() != null) student.setMotherPhone(request.getMotherPhone());
+        if (request.getContactAddress() != null) student.setContactAddress(request.getContactAddress());
+        if (request.getPermanentAddress() != null) student.setPermanentAddress(request.getPermanentAddress());
+        if (request.getAvatarUrl() != null) student.setAvatarUrl(request.getAvatarUrl());
+        if (request.getFaculty() != null) student.setFaculty(request.getFaculty());
+        if (request.getAcademicYear() != null) student.setAcademicYear(request.getAcademicYear());
+
+        Student updatedStudent = studentRepository.save(student);
+        return StudentProfileResponse.fromEntity(updatedStudent);
+    }
+
+    @Transactional
     public void assignRfidCode(java.util.UUID studentId, String rfidCode) {
         Student student = studentRepository.findById(studentId)
             .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy sinh viên"));
@@ -90,5 +119,12 @@ public class StudentService {
         studentRepository.save(student);
         
         eventPublisher.publishEvent(new StudentRfidAssignedEvent(this, studentId, rfidCode));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<StudentProfileResponse> getAllStudents(String search, StudentStatus status, Pageable pageable) {
+        Specification<Student> spec = StudentSpecification.getFilter(search, status);
+        Page<Student> studentPage = studentRepository.findAll(spec, pageable);
+        return studentPage.map(StudentProfileResponse::fromEntity);
     }
 }

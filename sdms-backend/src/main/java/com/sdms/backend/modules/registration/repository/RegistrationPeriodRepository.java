@@ -12,8 +12,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import java.time.LocalDate;
+
 @Repository
 public interface RegistrationPeriodRepository extends JpaRepository<RegistrationPeriod, UUID> {
+    List<RegistrationPeriod> findByStayEndDateBetween(LocalDateTime startOfDay, LocalDateTime endOfDay);
 
     List<RegistrationPeriod> findByIsActiveTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
             LocalDateTime now1,

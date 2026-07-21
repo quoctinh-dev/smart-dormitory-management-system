@@ -89,6 +89,8 @@ public class StudentProvisioningListener {
             student.setEmail(application.getEmail());
             student.setPhone(application.getPhone());
             student.setFaculty(application.getFaculty());
+            student.setAcademicYear(application.getCohort());
+            student.setContactAddress(application.getContactAddress());
             student.setPermanentAddress(application.getPermanentAddress());
 
             // Sao chép chi tiết thông tin nhân thân để quầy lễ tân tra cứu

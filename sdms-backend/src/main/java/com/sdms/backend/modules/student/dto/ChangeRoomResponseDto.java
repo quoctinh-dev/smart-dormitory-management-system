@@ -9,6 +9,8 @@ import java.util.UUID;
 @Data
 public class ChangeRoomResponseDto {
     private Long id;
+    private String studentCode;
+    private String studentName;
     private String reason;
     private String currentRoomName;
     private String targetRoomName;

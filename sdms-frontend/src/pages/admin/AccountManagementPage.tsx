@@ -2,7 +2,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SearchIcon from '@mui/icons-material/Search';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+
 import {
   Box,
   Typography,
@@ -33,7 +33,7 @@ import { alpha } from '@mui/material/styles';
 import React, { useState, useEffect } from 'react';
 
 import axiosClient from '@/api/axios-client';
-import StudentProfileModal from './components/StudentProfileModal';
+
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { snackbar } from '@/helpers/snackbar';
 import { validatePassword } from '@/helpers/validate';
@@ -66,53 +66,7 @@ export default function AccountManagementPage() {
   const [newStaff, setNewStaff] = useState({ username: '', email: '', password: '' });
   const [creating, setCreating] = useState(false);
 
-  // Student Profile State
-  const [openProfileModal, setOpenProfileModal] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState<any>(null);
-  const [loadingProfile, setLoadingProfile] = useState(false);
-  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
 
-  // Edit Academic Info State
-  const [openEditAcademicModal, setOpenEditAcademicModal] = useState(false);
-  const [editAcademicForm, setEditAcademicForm] = useState({ faculty: '', academicYear: '' });
-  const [savingAcademic, setSavingAcademic] = useState(false);
-
-  const handleViewProfile = async (accountId: string) => {
-    setSelectedAccountId(accountId);
-    setLoadingProfile(true);
-    setOpenProfileModal(true);
-    try {
-      const res: any = await axiosClient.get(`/v1/admin/accounts/${accountId}/student-profile`);
-      setSelectedProfile(res);
-      setEditAcademicForm({
-        faculty: res.faculty || '',
-        academicYear: res.academicYear || '',
-      });
-    } catch {
-      snackbar.error('Không thể lấy thông tin hồ sơ sinh viên');
-      setOpenProfileModal(false);
-    } finally {
-      setLoadingProfile(false);
-    }
-  };
-
-  const handleSaveAcademicInfo = async () => {
-    if (!editAcademicForm.faculty || !editAcademicForm.academicYear) {
-      snackbar.error('Vui lòng nhập đầy đủ Khoa và Khóa/Niên khóa!');
-      return;
-    }
-    setSavingAcademic(true);
-    try {
-      const res: any = await axiosClient.patch(`/v1/admin/accounts/${selectedAccountId}/student-profile/academic`, editAcademicForm);
-      snackbar.success('Cập nhật học vụ thành công!');
-      setSelectedProfile(res);
-      setOpenEditAcademicModal(false);
-    } catch (err: any) {
-      snackbar.error(err?.message || 'Lỗi khi cập nhật học vụ');
-    } finally {
-      setSavingAcademic(false);
-    }
-  };
 
   const fetchAccounts = async (
     currentPage: number,
@@ -387,16 +341,7 @@ export default function AccountManagementPage() {
                     </TableCell>
                     <TableCell align="center">
                       <Stack direction="row" spacing={1} justifyContent="center">
-                        {account.role === 'STUDENT' && (
-                          <IconButton
-                            size="small"
-                            color="info"
-                            title="Xem hồ sơ Sinh viên"
-                            onClick={() => handleViewProfile(account.accountId)}
-                          >
-                            <VisibilityIcon fontSize="small" />
-                          </IconButton>
-                        )}
+
                         <Button
                           variant="outlined"
                           size="small"
@@ -481,58 +426,7 @@ export default function AccountManagementPage() {
         </DialogActions>
       </Dialog>
 
-      <StudentProfileModal
-        open={openProfileModal}
-        onClose={() => setOpenProfileModal(false)}
-        loading={loadingProfile}
-        profile={selectedProfile}
-        onOpenEditAcademic={() => setOpenEditAcademicModal(true)}
-      />
 
-      {/* Modal Sửa Học vụ */}
-      <Dialog
-        open={openEditAcademicModal}
-        onClose={() => setOpenEditAcademicModal(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle sx={{ fontWeight: 'bold' }}>Cập nhật Học vụ</DialogTitle>
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
-            Thông tin Khoa/Khóa này sẽ được in trực tiếp lên Hợp đồng (Gia hạn) của sinh viên.
-          </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}>
-            <TextField
-              label="Khoa"
-              fullWidth
-              value={editAcademicForm.faculty}
-              onChange={(e) => setEditAcademicForm({ ...editAcademicForm, faculty: e.target.value })}
-              placeholder="VD: Công nghệ thông tin"
-              autoFocus
-            />
-            <TextField
-              label="Khóa/Niên khóa"
-              fullWidth
-              value={editAcademicForm.academicYear}
-              onChange={(e) => setEditAcademicForm({ ...editAcademicForm, academicYear: e.target.value })}
-              placeholder="VD: K26"
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setOpenEditAcademicModal(false)} sx={{ fontWeight: 'bold' }}>
-            Hủy bỏ
-          </Button>
-          <Button
-            onClick={handleSaveAcademicInfo}
-            variant="contained"
-            disabled={savingAcademic || !editAcademicForm.faculty || !editAcademicForm.academicYear}
-            sx={{ fontWeight: 'bold', px: 3, borderRadius: 2 }}
-          >
-            {savingAcademic ? <CircularProgress size={24} color="inherit" /> : 'Lưu cập nhật'}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }

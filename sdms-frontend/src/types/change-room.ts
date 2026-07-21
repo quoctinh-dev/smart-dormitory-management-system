@@ -2,6 +2,8 @@ export type ChangeRoomRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CAN
 
 export interface ChangeRoomResponseDto {
   id: number;
+  studentCode?: string;
+  studentName?: string;
   reason: string;
   currentRoomName: string | null;
   targetRoomName: string | null;

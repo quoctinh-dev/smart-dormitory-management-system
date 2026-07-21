@@ -274,27 +274,9 @@ export default function NotificationBell() {
                 onClick={() => setFilterType('ROOM')}
                 sx={filterType === 'ROOM' ? { bgcolor: (t) => alpha(t.palette.primary.main, 0.1), color: 'primary.dark', fontWeight: 'bold' } : {}}
               />
-              <Chip
-                label="Tài khoản"
-                size="small"
-                variant={filterType === 'AUTH' ? 'filled' : 'outlined'}
-                onClick={() => setFilterType('AUTH')}
-                sx={filterType === 'AUTH' ? { bgcolor: (t) => alpha(t.palette.info.main, 0.1), color: 'info.dark', fontWeight: 'bold' } : {}}
-              />
-              <Chip
-                label="Khuôn mặt"
-                size="small"
-                variant={filterType === 'FACE' ? 'filled' : 'outlined'}
-                onClick={() => setFilterType('FACE')}
-                sx={filterType === 'FACE' ? { bgcolor: (t) => alpha(t.palette.secondary.main, 0.1), color: 'secondary.dark', fontWeight: 'bold' } : {}}
-              />
-              <Chip
-                label="Cửa ra vào"
-                size="small"
-                variant={filterType === 'SMART_ACCESS' ? 'filled' : 'outlined'}
-                onClick={() => setFilterType('SMART_ACCESS')}
-                sx={filterType === 'SMART_ACCESS' ? { bgcolor: (t) => alpha(t.palette.success.main, 0.1), color: 'success.dark', fontWeight: 'bold' } : {}}
-              />
+
+
+
             </Stack>
           </Box>
         </Box>

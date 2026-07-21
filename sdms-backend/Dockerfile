@@ -1,6 +1,6 @@
 # --- Giai đoạn 1: Build ứng dụng với Maven ---
 # Sử dụng một image base chứa Maven và JDK để build source code
-FROM maven:3.8.5-openjdk-17 AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 # Thiết lập thư mục làm việc bên trong container
 WORKDIR /app
@@ -20,7 +20,7 @@ RUN mvn package -DskipTests
 
 # --- Giai đoạn 2: Chạy ứng dụng ---
 # Sử dụng một image JRE (Java Runtime Environment) gọn nhẹ để chạy
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre
 
 # Thiết lập thư mục làm việc
 WORKDIR /app

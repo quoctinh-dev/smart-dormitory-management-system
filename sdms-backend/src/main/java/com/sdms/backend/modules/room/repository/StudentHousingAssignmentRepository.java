@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Lock;
 import jakarta.persistence.LockModeType;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +18,12 @@ import java.util.UUID;
 
 @Repository
 public interface StudentHousingAssignmentRepository extends JpaRepository<StudentHousingAssignment, UUID> {
+    List<StudentHousingAssignment> findByStatusAndApplication_RegistrationPeriod_StayEndDateBefore(AssignmentStatus status, LocalDateTime date);
+
+    List<StudentHousingAssignment> findByApplication_RegistrationPeriod_PeriodIdAndStatusIn(UUID periodId, Collection<AssignmentStatus> statuses);
+
+    List<StudentHousingAssignment> findByStatusAndApplication_RegistrationPeriod_StayEndDateBetween(AssignmentStatus status, LocalDateTime startDate, LocalDateTime endDate);
+
     Optional<StudentHousingAssignment> findByApplication_ApplicationIdAndStatusIn(UUID applicationId, Collection<AssignmentStatus> statuses);
 
     Optional<StudentHousingAssignment> findByApplication_ApplicationId(UUID applicationId);

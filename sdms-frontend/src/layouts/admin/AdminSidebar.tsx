@@ -58,6 +58,12 @@ const MENU_GROUPS: MenuGroup[] = [
     title: 'Quản lý Lưu trú',
     items: [
       {
+        text: 'Quản lý sinh viên',
+        path: '/admin/students',
+        icon: <PeopleIcon />,
+        roles: ['ADMIN', 'STAFF'],
+      },
+      {
         text: 'Quản lý giường & phòng',
         path: '/admin/rooms',
         icon: <BedIcon />,

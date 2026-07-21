@@ -169,8 +169,9 @@ public class StayExtensionService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<StayExtensionResponse> getAllExtensions(Pageable pageable) {
-        Page<StayExtension> page = stayExtensionRepository.findAll(pageable);
+    public PageResponse<StayExtensionResponse> getAllExtensions(ExtensionStatus status, String search, Pageable pageable) {
+        Page<StayExtension> page = stayExtensionRepository.findAllWithFilters(status, search, pageable);
+        
         List<StayExtensionResponse> content = page.getContent().stream()
                 .map(this::buildResponse)
                 .collect(Collectors.toList());

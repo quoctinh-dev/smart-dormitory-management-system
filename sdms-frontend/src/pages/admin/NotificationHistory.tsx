@@ -278,9 +278,6 @@ export default function NotificationHistory() {
           <MenuItem value="MAINTENANCE">Báo hỏng</MenuItem>
           <MenuItem value="PAYMENT">Thanh toán</MenuItem>
           <MenuItem value="ROOM">Đổi phòng/Phòng ở</MenuItem>
-          <MenuItem value="AUTH">Xác thực/Tài khoản</MenuItem>
-          <MenuItem value="FACE">Khuôn mặt (AI)</MenuItem>
-          <MenuItem value="SMART_ACCESS">Cửa ra vào/Cổng</MenuItem>
           </Select>
         </FormControl>
       </Paper>
@@ -315,7 +312,7 @@ export default function NotificationHistory() {
                     <TableRow key={row.id} hover>
                       <TableCell>
                         <Typography variant="body2" fontWeight="medium">
-                          {new Date(row.createdAt).toLocaleString('vi-VN')}
+                          {new Date(row.sentAt).toLocaleString('vi-VN')}
                         </Typography>
                       </TableCell>
                       <TableCell>

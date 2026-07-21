@@ -11,12 +11,12 @@ export interface CheckoutRequestResponse {
   reason: string;
   bankAccountNumber: string;
   bankName: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
   rejectReason: string | null;
   createdAt: string;
 }
 
 export interface CheckoutRequestReviewDto {
-  status: 'APPROVED' | 'REJECTED';
+  status: 'APPROVED' | 'REJECTED' | 'COMPLETED';
   rejectReason?: string;
 }

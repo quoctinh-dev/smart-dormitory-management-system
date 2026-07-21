@@ -20,7 +20,7 @@ public class StudentProfileResponse {
     private String fatherPhone;
     private String motherName;
     private String motherPhone;
-    private String emergencyContact;
+
     private String permanentAddress;
     private String avatarUrl;
     private String status;
@@ -49,8 +49,8 @@ public class StudentProfileResponse {
                 .cccd(student.getCccd())
                 .email(student.getEmail())
                 .phone(student.getPhone())
-                .faculty(student.getFaculty())
-                .academicYear(student.getAcademicYear())
+                .faculty(student.getFaculty() != null ? student.getFaculty() : (app != null ? app.getFaculty() : null))
+                .academicYear(student.getAcademicYear() != null ? student.getAcademicYear() : (app != null ? app.getCohort() : null))
                 .dob(app != null && app.getDob() != null ? app.getDob().toString() : null)
                 .gender(app != null && app.getGender() != null ? app.getGender().name() : null)
                 .issueDate(app != null && app.getIssueDate() != null ? app.getIssueDate().toString() : null)
@@ -59,7 +59,7 @@ public class StudentProfileResponse {
                 .ethnic(app != null ? app.getEthnic() : null)
                 .religion(app != null ? app.getReligion() : null)
                 .cohort(app != null ? app.getCohort() : null)
-                .contactAddress(app != null ? app.getContactAddress() : null)
+                .contactAddress(student.getContactAddress() != null ? student.getContactAddress() : (app != null ? app.getContactAddress() : null))
                 .fatherName(student.getFatherName())
                 .fatherYob(app != null ? app.getFatherYob() : null)
                 .fatherJob(app != null ? app.getFatherJob() : null)
@@ -68,7 +68,7 @@ public class StudentProfileResponse {
                 .motherYob(app != null ? app.getMotherYob() : null)
                 .motherJob(app != null ? app.getMotherJob() : null)
                 .motherPhone(student.getMotherPhone())
-                .emergencyContact(student.getEmergencyContact())
+
                 .familyContact(app != null ? app.getContactAddress() : null)
                 .permanentAddress(student.getPermanentAddress())
                 .avatarUrl(student.getAvatarUrl())

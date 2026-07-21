@@ -73,8 +73,8 @@ public class Student extends BaseEntity {
     @Column(length = 20)
     private String motherPhone;
 
-    @Column(length = 20)
-    private String emergencyContact;
+    @Column(columnDefinition = "TEXT")
+    private String contactAddress;
 
     @Column(columnDefinition = "TEXT")
     private String permanentAddress;

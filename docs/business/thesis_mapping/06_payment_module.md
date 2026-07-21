@@ -58,6 +58,16 @@ Endpoint `/api/webhooks/sepay` là cửa ngõ giao tiếp duy nhất từ Intern
 - **Idempotency (Tính lũy đẳng):** Kiểm tra trùng lặp `gateway_transaction_id` để chống lỗi Replay Attack (gọi webhook 2 lần).
 - **Validation:** Bắt buộc phải có `authorization` (API Key) và `signature` (HMAC).
 
+### 2.3. Kỹ thuật sinh Hóa đơn Flexible Pro-rata (Tự động chia đợt và gom ngày lẻ)
+Hệ thống sử dụng cấu hình động thay vì hardcode, tính toán linh hoạt (Pro-rata) dựa vào số lượng ngày ở thực tế của sinh viên, độc lập hoàn toàn với khái niệm "Học kỳ" hay "Kỳ Hè":
+- **Chunking (Chia đợt thu):** Dựa vào cấu hình Admin `PAYMENT_CHUNK_MONTHS` (Mặc định 3 tháng/đợt), hệ thống lặp qua tổng thời gian đăng ký (Ví dụ: 4 tháng) để cắt thành các đoạn nhỏ (Ví dụ: Đợt 1 thu 3 tháng, Đợt 2 thu nốt 1 tháng). Nếu sinh viên đăng ký Hè (1 tháng), hệ thống chỉ sinh ra đúng 1 hóa đơn 1 tháng.
+- **Xử lý ngày lẻ (Extra Days):** Tính số tháng chẵn (`fullMonths`) và số ngày lẻ dư ra (`extraDays`). Nếu có ngày lẻ (ví dụ: ở 2 tháng 15 ngày), hệ thống tự động gom toàn bộ số tiền của ngày lẻ đó `+` thẳng vào Hóa đơn (Chunk) cuối cùng để sinh viên không phải thanh toán lắt nhắt nhiều lần.
+- **Tính toán Hạn chót thanh toán (Due Date clamp):**
+  - Đợt 1: Hạn chót bằng `Current Date + PAYMENT_DEADLINE_DAYS` (Yêu cầu đóng ngay để giữ chỗ).
+  - Đợt 2 trở đi: Hạn chót bằng `Ngày bắt đầu của đợt đó + PAYMENT_DEADLINE_DAYS` (Chưa tới đợt thì chưa bị ép đóng).
+  
+Nhờ kiến trúc này, toàn bộ module Payment có khả năng tương thích tuyệt đối 100% với bất kỳ chính sách thu tiền dài ngắn nào của nhà trường, đảm bảo tiêu chuẩn luận văn.
+
 ---
 
 ## Chương 3: API Permission Matrix (Bảo mật truy cập)

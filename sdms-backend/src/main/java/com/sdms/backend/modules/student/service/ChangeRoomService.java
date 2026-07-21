@@ -235,6 +235,11 @@ public class ChangeRoomService {
         dto.setAdminNote(entity.getAdminNote());
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
+
+        if (entity.getStudent() != null) {
+            dto.setStudentCode(entity.getStudent().getStudentCode());
+            dto.setStudentName(entity.getStudent().getFullName());
+        }
         
         if (entity.getCurrentAssignment() != null && entity.getCurrentAssignment().getBed() != null) {
             dto.setCurrentRoomName(entity.getCurrentAssignment().getBed().getRoom().getRoomCode());

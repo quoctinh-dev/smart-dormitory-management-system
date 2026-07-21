@@ -105,6 +105,15 @@ public class ApplicationReviewService {
         } catch (Exception e) {
             log.error("Failed to cancel assignment for rejected application={}", applicationId, e);
         }
+
+        // 🌟 PUBLISH EVENT FOR NOTIFICATION
+        eventPublisher.publishEvent(new com.sdms.backend.modules.application.event.ApplicationRejectedEvent(
+                this, 
+                applicationId, 
+                application.getEmail(), 
+                application.getFullName(), 
+                note
+        ));
     }
 
     // 📄 File: ApplicationReviewService.java
@@ -155,7 +164,7 @@ public class ApplicationReviewService {
         assignment.setExpectedCheckOutAt(application.getRegistrationPeriod().getStayEndDate());
         assignmentRepository.save(assignment);
 
-        // 🌟 2. THAY ĐỔI NGÒI NỔ: Bắn BedReservedEvent để kích hoạt tạo hóa đơn 2tr1
+        // 🌟 2. THAY ĐỔI NGÒI NỔ: Bắn BedReservedEvent để kích hoạt tạo hóa đơn Flexible Pro-rata
         // Thao tác này sẽ đánh động sang BillGenerationListener để sinh Bill UNPAID
         eventPublisher.publishEvent(new com.sdms.backend.modules.room.event.BedReservedEvent(
                 this,

@@ -12,6 +12,10 @@ export const useStayExtensionManagement = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalElements, setTotalElements] = useState(0);
 
+  // Filters
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState('');
+
   const [openReview, setOpenReview] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<StayExtensionResponse | null>(null);
   const [reviewStatus, setReviewStatus] = useState<'APPROVED' | 'REJECTED'>('APPROVED');
@@ -23,10 +27,12 @@ export const useStayExtensionManagement = () => {
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
 
-  const fetchExtensions = async (p: number, size: number) => {
+  const fetchExtensions = async (p: number, size: number, status: string, search: string) => {
     setLoading(true);
     try {
-      const data = await stayExtensionApi.getAllExtensions(p, size);
+      const statusParam = status === 'ALL' || !status ? undefined : status;
+      const searchParam = search.trim() ? search.trim() : undefined;
+      const data = await stayExtensionApi.getAllExtensions(p, size, statusParam, searchParam);
       setExtensions(data.content || []);
       setTotalElements(data.totalElements || 0);
     } catch (err: any) {
@@ -38,8 +44,19 @@ export const useStayExtensionManagement = () => {
   };
 
   useEffect(() => {
-    fetchExtensions(page, rowsPerPage);
-  }, [page, rowsPerPage]);
+    fetchExtensions(page, rowsPerPage, statusFilter, searchTerm);
+  }, [page, rowsPerPage, statusFilter]);
+
+  const handleSearchClick = () => {
+    setPage(0);
+    fetchExtensions(0, rowsPerPage, statusFilter, searchTerm);
+  };
+
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchClick();
+    }
+  };
 
   const handleOpenReview = (request: StayExtensionResponse, status: 'APPROVED' | 'REJECTED') => {
     setSelectedRequest(request);
@@ -63,7 +80,7 @@ export const useStayExtensionManagement = () => {
       });
       snackbar.success('Xét duyệt đơn gia hạn thành công!');
       setOpenReview(false);
-      fetchExtensions(page, rowsPerPage);
+      fetchExtensions(page, rowsPerPage, statusFilter, searchTerm);
     } catch (err: any) {
       console.error(err);
       snackbar.error(err.response?.data?.message || 'Lỗi khi duyệt đơn');
@@ -76,8 +93,8 @@ export const useStayExtensionManagement = () => {
     setOpenProfileModal(true);
     setLoadingProfile(true);
     try {
-      const { data } = await axiosClient.get(`/v1/students/${studentId}/profile`);
-      setSelectedProfile(data.data);
+      const data = await axiosClient.get(`/v1/students/${studentId}/profile`);
+      setSelectedProfile(data);
     } catch (error) {
       console.error(error);
       snackbar.error('Không thể tải thông tin sinh viên');
@@ -108,5 +125,11 @@ export const useStayExtensionManagement = () => {
     selectedProfile,
     loadingProfile,
     handleOpenProfile,
+    statusFilter,
+    setStatusFilter,
+    searchTerm,
+    setSearchTerm,
+    handleSearchClick,
+    handleSearchKeyPress,
   };
 };

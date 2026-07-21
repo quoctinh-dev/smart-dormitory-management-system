@@ -23,6 +23,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +35,7 @@ import com.sdms.backend.modules.payment.repository.BillRepository;
 import com.sdms.backend.modules.payment.enums.BillStatus;
 import org.springframework.context.ApplicationEventPublisher;
 import com.sdms.backend.modules.student.event.StudentCheckedOutEvent;
+import com.sdms.backend.modules.system.service.SystemConfigService;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +47,7 @@ public class CheckoutRequestService {
     private final HousingAssignmentService housingAssignmentService;
     private final BillRepository billRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final SystemConfigService systemConfigService;
 
     @Transactional
     public CheckoutRequestResponse submitCheckoutRequest(String username, CheckoutRequestSubmitDto request) {
@@ -57,14 +63,33 @@ public class CheckoutRequestService {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Bạn đã có một đơn xin trả phòng đang chờ xử lý");
         }
 
+        // Validate số ngày báo trước tối thiểu (7 ngày)
+        int minNoticeDays = Integer.parseInt(systemConfigService.getConfigValue("MIN_CHECKOUT_NOTICE_DAYS", "7"));
+        LocalDateTime minValidDate = LocalDateTime.now().plusDays(minNoticeDays).truncatedTo(ChronoUnit.DAYS);
+        
+        if (request.getIntendedCheckoutDate().isBefore(minValidDate)) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, 
+                "Ngày dự kiến trả phòng phải báo trước ít nhất " + minNoticeDays + " ngày (từ ngày " + minValidDate.toLocalDate().toString() + " trở đi)");
+        }
+
+        // [LUẬT LƯU TRÚ] Không cho phép làm đơn trả phòng sớm nếu chỉ còn dưới 30 ngày là hết hạn đợt
+        StudentHousingAssignment activeAssignment = assignmentRepository
+                .findByStudent_StudentIdAndStatus(student.getStudentId(), AssignmentStatus.OCCUPIED)
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Bạn hiện không lưu trú tại Ký túc xá"));
+
+        LocalDate endDate = activeAssignment.getApplication().getRegistrationPeriod().getStayEndDate().toLocalDate();
+        LocalDate now = LocalDate.now();
+        long daysUntilEnd = ChronoUnit.DAYS.between(now, endDate);
+        
+        if (daysUntilEnd < 30) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, 
+                "Bạn đang trong tháng cuối cùng của kỳ lưu trú. Hệ thống không tiếp nhận đơn trả phòng sớm. Vui lòng dọn dẹp và chờ hệ thống tự động trả phòng vào ngày " + endDate);
+        }
+
         boolean hasDebts = billRepository.existsByStudentIdAndStatusIn(student.getStudentId(), Arrays.asList(BillStatus.UNPAID, BillStatus.OVERDUE));
         if (hasDebts) {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Bạn đang có hóa đơn tiền phòng hoặc điện nước chưa thanh toán. Vui lòng thanh toán toàn bộ nợ trước khi xin trả phòng.");
         }
-
-        StudentHousingAssignment activeAssignment = assignmentRepository
-                .findByStudent_StudentIdAndStatus(student.getStudentId(), AssignmentStatus.OCCUPIED)
-                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Bạn hiện không lưu trú tại Ký túc xá"));
 
         CheckoutRequest checkoutReq = new CheckoutRequest();
         checkoutReq.setStudent(student);
@@ -112,11 +137,10 @@ public class CheckoutRequestService {
         CheckoutRequest checkoutReq = checkoutRequestRepository.findById(requestId)
                 .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy đơn xin trả phòng"));
 
-        if (checkoutReq.getStatus() != CheckoutStatus.PENDING) {
-            throw new AppException(ErrorCode.VALIDATION_FAILED, "Đơn xin trả phòng này đã được xử lý trước đó");
-        }
-
         if (request.getStatus() == CheckoutStatus.APPROVED) {
+            if (checkoutReq.getStatus() != CheckoutStatus.PENDING) {
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ có thể duyệt đơn đang ở trạng thái PENDING");
+            }
             checkoutReq.setStatus(CheckoutStatus.APPROVED);
             // Kích hoạt logic check-out giường thực tế
             housingAssignmentService.checkOut(checkoutReq.getAssignment().getAssignmentId());
@@ -129,8 +153,16 @@ public class CheckoutRequestService {
                     checkoutReq.getStudent().getStudentCode()
             ));
         } else if (request.getStatus() == CheckoutStatus.REJECTED) {
+            if (checkoutReq.getStatus() != CheckoutStatus.PENDING) {
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ có thể từ chối đơn đang ở trạng thái PENDING");
+            }
             checkoutReq.setStatus(CheckoutStatus.REJECTED);
             checkoutReq.setRejectReason(request.getRejectReason());
+        } else if (request.getStatus() == CheckoutStatus.COMPLETED) {
+            if (checkoutReq.getStatus() != CheckoutStatus.APPROVED) {
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ có thể hoàn tất đơn khi đã được APPROVED trước đó");
+            }
+            checkoutReq.setStatus(CheckoutStatus.COMPLETED);
         } else {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Trạng thái xử lý không hợp lệ");
         }

@@ -3,7 +3,9 @@ package com.sdms.backend.modules.dashboard.service;
 import com.sdms.backend.modules.application.enums.ApplicationStatus;
 import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
 import com.sdms.backend.modules.dashboard.dto.response.DashboardStatsResponse;
+import com.sdms.backend.modules.dashboard.dto.response.ExpiringAssignmentDto;
 import com.sdms.backend.modules.dashboard.dto.response.HourlyTrafficDto;
+import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.repository.BedRepository;
 import com.sdms.backend.modules.room.repository.BuildingRepository;
@@ -16,6 +18,7 @@ import com.sdms.backend.modules.payment.enums.BillStatus;
 import com.sdms.backend.modules.student.repository.StayExtensionRepository;
 import com.sdms.backend.modules.student.enums.ExtensionStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -138,5 +141,32 @@ public class DashboardService {
                 .extensionsByStatus(extensionsByStatus)
                 .billsByStatus(billsByStatus)
                 .build();
+    }
+
+    public List<ExpiringAssignmentDto> getExpiringAssignments(int days) {
+        LocalDate today = LocalDate.now();
+        LocalDate targetDate = today.plusDays(days);
+        
+        List<StudentHousingAssignment> expiringAssignments = assignmentRepository
+            .findByStatusAndApplication_RegistrationPeriod_StayEndDateBetween(
+                AssignmentStatus.OCCUPIED, 
+                today.atStartOfDay(), 
+                targetDate.atTime(LocalTime.MAX)
+            );
+            
+        List<ExpiringAssignmentDto> result = new ArrayList<>();
+        for (StudentHousingAssignment assignment : expiringAssignments) {
+            result.add(ExpiringAssignmentDto.builder()
+                .assignmentId(assignment.getAssignmentId())
+                .studentCode(assignment.getStudent().getStudentCode())
+                .studentName(assignment.getStudent().getFullName())
+                .buildingName(assignment.getBed().getRoom().getFloor().getBuilding().getName())
+                .roomName(assignment.getBed().getRoom().getRoomCode())
+                .bedName(assignment.getBed().getBedCode())
+                .endDate(assignment.getApplication().getRegistrationPeriod().getEndDate().toLocalDate())
+                .build());
+        }
+        
+        return result;
     }
 }

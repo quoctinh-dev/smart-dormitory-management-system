@@ -59,7 +59,9 @@ export default function ChangeRoomManagementPage() {
     return requests.filter((req) => {
       const matchKeyword = 
         (req.currentRoomName || '').toLowerCase().includes(filterKeyword.toLowerCase()) ||
-        (req.targetRoomName || '').toLowerCase().includes(filterKeyword.toLowerCase());
+        (req.targetRoomName || '').toLowerCase().includes(filterKeyword.toLowerCase()) ||
+        (req.studentCode || '').toLowerCase().includes(filterKeyword.toLowerCase()) ||
+        (req.studentName || '').toLowerCase().includes(filterKeyword.toLowerCase());
       
       const matchStatus = filterStatus === 'ALL' || req.status === filterStatus;
       
@@ -174,6 +176,7 @@ export default function ChangeRoomManagementPage() {
           <TableHead>
             <TableRow sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05) }}>
               <TableCell sx={{ fontWeight: 'bold' }}>Ngày gửi</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Sinh viên</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Phòng hiện tại</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Phòng mong muốn</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Lý do</TableCell>
@@ -192,6 +195,10 @@ export default function ChangeRoomManagementPage() {
               paginatedRequests.map((req) => (
                 <TableRow key={req.id} hover>
                   <TableCell>{new Date(req.createdAt).toLocaleString('vi-VN')}</TableCell>
+                  <TableCell>
+                    <Typography variant="body2" fontWeight="bold">{req.studentName || 'N/A'}</Typography>
+                    <Typography variant="caption" color="text.secondary">{req.studentCode || 'N/A'}</Typography>
+                  </TableCell>
                   <TableCell>{req.currentRoomName || 'N/A'}</TableCell>
                   <TableCell>{req.targetRoomName || 'Không xác định'}</TableCell>
                   <TableCell

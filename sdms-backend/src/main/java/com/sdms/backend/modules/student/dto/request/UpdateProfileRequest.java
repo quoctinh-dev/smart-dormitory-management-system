@@ -17,9 +17,10 @@ public class UpdateProfileRequest {
     private String fatherPhone;
     private String motherName;
     private String motherPhone;
-    private String emergencyContact;
+    private String contactAddress;
     private String permanentAddress;
     private String avatarUrl;
+
 
     // === TRƯỜNG BỊ KHÓA (Locked — không có trong Request DTO, chỉ Admin mới sửa được) ===
     // cccd         → Định danh quốc gia, 1 người 1 số duy nhất, Admin xử lý nếu đổi CMND→CCCD

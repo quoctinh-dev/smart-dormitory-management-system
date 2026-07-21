@@ -1,6 +1,9 @@
 package com.sdms.backend.modules.student.repository;
 
 import com.sdms.backend.modules.student.entity.StayExtension;
+import com.sdms.backend.modules.student.enums.ExtensionStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,6 +12,21 @@ import java.util.UUID;
 
 @Repository
 public interface StayExtensionRepository extends JpaRepository<StayExtension, UUID> {
+
+    Page<StayExtension> findByStatus(ExtensionStatus status, Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Query("""
+        SELECT e FROM StayExtension e
+        WHERE (:status IS NULL OR e.status = :status)
+        AND (:search IS NULL OR :search = '' 
+             OR LOWER(e.student.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
+             OR e.student.studentCode LIKE CONCAT('%', :search, '%'))
+    """)
+    Page<StayExtension> findAllWithFilters(
+            @org.springframework.data.repository.query.Param("status") ExtensionStatus status,
+            @org.springframework.data.repository.query.Param("search") String search,
+            Pageable pageable
+    );
 
     Optional<StayExtension> findByStudent_StudentCode(String studentCode);
 

@@ -22,7 +22,13 @@ import {
   IconButton,
   CircularProgress,
   Stack,
+  MenuItem,
+  Select,
+  InputAdornment,
+  Tooltip,
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { alpha } from '@mui/material/styles';
 import React from 'react';
 
@@ -81,6 +87,13 @@ function InlinePdfPreviewButton({ url, title, buttonText }: { url: string; title
   );
 }
 
+const REASON_MAP: Record<string, string> = {
+  ROOM_LEADER: 'Trưởng phòng / Ban tự quản',
+  POLICY_BENEFICIARY: 'Diện chính sách',
+  ACADEMIC_EXCELLENCE: 'Thành tích học tập tốt',
+  OTHER: 'Lý do khác',
+};
+
 export default function StayExtensionManagement() {
   const {
     extensions,
@@ -104,6 +117,12 @@ export default function StayExtensionManagement() {
     selectedProfile,
     loadingProfile,
     handleOpenProfile,
+    statusFilter,
+    setStatusFilter,
+    searchTerm,
+    setSearchTerm,
+    handleSearchClick,
+    handleSearchKeyPress,
   } = useStayExtensionManagement();
 
   return (
@@ -116,6 +135,59 @@ export default function StayExtensionManagement() {
           Duyệt hoặc từ chối các đơn xin gia hạn thời gian lưu trú của sinh viên.
         </Typography>
       </Box>
+
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+        }}
+      >
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
+          <TextField
+            fullWidth
+            placeholder="Tìm kiếm theo Tên, MSSV..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchKeyPress}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color="action" />
+                </InputAdornment>
+              ),
+            }}
+            size="small"
+          />
+          <Select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(0);
+            }}
+            displayEmpty
+            size="small"
+            sx={{ minWidth: 200 }}
+          >
+            <MenuItem value="">Tất cả trạng thái</MenuItem>
+            <MenuItem value="PENDING">Chờ duyệt</MenuItem>
+            <MenuItem value="APPROVED">Đã duyệt</MenuItem>
+            <MenuItem value="REJECTED">Từ chối</MenuItem>
+          </Select>
+          <Button
+            variant="contained"
+            onClick={handleSearchClick}
+            startIcon={<SearchIcon />}
+            sx={{ minWidth: 120, borderRadius: 2 }}
+          >
+            Tìm kiếm
+          </Button>
+        </Stack>
+      </Paper>
 
       <Paper
         elevation={3}
@@ -192,20 +264,27 @@ export default function StayExtensionManagement() {
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2" noWrap title={row.reason} sx={{ maxWidth: 200 }}>
-                            {row.reason}
+                          <Typography variant="body2" noWrap title={REASON_MAP[row.reason] || row.reason} sx={{ maxWidth: 200, fontWeight: 500 }}>
+                            {REASON_MAP[row.reason] || row.reason}
                           </Typography>
                           <Typography variant="caption" color="text.secondary" noWrap sx={{ maxWidth: 200, display: 'block' }}>
                             {row.description}
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Chip
-                            label={isApproved ? 'Đã duyệt' : isRejected ? 'Từ chối' : 'Chờ duyệt'}
-                            size="small"
-                            color={isApproved ? 'success' : isRejected ? 'error' : 'warning'}
-                            sx={{ fontWeight: 'bold' }}
-                          />
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <Chip
+                              label={isApproved ? 'Đã duyệt' : isRejected ? 'Từ chối' : 'Chờ duyệt'}
+                              size="small"
+                              color={isApproved ? 'success' : isRejected ? 'error' : 'warning'}
+                              sx={{ fontWeight: 'bold' }}
+                            />
+                            {isRejected && row.rejectReason && (
+                              <Tooltip title={`Lý do: ${row.rejectReason}`} arrow placement="top">
+                                <InfoOutlinedIcon color="error" fontSize="small" sx={{ cursor: 'pointer' }} />
+                              </Tooltip>
+                            )}
+                          </Stack>
                         </TableCell>
                         <TableCell align="center">
                           {row.status === 'PENDING' && (
@@ -240,11 +319,6 @@ export default function StayExtensionManagement() {
                                 buttonText="Cam kết" 
                             />
                           )}
-                          {row.status === 'REJECTED' && row.rejectReason && (
-                            <Typography variant="caption" color="error.main" title={row.rejectReason} noWrap sx={{ maxWidth: 100 }}>
-                              {row.rejectReason}
-                            </Typography>
-                          )}
                         </TableCell>
                       </TableRow>
                     );
@@ -252,19 +326,22 @@ export default function StayExtensionManagement() {
                 )}
               </TableBody>
             </Table>
-            <TablePagination
-              component="div"
-              count={totalElements || 0}
-              page={page}
-              onPageChange={(_, newPage) => setPage(newPage)}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={(e) => {
-                setRowsPerPage(parseInt(e.target.value, 10));
-                setPage(0);
-              }}
-              labelRowsPerPage="Số dòng/trang:"
-            />
           </TableContainer>
+        )}
+
+        {!loading && (
+          <TablePagination
+            component="div"
+            count={totalElements || 0}
+            page={page}
+            onPageChange={(_, newPage) => setPage(newPage)}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={(e) => {
+              setRowsPerPage(parseInt(e.target.value, 10));
+              setPage(0);
+            }}
+            labelRowsPerPage="Số dòng/trang:"
+          />
         )}
       </Paper>
 
@@ -276,13 +353,13 @@ export default function StayExtensionManagement() {
         <DialogContent dividers>
           <Typography variant="body1" sx={{ mb: 2 }}>
             Bạn đang thao tác với đơn gia hạn của sinh viên <b>{selectedRequest?.fullName}</b>.
-            {reviewStatus === 'APPROVED' && (
-              <Alert severity="info" sx={{ mt: 2, borderRadius: 2 }}>
-                Sau khi duyệt, hệ thống sẽ kéo dài hợp đồng và tự động sinh hóa đơn thu tiền cho đợt
-                lưu trú mới.
-              </Alert>
-            )}
           </Typography>
+          {reviewStatus === 'APPROVED' && (
+            <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
+              Sau khi duyệt, hệ thống sẽ kéo dài hợp đồng và tự động sinh hóa đơn thu tiền cho đợt
+              lưu trú mới.
+            </Alert>
+          )}
           {reviewStatus === 'REJECTED' && (
             <TextField
               autoFocus

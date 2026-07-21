@@ -103,7 +103,7 @@ export default function ApplicationReviewQueue() {
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
           <TextField
             fullWidth
-            placeholder="Tìm kiếm theo Tên, CCCD, Mã Đơn..."
+            placeholder="Tìm kiếm theo Tên, MSSV, CCCD, Mã Đơn..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={handleSearchKeyPress}

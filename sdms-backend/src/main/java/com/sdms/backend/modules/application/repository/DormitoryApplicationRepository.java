@@ -30,7 +30,10 @@ public interface DormitoryApplicationRepository
     @Query("""
         SELECT a FROM DormitoryApplication a
         WHERE (:status IS NULL OR a.status = :status)
-        AND (LOWER(a.fullName) LIKE LOWER(CONCAT('%', :search, '%')) OR a.cccd LIKE CONCAT('%', :search, '%') OR a.applicationCode LIKE CONCAT('%', :search, '%'))
+        AND (LOWER(a.fullName) LIKE LOWER(CONCAT('%', :search, '%')) 
+             OR a.cccd LIKE CONCAT('%', :search, '%') 
+             OR a.applicationCode LIKE CONCAT('%', :search, '%')
+             OR a.studentCode LIKE CONCAT('%', :search, '%'))
     """)
     org.springframework.data.domain.Page<DormitoryApplication> findAllWithFilters(
             @Param("status") ApplicationStatus status,

@@ -17,7 +17,7 @@ export interface NotificationDeliveryLog {
   channel: string;
   status: string;
   errorMessage: string | null;
-  createdAt: string;
+  sentAt: string;
 }
 
 export interface BroadcastRequest {

@@ -9,7 +9,8 @@ import HowToRegIcon from '@mui/icons-material/HowToReg';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import { Box, Paper, Typography, CircularProgress, useTheme, alpha, Avatar, Divider } from '@mui/material';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { Box, Paper, Typography, CircularProgress, useTheme, alpha, Avatar, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
@@ -20,7 +21,7 @@ import { useAdminDashboard } from '@/hooks/useAdminDashboard';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const { data, loading } = useAdminDashboard();
+  const { data, expiringList, loading } = useAdminDashboard();
   const theme = useTheme();
 
   // 1. Tỉ lệ lấp đầy & Khả năng tiếp nhận
@@ -397,6 +398,60 @@ export default function AdminDashboard() {
                   style={{ height: '100%', width: '100%' }} 
                 />
               </Box>
+            </Paper>
+          </Grid>
+
+          {/* ----------------- EXPIRING ASSIGNMENTS ----------------- */}
+          <Grid size={12}>
+            <Paper sx={{ p: 3, borderRadius: 4 }}>
+              <Box display="flex" alignItems="center" gap={2} mb={3}>
+                <Avatar sx={{ bgcolor: alpha(theme.palette.warning.main, 0.1), color: 'warning.main' }}>
+                  <WarningAmberIcon />
+                </Avatar>
+                <Typography variant="h6" fontWeight="bold">
+                  Sinh viên sắp hết hạn lưu trú (7 ngày tới)
+                </Typography>
+                <Chip label={expiringList?.length || 0} color="warning" size="small" sx={{ fontWeight: 'bold' }} />
+              </Box>
+              
+              <TableContainer>
+                <Table size="small">
+                  <TableHead sx={{ bgcolor: 'background.elevation1' }}>
+                    <TableRow>
+                      <TableCell>MSSV</TableCell>
+                      <TableCell>Họ tên</TableCell>
+                      <TableCell>Tòa nhà</TableCell>
+                      <TableCell>Phòng</TableCell>
+                      <TableCell>Giường</TableCell>
+                      <TableCell>Ngày hết hạn</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {(!expiringList || expiringList.length === 0) ? (
+                      <TableRow>
+                        <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                          <Typography color="text.secondary">Không có sinh viên nào sắp hết hạn trong 7 ngày tới.</Typography>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      expiringList.map((item) => (
+                        <TableRow key={item.assignmentId} hover>
+                          <TableCell sx={{ fontWeight: 'bold' }}>{item.studentCode}</TableCell>
+                          <TableCell>{item.studentName}</TableCell>
+                          <TableCell>{item.buildingName}</TableCell>
+                          <TableCell>{item.roomName}</TableCell>
+                          <TableCell>{item.bedName}</TableCell>
+                          <TableCell>
+                            <Typography color="error.main" fontWeight="bold">
+                              {item.endDate}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Paper>
           </Grid>
 

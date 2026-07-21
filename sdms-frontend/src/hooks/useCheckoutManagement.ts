@@ -14,7 +14,7 @@ export const useCheckoutManagement = () => {
 
   const [openReview, setOpenReview] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<CheckoutRequestResponse | null>(null);
-  const [reviewStatus, setReviewStatus] = useState<'APPROVED' | 'REJECTED'>('APPROVED');
+  const [reviewStatus, setReviewStatus] = useState<'APPROVED' | 'REJECTED' | 'COMPLETED'>('APPROVED');
   const [rejectReason, setRejectReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,7 +40,7 @@ export const useCheckoutManagement = () => {
     fetchRequests();
   }, [fetchRequests]);
 
-  const handleOpenReview = (request: CheckoutRequestResponse, status: 'APPROVED' | 'REJECTED') => {
+  const handleOpenReview = (request: CheckoutRequestResponse, status: 'APPROVED' | 'REJECTED' | 'COMPLETED') => {
     setSelectedRequest(request);
     setReviewStatus(status);
     setRejectReason('');

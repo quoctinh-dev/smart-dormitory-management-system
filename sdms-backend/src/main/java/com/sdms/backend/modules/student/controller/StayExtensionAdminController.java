@@ -4,6 +4,7 @@ import com.sdms.backend.common.response.ApiResponse;
 import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.student.dto.request.StayExtensionReviewRequest;
 import com.sdms.backend.modules.student.dto.response.StayExtensionResponse;
+import com.sdms.backend.modules.student.enums.ExtensionStatus;
 import com.sdms.backend.modules.student.service.StayExtensionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,14 +27,16 @@ public class StayExtensionAdminController {
 
     private final StayExtensionService stayExtensionService;
 
-    @Operation(summary = "Lấy danh sách đơn gia hạn", description = "Lấy tất cả đơn xin gia hạn lưu trú của sinh viên, có hỗ trợ phân trang")
+    @Operation(summary = "Lấy danh sách đơn gia hạn", description = "Lấy tất cả đơn xin gia hạn lưu trú của sinh viên, có hỗ trợ phân trang và lọc theo trạng thái")
     @GetMapping
     public ApiResponse<PageResponse<StayExtensionResponse>> getAllExtensions(
+            @RequestParam(required = false) ExtensionStatus status,
+            @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        PageResponse<StayExtensionResponse> response = stayExtensionService.getAllExtensions(pageable);
+        PageResponse<StayExtensionResponse> response = stayExtensionService.getAllExtensions(status, search, pageable);
         return ApiResponse.success("Lấy danh sách đơn gia hạn thành công", response);
     }
 

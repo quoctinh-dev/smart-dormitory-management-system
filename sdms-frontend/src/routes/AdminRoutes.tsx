@@ -26,6 +26,7 @@ const SmartAccessManagement = lazy(() => import('@/pages/admin/SmartAccessManage
 const GateManagement = lazy(() => import('@/pages/admin/GateManagement'));
 const UtilityReadingPage = lazy(() => import('@/pages/admin/UtilityReadingPage'));
 const AccountManagementPage = lazy(() => import('@/pages/admin/AccountManagementPage'));
+const StudentManagementPage = lazy(() => import('@/pages/admin/StudentManagementPage'));
 const SystemConfigPage = lazy(() => import('@/pages/admin/SystemConfigPage'));
 
 // Wrapped components for suspense
@@ -47,6 +48,7 @@ const RoomManagementLazy = wrap(RoomManagementPage);
 const SmartAccessManagementLazy = wrap(SmartAccessManagement);
 const GateManagementLazy = wrap(GateManagement);
 const AccountManagementLazy = wrap(AccountManagementPage);
+const StudentManagementLazy = wrap(StudentManagementPage);
 const UtilityReadingPageLazy = wrap(UtilityReadingPage);
 const SystemConfigPageLazy = wrap(SystemConfigPage);
 
@@ -83,6 +85,7 @@ export const adminRoutes: RouteObject[] = [
           { path: 'admin/checkout-requests', element: <CheckoutManagementLazy /> },
           { path: 'admin/smart-access', element: <SmartAccessManagementLazy /> },
           { path: 'admin/gates', element: <GateManagementLazy /> },
+          { path: 'admin/students', element: <StudentManagementLazy /> },
           { path: 'admin/system-configs', element: <SystemConfigPageLazy /> },
         ],
       },

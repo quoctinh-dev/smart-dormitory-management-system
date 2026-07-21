@@ -27,3 +27,14 @@ export interface DashboardStatsResponse {
   extensionsByStatus?: Record<string, number>;
   billsByStatus?: Record<string, number>;
 }
+
+export interface ExpiringAssignmentDto {
+  assignmentId: string;
+  studentId: string;
+  studentCode: string;
+  studentName: string;
+  buildingName: string;
+  roomName: string;
+  bedName: string;
+  endDate: string;
+}
