@@ -76,12 +76,15 @@ public class BillGenerationListener {
 
                 if (billAmount.compareTo(BigDecimal.ZERO) == 0) break;
 
-                // Đơn đầu tiên: Tính từ ngày hôm nay (now). Các đơn sau: Tính từ ngày bắt đầu lưu trú + số tháng đã ở
+                // Đơn đầu tiên hoặc nếu hạn thanh toán bị lùi về quá khứ thì kẹp (clamp) về hiện tại
+                java.time.LocalDate calculatedDueDate = start.plusMonths(currentDelayMonths).plusDays(deadlineDays);
+                java.time.LocalDate minDueDate = java.time.LocalDate.now().plusDays(deadlineDays);
+
                 java.time.LocalDate dueDate;
-                if (currentDelayMonths == 0) {
-                    dueDate = java.time.LocalDate.now().plusDays(deadlineDays);
+                if (currentDelayMonths == 0 || calculatedDueDate.isBefore(minDueDate)) {
+                    dueDate = minDueDate;
                 } else {
-                    dueDate = start.plusMonths(currentDelayMonths).plusDays(deadlineDays);
+                    dueDate = calculatedDueDate;
                 }
 
                 billService.createAccommodationBill(
@@ -150,12 +153,15 @@ public class BillGenerationListener {
 
                 if (billAmount.compareTo(BigDecimal.ZERO) == 0) break;
 
-                // Đơn đầu tiên: Tính từ ngày hôm nay (now). Các đơn sau: Tính từ ngày bắt đầu lưu trú mới + số tháng đã ở
+                // Đơn đầu tiên hoặc nếu hạn thanh toán bị lùi về quá khứ thì kẹp (clamp) về hiện tại
+                java.time.LocalDate calculatedDueDate = start.plusMonths(currentDelayMonths).plusDays(deadlineDays);
+                java.time.LocalDate minDueDate = java.time.LocalDate.now().plusDays(deadlineDays);
+
                 java.time.LocalDate dueDate;
-                if (currentDelayMonths == 0) {
-                    dueDate = java.time.LocalDate.now().plusDays(deadlineDays);
+                if (currentDelayMonths == 0 || calculatedDueDate.isBefore(minDueDate)) {
+                    dueDate = minDueDate;
                 } else {
-                    dueDate = start.plusMonths(currentDelayMonths).plusDays(deadlineDays);
+                    dueDate = calculatedDueDate;
                 }
 
                 billService.createAccommodationBill(

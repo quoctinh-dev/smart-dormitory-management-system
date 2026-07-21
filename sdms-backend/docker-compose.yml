@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: sdms-postgres
+    environment:
+      POSTGRES_DB: sdms_db
+      POSTGRES_USER: sdms_user
+      POSTGRES_PASSWORD: sdms_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sdms_user -d sdms_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: sdms-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  backend:
+    build: .
+    container_name: sdms-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/sdms_db
+      - DB_USERNAME=sdms_user
+      - DB_PASSWORD=sdms_password
+      - SPRING_REDIS_HOST=redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
