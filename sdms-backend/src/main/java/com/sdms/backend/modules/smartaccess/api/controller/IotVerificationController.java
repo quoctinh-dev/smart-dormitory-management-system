@@ -1,5 +1,6 @@
 package com.sdms.backend.modules.smartaccess.api.controller;
 
+import com.sdms.backend.modules.notification.service.InAppNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -15,7 +16,9 @@ import com.sdms.backend.modules.face.service.FaceVerificationService;
 import com.sdms.backend.modules.upload.service.CloudinaryService;
 import com.sdms.backend.common.response.ApiResponse;
 import org.springframework.web.multipart.MultipartFile;
+import com.sdms.backend.modules.system.service.SystemConfigService;
 
+import java.time.LocalTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -31,6 +34,8 @@ public class IotVerificationController {
     private final FaceVerificationService faceVerificationService;
     private final EligibilityEvaluationService eligibilityEvaluationService;
     private final CloudinaryService cloudinaryService;
+    private final SystemConfigService systemConfigService;
+    private final InAppNotificationService inAppNotificationService;
     /**
      * Endpoint for IoT ESP32 to send RFID card verification requests.
      */
@@ -70,12 +75,50 @@ public class IotVerificationController {
                 log.error("[IoT] Failed to upload snapshot to Cloudinary", e);
             }
         }
+        
+        // --- DUAL VERIFICATION LOGIC ---
+        LocalTime nowTime = LocalTime.now();
+        LocalTime dualAuthStart = LocalTime.parse(systemConfigService.getConfigValue("DUAL_AUTH_START", "18:00"));
+        LocalTime dualAuthEnd = LocalTime.parse(systemConfigService.getConfigValue("DUAL_AUTH_END", "06:00"));
+
+        boolean isDualAuthTime = false;
+        if (dualAuthStart.isBefore(dualAuthEnd)) {
+            isDualAuthTime = !nowTime.isBefore(dualAuthStart) && !nowTime.isAfter(dualAuthEnd);
+        } else {
+            isDualAuthTime = !nowTime.isBefore(dualAuthStart) || !nowTime.isAfter(dualAuthEnd);
+        }
+
+        VerificationMethod finalMethod = VerificationMethod.RFID;
+
+        if (isDualAuthTime) {
+            log.info("[IoT] Dual Authentication required for RFID {}", rfidCode);
+            if (snapshot == null || snapshot.isEmpty()) {
+                log.warn("[IoT] Missing snapshot for dual authentication.");
+                accessEvaluationService.logFailedAccess(studentId, gateId, VerificationMethod.RFID_AND_FACE, snapshotUrl, "DUAL_AUTH_MISSING_FACE");
+                return new ApiResponse<>(false, "Thiếu ảnh khuôn mặt cho xác thực kép", Map.of("status", "DENIED"), "DUAL_AUTH_MISSING_FACE");
+            }
+            
+            // Perform Face Verification
+            try {
+                var faceResult = faceVerificationService.verifyFace(gateIdStr, snapshot);
+                if (!faceResult.isMatch() || !faceResult.matchedProfileId().equals(studentId)) {
+                    log.warn("[IoT] DUAL AUTH FAILED: Face does not match RFID for student {}", studentId);
+                    accessEvaluationService.logFailedAccess(studentId, gateId, VerificationMethod.RFID_AND_FACE, snapshotUrl, "DUAL_AUTH_MISMATCH");
+                    return new ApiResponse<>(false, "Khuôn mặt không khớp thẻ (Xác thực kép thất bại)", Map.of("status", "DENIED"), "DUAL_AUTH_MISMATCH");
+                }
+                finalMethod = VerificationMethod.RFID_AND_FACE;
+            } catch (Exception e) {
+                log.error("[IoT] Face verification error during Dual Auth", e);
+                accessEvaluationService.logFailedAccess(studentId, gateId, VerificationMethod.RFID_AND_FACE, snapshotUrl, "FACE_VERIFICATION_ERROR");
+                return new ApiResponse<>(false, "Lỗi xác thực khuôn mặt", Map.of("status", "DENIED"), "FACE_VERIFICATION_ERROR");
+            }
+        }
 
         eventPublisher.publishEvent(new IdentityVerifiedEvent(
                 eventId,
                 studentId,
                 gateId,
-                VerificationMethod.RFID,
+                finalMethod,
                 snapshotUrl
         ));
 
@@ -207,6 +250,51 @@ public class IotVerificationController {
                 false, "Từ chối truy cập do chính sách an ninh",
                 Map.of("status", "DENIED"), "IOT_ACCESS_DENIED_POLICY"
             );
+        }
+    }
+
+    /**
+     * Endpoint for ESP32 to report a hardware component failure.
+     * Example: Camera offline, RFID reader disconnected, etc.
+     * No authentication required (device cannot hold JWT), but uses a shared API key header.
+     */
+    @Operation(summary = "Báo lỗi phần cứng", description = "ESP32 gửi cảnh báo khi phát hiện sự cố cảm biến/đầu đọc. Tạo thông báo khẩn cho Admin.")
+    @PostMapping("/report/hardware-error")
+    public ApiResponse<Map<String, String>> reportHardwareError(
+            @RequestParam("gateId") String gateId,
+            @RequestParam("gateName") String gateName,
+            @RequestParam("component") String component,
+            @RequestParam("detail") String detail) {
+
+        log.error("[IoT] Hardware error reported — Gate: {}, Component: {}, Detail: {}", gateName, component, detail);
+
+        try {
+            inAppNotificationService.notifyHardwareError(gateId, gateName, component, detail);
+        } catch (Exception e) {
+            log.error("[IoT] Failed to create hardware error notification", e);
+        }
+
+        return ApiResponse.success("Đã ghi nhận sự cố phần cứng và thông báo Admin", Map.of("status", "RECEIVED"));
+    }
+
+    /**
+     * Endpoint for ESP32 to sync offline access logs.
+     * Called when device reconnects to WiFi.
+     */
+    @Operation(summary = "Đồng bộ log offline", description = "ESP32 gửi danh sách lịch sử quét thẻ khi mất mạng lên server để lưu lại")
+    @PostMapping("/offline-log-batch")
+    public ApiResponse<Map<String, String>> syncOfflineLogs(
+            @RequestBody com.sdms.backend.modules.smartaccess.api.dto.request.OfflineLogBatchRequest request) {
+
+        log.info("[IoT] Received offline log sync batch: gateId={}, logsCount={}", 
+            request.gateId(), request.logs() != null ? request.logs().size() : 0);
+
+        try {
+            accessEvaluationService.processOfflineLogBatch(request);
+            return ApiResponse.success("Đồng bộ log offline thành công", Map.of("status", "SYNCED"));
+        } catch (Exception e) {
+            log.error("[IoT] Failed to process offline logs", e);
+            return new ApiResponse<>(false, "Lỗi đồng bộ log offline", Map.of("status", "ERROR"), "IOT_OFFLINE_SYNC_ERROR");
         }
     }
 }

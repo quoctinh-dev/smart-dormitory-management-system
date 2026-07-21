@@ -18,6 +18,7 @@ void setup() {
     initLcd();
     initServo();
     initKeypad();
+    OfflineAccessLog::begin(); // Khởi tạo bộ nhớ lưu log NVS
 
     // 2. Kết nối WiFi
     initWiFi();
@@ -31,4 +32,8 @@ void loop() {
 
     // Xử lý logic nhập phím
     processKeypadInput();
+    
+    // Duy trì các tác vụ Non-blocking
+    maintainLcd();
+    maintainServo();
 }

@@ -4,7 +4,11 @@
 #include "../config/Config.h"
 #include "../config/Pins.h"
 #include "../network/HttpManager.h"
+#include "../storage/OfflineWhitelist.h"
+#include "../storage/OfflineAccessLog.h"
+#include "../drivers/RelayController.h"
 #include "CameraDriver.h"
+#include <WiFi.h>
 
 // RC522 instance using validated HSPI pins
 static MFRC522 mfrc522(RFID_SS_PIN, RFID_RST_PIN);
@@ -56,14 +60,34 @@ void RfidDriver::maintain() {
 
     mfrc522.PICC_HaltA();
     Serial.println("[RFID] Card detected. UID: " + uid);
-    Serial.println("[RFID] Capturing Fallback Snapshot...");
+
+    // =========================================================
+    // ONLINE MODE: WiFi có kết nối → gửi lên Backend xác thực
+    // =========================================================
+    bool onlineSuccess = false;
+    camera_fb_t* fb = nullptr;
     
-    // Capture fallback snapshot
-    camera_fb_t* fb = CameraDriver::capture();
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("[RFID] [ONLINE] Sending to Backend for verification...");
+        fb = CameraDriver::capture();
+        onlineSuccess = HttpManager::verifyCard(uid, fb);
+    }
     
-    HttpManager::verifyCard(uid, fb);
-    
+    // Nếu rớt mạng cục bộ (mất WiFi) HOẶC đứt cáp quang (có WiFi nhưng gọi API xịt)
+    if (!onlineSuccess) {
+        Serial.println("[RFID] [OFFLINE] No WiFi or Server unreachable. Checking offline whitelist...");
+        if (OfflineWhitelist::contains(uid)) {
+            Serial.println("[RFID] [OFFLINE] ✅ UID found in offline whitelist. GRANTED.");
+            RelayController::unlock();
+            // Log gắn gọn — sẽ được đồng bộ lên server sau khi WiFi phục hồi
+            OfflineAccessLog::push(uid, millis(), "OFFLINE_GRANT");
+        } else {
+            Serial.println("[RFID] [OFFLINE] ❌ UID not in whitelist. DENIED.");
+        }
+    }
+
     if (fb != nullptr) {
         CameraDriver::release(fb);
     }
 }
+

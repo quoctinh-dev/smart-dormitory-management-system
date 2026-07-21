@@ -222,13 +222,25 @@ public class FaceProfileServiceImpl implements FaceProfileService {
     @Override
     @Transactional(readOnly = true)
     public Page<com.sdms.backend.modules.face.dto.response.FaceProfileSummaryResponse> searchPendingProfiles(Pageable pageable) {
-        return faceProfileRepository.findByStatusOrPendingFaceImageUrlIsNotNull(FaceProfileStatus.PENDING, pageable)
-                .map(profile -> new com.sdms.backend.modules.face.dto.response.FaceProfileSummaryResponse(
-                        profile.getProfileId(),
-                        profile.getStudentId(),
-                        profile.getPendingFaceImageUrl() != null ? profile.getPendingFaceImageUrl() : profile.getFaceImageUrl(),
-                        profile.getStatus(),
-                        profile.getCreatedAt()
-                ));
+        Page<FaceProfile> profilePage = faceProfileRepository.findByStatusOrPendingFaceImageUrlIsNotNull(FaceProfileStatus.PENDING, pageable);
+        
+        java.util.List<UUID> studentIds = profilePage.getContent().stream()
+                .map(FaceProfile::getStudentId)
+                .toList();
+                
+        java.util.Map<UUID, com.sdms.backend.modules.face.port.StudentQueryPort.StudentBasicInfo> studentInfoMap = studentQueryPort.getStudentBasicInfoMap(studentIds);
+
+        return profilePage.map(profile -> {
+            com.sdms.backend.modules.face.port.StudentQueryPort.StudentBasicInfo info = studentInfoMap.get(profile.getStudentId());
+            return new com.sdms.backend.modules.face.dto.response.FaceProfileSummaryResponse(
+                    profile.getProfileId(),
+                    profile.getStudentId(),
+                    info != null ? info.studentCode() : null,
+                    info != null ? info.fullName() : null,
+                    profile.getPendingFaceImageUrl() != null ? profile.getPendingFaceImageUrl() : profile.getFaceImageUrl(),
+                    profile.getStatus(),
+                    profile.getCreatedAt()
+            );
+        });
     }
 }

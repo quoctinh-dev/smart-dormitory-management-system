@@ -57,8 +57,8 @@ public class PaymentController {
      *   ↓
      * Admin confirms
      */
-    @Operation(summary = "Admin xác nhận thanh toán tiền mặt")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Admin/Staff xác nhận thanh toán tiền mặt")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @PostMapping("/cash/approve")
     public ApiResponse<PaymentResponse> approveCashPayment(
             @Valid @RequestBody CashPaymentRequest request

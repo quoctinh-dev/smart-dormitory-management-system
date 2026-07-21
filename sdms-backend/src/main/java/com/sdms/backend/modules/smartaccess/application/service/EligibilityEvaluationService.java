@@ -23,8 +23,8 @@ public class EligibilityEvaluationService {
         }
 
         StudentEligibilitySnapshot snapshot = snapshotOpt.get();
-        // Strict ACL constraint: Student must be specifically "ACTIVE"
-        if (!"ACTIVE".equals(snapshot.getStatus())) {
+        // Relaxed ACL constraint: Allow if they have an OCCUPIED room, unless explicitly INACTIVE/revoked
+        if ("INACTIVE".equals(snapshot.getStatus())) {
             return Optional.empty(); 
         }
 
@@ -39,7 +39,7 @@ public class EligibilityEvaluationService {
         }
 
         StudentEligibilitySnapshot snapshot = snapshotOpt.get();
-        if (!"ACTIVE".equals(snapshot.getStatus())) {
+        if ("INACTIVE".equals(snapshot.getStatus())) {
             return Optional.empty(); 
         }
 
@@ -54,7 +54,7 @@ public class EligibilityEvaluationService {
         }
 
         StudentEligibilitySnapshot snapshot = snapshotOpt.get();
-        if (!"ACTIVE".equals(snapshot.getStatus())) {
+        if ("INACTIVE".equals(snapshot.getStatus())) {
             return Optional.empty();
         }
 

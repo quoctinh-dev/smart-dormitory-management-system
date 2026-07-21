@@ -22,7 +22,10 @@
 #include "src/network/WiFiManager.h"
 #include "src/network/MqttManager.h"
 #include "src/network/StreamServer.h"
+#include "src/network/HttpManager.h"
 #include "src/drivers/RfidDriver.h"
+#include "src/storage/OfflineWhitelist.h"
+#include "src/storage/OfflineAccessLog.h"
 
 // Helper macro for memory diagnostics
 #define PRINT_MEM(label) \
@@ -58,7 +61,12 @@ void setup() {
     }
     PRINT_MEM("After RFID");
 
-    // 4. Network
+    // 4. Offline Whitelist & Log (NVS)
+    OfflineWhitelist::begin();
+    OfflineAccessLog::begin();
+    PRINT_MEM("After NVS Storage");
+
+    // 5. Network
     WiFiManager::init();
     PRINT_MEM("After WiFi");
 
@@ -80,6 +88,34 @@ void loop() {
             serverStarted = true;
         }
 
+        // Sync whitelist ngay lần đầu WiFi kết nối thành công
+        static bool firstSyncDone = false;
+        if (!firstSyncDone) {
+            Serial.println("[System] WiFi ready. Performing initial whitelist sync...");
+            HttpManager::fetchAndSaveWhitelist();
+            firstSyncDone = true;
+        }
+        
+        // Sync Offline Logs nếu có
+        static unsigned long lastOfflineLogSync = 0;
+        if (OfflineAccessLog::hasPending()) {
+            unsigned long now = millis();
+            if (now - lastOfflineLogSync >= 10000 || lastOfflineLogSync == 0) { // Retry mỗi 10s
+                HttpManager::syncOfflineLogs();
+                lastOfflineLogSync = millis();
+            }
+        }
+
+        // Periodic whitelist sync mỗi 6 giờ
+        // (đủ cho luận văn, có thể chỉnh qua WHITELIST_SYNC_INTERVAL trong Config.h)
+        static unsigned long lastWhitelistSync = 0;
+        unsigned long now = millis();
+        if (now - lastWhitelistSync >= WHITELIST_SYNC_INTERVAL) {
+            lastWhitelistSync = now;
+            Serial.println("[System] Periodic whitelist sync triggered.");
+            HttpManager::fetchAndSaveWhitelist();
+        }
+
         // Maintain MQTT
         MqttManager::maintainConnection();
     }
@@ -87,4 +123,4 @@ void loop() {
     // Hardware state machine
     RelayController::maintain();
     RfidDriver::maintain();
-    }
+}

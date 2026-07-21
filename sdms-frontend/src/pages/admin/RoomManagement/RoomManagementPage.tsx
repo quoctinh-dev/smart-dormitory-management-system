@@ -19,6 +19,7 @@ import React, { useState } from 'react';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useRoomDashboard } from '@/hooks/useRoomDashboard';
+import { useAuth } from '@/providers/AuthProvider';
 
 import BuildingFormDialog from './components/BuildingFormDialog';
 import CreateRoomDialog from './components/CreateRoomDialog';
@@ -26,6 +27,9 @@ import FloorFormDialog from './components/FloorFormDialog';
 import DashboardView from './DashboardView';
 
 export default function RoomManagementPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
+
   const [createRoomOpen, setCreateRoomOpen] = useState(false);
   const [buildingFormOpen, setBuildingFormOpen] = useState(false);
   const [floorFormOpen, setFloorFormOpen] = useState(false);
@@ -131,31 +135,35 @@ export default function RoomManagementPage() {
                 ))}
               </Select>
             </FormControl>
-            <Tooltip title="Thêm tòa nhà mới">
-              <IconButton
-                size="small"
-                color="primary"
-                onClick={() => {
-                  setIsEditBuilding(false);
-                  setBuildingFormOpen(true);
-                }}
-              >
-                <AddIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Sửa thông tin tòa nhà này">
-              <IconButton
-                size="small"
-                color="info"
-                disabled={!selectedBuilding}
-                onClick={() => {
-                  setIsEditBuilding(true);
-                  setBuildingFormOpen(true);
-                }}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {isAdmin && (
+              <Tooltip title="Thêm tòa nhà mới">
+                <IconButton
+                  size="small"
+                  color="primary"
+                  onClick={() => {
+                    setIsEditBuilding(false);
+                    setBuildingFormOpen(true);
+                  }}
+                >
+                  <AddIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+            {isAdmin && (
+              <Tooltip title="Sửa thông tin tòa nhà này">
+                <IconButton
+                  size="small"
+                  color="info"
+                  disabled={!selectedBuilding}
+                  onClick={() => {
+                    setIsEditBuilding(true);
+                    setBuildingFormOpen(true);
+                  }}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
@@ -175,53 +183,61 @@ export default function RoomManagementPage() {
                 ))}
               </Select>
             </FormControl>
-            <Tooltip title="Thêm tầng mới vào tòa này">
-              <IconButton
-                size="small"
-                color="primary"
-                disabled={!selectedBuilding}
-                onClick={() => {
-                  setIsEditFloor(false);
-                  setFloorFormOpen(true);
-                }}
-              >
-                <AddIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Sửa thông tin tầng này">
-              <IconButton
-                size="small"
-                color="info"
-                disabled={!selectedFloor}
-                onClick={() => {
-                  setIsEditFloor(true);
-                  setFloorFormOpen(true);
-                }}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {isAdmin && (
+              <Tooltip title="Thêm tầng mới vào tòa này">
+                <IconButton
+                  size="small"
+                  color="primary"
+                  disabled={!selectedBuilding}
+                  onClick={() => {
+                    setIsEditFloor(false);
+                    setFloorFormOpen(true);
+                  }}
+                >
+                  <AddIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+            {isAdmin && (
+              <Tooltip title="Sửa thông tin tầng này">
+                <IconButton
+                  size="small"
+                  color="info"
+                  disabled={!selectedFloor}
+                  onClick={() => {
+                    setIsEditFloor(true);
+                    setFloorFormOpen(true);
+                  }}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         </Box>
 
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={handleBulkGeneratePins}
-            sx={{ whiteSpace: 'nowrap', borderRadius: '12px', textTransform: 'none', px: 2 }}
-          >
-            Tạo PIN hàng loạt
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            disabled={!selectedFloor}
-            sx={{ whiteSpace: 'nowrap', borderRadius: '12px', textTransform: 'none', px: 3 }}
-            onClick={() => setCreateRoomOpen(true)}
-          >
-            Thêm Phòng
-          </Button>
+          {isAdmin && (
+            <>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={handleBulkGeneratePins}
+                sx={{ whiteSpace: 'nowrap', borderRadius: '12px', textTransform: 'none', px: 2 }}
+              >
+                Tạo PIN hàng loạt
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                disabled={!selectedFloor}
+                sx={{ whiteSpace: 'nowrap', borderRadius: '12px', textTransform: 'none', px: 3 }}
+                onClick={() => setCreateRoomOpen(true)}
+              >
+                Thêm Phòng
+              </Button>
+            </>
+          )}
         </Box>
       </Stack>
 

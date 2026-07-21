@@ -22,12 +22,28 @@ void initLcd() {
     delay(1000);
 }
 
+unsigned long lcdMessageClearTime = 0;
+bool isLcdTemporary = false;
+
 void lcdPrintMessage(String line1, String line2) {
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print(line1);
     lcd.setCursor(0, 1);
     lcd.print(line2);
+    isLcdTemporary = false;
+}
+
+void lcdPrintTempMessage(String line1, String line2, unsigned long durationMs) {
+    lcdPrintMessage(line1, line2);
+    isLcdTemporary = true;
+    lcdMessageClearTime = millis() + durationMs;
+}
+
+void maintainLcd() {
+    if (isLcdTemporary && millis() >= lcdMessageClearTime) {
+        lcdPrintMessage("READY!", "Enter PIN...");
+    }
 }
 
 #endif // LCD_MANAGER_H

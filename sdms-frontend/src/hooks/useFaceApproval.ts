@@ -8,6 +8,7 @@ export interface IFaceProfile {
   profileId: string;
   studentName: string;
   studentId: string;
+  studentCode?: string;
   pendingFaceImageUrl?: string;
   [key: string]: any;
 }

@@ -23,7 +23,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/admin/registration-periods")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+@PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Admin - Quản lý Danh sách Hợp lệ (Eligibility)")
 public class RegistrationEligibilityController {
 

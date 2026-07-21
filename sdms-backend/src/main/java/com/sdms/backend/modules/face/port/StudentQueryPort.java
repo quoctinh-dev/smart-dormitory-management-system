@@ -10,4 +10,8 @@ public interface StudentQueryPort {
     boolean existsById(UUID studentId);
     String getStudentEmail(UUID studentId);
     String getStudentFullName(UUID studentId);
+    String getStudentCode(UUID studentId);
+    
+    record StudentBasicInfo(String studentCode, String fullName) {}
+    java.util.Map<UUID, StudentBasicInfo> getStudentBasicInfoMap(java.util.List<UUID> studentIds);
 }

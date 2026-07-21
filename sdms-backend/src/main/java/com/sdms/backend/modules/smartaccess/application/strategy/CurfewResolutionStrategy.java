@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 import com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy;
 import com.sdms.backend.modules.smartaccess.domain.repository.CurfewPolicyRepository;
 
+import com.sdms.backend.modules.system.service.SystemConfigService;
+
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
@@ -21,12 +23,27 @@ import java.util.UUID;
 public class CurfewResolutionStrategy {
 
     private final CurfewPolicyRepository curfewPolicyRepository;
+    private final SystemConfigService systemConfigService;
 
     public boolean isAllowed(UUID buildingId, LocalTime currentTime) {
         List<CurfewPolicy> activePolicies = curfewPolicyRepository.findByBuildingIdAndIsActiveTrue(buildingId);
         
         if (activePolicies.isEmpty()) {
-            return true; // No curfew defined, default allow
+            // Lấy Global Curfew từ System Config, mặc định 23:00 đến 05:30 nếu chưa config
+            String globalStartStr = systemConfigService.getConfigValue("GLOBAL_CURFEW_START", "23:00");
+            String globalEndStr = systemConfigService.getConfigValue("GLOBAL_CURFEW_END", "05:30");
+            
+            if ("OFF".equalsIgnoreCase(globalStartStr)) {
+                return true;
+            }
+            
+            try {
+                LocalTime globalStart = LocalTime.parse(globalStartStr);
+                LocalTime globalEnd = LocalTime.parse(globalEndStr);
+                return !isTimeInWindow(currentTime, globalStart, globalEnd);
+            } catch (Exception e) {
+                return true; // Lỗi định dạng giờ thì cho phép qua
+            }
         }
 
         // Lấy policy có mức độ ưu tiên cao nhất để áp dụng, cho phép ghi đè linh hoạt

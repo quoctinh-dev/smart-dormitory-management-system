@@ -35,35 +35,35 @@ public class RoomController {
 
     @Operation(summary = "Tạo phòng mới")
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<RoomResponse> create(@Valid @RequestBody CreateRoomRequest request) {
         return ApiResponse.success("Tạo phòng thành công", roomService.createRoom(request));
     }
 
     @Operation(summary = "Lấy chi tiết phòng")
     @GetMapping("/{roomId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<RoomResponse> getDetail(@PathVariable UUID roomId) {
         return ApiResponse.success("Lấy chi tiết phòng thành công", roomService.getRoom(roomId));
     }
 
     @Operation(summary = "Lấy danh sách phòng theo tầng")
     @GetMapping("/floor/{floorId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<List<RoomResponse>> getByFloor(@PathVariable UUID floorId) {
         return ApiResponse.success("Lấy danh sách phòng thành công", roomService.getRoomsByFloor(floorId));
     }
 
     @Operation(summary = "Cập nhật thông tin phòng")
     @PutMapping("/{roomId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<RoomResponse> update(@PathVariable UUID roomId, @Valid @RequestBody UpdateRoomRequest request) {
         return ApiResponse.success("Cập nhật phòng thành công", roomService.updateRoom(roomId, request));
     }
 
     @Operation(summary = "Thay đổi trạng thái phòng")
     @PatchMapping("/{roomId}/status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<Void> changeStatus(@PathVariable UUID roomId, @RequestParam RoomStatus status) {
         roomService.changeStatus(roomId, status);
         return ApiResponse.success("Cập nhật trạng thái thành công");
@@ -71,7 +71,7 @@ public class RoomController {
 
     @Operation(summary = "Gán chức vụ trong phòng cho sinh viên (Trưởng phòng/Phó phòng)")
     @PatchMapping("/assignments/{assignmentId}/role")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<Void> assignRoomRole(@PathVariable UUID assignmentId, @RequestParam com.sdms.backend.modules.room.enums.RoomRole role) {
         roomService.assignRoomRole(assignmentId, role);
         return ApiResponse.success("Cập nhật chức vụ thành công");
@@ -79,7 +79,7 @@ public class RoomController {
 
     @Operation(summary = "Tìm kiếm và lọc danh sách phòng")
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<PageResponse<RoomResponse>> searchRooms(
             @RequestParam(required = false) UUID buildingId,
             @RequestParam(required = false) UUID floorId,
@@ -96,28 +96,28 @@ public class RoomController {
 
     @Operation(summary = "Thống kê tỷ lệ lấp đầy phòng (Dashboard)")
     @GetMapping("/analytics/occupancy")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<OccupancyAnalyticsResponse> getOccupancyAnalytics() {
         return ApiResponse.success("Lấy thống kê tỷ lệ lấp đầy thành công", roomService.getOccupancyAnalytics());
     }
 
     @Operation(summary = "Gợi ý danh sách phòng trống để điều chuyển khẩn cấp")
     @GetMapping("/analytics/emergency-relocation")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<List<RoomResponse>> getEmergencyRelocationRooms() {
         return ApiResponse.success("Lấy danh sách phòng gợi ý thành công", roomService.getEmergencyRelocationRooms());
     }
 
     @Operation(summary = "Thống kê rủi ro tài chính / Nợ cước (Dashboard)")
     @GetMapping("/analytics/revenue-at-risk")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<RevenueAtRiskResponse> getRevenueAtRisk() {
         return ApiResponse.success("Lấy thống kê rủi ro tài chính thành công", roomService.getRevenueAtRisk());
     }
 
     @Operation(summary = "Báo cáo bảo trì phòng (Dashboard)")
     @GetMapping("/analytics/maintenance-report")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<MaintenanceReportResponse> getMaintenanceReport() {
         return ApiResponse.success("Lấy báo cáo bảo trì thành công", roomService.getMaintenanceReport());
     }

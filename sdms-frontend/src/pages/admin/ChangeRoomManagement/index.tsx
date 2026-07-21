@@ -86,25 +86,23 @@ export default function ChangeRoomManagementPage() {
 
   if (loading && requests.length === 0) {
     return (
-      <Container sx={{ py: 4 }} maxWidth="lg">
+      <Box sx={{ py: 4 }}>
         <CustomSkeleton type="table" />
-      </Container>
+      </Box>
     );
   }
 
   return (
-    <Container sx={{ py: 4 }} maxWidth="lg">
+    <Box>
       {/* Top Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'primary.main', mb: 1 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
             Quản lý Đơn Đổi phòng
           </Typography>
           <Typography variant="body1" color="text.secondary">
             Duyệt đơn xin đổi phòng của sinh viên trong học kỳ hiện tại.
           </Typography>
         </Box>
-      </Box>
 
       {/* Filter Options */}
       <Paper
@@ -324,6 +322,6 @@ export default function ChangeRoomManagementPage() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </Box>
   );
 }

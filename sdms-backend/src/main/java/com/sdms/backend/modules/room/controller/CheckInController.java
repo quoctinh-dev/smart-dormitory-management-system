@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/admin/check-in")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*") // 🌟 Bổ sung để tránh lỗi chặn CORS khi Frontend gọi sang Backend
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
 @Tag(name = "Thủ tục nhận phòng (Check-In)", description = "API quản lý thủ tục nhận phòng cho sinh viên")
 public class CheckInController {
 

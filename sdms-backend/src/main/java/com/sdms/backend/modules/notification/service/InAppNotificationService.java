@@ -11,4 +11,10 @@ public interface InAppNotificationService {
     void markAsRead(Long notificationId);
     void markAllAsRead();
     void reportIssue(IssueReportRequest request);
+
+    /**
+     * Broadcast hardware error alert to all ADMINs.
+     * Called when ESP32 reports a sensor/reader failure.
+     */
+    void notifyHardwareError(String gateId, String gateName, String component, String detail);
 }

@@ -155,4 +155,32 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
                 .build();
         notificationRepository.save(notification);
     }
+
+    @Override
+    @Transactional
+    public void notifyHardwareError(String gateId, String gateName, String component, String detail) {
+        List<UserAccount> admins = userAccountRepository.findByRole(Role.ADMIN);
+        String title = "⚠️ Sự cố thiết bị IoT: " + gateName;
+        String message = String.format(
+            "[Cổng: %s] Thiết bị '%s' gặp sự cố. Chi tiết: %s. Gate ID: %s",
+            gateName, component, detail, gateId
+        );
+        String eventId = "hw-error-" + gateId + "-" + System.currentTimeMillis();
+        String actionUrl = "/admin/smart-access";
+        admins.forEach(admin -> {
+            Notification notification = Notification.builder()
+                    .userId(admin.getAccountId())
+                    .title(title)
+                    .message(message)
+                    .actionUrl(actionUrl)
+                    .type(NotificationType.IOT_HARDWARE_ERROR)
+                    .isRead(false)
+                    .recipient(admin.getEmail())
+                    .channel(NotificationChannel.IN_APP)
+                    .status(NotificationStatus.SENT)
+                    .eventId(eventId)
+                    .build();
+            notificationRepository.save(notification);
+        });
+    }
 }

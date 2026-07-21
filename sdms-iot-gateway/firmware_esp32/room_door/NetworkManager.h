@@ -8,6 +8,7 @@
 #include "Config.h"
 #include "LcdManager.h"
 #include "ServoManager.h"
+#include "OfflineAccessLog.h"
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
@@ -106,15 +107,51 @@ void ensureWiFiConnection() {
         } else {
             mqttClient.loop();
         }
+
+        // Tự động đồng bộ log offline nếu có
+        static unsigned long lastSyncAttempt = 0;
+        if (OfflineAccessLog::hasPending() && (millis() - lastSyncAttempt > 10000)) {
+            syncOfflineLogs();
+            lastSyncAttempt = millis();
+        }
     }
+}
+
+void syncOfflineLogs() {
+    if (WiFi.status() != WL_CONNECTED) return;
+    if (!OfflineAccessLog::hasPending()) return;
+
+    Serial.println("[HTTP] Synchronizing offline logs to Backend...");
+    
+    String logsJson = OfflineAccessLog::getBatchJson();
+    String payload = "{\"gateId\":\"" + GATE_ID + "\",\"currentMillis\":" + String(millis()) + ",\"logs\":" + logsJson + "}";
+
+    HTTPClient http;
+    http.begin(BACKEND_BASE_URL + "/offline-log-batch");
+    http.addHeader("Content-Type", "application/json");
+    http.setTimeout(HTTP_TIMEOUT);
+
+    int httpCode = http.POST(payload);
+
+    if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_CREATED) {
+        Serial.println("[HTTP] ✅ Offline logs synced successfully.");
+        OfflineAccessLog::clear();
+    } else {
+        Serial.printf("[HTTP] ❌ Failed to sync offline logs. HTTP Code: %d\n", httpCode);
+    }
+    http.end();
 }
 
 void verifyPinWithBackend(String pinCode) {
     if (WiFi.status() != WL_CONNECTED) {
         Serial.println("[HTTP] Error: WiFi not connected");
-        lcdPrintMessage("NETWORK ERROR", "TRY AGAIN");
-        delay(2000);
-        lcdPrintMessage("READY!", "Enter PIN...");
+        if (pinCode == OFFLINE_MASTER_PIN) {
+            lcdPrintTempMessage("OFFLINE GRANTED", "MASTER PIN OK", 3000);
+            OfflineAccessLog::push("MASTER_PIN", millis(), "OFFLINE_MASTER_PIN_GRANT");
+            openDoor();
+        } else {
+            lcdPrintTempMessage("NETWORK ERROR", "TRY MASTER PIN", 3000);
+        }
         return;
     }
 
@@ -125,7 +162,6 @@ void verifyPinWithBackend(String pinCode) {
     http.addHeader("Content-Type", "application/json");
     http.setTimeout(HTTP_TIMEOUT);
 
-    // Xây dựng JSON payload
     StaticJsonDocument<200> doc;
     doc["pinCode"] = pinCode;
     doc["gateId"] = GATE_ID;
@@ -134,9 +170,7 @@ void verifyPinWithBackend(String pinCode) {
     serializeJson(doc, payload);
 
     Serial.println("[HTTP] Sending POST: " + url);
-    Serial.println("[HTTP] Payload: " + payload);
-
-    lcdPrintMessage("VERIFYING...", "PLEASE WAIT");
+    lcdPrintTempMessage("VERIFYING...", "PLEASE WAIT", 5000);
 
     int httpResponseCode = http.POST(payload);
 
@@ -150,27 +184,29 @@ void verifyPinWithBackend(String pinCode) {
         if (!error && responseDoc["success"] == true) {
             String status = responseDoc["data"]["status"];
             if (status == "GRANTED") {
-                lcdPrintMessage("ACCESS GRANTED", "WELCOME!");
+                lcdPrintTempMessage("ACCESS GRANTED", "WELCOME!", 3000);
                 openDoor();
             } else {
-                lcdPrintMessage("ACCESS DENIED", "INVALID PIN");
-                delay(3000);
+                lcdPrintTempMessage("ACCESS DENIED", "INVALID PIN", 3000);
             }
         } else {
-            // Hiển thị lỗi từ Backend (nếu có)
-            String message = responseDoc["message"] | "SERVER ERROR";
-            lcdPrintMessage("DENIED", "INCORRECT PIN");
-            delay(3000);
+            lcdPrintTempMessage("DENIED", "INCORRECT PIN", 3000);
         }
     } else {
         Serial.print("[HTTP] POST failed, Error: ");
         Serial.println(http.errorToString(httpResponseCode).c_str());
-        lcdPrintMessage("SERVER ERROR", "TRY AGAIN");
-        delay(3000);
+        
+        // Offline Fallback
+        if (pinCode == OFFLINE_MASTER_PIN) {
+            lcdPrintTempMessage("OFFLINE GRANTED", "MASTER PIN OK", 3000);
+            OfflineAccessLog::push("MASTER_PIN", millis(), "OFFLINE_MASTER_PIN_GRANT");
+            openDoor();
+        } else {
+            lcdPrintTempMessage("SERVER ERROR", "TRY MASTER PIN", 3000);
+        }
     }
     
     http.end();
-    lcdPrintMessage("READY!", "Enter PIN...");
 }
 
 #endif // NETWORK_MANAGER_H

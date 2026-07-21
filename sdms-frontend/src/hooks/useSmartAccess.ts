@@ -35,6 +35,7 @@ export interface IOutsideStudent {
   roomCode: string;
   buildingName: string;
   lastOutTime: string;
+  hasApprovedRequest?: boolean;
 }
 
 export const useSmartAccess = () => {
@@ -87,9 +88,9 @@ export const useSmartAccess = () => {
     []
   );
 
-  const handleRemoteUnlock = async (gateId: string, buildingId: string) => {
+  const handleRemoteUnlock = async (gateId: string, buildingId: string, studentId?: string) => {
     try {
-      await smartAccessApi.remoteUnlock(gateId, buildingId);
+      await smartAccessApi.remoteUnlock(gateId, buildingId, studentId);
       snackbar.success('Đã gửi lệnh mở cổng từ xa thành công!');
     } catch (error: any) {
       snackbar.error(`Mở cổng thất bại: ${error.response?.data?.message || error.message}`);
@@ -189,6 +190,18 @@ export const useSmartAccess = () => {
     }
   }, []);
 
+  const handleSyncState = useCallback(
+    async (studentId: string, direction: 'IN' | 'OUT', reason?: string) => {
+      try {
+        await smartAccessApi.syncStudentState(studentId, direction, reason);
+        snackbar.success(`Đã đồng bộ trạng thái sinh viên thành ${direction} thành công!`);
+      } catch (error: any) {
+        snackbar.error(error.response?.data?.message || 'Lỗi khi đồng bộ trạng thái');
+      }
+    },
+    []
+  );
+
   return {
     history,
     totalElements,
@@ -196,6 +209,7 @@ export const useSmartAccess = () => {
     fetchHistory,
     handleRemoteUnlock,
     handleEmergencyOverride,
+    handleSyncState,
     curfewRequests,
     totalCurfewRequests,
     fetchCurfewRequests,

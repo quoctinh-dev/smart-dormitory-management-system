@@ -19,7 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/admin/checkout-requests")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
 @Tag(name = "Admin Checkout Request", description = "API quản lý đơn xin trả phòng (dành cho Admin)")
 public class CheckoutRequestAdminController {
 

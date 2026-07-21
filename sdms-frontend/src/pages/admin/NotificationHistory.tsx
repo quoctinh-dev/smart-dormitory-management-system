@@ -83,7 +83,7 @@ export default function NotificationHistory() {
   } = useNotificationHistory();
 
   return (
-    <Container sx={{ py: 4 }} maxWidth="lg">
+    <Box>
       <Box
         sx={{
           display: 'flex',
@@ -96,10 +96,10 @@ export default function NotificationHistory() {
       >
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-            Lịch sử thông báo
+            Lịch sử Thông báo Hệ thống
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Theo dõi trạng thái gửi và quản lý thông báo broadcast cho hệ thống.
+            Xem chi tiết lịch sử gửi thông báo và quản lý các tác vụ Broadcast tới người dùng.
           </Typography>
         </Box>
         <Button
@@ -442,6 +442,6 @@ export default function NotificationHistory() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </Box>
   );
 }

@@ -18,4 +18,5 @@ public class OutsideStudentDto {
     private String roomCode;
     private String buildingName;
     private java.time.LocalDateTime lastOutTime;
+    private Boolean hasApprovedRequest;
 }

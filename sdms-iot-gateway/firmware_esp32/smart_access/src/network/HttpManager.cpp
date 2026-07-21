@@ -4,6 +4,8 @@
 #include <ArduinoJson.h>
 #include "../config/Config.h"
 #include "../drivers/RelayController.h"
+#include "../storage/OfflineWhitelist.h"
+#include "../storage/OfflineAccessLog.h"
 
 String HttpManager::uploadFace(camera_fb_t *fb) {
     if (WiFi.status() != WL_CONNECTED) {
@@ -112,10 +114,10 @@ String HttpManager::uploadFace(camera_fb_t *fb) {
     return finalResult;
 }
 
-void HttpManager::verifyCard(String rfidCode, camera_fb_t *fb) {
+bool HttpManager::verifyCard(String rfidCode, camera_fb_t *fb) {
     if (WiFi.status() != WL_CONNECTED) {
         Serial.println("[HTTP] WiFi not connected. Cannot verify card.");
-        return;
+        return false;
     }
 
     HTTPClient http;
@@ -150,7 +152,7 @@ void HttpManager::verifyCard(String rfidCode, camera_fb_t *fb) {
     if (body == nullptr) {
         Serial.println("[HTTP] Error: PSRAM malloc failed for verifyCard payload!");
         http.end();
-        return;
+        return false;
     }
 
     memcpy(body, head.c_str(), head.length());
@@ -162,12 +164,93 @@ void HttpManager::verifyCard(String rfidCode, camera_fb_t *fb) {
     int httpCode = http.sendRequest("POST", body, totalLen);
     free(body);
     
+    bool success = false;
     if (httpCode > 0) {
         String response = http.getString();
         Serial.println("[HTTP] Card Verify Response: " + response);
+        // Server phản hồi thành công (dù thẻ đúng hay sai), nghĩa là không bị rớt mạng
+        success = true;
     } else {
         Serial.printf("[HTTP] Failed to verify card. HTTP Code: %d\n", httpCode);
+        success = false;
+    }
+    
+    http.end();
+    return success;
+}
+
+// ==============================================================================
+// fetchAndSaveWhitelist() — Kéo RFID Whitelist từ Backend, lưu vào NVS
+// API: GET /api/v1/smartaccess/rfid-whitelist?buildingId=<BUILDING_ID>
+// ==============================================================================
+int HttpManager::fetchAndSaveWhitelist() {
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("[HTTP] Whitelist sync skipped: WiFi not connected.");
+        return -1;
+    }
+
+    Serial.println("[HTTP] Fetching RFID Whitelist from Backend...");
+
+    HTTPClient http;
+    String url = BACKEND_BASE_URL + "/rfid-whitelist?buildingId=" + BUILDING_ID;
+    http.begin(url);
+    http.setTimeout(HTTP_TIMEOUT);
+    http.addHeader("Accept", "application/json");
+
+    int httpCode = http.GET();
+
+    if (httpCode != HTTP_CODE_OK) {
+        Serial.printf("[HTTP] Whitelist fetch failed. HTTP Code: %d\n", httpCode);
+        http.end();
+        return -1;
+    }
+
+    String payload = http.getString();
+    http.end();
+
+    Serial.printf("[HTTP] Whitelist response received (%d bytes).\n", payload.length());
+
+    // Delegate parse & save to OfflineWhitelist
+    int saved = OfflineWhitelist::saveFromJson(payload);
+    if (saved >= 0) {
+        Serial.printf("[HTTP] ✅ Whitelist sync complete: %d UIDs stored.\n", saved);
+    } else {
+        Serial.println("[HTTP] ❌ Whitelist sync failed: JSON parse or API error.");
+    }
+    return saved;
+}
+
+// ==============================================================================
+// syncOfflineLogs() — Đẩy lịch sử quẹt thẻ lúc offline lên Backend
+// API: POST /api/v1/smartaccess/offline-log-batch
+// ==============================================================================
+void HttpManager::syncOfflineLogs() {
+    if (WiFi.status() != WL_CONNECTED) return;
+    
+    // Phải include OfflineAccessLog ở trên đầu file
+    if (!OfflineAccessLog::hasPending()) return;
+
+    Serial.println("[HTTP] Synchronizing offline logs to Backend...");
+    
+    String logsJson = OfflineAccessLog::getBatchJson();
+    String payload = "{\"gateId\":\"" + GATE_ID + "\",\"currentMillis\":" + String(millis()) + ",\"logs\":" + logsJson + "}";
+
+    HTTPClient http;
+    http.begin(BACKEND_BASE_URL + "/offline-log-batch");
+    http.addHeader("Content-Type", "application/json");
+    http.setTimeout(HTTP_TIMEOUT);
+
+    int httpCode = http.POST(payload);
+
+    if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_CREATED) {
+        Serial.println("[HTTP] ✅ Offline logs synced successfully.");
+        OfflineAccessLog::clear();
+    } else {
+        Serial.printf("[HTTP] ❌ Failed to sync offline logs. HTTP Code: %d\n", httpCode);
+        String response = http.getString();
+        Serial.println("[HTTP] Response: " + response);
     }
     
     http.end();
 }
+

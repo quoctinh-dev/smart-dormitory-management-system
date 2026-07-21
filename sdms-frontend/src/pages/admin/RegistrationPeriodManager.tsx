@@ -88,15 +88,15 @@ export default function RegistrationPeriodManager() {
 
   if (loading && periods.length === 0) {
     return (
-      <Container sx={{ py: 4 }}>
+      <Box sx={{ py: 4 }}>
         <CustomSkeleton type="table" />
-      </Container>
+      </Box>
     );
   }
 
   return (
-    <Container sx={{ py: 4 }} maxWidth="lg">
-      {/* Top Header */}
+    <Box>
+      {/* HEADER TỔNG QUAN */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
           Quản lý đợt đăng ký
@@ -465,6 +465,6 @@ export default function RegistrationPeriodManager() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </Box>
   );
 }

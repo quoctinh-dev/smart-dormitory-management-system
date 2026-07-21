@@ -149,7 +149,7 @@ const MENU_GROUPS: MenuGroup[] = [
         text: 'Log cửa thông minh',
         path: '/admin/smart-access',
         icon: <AssignmentTurnedInIcon />,
-        roles: ['ADMIN'],
+        roles: ['ADMIN', 'STAFF'],
       },
       {
         text: 'Cấu hình hệ thống',

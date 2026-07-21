@@ -129,7 +129,7 @@ export default function FaceApprovalQueue() {
                       {profile.studentName || 'Hồ sơ Sinh viên'}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1.5 }} noWrap>
-                      Mã số SV: {profile.studentId}
+                      Mã số SV: {profile.studentCode || profile.studentId}
                     </Typography>
                     <Chip
                       label="Chờ xét duyệt"

@@ -19,8 +19,11 @@ import com.sdms.backend.modules.smartaccess.domain.repository.AccessHistoryRepos
 import com.sdms.backend.modules.smartaccess.domain.repository.GateRepository;
 import com.sdms.backend.modules.smartaccess.domain.repository.CurfewRequestRepository;
 
+import com.sdms.backend.modules.system.service.SystemConfigService;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,6 +40,7 @@ public class AccessEvaluationService {
     private final GateRepository gateRepository;
     private final CurfewRequestRepository curfewRequestRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final SystemConfigService systemConfigService;
 
     @Transactional
     public void evaluateAccess(String eventId, UUID studentId, UUID gateId, VerificationMethod method, String snapshotUrl) {
@@ -91,12 +95,40 @@ public class AccessEvaluationService {
             if (snapshot.getResidentType() == ResidentType.BOARDING) {
                 isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);
                 if (!isAllowed) {
-                    // Check if student has an approved curfew request for today
-                    LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
-                    LocalDateTime endOfDay = now.toLocalDate().atTime(23, 59, 59, 999999999);
+                    // Xác định "Business Date" (Ngày làm việc) cho việc kiểm tra đơn.
+                    // Nếu sinh viên về lúc 01:00 AM, thực chất là họ đang về trễ cho đêm hôm trước.
+                    LocalDate businessDate = now.toLocalDate();
+                    if (now.toLocalTime().isBefore(LocalTime.of(6, 0))) {
+                        businessDate = businessDate.minusDays(1);
+                    }
+                    
+                    LocalDateTime startOfDay = businessDate.atStartOfDay();
+                    LocalDateTime endOfDay = businessDate.atTime(23, 59, 59, 999999999);
+                    
                     if (curfewRequestRepository.hasApprovedRequestForDate(studentId, startOfDay, endOfDay)) {
-                        isAllowed = true;
-                        // Keep denialReason as null to grant access
+                        // Kiểm tra Deadline về trễ (Mặc định 00:00 - Nửa đêm)
+                        String deadlineStr = systemConfigService.getConfigValue("LATE_RETURN_DEADLINE", "00:00");
+                        
+                        if ("OFF".equalsIgnoreCase(deadlineStr)) {
+                            isAllowed = true;
+                        } else {
+                            try {
+                                LocalTime deadlineTime = LocalTime.parse(deadlineStr);
+                                LocalDateTime deadlineDateTime = businessDate.atTime(deadlineTime);
+                                // Nếu deadline là giờ sáng hôm sau (VD: 00:00, 01:00)
+                                if (deadlineTime.isBefore(LocalTime.of(12, 0))) {
+                                    deadlineDateTime = deadlineDateTime.plusDays(1);
+                                }
+                                
+                                if (now.isBefore(deadlineDateTime) || now.isEqual(deadlineDateTime)) {
+                                    isAllowed = true;
+                                } else {
+                                    denialReason = "LATE_DEADLINE_EXCEEDED"; // Quá hạn giờ về trễ, phải gọi ban quản lý
+                                }
+                            } catch (Exception e) {
+                                isAllowed = true; // Fallback nếu parse lỗi
+                            }
+                        }
                     } else {
                         denialReason = "CURFEW_VIOLATION";
                     }
@@ -182,6 +214,17 @@ public class AccessEvaluationService {
         }
     }
 
+    @Transactional
+    public void logFailedAccess(UUID studentId, UUID gateId, VerificationMethod method, String snapshotUrl, String reason) {
+        LocalDateTime now = LocalDateTime.now();
+        Optional<StudentEligibilitySnapshot> eligibilityOpt = eligibilityEvaluationService.evaluateEligibility(studentId);
+        UUID buildingId = eligibilityOpt.map(StudentEligibilitySnapshot::getBuildingId).orElse(null);
+        GateType gateType = gateRepository.findById(gateId).map(Gate::getGateType).orElse(GateType.BUILDING_GATE);
+
+        recordAccess(studentId, gateId, gateType, buildingId, now, AccessDecision.DENIED, reason, method, snapshotUrl);
+    }
+
+
     private void recordAccess(UUID studentId, UUID gateId, GateType gateType, UUID buildingId, LocalDateTime eventTimestamp, AccessDecision decision, String reason, VerificationMethod method, String snapshotUrl) {
         UUID finalBuildingId = buildingId != null ? buildingId : UUID.fromString("00000000-0000-0000-0000-000000000000");
         
@@ -209,5 +252,77 @@ public class AccessEvaluationService {
                 .build();
 
         accessHistoryRepository.save(history);
+    }
+
+    @Transactional
+    public void processOfflineLogBatch(com.sdms.backend.modules.smartaccess.api.dto.request.OfflineLogBatchRequest request) {
+        if (request.logs() == null || request.logs().isEmpty()) return;
+
+        LocalDateTime serverNow = LocalDateTime.now();
+        UUID gateId = UUID.fromString(request.gateId());
+        
+        GateType gateType = gateRepository.findById(gateId).map(Gate::getGateType).orElse(GateType.BUILDING_GATE);
+
+        for (var logItem : request.logs()) {
+            UUID studentId = null;
+            UUID buildingId = null;
+            ResidentType residentType = null;
+            
+            if ("MASTER_PIN".equals(logItem.uid())) {
+                studentId = UUID.fromString("00000000-0000-0000-0000-000000000000"); // System / Unknown
+            } else {
+                Optional<StudentEligibilitySnapshot> eligibilityOpt = eligibilityEvaluationService.evaluateEligibilityByRfid(logItem.uid());
+                if (eligibilityOpt.isEmpty()) continue;
+                
+                StudentEligibilitySnapshot snapshot = eligibilityOpt.get();
+                studentId = snapshot.getStudentId();
+                buildingId = snapshot.getBuildingId();
+                residentType = snapshot.getResidentType();
+            }
+            
+            // Tính toán thời gian thực tế xảy ra sự kiện
+            long diffMillis = request.currentMillis() - logItem.timestamp();
+            LocalDateTime eventTime = serverNow.minusNanos(diffMillis * 1000000);
+            
+            // Đọc trạng thái In/Out cuối cùng
+            GateDirection currentDirection = GateDirection.UNKNOWN;
+            if (gateType != GateType.ROOM_DOOR) {
+                String lastDirection = accessHistoryRepository.findLastDirectionForStudent(studentId);
+                if ("IN".equals(lastDirection)) {
+                    currentDirection = GateDirection.OUT;
+                } else {
+                    currentDirection = GateDirection.IN;
+                }
+            }
+
+            // --- HẬU KIỂM (AUDIT LATER) TRÊN THỜI GIAN THỰC TẾ ---
+            String reason = "OFFLINE_SYNC";
+            
+            if ("MASTER_PIN".equals(logItem.uid())) {
+                reason = "OFFLINE_MASTER_PIN_GRANT";
+            } else if (gateType == GateType.BUILDING_GATE && residentType == ResidentType.BOARDING) {
+                boolean isTimeAllowed = curfewResolutionStrategy.isAllowed(buildingId, eventTime.toLocalTime());
+                if (!isTimeAllowed) {
+                    LocalDateTime startOfDay = eventTime.toLocalDate().atStartOfDay();
+                    LocalDateTime endOfDay = eventTime.toLocalDate().atTime(23, 59, 59, 999999999);
+                    if (!curfewRequestRepository.hasApprovedRequestForDate(studentId, startOfDay, endOfDay)) {
+                        reason = "OFFLINE_SYNC_VIOLATION"; // Phạt nguội: Quẹt offline lúc quá giờ giới nghiêm mà không có đơn!
+                    }
+                }
+            }
+
+            AccessHistory history = AccessHistory.builder()
+                    .studentId(studentId)
+                    .gateId(gateId)
+                    .buildingId(buildingId != null ? buildingId : UUID.fromString("00000000-0000-0000-0000-000000000000"))
+                    .eventTimestamp(eventTime)
+                    .decision(AccessDecision.GRANTED) // Mạch offline đã mở cửa rồi
+                    .denialReason(reason) 
+                    .method("MASTER_PIN".equals(logItem.uid()) ? VerificationMethod.PIN : VerificationMethod.RFID)
+                    .direction(currentDirection)
+                    .build();
+
+            accessHistoryRepository.save(history);
+        }
     }
 }

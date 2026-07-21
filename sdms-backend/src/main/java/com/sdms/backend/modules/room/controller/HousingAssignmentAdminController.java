@@ -25,8 +25,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/admin/housing-assignments")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
-@Tag(name = "Hợp đồng lưu trú (Admin)", description = "API tra cứu hợp đồng lưu trú dành cho Admin")
+@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+@Tag(name = "Admin Housing Assignment", description = "API cho phép Admin/Staff quản lý, xếp phòng và theo dõi tình trạng phân bổ giường nội trú")
 public class HousingAssignmentAdminController {
 
     private final StudentHousingAssignmentRepository assignmentRepository;

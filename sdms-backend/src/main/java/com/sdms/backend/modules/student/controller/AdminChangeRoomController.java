@@ -16,11 +16,13 @@ import org.springframework.data.web.PageableDefault;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/admin/change-room")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
 @Tag(name = "Admin duyệt hoặc từ chối yêu cầu đổi phòng của sinh viên", description = "API quản lý việc đổi phòng và di dời sinh viên (dành cho Admin)")
 public class AdminChangeRoomController {
 

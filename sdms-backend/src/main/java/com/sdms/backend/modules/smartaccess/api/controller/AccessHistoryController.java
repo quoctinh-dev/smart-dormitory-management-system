@@ -21,7 +21,12 @@ import com.sdms.backend.modules.user.entity.UserAccount;
 import com.sdms.backend.common.exception.AppException;
 import com.sdms.backend.common.exception.ErrorCode;
 
+import com.sdms.backend.modules.smartaccess.domain.repository.CurfewRequestRepository;
 import java.util.UUID;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import com.sdms.backend.modules.smartaccess.application.service.ManualSyncService;
+import com.sdms.backend.modules.smartaccess.api.dto.request.SyncStateRequestDto;
 
 @RestController
 @RequestMapping("/api/v1/access/history")
@@ -30,6 +35,8 @@ import java.util.UUID;
 public class AccessHistoryController {
 
     private final AccessHistoryRepository accessHistoryRepository;
+    private final CurfewRequestRepository curfewRequestRepository;
+    private final ManualSyncService manualSyncService;
 
     /**
      * ADMIN/STAFF: Xem toàn bộ lịch sử hệ thống (phân trang).
@@ -113,17 +120,43 @@ public class AccessHistoryController {
     public ApiResponse<java.util.List<com.sdms.backend.modules.smartaccess.api.dto.response.OutsideStudentDto>> getOutsideStudents() {
         java.util.List<Object[]> rawList = accessHistoryRepository.findOccupiedStudentsCurrentlyOutside();
         java.util.List<com.sdms.backend.modules.smartaccess.api.dto.response.OutsideStudentDto> result = new java.util.ArrayList<>();
+        
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate businessDate = now.getHour() < 6 ? now.toLocalDate().minusDays(1) : now.toLocalDate();
+        LocalDateTime startOfDay = businessDate.atStartOfDay();
+        LocalDateTime endOfDay = businessDate.atTime(LocalTime.MAX);
+
         for (Object[] row : rawList) {
+            UUID studentId = java.util.UUID.fromString((String) row[0]);
+            boolean hasApproved = curfewRequestRepository.hasApprovedRequestForDate(studentId, startOfDay, endOfDay);
+            
             result.add(com.sdms.backend.modules.smartaccess.api.dto.response.OutsideStudentDto.builder()
-                .studentId(java.util.UUID.fromString((String) row[0]))
+                .studentId(studentId)
                 .studentName((String) row[1])
                 .studentCode((String) row[2])
                 .roomCode((String) row[3])
                 .buildingName((String) row[4])
                 .lastOutTime(((java.sql.Timestamp) row[5]).toLocalDateTime())
+                .hasApprovedRequest(hasApproved)
                 .build());
         }
         return ApiResponse.success("Lấy danh sách sinh viên chưa về thành công", result);
+    }
+    
+    @Operation(summary = "Đồng bộ trạng thái", description = "Admin đồng bộ lại trạng thái IN/OUT cho sinh viên khi bị lỗi nối đuôi")
+    @PostMapping("/sync-state")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ApiResponse<Void> syncState(
+            @RequestBody @jakarta.validation.Valid SyncStateRequestDto request,
+            @AuthenticationPrincipal UserAccount currentUser) {
+        
+        manualSyncService.syncState(
+                request.getStudentId(), 
+                request.getDirection(), 
+                currentUser.getAccountId(), 
+                request.getReason()
+        );
+        return ApiResponse.success("Đồng bộ trạng thái thành công", null);
     }
 }
 

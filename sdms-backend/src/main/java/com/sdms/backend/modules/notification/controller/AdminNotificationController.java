@@ -35,7 +35,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/admin/notifications")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+@PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Admin - Quản lý thông báo", description = "Quản lý lịch sử và gửi thông báo hàng loạt")
 public class AdminNotificationController {
 

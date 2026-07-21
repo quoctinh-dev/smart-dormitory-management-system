@@ -50,6 +50,8 @@ public class SecurityConfig {
             "/api/webhooks/**",
             "/api/v1/payments/online",
             "/api/v1/ocr/cccd",
+            "/api/v1/public/**",
+            "/api/v1/internal/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",

@@ -25,9 +25,13 @@ public class RemoteUnlockController {
     @Operation(summary = "Mở khóa cổng", description = "Gửi lệnh mở khóa tới một cổng cụ thể")
     @PostMapping
     @PreAuthorize(SmartAccessPermissions.REMOTE_UNLOCK)
-    public ApiResponse<Void> unlockGate(@PathVariable UUID gateId, @RequestParam UUID buildingId, @AuthenticationPrincipal UserAccount userAccount) {
+    public ApiResponse<Void> unlockGate(
+            @PathVariable UUID gateId, 
+            @RequestParam UUID buildingId, 
+            @RequestParam(required = false) UUID studentId,
+            @AuthenticationPrincipal UserAccount userAccount) {
         UUID operatorId = userAccount.getAccountId();
-        remoteUnlockService.executeRemoteUnlock(gateId, operatorId, buildingId);
+        remoteUnlockService.executeRemoteUnlock(gateId, operatorId, buildingId, studentId);
         return ApiResponse.success("Đã gửi lệnh mở khóa thành công");
     }
 }

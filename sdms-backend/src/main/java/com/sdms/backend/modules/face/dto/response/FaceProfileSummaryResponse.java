@@ -8,6 +8,8 @@ import java.util.UUID;
 public record FaceProfileSummaryResponse(
     UUID profileId,
     UUID studentId,
+    String studentCode,
+    String studentName,
     String faceImageUrl,
     FaceProfileStatus status,
     LocalDateTime createdAt

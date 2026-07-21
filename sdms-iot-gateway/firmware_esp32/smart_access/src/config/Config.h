@@ -9,7 +9,10 @@
 // Thiết bị tự định danh với hệ thống Backend thông qua các ID này.
 static const String DEVICE_ID = "ESP32_CAM_001";
 static const String GATE_ID = "123e4567-e89b-12d3-a456-426614174000"; // Thay bằng Gate UUID thật
-static const String BUILDING_ID = "B1";
+// ⚠️ QUAN TRỌNG: BUILDING_ID phải là UUID thật từ bảng buildings.building_id trong DB
+// Không được dùng "B1" hay tên viết tắt — Backend dùng UUID để group whitelist
+// Lấy UUID bằng: SELECT building_id FROM buildings WHERE building_name = 'Tên tòa nhà';
+static const String BUILDING_ID = "00000000-0000-0000-0000-000000000001"; // ← ĐỔI THÀNH UUID THẬT
 static const String FIRMWARE_VERSION = "1.0.0-Sprint1";
 static const String HARDWARE_MODEL = "AI-Thinker ESP32-CAM";
 
@@ -31,10 +34,11 @@ static const char* MQTT_PASSWORD = "";
 // ==============================================================================
 // 3. SYSTEM TIMEOUT & INTERVALS (Các khoảng thời gian - mili giây)
 // ==============================================================================
-static const unsigned long RECONNECT_INTERVAL = 5000;  // Chờ 5s trước khi kết nối lại WiFi/MQTT
-static const unsigned long HEARTBEAT_INTERVAL = 30000; // Gửi tín hiệu sống mỗi 30s
-static const unsigned long HTTP_TIMEOUT = 10000;       // Chờ HTTP Response tối đa 10s
-static const unsigned long RELAY_OPEN_DURATION = 5000; // Mở cửa trong 5s rồi khóa lại
+static const unsigned long RECONNECT_INTERVAL      = 5000;   // Chờ 5s trước khi kết nối lại WiFi/MQTT
+static const unsigned long HEARTBEAT_INTERVAL       = 30000;  // Gửi tín hiệu sống mỗi 30s
+static const unsigned long HTTP_TIMEOUT             = 10000;  // Chờ HTTP Response tối đa 10s
+static const unsigned long RELAY_OPEN_DURATION      = 5000;   // Mở cửa trong 5s rồi khóa lại
+static const unsigned long WHITELIST_SYNC_INTERVAL  = 21600000UL; // Sync whitelist mỗi 6 giờ (ms)
 
 // ==============================================================================
 // 4. HARDWARE OPTIMIZATION & DIAGNOSTIC FLAGS

@@ -31,9 +31,9 @@ export const smartAccessApi = {
   },
 
   // Remote Unlock
-  remoteUnlock(gateId: string, buildingId: string) {
+  remoteUnlock(gateId: string, buildingId: string, studentId?: string) {
     return axiosClient.post(`${ACCESS_URL}/gates/${gateId}/unlock`, null, {
-      params: { buildingId },
+      params: { buildingId, studentId },
     });
   },
 
@@ -56,5 +56,10 @@ export const smartAccessApi = {
   // Get students currently outside
   getOutsideStudents() {
     return axiosClient.get(`${ACCESS_URL}/history/outside`);
+  },
+
+  // Manual sync: reset a student's IN/OUT status to fix tailgating issues
+  syncStudentState(studentId: string, direction: 'IN' | 'OUT', reason?: string) {
+    return axiosClient.post(`${ACCESS_URL}/history/sync-state`, { studentId, direction, reason });
   },
 };

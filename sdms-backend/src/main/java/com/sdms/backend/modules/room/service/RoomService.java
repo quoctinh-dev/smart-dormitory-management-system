@@ -14,6 +14,7 @@ import com.sdms.backend.modules.room.repository.RoomRepository;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.enums.RoomRole;
+import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.validator.RoomValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -109,12 +110,25 @@ public class RoomService {
         roomRepository.save(room);
     }
 
+    @Transactional
     public void assignRoomRole(UUID assignmentId, RoomRole role) {
         StudentHousingAssignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy thông tin phân bổ giường"));
         
-        // Nếu chuyển thành Trưởng phòng hoặc Phó phòng, có thể kiểm tra xem phòng đã có trưởng phòng chưa (Optional)
-        // Hiện tại cho phép ghi đè đơn giản.
+        // Đảm bảo 1 phòng chỉ có 1 trưởng, 1 phó. Tự động giáng cấp người cũ nếu gán mới.
+        if (role == RoomRole.ROOM_LEADER || role == RoomRole.DEPUTY_LEADER) {
+            UUID roomId = assignment.getBed().getRoom().getRoomId();
+            List<StudentHousingAssignment> activeAssignmentsInRoom = 
+                    assignmentRepository.findByBed_Room_RoomIdAndStatus(roomId, AssignmentStatus.OCCUPIED);
+            
+            for (StudentHousingAssignment other : activeAssignmentsInRoom) {
+                if (!other.getAssignmentId().equals(assignmentId) && other.getRoomRole() == role) {
+                    other.setRoomRole(RoomRole.MEMBER);
+                    assignmentRepository.save(other);
+                }
+            }
+        }
+
         assignment.setRoomRole(role);
         assignmentRepository.save(assignment);
     }

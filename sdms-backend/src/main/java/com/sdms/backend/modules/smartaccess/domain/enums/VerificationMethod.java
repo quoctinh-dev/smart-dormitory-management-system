@@ -5,5 +5,6 @@ public enum VerificationMethod {
     RFID,
     PIN,
     MANUAL_OVERRIDE,
-    REMOTE_UNLOCK
+    REMOTE_UNLOCK,
+    RFID_AND_FACE
 }

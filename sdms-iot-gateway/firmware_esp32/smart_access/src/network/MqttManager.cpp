@@ -4,6 +4,8 @@
 #include "../config/Config.h"
 #include "../drivers/RelayController.h"
 #include "../drivers/RfidDriver.h"
+#include "HttpManager.h"
+#include "../storage/OfflineWhitelist.h"
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
@@ -18,15 +20,19 @@ void MqttManager::init() {
 }
 
 void MqttManager::subscribeTopics() {
-    String gateCommandTopic = "sdms/gates/" + GATE_ID + "/command";
-    String buildingCommandTopic = "sdms/gates/building/" + BUILDING_ID + "/command";
-    String broadcastTopic = "sdms/gates/system/broadcast";
+    String gateCommandTopic      = "sdms/gates/" + GATE_ID + "/command";
+    String buildingCommandTopic  = "sdms/gates/building/" + BUILDING_ID + "/command";
+    String broadcastTopic        = "sdms/gates/system/broadcast";
+    // Topic này được Backend push sau khi có sinh viên check-in/out/đổi phòng
+    String buildingWhitelistTopic = "sdms/gates/building/" + BUILDING_ID + "/whitelist";
 
     mqttClient.subscribe(gateCommandTopic.c_str());
     mqttClient.subscribe(buildingCommandTopic.c_str());
     mqttClient.subscribe(broadcastTopic.c_str());
+    mqttClient.subscribe(buildingWhitelistTopic.c_str());
     
-    Serial.println("[MQTT] Subscribed to Gate, Building, and Broadcast Command topics.");
+    Serial.println("[MQTT] Subscribed to Gate, Building, Broadcast, and Whitelist topics.");
+    Serial.println("[MQTT] Whitelist topic: " + buildingWhitelistTopic);
 }
 
 void MqttManager::maintainConnection() {
@@ -88,13 +94,31 @@ void MqttManager::callback(char* topic, byte* payload, unsigned int length) {
     
     // Parse Payload to String
     String message = "";
-    for (int i = 0; i < length; i++) {
+    for (unsigned int i = 0; i < length; i++) {
         message += (char)payload[i];
     }
     Serial.println("[MQTT] Payload: " + message);
 
-    // Xử lý JSON
-    StaticJsonDocument<256> doc;
+    // =========================================================
+    // ROUTING: Kiểm tra topic để xử lý đúng loại message
+    // =========================================================
+    String topicStr = String(topic);
+    String buildingWhitelistTopic = "sdms/gates/building/" + BUILDING_ID + "/whitelist";
+
+    // --- WHITELIST PUSH (Backend tự push khi data thay đổi) ---
+    if (topicStr == buildingWhitelistTopic) {
+        Serial.println("[MQTT] Whitelist PUSH received. Saving to NVS...");
+        int count = OfflineWhitelist::saveFromMqttJson(message);
+        if (count >= 0) {
+            Serial.printf("[MQTT] ✅ Whitelist updated via MQTT push: %d UIDs.\r\n", count);
+        } else {
+            Serial.println("[MQTT] ❌ Whitelist MQTT push failed to parse.");
+        }
+        return;
+    }
+
+    // --- COMMAND TOPICS (Gate/Building/Broadcast) ---
+    StaticJsonDocument<512> doc;
     DeserializationError error = deserializeJson(doc, message);
 
     if (error) {
@@ -102,13 +126,24 @@ void MqttManager::callback(char* topic, byte* payload, unsigned int length) {
         return;
     }
 
-    String command = doc["command"];
+    String command = doc["command"] | "";
     
-    // Nếu Backend ra lệnh UNLOCK hoặc OPEN_ALL (Khẩn cấp)
+    // Mở cửa từ xa hoặc khẩn cấp
     if (command == "UNLOCK" || command == "OPEN_ALL") {
         Serial.println("[MQTT] Valid UNLOCK command received. Triggering Relay...");
         RelayController::unlock();
-    } else {
-        Serial.println("[MQTT] Unknown command.");
+    }
+    // Trigger HTTP pull ngay lập tức (fallback nếu MQTT push thất bại)
+    else if (command == "SYNC_WHITELIST") {
+        Serial.println("[MQTT] SYNC_WHITELIST command received. Fetching via HTTP...");
+        int count = HttpManager::fetchAndSaveWhitelist();
+        if (count >= 0) {
+            Serial.printf("[MQTT] Whitelist refreshed via HTTP: %d UIDs.\r\n", count);
+        } else {
+            Serial.println("[MQTT] Whitelist HTTP refresh failed.");
+        }
+    }
+    else {
+        Serial.printf("[MQTT] Unknown command: %s\r\n", command.c_str());
     }
 }

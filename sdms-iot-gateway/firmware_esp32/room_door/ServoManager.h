@@ -20,21 +20,29 @@ void initServo() {
     Serial.println("[Servo] Initialized. Door locked.");
 }
 
+unsigned long servoOpenTime = 0;
+
 void openDoor() {
     Serial.println("[Servo] Opening door...");
     doorServo.write(180); // Cho quay một chiều để kéo chốt vào
-    delay(150);           // Quay 150 mili-giây để vừa đủ thụt chốt vào
-    doorServo.write(94);  // Dừng lại (Khóa trạng thái mở)
+    delay(150);           // Cần delay ngắn để quay motor
+    doorServo.write(94);  // Dừng lại
     isDoorOpen = true;
-    
-    // Đợi một khoảng thời gian rồi tự động đóng
-    delay(RELAY_OPEN_DURATION);
-    
+    servoOpenTime = millis();
+}
+
+void closeDoor() {
     Serial.println("[Servo] Closing door...");
     doorServo.write(0);   // Cho quay chiều ngược lại để đẩy chốt ra
-    delay(150);           // Quay 150 mili-giây để đẩy chốt ra
-    doorServo.write(94);  // Dừng lại (Khóa trạng thái đóng)
+    delay(150);           // Cần delay ngắn để quay motor
+    doorServo.write(94);  // Dừng lại
     isDoorOpen = false;
+}
+
+void maintainServo() {
+    if (isDoorOpen && (millis() - servoOpenTime >= RELAY_OPEN_DURATION)) {
+        closeDoor();
+    }
 }
 
 #endif // SERVO_MANAGER_H

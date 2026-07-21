@@ -7,5 +7,7 @@ public enum NotificationType {
     SYSTEM,
     WARNING,
     ANNOUNCEMENT,
-    MAINTENANCE
+    MAINTENANCE,
+    /** Cảnh báo sự cố phần cứng IoT: ESP32 gửi lên khi mất kết nối Camera/Đầu đọc thẻ */
+    IOT_HARDWARE_ERROR
 }

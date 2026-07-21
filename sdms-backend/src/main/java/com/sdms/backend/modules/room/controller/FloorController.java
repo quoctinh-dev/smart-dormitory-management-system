@@ -25,28 +25,28 @@ public class FloorController {
 
     @Operation(summary = "Tạo tầng mới")
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<FloorResponse> create(@Valid @RequestBody CreateFloorRequest request) {
         return ApiResponse.success("Tạo tầng thành công", floorService.createFloor(request));
     }
 
     @Operation(summary = "Lấy chi tiết tầng")
     @GetMapping("/{floorId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<FloorResponse> getDetail(@PathVariable UUID floorId) {
         return ApiResponse.success("Lấy chi tiết tầng thành công", floorService.getFloor(floorId));
     }
 
     @Operation(summary = "Lấy danh sách tầng theo tòa nhà")
     @GetMapping("/building/{buildingId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<List<FloorResponse>> getByBuilding(@PathVariable UUID buildingId) {
         return ApiResponse.success("Lấy danh sách tầng thành công", floorService.getFloorsByBuilding(buildingId));
     }
 
     @Operation(summary = "Cập nhật chính sách cư trú của tầng")
     @PutMapping("/{floorId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<FloorResponse> update(@PathVariable UUID floorId, @Valid @RequestBody UpdateFloorRequest request) {
         return ApiResponse.success("Cập nhật tầng thành công", floorService.updateFloor(floorId, request));
     }

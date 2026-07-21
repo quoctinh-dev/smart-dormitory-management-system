@@ -15,15 +15,27 @@ import {
   CircularProgress,
   TablePagination,
   InputAdornment,
+  Stack,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import React from 'react';
 
 import { useSystemConfig } from '@/hooks/useSystemConfig';
 
-// Hàm tự động nhận diện đơn vị dựa trên key
+// Tự động nhận diện đơn vị dựa trên mã cấu hình
 const getUnitSuffix = (key: string) => {
   const upperKey = key.toUpperCase();
+
+  if (
+      upperKey.includes('_START') ||
+      upperKey.includes('_END') ||
+      upperKey.includes('CURFEW') ||
+      upperKey.includes('DUAL_AUTH') ||
+      (upperKey.includes('DEADLINE') && !upperKey.includes('DAYS')) ||
+      upperKey.includes('LATE_RETURN')
+  ) {
+    return 'HH:mm';
+  }
   if (upperKey.includes('PRICE') || upperKey.includes('FEE') || upperKey.includes('AMOUNT') || upperKey.includes('MONEY')) {
     return 'VNĐ';
   }
@@ -39,11 +51,10 @@ const getUnitSuffix = (key: string) => {
   return '';
 };
 
-// Hàm format hiển thị dấu phẩy (vd: 15000 -> 15,000)
+// Định dạng giá trị hiển thị có dấu phân cách hàng nghìn (VD: 15000 -> 15,000)
 const formatDisplayValue = (val: string, unit: string) => {
   if (!val) return '';
   if (unit === 'VNĐ') {
-    // Chỉ format nếu là số nguyên hợp lệ
     const num = Number(val);
     if (!isNaN(num)) {
       return new Intl.NumberFormat('en-US').format(num);
@@ -61,162 +72,149 @@ export default function SystemConfigPage() {
   const paginatedConfigs = configs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
-    <Box>
-      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Box
-          sx={{
-            p: 1.5,
-            borderRadius: 3,
-            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
-            color: 'primary.main',
-            display: 'flex',
-          }}
-        >
-          <SettingsIcon sx={{ fontSize: 32 }} />
+      <Box sx={{ p: { xs: 2, md: 3 } }}>
+        {/* Header trang */}
+        <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box
+              sx={{
+                p: 1.25,
+                borderRadius: 2,
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+                color: 'primary.main',
+                display: 'flex',
+              }}
+          >
+            <SettingsIcon sx={{ fontSize: 28 }} />
+          </Box>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
+              Cấu hình hệ thống
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Thiết lập các tham số toàn cục như đơn giá dịch vụ và thời gian quy định.
+            </Typography>
+          </Box>
         </Box>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 0.5 }}>
-            Cấu hình hệ thống
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Cài đặt các thông số toàn cục như Đơn giá, Cấu hình nghiệp vụ.
-          </Typography>
-        </Box>
-      </Box>
 
-      <TableContainer
-        component={Paper}
-        elevation={3}
-        sx={{
-          borderRadius: 4,
-          overflow: 'hidden',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.04)',
-        }}
-      >
-        <Table sx={{ minWidth: 650 }} aria-label="system config table">
-          <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05) }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 'bold', width: '25%' }}>Mã cấu hình (key)</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', width: '35%' }}>Mô tả</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', width: '25%' }}>Giá trị hiện tại</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', width: '15%' }}>Thao tác</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading && configs.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} align="center" sx={{ py: 6 }}>
-                  <CircularProgress size={30} />
-                </TableCell>
-              </TableRow>
-            ) : configs.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} align="center" sx={{ py: 6 }}>
-                  <Typography color="text.secondary">Chưa có cấu hình nào</Typography>
-                </TableCell>
-              </TableRow>
-            ) : (
-              paginatedConfigs.map((config) => {
-                const currentValue = editValues[config.configKey] ?? '';
-                const isChanged = currentValue !== config.configValue;
-                const unit = getUnitSuffix(config.configKey);
-                const isNumericType = unit === 'VNĐ' || unit === 'Ngày' || unit === '%' || unit === 'Tháng';
+        {/* Bảng thông số cấu hình */}
+        <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
+          <TableContainer>
+            <Table sx={{ minWidth: 650 }} aria-label="Bảng cấu hình hệ thống">
+              <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
+                <TableRow>
+                  <TableCell width="30%" sx={{ fontWeight: 600 }}>Tham số (Mã cấu hình)</TableCell>
+                  <TableCell width="35%" sx={{ fontWeight: 600 }}>Mô tả chức năng</TableCell>
+                  <TableCell width="22%" sx={{ fontWeight: 600 }}>Giá trị thiết lập</TableCell>
+                  <TableCell width="13%" align="center" sx={{ fontWeight: 600 }}>Thao tác</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {loading && configs.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center" sx={{ py: 6 }}>
+                        <CircularProgress size={28} />
+                      </TableCell>
+                    </TableRow>
+                ) : configs.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center" sx={{ py: 6 }}>
+                        <Typography color="text.secondary" variant="body2">
+                          Chưa có tham số cấu hình nào trong hệ thống.
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                ) : (
+                    paginatedConfigs.map((config) => {
+                      const currentValue = editValues[config.configKey] ?? '';
+                      const isChanged = currentValue !== config.configValue;
+                      const unit = getUnitSuffix(config.configKey);
+                      const isTimeType = unit === 'HH:mm';
 
-                return (
-                  <TableRow
-                    hover
-                    key={config.configKey}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      <Typography
-                        variant="body2"
-                        sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: 'primary.dark' }}
-                      >
-                        {config.configKey}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" color="text.secondary">
-                        {config.description}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        size="small"
-                        fullWidth
-                        value={unit === 'VNĐ' ? formatDisplayValue(currentValue, unit) : currentValue}
-                        onChange={(e) => {
-                          let val = e.target.value;
-                          if (unit === 'VNĐ') {
-                            // Xóa dấu phẩy để lưu giá trị raw
-                            val = val.replace(/,/g, '');
-                          }
-                          // Chỉ cho phép nhập số nếu là VNĐ
-                          if (unit === 'VNĐ' && val !== '' && !/^\d+$/.test(val)) {
-                             return;
-                          }
-                          handleValueChange(config.configKey, val);
-                        }}
-                        placeholder="Nhập giá trị..."
-                        InputProps={{
-                          endAdornment: unit ? (
-                            <InputAdornment position="end">
-                              <Typography variant="caption" fontWeight="bold" color="text.secondary">
-                                {unit}
+                      return (
+                          <TableRow hover key={config.configKey}>
+                            <TableCell>
+                              <Typography
+                                  variant="body2"
+                                  sx={{ fontFamily: 'monospace', fontWeight: 600, color: 'primary.main' }}
+                              >
+                                {config.configKey}
                               </Typography>
-                            </InputAdornment>
-                          ) : null,
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: 2,
-                            transition: 'all 0.2s',
-                            '&.Mui-focused': {
-                              boxShadow: '0 4px 12px rgba(0,118,255,0.1)',
-                            },
-                          },
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="contained"
-                        size="small"
-                        startIcon={<SaveIcon />}
-                        disabled={!isChanged || loading}
-                        onClick={() => handleSave(config)}
-                        sx={{
-                          borderRadius: 2,
-                          textTransform: 'none',
-                          fontWeight: 'bold',
-                          ...(isChanged && {
-                            boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-                          }),
-                        }}
-                      >
-                        Lưu thay đổi
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-        <TablePagination
-          component="div"
-          count={configs.length}
-          page={page}
-          onPageChange={(_, newPage) => setPage(newPage)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
-          labelRowsPerPage="Số dòng/trang:"
-        />
-      </TableContainer>
-    </Box>
+                            </TableCell>
+
+                            <TableCell>
+                              <Typography variant="body2" color="text.secondary">
+                                {config.description}
+                              </Typography>
+                            </TableCell>
+
+                            <TableCell>
+                              <TextField
+                                  size="small"
+                                  fullWidth
+                                  value={unit === 'VNĐ' ? formatDisplayValue(currentValue, unit) : currentValue}
+                                  onChange={(e) => {
+                                    let val = e.target.value;
+                                    if (unit === 'VNĐ') {
+                                      val = val.replace(/,/g, '');
+                                    }
+                                    if (unit === 'VNĐ' && val !== '' && !/^\d+$/.test(val)) {
+                                      return;
+                                    }
+                                    if (isTimeType && val !== '' && !/^([01]?\d|2[0-3])?(:[0-5]?\d?)?$/.test(val)) {
+                                      return;
+                                    }
+                                    handleValueChange(config.configKey, val);
+                                  }}
+                                  placeholder={isTimeType ? 'HH:mm (VD: 22:00)' : 'Nhập giá trị...'}
+                                  InputProps={{
+                                    endAdornment: unit ? (
+                                        <InputAdornment position="end">
+                                          <Typography variant="caption" sx={{ fontWeight: 500, color: 'text.disabled' }}>
+                                            {unit}
+                                          </Typography>
+                                        </InputAdornment>
+                                    ) : null,
+                                  }}
+                              />
+                            </TableCell>
+
+                            <TableCell align="center">
+                              <Button
+                                  variant="contained"
+                                  size="small"
+                                  startIcon={<SaveIcon />}
+                                  disabled={!isChanged || loading}
+                                  onClick={() => handleSave(config)}
+                                  disableElevation
+                                  sx={{
+                                    borderRadius: 1.5,
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                  }}
+                              >
+                                Lưu lại
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                      );
+                    })
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+              component="div"
+              count={configs.length}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(e) => {
+                setRowsPerPage(parseInt(e.target.value, 10));
+                setPage(0);
+              }}
+              labelRowsPerPage="Số dòng mỗi trang:"
+          />
+        </Paper>
+      </Box>
   );
 }
