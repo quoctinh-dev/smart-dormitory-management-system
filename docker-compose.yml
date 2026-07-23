@@ -51,6 +51,13 @@ services:
     ports:
       - "5173:80"
 
+  ai-service:
+    build:
+      context: ./sdms-ai-service
+    container_name: sdms-ai-service
+    ports:
+      - "8000:8000"
+
   mosquitto:
     image: eclipse-mosquitto:2.0.15
     container_name: sdms-mosquitto

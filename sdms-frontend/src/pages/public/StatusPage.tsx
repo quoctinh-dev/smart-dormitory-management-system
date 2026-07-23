@@ -89,33 +89,31 @@ export default function StatusPage() {
         <Container maxWidth="md" sx={{ py: 8 }}>
             <Fade in timeout={800}>
                 <Paper
-                    elevation={0}
-                    sx={(theme) => ({
-                        borderRadius: 6,
+                    variant="outlined"
+                    sx={{
+                        borderRadius: 2,
                         overflow: 'hidden',
-                        border: '1px solid',
-                        borderColor: alpha(theme.palette.primary.main, 0.15),
-                        boxShadow: `0 12px 40px ${alpha(theme.palette.primary.main, 0.08)}`,
+                        borderColor: 'divider',
                         bgcolor: 'background.paper'
-                    })}
+                    }}
                 >
                     <Box
                         sx={(theme) => ({
                             background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
                             color: 'common.white',
-                            py: 5,
+                            py: 4,
                             px: 3,
                             textAlign: 'center',
                         })}
                     >
                         <Typography
-                            variant="h4"
+                            variant="h5"
                             sx={{
                                 fontWeight: 700,
                                 letterSpacing: '-0.02em',
                                 lineHeight: 1.3,
                                 color: 'inherit',
-                                mb: 1.5
+                                mb: 1
                             }}
                         >
                             Tra cứu tiến độ hồ sơ
@@ -135,47 +133,56 @@ export default function StatusPage() {
                         </Typography>
                     </Box>
 
-                    <Box sx={{ p: { xs: 4, md: 6 } }}>
-                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4, alignItems: 'stretch' }}>
-                            <TextField
-                                fullWidth
-                                label="Mã số sinh viên"
-                                variant="outlined"
-                                value={studentCode}
-                                onChange={handleStudentCodeChange}
-                                onKeyDown={handleKeyDown}
-                                helperText="Vui lòng nhập chính xác MSSV được nhà trường cấp"
-                                slotProps={{
-                                    input: {
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <SearchIcon color="action" />
-                                            </InputAdornment>
-                                        ),
-                                        sx: {
-                                            borderRadius: 3,
-                                            bgcolor: 'background.paper'
+                    <Box sx={{ p: { xs: 3, md: 5 } }}>
+                        {/* Đã sửa alignment sang flex-end hoặc center để nút bấm cân đối với khung input */}
+                        <Stack
+                            direction={{ xs: 'column', sm: 'row' }}
+                            spacing={2}
+                            sx={{ mb: 4, alignItems: 'center' }}
+                        >
+                            <Box sx={{ flexGrow: 1, width: '100%' }}>
+                                <TextField
+                                    fullWidth
+                                    label="Mã số sinh viên"
+                                    variant="outlined"
+                                    value={studentCode}
+                                    onChange={handleStudentCodeChange}
+                                    onKeyDown={handleKeyDown}
+                                    helperText="Vui lòng nhập chính xác MSSV được nhà trường cấp"
+                                    slotProps={{
+                                        input: {
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <SearchIcon color="action" />
+                                                </InputAdornment>
+                                            ),
+                                            sx: {
+                                                borderRadius: 1.5,
+                                                bgcolor: 'background.paper'
+                                            }
+                                        },
+                                        formHelperText: {
+                                            sx: { mt: 0.8, ml: 1 }
                                         }
-                                    },
-                                    formHelperText: {
-                                        sx: { mt: 0.8, ml: 1 }
-                                    }
-                                }}
-                            />
+                                    }}
+                                />
+                            </Box>
                             <Button
                                 variant="contained"
-                                size="large"
+                                size="medium"
                                 onClick={handleSearch}
                                 disabled={isBtnDisabled}
+                                disableElevation
                                 sx={{
                                     minWidth: 140,
                                     height: 56,
-                                    borderRadius: 3,
-                                    fontWeight: 700,
-                                    boxShadow: 'none',
+                                    borderRadius: 1.5,
+                                    fontWeight: 600,
                                     textTransform: 'none',
                                     fontSize: '0.95rem',
-                                    '&:hover': { boxShadow: 'none' }
+                                    flexShrink: 0,
+                                    // Bù khoảng trống của helperText bên cạnh để nút thẳng hàng tuyệt đối với phần input
+                                    mb: { sm: '22px' },
                                 }}
                             >
                                 {loading ? 'Đang tra...' : 'Tra cứu hồ sơ'}
@@ -200,12 +207,12 @@ export default function StatusPage() {
                                         <Box
                                             sx={(theme) => ({
                                                 mb: 4,
-                                                p: 2.5,
-                                                pl: 3,
-                                                bgcolor: alpha(theme.palette.info.main, 0.04),
+                                                p: 2,
+                                                pl: 2.5,
+                                                bgcolor: alpha(theme.palette.info.main, 0.05),
                                                 borderLeft: '4px solid',
                                                 borderColor: 'info.main',
-                                                borderRadius: '0 12px 12px 0',
+                                                borderRadius: '0 8px 8px 0',
                                             })}
                                         >
                                             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
@@ -218,12 +225,12 @@ export default function StatusPage() {
                                         <Box
                                             sx={(theme) => ({
                                                 mb: 4,
-                                                p: 2.5,
-                                                pl: 3,
-                                                bgcolor: alpha(theme.palette.error.main, 0.04),
+                                                p: 2,
+                                                pl: 2.5,
+                                                bgcolor: alpha(theme.palette.error.main, 0.05),
                                                 borderLeft: '4px solid',
                                                 borderColor: 'error.main',
-                                                borderRadius: '0 12px 12px 0',
+                                                borderRadius: '0 8px 8px 0',
                                             })}
                                         >
                                             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
@@ -243,10 +250,10 @@ export default function StatusPage() {
                                         <Box
                                             sx={{
                                                 mt: 4,
-                                                p: 4,
-                                                borderRadius: 4,
+                                                p: 3,
+                                                borderRadius: 2,
                                                 border: '1px solid',
-                                                borderColor: 'primary.light',
+                                                borderColor: 'divider',
                                                 textAlign: 'center',
                                                 bgcolor: (theme) => alpha(theme.palette.primary.main, 0.02)
                                             }}
@@ -254,27 +261,27 @@ export default function StatusPage() {
                                             <Button
                                                 variant="contained"
                                                 color="primary"
-                                                size="large"
+                                                size="medium"
                                                 disabled={paymentLoading}
                                                 onClick={async () => {
                                                     const url = await handleOnlinePayment('BANK_TRANSFER');
                                                     if (url) setPaymentQrUrl(url);
                                                 }}
+                                                disableElevation
                                                 sx={{
                                                     px: 4,
-                                                    py: 1.8,
-                                                    fontSize: '1rem',
-                                                    borderRadius: 3,
-                                                    fontWeight: 700,
-                                                    boxShadow: 'none',
-                                                    '&:hover': { boxShadow: 'none' }
+                                                    py: 1.2,
+                                                    fontSize: '0.95rem',
+                                                    borderRadius: 1.5,
+                                                    fontWeight: 600,
+                                                    textTransform: 'none',
                                                 }}
                                             >
                                                 {paymentLoading
                                                     ? 'Đang tạo dữ liệu...'
                                                     : `Xuất mã QR thanh toán - ${application.bill.amount.toLocaleString('vi-VN')}đ`}
                                             </Button>
-                                            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
                                                 Hệ thống tự động liên kết tạo cổng thanh toán trực tuyến bảo mật.
                                             </Typography>
                                         </Box>
@@ -284,35 +291,35 @@ export default function StatusPage() {
                                         <Box
                                             sx={{
                                                 mt: 4,
-                                                p: 4,
+                                                p: 3,
                                                 bgcolor: (theme) => alpha(theme.palette.success.main, 0.02),
-                                                borderRadius: 4,
+                                                borderRadius: 2,
                                                 textAlign: 'center',
                                                 border: '1px solid',
-                                                borderColor: 'success.light'
+                                                borderColor: 'divider'
                                             }}
                                         >
-                                            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5, color: 'success.dark' }}>
+                                            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: 'success.dark' }}>
                                                 Xác nhận hoàn tất thủ tục tài chính
                                             </Typography>
                                             <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.6, color: 'text.primary' }}>
                                                 Vui lòng mang theo căn cước công dân bản gốc đến trực tiếp Văn phòng Ban quản lý KTX STU để hoàn thành bước tiếp nhận phòng ở.
                                             </Typography>
-                                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 3 }}>
+                                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2.5 }}>
                                                 Thông tin tài khoản cư dân nội trú của bạn đã sẵn sàng trên hệ thống.
                                             </Typography>
                                             <Button
                                                 variant="contained"
                                                 color="success"
-                                                size="large"
+                                                size="medium"
                                                 onClick={() => navigate('/activate-account')}
+                                                disableElevation
                                                 sx={{
-                                                    fontWeight: 700,
+                                                    fontWeight: 600,
                                                     px: 4,
-                                                    py: 1.6,
-                                                    borderRadius: 3,
-                                                    boxShadow: 'none',
-                                                    '&:hover': { boxShadow: 'none' }
+                                                    py: 1.2,
+                                                    borderRadius: 1.5,
+                                                    textTransform: 'none',
                                                 }}
                                             >
                                                 Kích hoạt tài khoản cư dân ngay
@@ -327,12 +334,12 @@ export default function StatusPage() {
                                     <Box
                                         sx={(theme) => ({
                                             mt: 2,
-                                            p: 2.5,
-                                            pl: 3,
-                                            bgcolor: alpha(theme.palette.warning.main, 0.04),
+                                            p: 2,
+                                            pl: 2.5,
+                                            bgcolor: alpha(theme.palette.warning.main, 0.05),
                                             borderLeft: '4px solid',
                                             borderColor: 'warning.main',
-                                            borderRadius: '0 12px 12px 0',
+                                            borderRadius: '0 8px 8px 0',
                                         })}
                                     >
                                         <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
@@ -352,7 +359,8 @@ export default function StatusPage() {
                 maxWidth="md"
                 fullWidth
                 PaperProps={{
-                    sx: { borderRadius: 4, overflow: 'hidden' },
+                    variant: 'outlined',
+                    sx: { borderRadius: 2, overflow: 'hidden' },
                 }}
             >
                 <DialogTitle
@@ -378,7 +386,7 @@ export default function StatusPage() {
                         <Box
                             sx={{
                                 flex: 1,
-                                p: 4,
+                                p: 3,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
@@ -388,10 +396,10 @@ export default function StatusPage() {
                                 bgcolor: 'background.paper',
                             }}
                         >
-                            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: 'primary.main' }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: 'primary.main' }}>
                                 Quét mã nhanh qua Ứng dụng Bank
                             </Typography>
-                            <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 4 }}>
+                            <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
                                 Sử dụng tính năng QR Pay trên ứng dụng ngân hàng để tự điền nội dung
                             </Typography>
 
@@ -400,14 +408,13 @@ export default function StatusPage() {
                                     p: 2,
                                     border: '1px solid',
                                     borderColor: 'divider',
-                                    borderRadius: 4,
+                                    borderRadius: 2,
                                     bgcolor: 'common.white',
-                                    width: 240,
-                                    height: 240,
+                                    width: 220,
+                                    height: 220,
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
                                 }}
                             >
                                 {paymentQrUrl && (
@@ -420,16 +427,16 @@ export default function StatusPage() {
                             </Box>
                         </Box>
 
-                        <Box sx={{ flex: 1, p: 4 }}>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: 'primary.main' }}>
+                        <Box sx={{ flex: 1, p: 3 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: 'primary.main' }}>
                                 Sao chép thông tin thủ công
                             </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
                                 Nhấp vào nút sao chép bên cạnh để đảm bảo thông tin lệnh chuyển chính xác
                             </Typography>
 
                             {qrDetails && (
-                                <Stack spacing={2.5}>
+                                <Stack spacing={2}>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
                                             Ngân hàng thụ hưởng
@@ -448,7 +455,7 @@ export default function StatusPage() {
                                         </Typography>
                                     </Box>
 
-                                    <Stack direction="row" justifyContent="between" alignItems="center" sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+                                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
                                         <Box sx={{ flexGrow: 1 }}>
                                             <Typography variant="caption" color="text.secondary" display="block">
                                                 Số tài khoản nhận
@@ -464,7 +471,7 @@ export default function StatusPage() {
                                         </Tooltip>
                                     </Stack>
 
-                                    <Stack direction="row" justifyContent="between" alignItems="center" sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+                                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
                                         <Box sx={{ flexGrow: 1 }}>
                                             <Typography variant="caption" color="text.secondary" display="block">
                                                 Số tiền giao dịch
@@ -480,7 +487,7 @@ export default function StatusPage() {
                                         </Tooltip>
                                     </Stack>
 
-                                    <Stack direction="row" justifyContent="between" alignItems="center" sx={{ bgcolor: (theme) => alpha(theme.palette.warning.main, 0.08), p: 2, borderRadius: 3, border: '1px solid', borderColor: 'warning.light' }}>
+                                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ bgcolor: (theme) => alpha(theme.palette.warning.main, 0.08), p: 1.5, borderRadius: 1.5, border: '1px solid', borderColor: 'warning.light' }}>
                                         <Box sx={{ flexGrow: 1 }}>
                                             <Typography variant="caption" sx={{ color: 'warning.dark', display: 'block', fontWeight: 700, mb: 0.5 }}>
                                                 Nội dung chuyển khoản chuẩn
@@ -501,7 +508,7 @@ export default function StatusPage() {
                     </Stack>
                 </DialogContent>
                 <DialogActions sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-                    <Button onClick={() => setPaymentQrUrl(null)} variant="outlined" color="inherit" sx={{ borderRadius: 2.5, px: 3 }}>
+                    <Button onClick={() => setPaymentQrUrl(null)} variant="outlined" color="inherit" disableElevation sx={{ borderRadius: 1.5, px: 3, textTransform: 'none' }}>
                         Đóng cửa sổ
                     </Button>
                 </DialogActions>

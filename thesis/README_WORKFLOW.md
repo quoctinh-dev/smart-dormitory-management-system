@@ -69,4 +69,14 @@ Mỗi khi bắt đầu một ngày làm việc mới hoặc mở trình duyệt 
     3. Mở file Word ra, bôi đen đoạn vừa chèn, chọn Style `Normal` (nếu bị lệch font).
     4. Lấy mã Mermaid dán lên web tạo ảnh PNG và kéo thả vào Word.
 
+---
+
+## GIAI ĐOẠN 6: LUẬT DỌN DẸP RÁC (CLEANUP & GARBAGE COLLECTION)
+Để tránh thư mục `outputs` và `prompts` bị phình to với hàng trăm file rác, tuân thủ nguyên tắc "Làm xong xóa ngay".
+
+*   **Hành động của BẠN:**
+    *   Ngay sau khi Vỹ đã chèn thành công nội dung của tính năng đó vào file Word `thesis.docx` và xác nhận không cần sửa gì thêm.
+    *   Bạn ra lệnh cho tôi (Technical AI): *"Hãy xóa các file audit, prompt và draft của phần X đi"*.
+    *   Tôi sẽ lập tức xóa sạch các file tạm đó để giữ thư mục làm việc luôn gọn gàng (Chỉ giữ lại file Word và các file Luật).
+
 **[HOÀN THÀNH 1 TÍNH NĂNG - QUAY LẠI GIAI ĐOẠN 2 CHO TÍNH NĂNG TIẾP THEO]**

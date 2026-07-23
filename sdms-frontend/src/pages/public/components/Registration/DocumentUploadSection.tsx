@@ -74,13 +74,13 @@ interface DocumentUploadBoxProps {
 }
 
 const DocumentUploadBox = ({
-  doc,
-  isUploaded,
-  uploadedName,
-  previewUrl,
-  loading,
-  onUpload,
-}: DocumentUploadBoxProps) => {
+                             doc,
+                             isUploaded,
+                             uploadedName,
+                             previewUrl,
+                             loading,
+                             onUpload,
+                           }: DocumentUploadBoxProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       onUpload(doc.type, e.target.files[0]);
@@ -88,87 +88,87 @@ const DocumentUploadBox = ({
   };
 
   return (
-    <Box
-      sx={{
-        border: '2px dashed',
-        borderColor: () => (isUploaded ? 'success.main' : 'divider'),
-        borderStyle: isUploaded ? 'solid' : 'dashed',
-        borderRadius: 4,
-        p: 3,
-        textAlign: 'center',
-        cursor: loading ? 'not-allowed' : 'pointer',
-        bgcolor: (theme) =>
-          isUploaded ? alpha(theme.palette.success.main, 0.05) : 'background.default',
-        transition: 'all 0.2s ease-in-out',
-        '&:hover': {
-          bgcolor: (theme) => (loading ? undefined : alpha(theme.palette.action.hover, 0.06)),
-          transform: loading ? 'none' : 'translateY(-4px)',
-          boxShadow: loading ? 'none' : (theme) => theme.shadows[4],
-        },
-        position: 'relative',
-        minWidth: 0,
-      }}
-      component="label"
-      title={isUploaded ? uploadedName || undefined : undefined}
-    >
-      <input type="file" hidden onChange={handleFileChange} disabled={loading} />
-      {isUploaded ? (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {previewUrl ? (
-            <Box
-              component="img"
-              src={previewUrl}
-              alt={uploadedName || 'Preview'}
-              sx={{
-                width: '100%',
-                maxHeight: 120,
-                objectFit: 'contain',
-                borderRadius: 2,
-                mb: 1,
-                border: '1px solid',
-                borderColor: 'divider',
-              }}
-            />
-          ) : (
-            <IconifyIcon
-              icon="mingcute:check-circle-fill"
-              sx={{ fontSize: 40, color: 'success.main', mb: 1 }}
-            />
-          )}
-          <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: 'success.main' }}>
-            Đã tải lên
-          </Typography>
-          <Typography
-            variant="caption"
-            display="block"
-            color="text.secondary"
-            sx={{
-              mt: 0.5,
-              px: 1,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              maxWidth: '100%',
-            }}
-          >
-            {uploadedName}
-          </Typography>
-        </Box>
-      ) : (
-        <>
-          <IconifyIcon
-            icon="mingcute:upload-fill"
-            sx={{ fontSize: 40, color: 'primary.main', mb: 1, opacity: 0.8 }}
-          />
-          <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-            {doc.label}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
-            {doc.desc}
-          </Typography>
-        </>
-      )}
-    </Box>
+      <Box
+          sx={{
+            border: '2px dashed',
+            borderColor: () => (isUploaded ? 'success.main' : 'divider'),
+            borderStyle: isUploaded ? 'solid' : 'dashed',
+            borderRadius: 4,
+            p: 3,
+            textAlign: 'center',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            bgcolor: (theme) =>
+                isUploaded ? alpha(theme.palette.success.main, 0.05) : 'background.default',
+            transition: 'all 0.2s ease-in-out',
+            '&:hover': {
+              bgcolor: (theme) => (loading ? undefined : alpha(theme.palette.action.hover, 0.06)),
+              transform: loading ? 'none' : 'translateY(-4px)',
+              boxShadow: loading ? 'none' : (theme) => theme.shadows[4],
+            },
+            position: 'relative',
+            minWidth: 0,
+          }}
+          component="label"
+          title={isUploaded ? uploadedName || undefined : undefined}
+      >
+        <input type="file" hidden onChange={handleFileChange} disabled={loading} />
+        {isUploaded ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              {previewUrl ? (
+                  <Box
+                      component="img"
+                      src={previewUrl}
+                      alt={uploadedName || 'Preview'}
+                      sx={{
+                        width: '100%',
+                        maxHeight: 120,
+                        objectFit: 'contain',
+                        borderRadius: 2,
+                        mb: 1,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                      }}
+                  />
+              ) : (
+                  <IconifyIcon
+                      icon="mingcute:check-circle-fill"
+                      sx={{ fontSize: 40, color: 'success.main', mb: 1 }}
+                  />
+              )}
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: 'success.main' }}>
+                Đã tải lên
+              </Typography>
+              <Typography
+                  variant="caption"
+                  display="block"
+                  color="text.secondary"
+                  sx={{
+                    mt: 0.5,
+                    px: 1,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    maxWidth: '100%',
+                  }}
+              >
+                {uploadedName}
+              </Typography>
+            </Box>
+        ) : (
+            <>
+              <IconifyIcon
+                  icon="mingcute:upload-fill"
+                  sx={{ fontSize: 40, color: 'primary.main', mb: 1, opacity: 0.8 }}
+              />
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                {doc.label}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                {doc.desc}
+              </Typography>
+            </>
+        )}
+      </Box>
   );
 };
 
@@ -187,17 +187,17 @@ interface DocumentUploadSectionProps {
 }
 
 export default function DocumentUploadSection({
-  uploadedDocs,
-  uploadedPreviews,
-  handleUpload,
-  loading,
-  formData,
-  period,
-  targetGroup,
-}: DocumentUploadSectionProps) {
+                                                uploadedDocs,
+                                                uploadedPreviews,
+                                                handleUpload,
+                                                loading,
+                                                formData,
+                                                period,
+                                                targetGroup,
+                                              }: DocumentUploadSectionProps) {
   const extraDocs = (formData?.priorityCategories || [])
-    .filter((p) => p !== 'NONE' && PRIORITY_DOC_MAP[p])
-    .map((p) => PRIORITY_DOC_MAP[p]);
+      .filter((p) => p !== 'NONE' && PRIORITY_DOC_MAP[p])
+      .map((p) => PRIORITY_DOC_MAP[p]);
 
   const displayDocTypes = DOC_TYPES.filter((doc) => {
     if (doc.type === 'STUDENT_CARD' && (targetGroup === 'FRESHMAN' || period?.registrationType === 'NEW_STUDENT')) {
@@ -207,71 +207,71 @@ export default function DocumentUploadSection({
   });
 
   return (
-    <Box
-      sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 600, mx: 'auto', mt: 4 }}
-    >
-      <Typography variant="h6" sx={{ textAlign: 'center', fontWeight: 'bold', mb: 2 }}>
-        Tải lên hồ sơ minh chứng
-      </Typography>
-
-      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-        I. Tài liệu bắt buộc chung ({displayDocTypes.length} loại)
-      </Typography>
-
       <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: displayDocTypes.length === 1 ? '1fr' : { xs: '1fr', sm: '1fr 1fr' },
-          gap: 3,
-          maxWidth: displayDocTypes.length === 1 ? 400 : '100%',
-          mx: 'auto',
-        }}
+          sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 600, mx: 'auto', mt: 4 }}
       >
-        {displayDocTypes.map((doc) => (
-          <DocumentUploadBox
-            key={doc.type}
-            doc={doc}
-            isUploaded={!!uploadedDocs[doc.type]}
-            uploadedName={uploadedDocs[doc.type]}
-            previewUrl={uploadedPreviews?.[doc.type]}
-            loading={loading}
-            onUpload={handleUpload}
-          />
-        ))}
-      </Box>
+        <Typography variant="h6" sx={{ textAlign: 'center', fontWeight: 'bold', mb: 2 }}>
+          Tải lên hồ sơ minh chứng
+        </Typography>
 
-      {extraDocs.length > 0 && (
-        <>
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'bold', mt: 2, color: 'secondary.main' }}
-          >
-            II. Tài liệu minh chứng diện ưu tiên ({extraDocs.length} loại)
-          </Typography>
+        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+          I. Tài liệu bắt buộc chung ({displayDocTypes.length} loại)
+        </Typography>
 
-          <Box
+        <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: extraDocs.length === 1 ? '1fr' : { xs: '1fr', sm: '1fr 1fr' },
+              gridTemplateColumns: displayDocTypes.length === 1 ? '1fr' : { xs: '1fr', sm: '1fr 1fr' },
               gap: 3,
-              maxWidth: extraDocs.length === 1 ? 400 : '100%',
+              maxWidth: displayDocTypes.length === 1 ? 400 : '100%',
               mx: 'auto',
             }}
-          >
-            {extraDocs.map((doc) => (
+        >
+          {displayDocTypes.map((doc) => (
               <DocumentUploadBox
-                key={doc.type}
-                doc={doc}
-                isUploaded={!!uploadedDocs[doc.type]}
-                uploadedName={uploadedDocs[doc.type]}
-                previewUrl={uploadedPreviews?.[doc.type]}
-                loading={loading}
-                onUpload={handleUpload}
+                  key={doc.type}
+                  doc={doc}
+                  isUploaded={!!uploadedDocs[doc.type]}
+                  uploadedName={uploadedDocs[doc.type]}
+                  previewUrl={uploadedPreviews?.[doc.type]}
+                  loading={loading}
+                  onUpload={handleUpload}
               />
-            ))}
-          </Box>
-        </>
-      )}
-    </Box>
+          ))}
+        </Box>
+
+        {extraDocs.length > 0 && (
+            <>
+              <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 'bold', mt: 2, color: 'secondary.main' }}
+              >
+                II. Tài liệu minh chứng diện ưu tiên ({extraDocs.length} loại)
+              </Typography>
+
+              <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: extraDocs.length === 1 ? '1fr' : { xs: '1fr', sm: '1fr 1fr' },
+                    gap: 3,
+                    maxWidth: extraDocs.length === 1 ? 400 : '100%',
+                    mx: 'auto',
+                  }}
+              >
+                {extraDocs.map((doc) => (
+                    <DocumentUploadBox
+                        key={doc.type}
+                        doc={doc}
+                        isUploaded={!!uploadedDocs[doc.type]}
+                        uploadedName={uploadedDocs[doc.type]}
+                        previewUrl={uploadedPreviews?.[doc.type]}
+                        loading={loading}
+                        onUpload={handleUpload}
+                    />
+                ))}
+              </Box>
+            </>
+        )}
+      </Box>
   );
 }

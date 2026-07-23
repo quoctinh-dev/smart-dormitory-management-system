@@ -35,34 +35,32 @@ export default function ActivateAccountPage() {
             <Container maxWidth="sm" sx={{ py: 8 }}>
                 <Fade in timeout={500}>
                     <Paper
-                        elevation={0}
+                        variant="outlined"
                         sx={{
                             p: 5,
-                            borderRadius: 6,
+                            borderRadius: 2,
                             textAlign: 'center',
-                            border: '1px solid',
                             borderColor: 'divider',
-                            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.02)'
                         }}
                     >
-                        <CheckCircleIcon color="success" sx={{ fontSize: 72, mb: 2.5 }} />
-                        <Typography variant="h5" sx={{ fontWeight: 800, mb: 1.5, letterSpacing: '-0.5px' }}>
+                        <CheckCircleIcon color="success" sx={{ fontSize: 64, mb: 2.5 }} />
+                        <Typography variant="h5" sx={{ fontWeight: 700, mb: 1.5, letterSpacing: '-0.5px' }}>
                             Kích hoạt thành công!
                         </Typography>
-                        <Typography sx={{ color: 'text.secondary', mb: 4, px: 2, lineHeight: 1.6 }}>
+                        <Typography variant="body2" sx={{ color: 'text.secondary', mb: 4, px: 2, lineHeight: 1.6 }}>
                             Mật khẩu chính thức của bạn đã được thiết lập. Vui lòng sử dụng thông tin này đăng nhập vào <b>Ứng dụng di động (Mobile App)</b> dành cho sinh viên nội trú để bắt đầu trải nghiệm dịch vụ.
                         </Typography>
                         <Button
                             variant="contained"
                             fullWidth
-                            size="large"
+                            size="medium"
                             onClick={() => navigate('/')}
+                            disableElevation
                             sx={{
-                                borderRadius: 3,
-                                py: 1.6,
-                                fontWeight: 700,
-                                boxShadow: 'none',
-                                '&:hover': { boxShadow: 'none' }
+                                borderRadius: 1.5,
+                                py: 1.2,
+                                fontWeight: 600,
+                                textTransform: 'none',
                             }}
                         >
                             Quay lại trang chủ
@@ -77,29 +75,27 @@ export default function ActivateAccountPage() {
         <Container maxWidth="sm" sx={{ py: 8 }}>
             <Fade in timeout={600}>
                 <Paper
-                    elevation={0}
+                    variant="outlined"
                     sx={{
-                        p: { xs: 4, sm: 5 },
-                        borderRadius: 6,
-                        border: '1px solid',
+                        p: { xs: 3, sm: 4 },
+                        borderRadius: 2,
                         borderColor: 'divider',
-                        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.03)'
                     }}
                 >
-                    <Box sx={{ textAlign: 'center', mb: 4.5 }}>
+                    <Box sx={{ textAlign: 'center', mb: 4 }}>
                         <Box
                             sx={(theme) => ({
                                 display: 'inline-flex',
                                 p: 1.5,
-                                borderRadius: 4,
-                                bgcolor: alpha(theme.palette.primary.main, 0.08),
+                                borderRadius: 1.5,
+                                bgcolor: alpha(theme.palette.primary.main, 0.1),
                                 color: 'primary.main',
-                                mb: 2
+                                mb: 2,
                             })}
                         >
-                            <LockReset sx={{ fontSize: 40 }} />
+                            <LockReset sx={{ fontSize: 32 }} />
                         </Box>
-                        <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.5px', mb: 1 }}>
+                        <Typography variant="h5" sx={{ fontWeight: 700, letterSpacing: '-0.5px', mb: 1 }}>
                             Kích hoạt tài khoản
                         </Typography>
                         <Typography variant="body2" sx={{ color: 'text.secondary', px: 2, lineHeight: 1.5 }}>
@@ -111,7 +107,7 @@ export default function ActivateAccountPage() {
                         component="form"
                         onSubmit={handleSubmit}
                         noValidate
-                        spacing={3}
+                        spacing={2.5}
                         direction="column"
                     >
                         <TextField
@@ -131,7 +127,7 @@ export default function ActivateAccountPage() {
                                             <Person color="action" />
                                         </InputAdornment>
                                     ),
-                                    sx: { borderRadius: 3 }
+                                    sx: { borderRadius: 1.5 }
                                 }
                             }}
                         />
@@ -161,7 +157,7 @@ export default function ActivateAccountPage() {
                                             </IconButton>
                                         </InputAdornment>
                                     ),
-                                    sx: { borderRadius: 3 }
+                                    sx: { borderRadius: 1.5 }
                                 }
                             }}
                         />
@@ -191,7 +187,7 @@ export default function ActivateAccountPage() {
                                             </IconButton>
                                         </InputAdornment>
                                     ),
-                                    sx: { borderRadius: 3 }
+                                    sx: { borderRadius: 1.5 }
                                 },
                                 formHelperText: {
                                     sx: { mt: 0.8, ml: 1 }
@@ -223,7 +219,7 @@ export default function ActivateAccountPage() {
                                             </IconButton>
                                         </InputAdornment>
                                     ),
-                                    sx: { borderRadius: 3 }
+                                    sx: { borderRadius: 1.5 }
                                 }
                             }}
                         />
@@ -231,18 +227,17 @@ export default function ActivateAccountPage() {
                         <Button
                             type="submit"
                             variant="contained"
-                            size="large"
+                            size="medium"
                             fullWidth
                             disabled={loading}
+                            disableElevation
                             sx={{
                                 mt: 1,
-                                py: 1.6,
-                                fontSize: '1rem',
-                                borderRadius: 3,
-                                fontWeight: 700,
+                                py: 1.2,
+                                fontSize: '0.95rem',
+                                borderRadius: 1.5,
+                                fontWeight: 600,
                                 textTransform: 'none',
-                                boxShadow: 'none',
-                                '&:hover': { boxShadow: 'none' }
                             }}
                         >
                             {loading ? 'Đang xác thực dữ liệu...' : 'Xác nhận kích hoạt tài khoản'}

@@ -8,7 +8,6 @@ import {
     StepLabel,
     Typography,
     Button,
-    Stack,
 } from '@mui/material';
 import {useMemo} from 'react';
 import {alpha} from '@mui/material/styles';
@@ -42,8 +41,8 @@ const NavigationControls = ({activeStep, loading, onNext, onBack}: any) => {
             sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                mt: 6,
-                pt: 3,
+                mt: 5,
+                pt: 2.5,
                 borderTop: '1px solid',
                 borderColor: 'divider',
             }}
@@ -53,7 +52,8 @@ const NavigationControls = ({activeStep, loading, onNext, onBack}: any) => {
                 onClick={onBack}
                 variant="outlined"
                 color="inherit"
-                sx={{borderRadius: 3, px: 3}}
+                disableElevation
+                sx={{ borderRadius: 1.5, px: 3, textTransform: 'none', fontWeight: 600 }}
             >
                 Quay lại
             </Button>
@@ -64,12 +64,12 @@ const NavigationControls = ({activeStep, loading, onNext, onBack}: any) => {
                     color="primary"
                     onClick={onNext}
                     disabled={loading}
+                    disableElevation
                     sx={{
                         minWidth: 140,
-                        borderRadius: 3,
-                        fontWeight: 700,
-                        boxShadow: 'none',
-                        '&:hover': {boxShadow: 'none'}
+                        borderRadius: 1.5,
+                        fontWeight: 600,
+                        textTransform: 'none',
                     }}
                 >
                     {nextButtonText}
@@ -79,12 +79,12 @@ const NavigationControls = ({activeStep, loading, onNext, onBack}: any) => {
                     variant="contained"
                     color="primary"
                     href="/"
+                    disableElevation
                     sx={{
                         minWidth: 140,
-                        borderRadius: 3,
-                        fontWeight: 700,
-                        boxShadow: 'none',
-                        '&:hover': {boxShadow: 'none'}
+                        borderRadius: 1.5,
+                        fontWeight: 600,
+                        textTransform: 'none',
                     }}
                 >
                     Về trang chủ
@@ -186,25 +186,24 @@ export default function RegistrationPage() {
         <Container maxWidth="md" sx={{py: 8}}>
             <Fade in timeout={800}>
                 <Paper
-                    elevation={0}
+                    variant="outlined"
                     sx={{
-                        p: {xs: 4, md: 6},
-                        borderRadius: 6,
+                        p: {xs: 3, md: 5},
+                        borderRadius: 2,
                         minHeight: '600px',
                         display: 'flex',
                         flexDirection: 'column',
-                        border: '1px solid',
                         borderColor: 'divider',
-                        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.02)'
+                        bgcolor: 'background.paper',
                     }}
                 >
-                    <Box sx={{mb: 5, textAlign: 'center'}}>
+                    <Box sx={{mb: 4, textAlign: 'center'}}>
                         <Typography
-                            variant="h4"
+                            variant="h5"
                             sx={{
                                 fontWeight: 700,
                                 letterSpacing: '-0.02em',
-                                mb: 1.5,
+                                mb: 1,
                                 color: 'text.primary',
                                 lineHeight: 1.3
                             }}
@@ -230,7 +229,7 @@ export default function RegistrationPage() {
                         activeStep={activeStep}
                         alternativeLabel
                         sx={{
-                            mb: 6,
+                            mb: 5,
                             '& .MuiStepLabel-label': {fontWeight: 600, color: 'text.secondary', mt: 1},
                             '& .MuiStepLabel-label.Mui-active': {fontWeight: 700, color: 'primary.main'},
                             '& .MuiStepLabel-label.Mui-completed': {fontWeight: 600, color: 'text.primary'},
@@ -254,13 +253,13 @@ export default function RegistrationPage() {
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    bgcolor: isDone || isCurrent ? 'primary.main' : 'background.elevation1',
+                                                    bgcolor: isDone || isCurrent ? 'primary.main' : 'background.default',
                                                     color: isDone || isCurrent ? 'common.white' : 'text.secondary',
                                                     fontWeight: 700,
                                                     fontSize: '0.85rem',
                                                     border: isCurrent ? '2px solid' : '1px solid',
                                                     borderColor: isCurrent ? 'primary.light' : isDone ? 'primary.main' : 'divider',
-                                                    boxShadow: isCurrent ? `0 0 0 4px ${alpha(theme.palette.primary.main, 0.15)}` : 'none',
+                                                    boxShadow: isCurrent ? `0 0 0 4px ${alpha(theme.palette.primary.main, 0.12)}` : 'none',
                                                     transition: 'all 0.2s ease'
                                                 })}
                                             >

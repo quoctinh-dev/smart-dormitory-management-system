@@ -4,7 +4,10 @@ import { useEffect, MutableRefObject, createRef } from 'react';
 import React from 'react';
 
 interface SnackbarUtils {
-  enqueueSnackbar: (message: string, options?: { variant?: VariantType }) => SnackbarKey;
+  enqueueSnackbar: (
+      message: string,
+      options?: { variant?: VariantType; autoHideDuration?: number; anchorOrigin?: { vertical: 'top' | 'bottom'; horizontal: 'left' | 'center' | 'right' } }
+  ) => SnackbarKey;
   closeSnackbar: (key?: SnackbarKey) => void;
 }
 
@@ -12,7 +15,7 @@ export const snackbarRef: MutableRefObject<SnackbarUtils | null> = createRef();
 
 if (!snackbarRef.current) {
   snackbarRef.current = {
-    enqueueSnackbar: (message: string, options?: { variant?: VariantType }) => {
+    enqueueSnackbar: (message: string, options) => {
       console.warn('enqueueSnackbar not yet initialized.', message, options);
       return '';
     },
@@ -31,7 +34,7 @@ export const SnackbarUtilsConfigurator: React.FC = () => {
     }
   }, [enqueueSnackbar, closeSnackbar]);
 
-  return null; // This component does not render anything
+  return null;
 };
 
 export const snackbar = {
@@ -49,7 +52,11 @@ export const snackbar = {
   },
   show(msg: string, variant: VariantType = 'default') {
     if (snackbarRef.current) {
-      snackbarRef.current.enqueueSnackbar(msg, { variant });
+      snackbarRef.current.enqueueSnackbar(msg, {
+        variant,
+        anchorOrigin: { vertical: 'top', horizontal: 'right' },
+        autoHideDuration: 3000,
+      });
     }
   },
 };

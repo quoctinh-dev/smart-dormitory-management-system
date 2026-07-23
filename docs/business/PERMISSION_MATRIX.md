@@ -4,12 +4,14 @@
 Tài liệu này xác định rõ ràng Ma trận phân quyền (Role-Based Access Control - RBAC) cuối cùng của Hệ thống Quản lý Ký túc xá Thông minh (SDMS). Tài liệu này được cập nhật sau đợt rà soát toàn diện giữa Backend (Spring Security) và Frontend (React UI), đảm bảo tính nhất quán 100% giữa giao diện hiển thị và quyền truy cập API thực tế.
 Đồng thời, tài liệu quy định rõ cơ chế bảo mật dành cho các thiết bị IoT (ESP32, Camera AI).
 
-## 2. Các Vai trò (Roles) trong Hệ thống
+## 2. Các Vai trò (Roles) & Tác nhân (Actors) trong Hệ thống
 
-1. **ADMIN (Quản trị viên cấp cao):** Toàn quyền kiểm soát hệ thống, bao gồm các chức năng cốt lõi như thiết lập đợt đăng ký, quản lý cấu hình hệ thống, xem báo cáo tổng quan và gửi thông báo toàn trường.
-2. **STAFF (Nhân viên / Lễ tân):** Quyền vận hành hàng ngày. Được phép thao tác với Sinh viên, duyệt hồ sơ lưu trú, duyệt khuôn mặt, thu tiền mặt, chốt điện nước, và điều khiển mở cửa từ xa. Bị cấm truy cập các tính năng mang tính thay đổi hệ thống.
-3. **STUDENT (Sinh viên):** Quyền tự phục vụ (Self-service). Chỉ được phép xem và thao tác trên dữ liệu của chính mình (Hóa đơn, Hồ sơ đăng ký, Khai báo khuôn mặt). Không được phép giả mạo `studentId` của người khác.
-4. **IOT_DEVICE (Thiết bị Cổng / Camera):** Quyền của các thiết bị phần cứng để giao tiếp với Backend mà không cần tương tác của con người.
+1. **ADMIN (Quản trị viên cấp cao):** Toàn quyền kiểm soát hệ thống, bao gồm các chức năng cốt lõi như thiết lập đợt đăng ký, quản lý cấu hình hệ thống, xem báo cáo tổng quan và gửi thông báo toàn trường. Thao tác trên Web Admin.
+2. **STAFF (Nhân viên / Lễ tân):** Quyền vận hành hàng ngày. Được phép thao tác với Sinh viên, duyệt hồ sơ lưu trú, duyệt khuôn mặt, thu tiền mặt, chốt điện nước, và điều khiển mở cửa từ xa. Bị cấm truy cập các tính năng mang tính thay đổi hệ thống. Thao tác trên Web Admin.
+3. **STUDENT (Sinh viên):** Quyền tự phục vụ (Self-service). Chỉ được phép xem và thao tác trên dữ liệu của chính mình (Hóa đơn, Hồ sơ đăng ký, Khai báo khuôn mặt). Thao tác chủ yếu trên Mobile App và Web Student.
+4. **PUBLIC (Khách vãng lai):** Người dùng chưa đăng nhập. Chỉ có thể xem thông tin giới thiệu, nội quy KTX, biểu phí và đăng nhập/quên mật khẩu.
+5. **IOT_DEVICE (Thiết bị Cổng / Camera):** Quyền của các thiết bị phần cứng (Edge devices) để giao tiếp với Backend thông qua API Key/Header mà không cần tương tác của con người.
+6. **SEPAY (Hệ thống thanh toán thứ 3):** Tác nhân bên ngoài (Third-party) giao tiếp tự động qua cơ chế Webhook để báo cáo biến động số dư.
 
 ---
 

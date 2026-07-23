@@ -1,30 +1,30 @@
-# Handoff Summary
+# HANDOFF SUMMARY (BÀN GIAO PHIÊN LÀM VIỆC)
 
-## Current State
+## 1. TIẾN ĐỘ HIỆN TẠI (LATEST PROGRESS)
+- Đã hoàn thành xuất sắc **8 Sơ đồ Quy trình nghiệp vụ (Flowcharts)** bằng định dạng XML (Draw.io) cho Mục 2.3.1 của Luận văn:
+  1. `registration_flowchart.xml` (Đăng ký lưu trú)
+  2. `extension_flowchart.xml` (Gia hạn lưu trú)
+  3. `transfer_room_flowchart.xml` (Chuyển phòng)
+  4. `payment_flowchart.xml` (Thanh toán phí - Tích hợp Webhook)
+  5. `checkout_flowchart.xml` (Trả phòng)
+  6. `access_control_flowchart.xml` (Kiểm soát ra vào - Tích hợp IoT/AI)
+  7. `utility_billing_flowchart.xml` (Chốt chỉ số điện nước & tính tiền)
+  8. `maintenance_flowchart.xml` (Bảo trì cơ sở vật chất)
+- Đã cung cấp đầy đủ **Báo cáo Audit Code Backend** chứng minh logic nghiệp vụ cho toàn bộ 8 quy trình trên.
+- Đã hoàn thiện văn bản cho mục 2.3.1, 2.3.2 trong file `thesis/outputs/draft_2.3.md`.
 
-### Các Module và Task hoàn thành trong phiên làm việc tối nay:
-1. **IoT Firmware (ESP32)**:
-   - Implement toàn bộ logic `OfflineWhitelist.cpp/.h` bằng NVS Storage.
-   - Thêm luồng pull HTTP 6 tiếng/lần và push MQTT real-time cho danh sách thẻ.
-   - Tách luồng kiểm duyệt thẻ (Online calls Backend, Offline kiểm tra NVS cục bộ).
-   - Đã biên soạn tài liệu E2E Testing tại `sdms-iot-gateway/docs/E2E_OFFLINE_SYNC_TESTING.md`.
+## 2. TRẠNG THÁI HIỆN TẠI (CURRENT STATE)
+- Đang dừng ở cuối phần 2.3.1 (Các quy trình, nghiệp vụ). User yêu cầu nghỉ ngơi.
 
-2. **Frontend & Backend (Nợ kỹ thuật & UI/UX)**:
-   - **Performance:** Áp dụng `React.lazy()` và `Suspense` cắt nhỏ chunk size (< 500kB).
-   - **UI Báo cáo:** Cập nhật bảng "Lịch sử ra/vào" trên Web Admin. Ánh xạ biến `OFFLINE_SYNC_VIOLATION` thành chữ "Vượt rào cúp điện" (màu đỏ) và `OFFLINE_MASTER_PIN_GRANT` thành "Mở bằng mã khẩn cấp" (màu vàng).
-   - **Bug Fix:** Xóa bỏ popup `alert()` native thô thiển trong `CheckoutManagement.tsx` và thay bằng `snackbar.warning`.
-   - **Feature Mới (Access):** Thêm bộ lọc nhiều tiêu chí "Phân loại/Phạt nguội" (Dropdown) vào Frontend, truyền biến `denialReason` qua REST Controller API tới JPA Specification.
-   - **Feature Mới (Finance):** Hoàn thành trọn vẹn Luồng Tạo hóa đơn thủ công (Penalty Bill). Cập nhật Backend REST API `POST /bills/manual`, UI Dialog, Hook và API Client. Khép kín vòng đời 100% CRUD tài chính.
-   - **Self-verification:** Đã chạy auto fix lint >20k lỗi. Đã chạy `./mvnw compile` và `npm run build` thành công hoàn toàn 100%.
+## 3. CÔNG VIỆC TIẾP THEO (NEXT STEPS)
+- **Bắt tay vào làm Mục 2.3.3: Sơ đồ Use case tổng quát**.
+- **Hành động đầu tiên của Agent tiếp theo:** Liệt kê danh sách các Tác nhân (Actors) và các Nhóm chức năng chính (Use Cases) để User duyệt trước khi tiến hành sinh mã XML.
 
-## ⚠️ Việc cần làm trước khi flash ESP32
-Chạy query lấy UUID thật của tòa nhà:
-```sql
-SELECT building_id, building_name FROM buildings;
-```
-Sau đó thay UUID đó vào biến `BUILDING_ID` trong file `src/config/Config.h`.
-
-## 🎯 Kế Hoạch Cho Ngày Mai (Next Session)
-Người dùng yêu cầu tập trung hoàn thiện 2 việc cốt lõi sau:
-1. **Hoàn thành IoT:** Dùng IDE (PlatformIO/Arduino) để Compile, Flash code, và setup trực tiếp để test luồng Offline / Whitelist thực tế dựa trên tài liệu E2E vừa tạo. Đảm bảo mạch IoT chạy hoàn hảo 100%.
-2. **Viết báo cáo Khóa luận:** Dựa vào các luồng đã hoàn thiện (Online/Offline, Hàng đợi duyệt đơn, Thanh toán, Phạt vi phạm, Tối ưu hóa UI/UX, Component Tree,...), tiến hành lên dàn ý và viết chi tiết báo cáo luận văn. Chú trọng phần kiến trúc Monorepo, xử lý ngoại lệ (offline sync) và tối ưu hóa hệ thống.
+## 4. QUY TẮC LÀM VIỆC BẮT BUỘC (USER'S STRICT PREFERENCES - MUST FOLLOW)
+Incoming Agent **BẮT BUỘC** phải tuân thủ các quy tắc sau khi vẽ Sơ đồ (Draw.io XML) cho luận văn:
+1. **Hình khối:** Tuyệt đối dùng hình chữ nhật vuông vức, không bo góc (THUỘC TÍNH: `rounded=0`).
+2. **Màu sắc:** Trắng đen (White background, Black stroke). Không dùng màu mè.
+3. **Font chữ:** Bắt buộc dùng `fontFamily="Times New Roman"`.
+4. **Đường nối điều kiện:** Đường nối từ Khối Text mô tả điều kiện sang Khối hình thoi quyết định BẮT BUỘC phải là đường thẳng không có mũi tên (`endArrow=none`).
+5. **Ngôn ngữ:** Dùng Ngôn ngữ Nghiệp vụ (Business Language), hướng tới người đọc bình thường. Tuyệt đối không dùng thuật ngữ kỹ thuật (như "Status PENDING", "Event triggered", "REST API") trong hình ảnh sơ đồ.
+6. **Code is Truth:** Mọi sơ đồ phân tích thiết kế đều phải bám sát 100% logic đang chạy thật dưới Backend (Java Spring Boot). Agent phải đọc Code trước khi vẽ và luôn cung cấp Audit Code để chứng minh.
