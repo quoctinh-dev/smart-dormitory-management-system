@@ -1,0 +1,68 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle hollow
+
+actor "Sinh viên" as Student
+actor "Ban quản lý" as Admin
+actor "Thiết bị IoT\n(Smart Gate / Room Door)" as IoT <<System>>
+actor "Dịch vụ AI\n(Face Recognition)" as AI <<System>>
+actor "Hệ thống SePay" as SePay <<Third-party>>
+
+rectangle "Hệ thống Quản lý Ký túc xá (SDMS)" {
+    ' Nhóm Quản lý cư trú
+    usecase "Đăng ký lưu trú" as UC1
+    usecase "Xét duyệt hồ sơ" as UC2
+    usecase "Xếp phòng / Chuyển phòng" as UC3
+    usecase "Làm thủ tục Trả phòng" as UC4
+
+    ' Nhóm Tài chính
+    usecase "Lập hóa đơn định kỳ" as UC5
+    usecase "Thanh toán QR Code" as UC6
+    usecase "Gạch nợ tự động" as UC7
+
+    ' Nhóm An ninh
+    usecase "Gửi tín hiệu RFID / Mã PIN" as UC8
+    usecase "Chụp & Gửi hình ảnh" as UC9
+    usecase "Trích xuất Vector khuôn mặt" as UC10
+    usecase "Xác thực & Mở cửa" as UC11
+    usecase "Đồng bộ Offline Whitelist" as UC12
+
+    ' Nhóm Tương tác
+    usecase "Phản ánh sự cố" as UC13
+    usecase "Xem báo cáo thống kê" as UC14
+    usecase "Nhận In-App Notification" as UC15
+}
+
+' Liên kết của Sinh viên
+Student --> UC1
+Student --> UC4
+Student --> UC6
+Student --> UC8
+Student --> UC13
+Student --> UC15
+
+' Liên kết của Ban quản lý
+Admin --> UC2
+Admin --> UC3
+Admin --> UC4
+Admin --> UC5
+Admin --> UC14
+Admin --> UC15
+
+' Liên kết của Thiết bị IoT
+IoT --> UC8
+IoT --> UC9
+IoT --> UC11
+IoT --> UC12
+
+' Liên kết của Dịch vụ AI
+AI --> UC10
+
+' Liên kết của SePay
+SePay --> UC7
+
+' Quan hệ Include / Mở rộng giữa các UC
+UC11 ..> UC10 : <<include>>
+UC6 <.. UC7 : <<extend>>
+@enduml
