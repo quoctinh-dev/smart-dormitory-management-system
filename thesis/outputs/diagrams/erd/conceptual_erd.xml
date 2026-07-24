@@ -1,456 +1,231 @@
-<mxfile host="Electron" modified="2026-07-23T16:43:00.000Z" agent="Mozilla/5.0" version="22.1.2" type="device">
-  <diagram id="conceptual_erd_sdms" name="Conceptual ERD - SDMS (Crow's Foot)">
-    <mxGraphModel dx="1800" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1600" math="0" shadow="0">
+<mxfile host="app.diagrams.net">
+  <diagram name="ERD - SDMS (Crow's Foot)" id="Um2Ew2UFTGzZiBzBln_5">
+    <mxGraphModel dx="826" dy="523" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-
-        <!-- ===================== -->
-        <!-- PACKAGE: HỆ THỐNG & TÀI KHOẢN (Blue) -->
-        <!-- ===================== -->
-        <mxCell id="pkg_system" value="Hệ thống &amp; Tài khoản" style="swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Times New Roman;fontSize=13;fontStyle=1;swimlaneLine=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="40" width="280" height="160" as="geometry" />
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="gWVymDObvouITY2bz1x_-69" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmandOne;startArrow=ERmandOne;strokeColor=#000000;fontStyle=0" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="E_SystemConfig" value="SystemConfig" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_system">
-          <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-71" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;strokeColor=#000000;fontStyle=0" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="E_UserAccount" value="UserAccount" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_system">
-          <mxGeometry x="20" y="105" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-73" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERone;startArrow=ERmandOne;strokeColor=#000000;fontStyle=0" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- ===================== -->
-        <!-- PACKAGE: SINH VIÊN (Green - same as Facility, intentional grouping) -->
-        <!-- ===================== -->
-        <mxCell id="pkg_student" value="Sinh viên" style="swimlane;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="230" width="280" height="110" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-143" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmandOne;startArrow=ERmandOne;strokeColor=#000000;" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="E_Student" value="Student" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_student">
-          <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-145" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;strokeColor=#000000;" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- ===================== -->
-        <!-- PACKAGE: CƠ SỞ VẬT CHẤT (Green) -->
-        <!-- ===================== -->
-        <mxCell id="pkg_facility" value="Cơ sở vật chất" style="swimlane;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="380" y="40" width="280" height="280" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-147" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERone;startArrow=ERmandOne;strokeColor=#000000;" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="E_Building" value="Building" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_facility">
-          <mxGeometry x="55" y="45" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-208" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmandOne;startArrow=ERmandOne;strokeColor=#000000;" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="E_Floor" value="Floor" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_facility">
-          <mxGeometry x="55" y="105" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-210" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;strokeColor=#000000;" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="E_Room" value="Room" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_facility">
-          <mxGeometry x="55" y="165" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-212" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERone;startArrow=ERmandOne;strokeColor=#000000;" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="E_Bed" value="Bed" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_facility">
-          <mxGeometry x="55" y="225" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-214" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6c8ebf;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="SystemConfig" vertex="1">
+          <mxGeometry height="40" width="160" x="740" y="410" as="geometry"/>
         </mxCell>
-
-        <!-- ===================== -->
-        <!-- PACKAGE: ĐĂNG KÝ LƯU TRÚ (Yellow) -->
-        <!-- ===================== -->
-        <mxCell id="pkg_registration" value="Đăng ký lưu trú" style="swimlane;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="720" y="40" width="280" height="460" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-215" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6c8ebf;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="UserAccount" vertex="1">
+          <mxGeometry height="40" width="160" x="920" y="320" as="geometry"/>
         </mxCell>
-        <mxCell id="E_RegistrationPeriod" value="RegistrationPeriod" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_registration">
-          <mxGeometry x="55" y="45" width="170" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-216" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="Student" vertex="1">
+          <mxGeometry height="40" width="160" x="980" y="410" as="geometry"/>
         </mxCell>
-        <mxCell id="E_RegEligibility" value="RegistrationEligibility" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_registration">
-          <mxGeometry x="55" y="105" width="170" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-217" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="Building" vertex="1">
+          <mxGeometry height="40" width="160" x="1280" y="220" as="geometry"/>
         </mxCell>
-        <mxCell id="E_Application" value="DormitoryApplication" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_registration">
-          <mxGeometry x="55" y="165" width="170" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-218" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="Floor" vertex="1">
+          <mxGeometry height="40" width="160" x="1290" y="330" as="geometry"/>
         </mxCell>
-        <mxCell id="E_AppPriority" value="ApplicationPriority" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_registration">
-          <mxGeometry x="55" y="225" width="170" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-219" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="Room" vertex="1">
+          <mxGeometry height="40" width="160" x="1290" y="410" as="geometry"/>
         </mxCell>
-        <mxCell id="E_VerifDoc" value="VerificationDocument" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_registration">
-          <mxGeometry x="55" y="285" width="170" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-220" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="Bed" vertex="1">
+          <mxGeometry height="40" width="160" x="1300" y="490" as="geometry"/>
         </mxCell>
-        <mxCell id="E_AppStatusHistory" value="AppStatusHistory" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_registration">
-          <mxGeometry x="55" y="345" width="170" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-221" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="RegistrationPeriod" vertex="1">
+          <mxGeometry height="40" width="170" x="1520" y="195" as="geometry"/>
         </mxCell>
-        <mxCell id="E_HousingAssignment" value="StudentHousingAssignment" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_registration">
-          <mxGeometry x="55" y="405" width="170" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-222" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="RegistrationEligibility" vertex="1">
+          <mxGeometry height="40" width="170" x="1560" y="110" as="geometry"/>
         </mxCell>
-
-        <!-- ===================== -->
-        <!-- PACKAGE: YÊU CẦU NỘI BỘ (Orange) -->
-        <!-- ===================== -->
-        <mxCell id="pkg_requests" value="Yêu cầu nội bộ" style="swimlane;startSize=30;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="400" width="280" height="340" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-223" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="DormitoryApplication" vertex="1">
+          <mxGeometry height="40" width="170" x="1500" y="290" as="geometry"/>
         </mxCell>
-        <mxCell id="E_StayExtension" value="StayExtension" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_requests">
-          <mxGeometry x="20" y="45" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-224" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="ApplicationPriority" vertex="1">
+          <mxGeometry height="40" width="170" x="1760" y="330" as="geometry"/>
         </mxCell>
-        <mxCell id="E_CheckoutRequest" value="CheckoutRequest" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_requests">
-          <mxGeometry x="20" y="105" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-225" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="VerificationDocument" vertex="1">
+          <mxGeometry height="40" width="170" x="1760" y="390" as="geometry"/>
         </mxCell>
-        <mxCell id="E_ChangeRoom" value="ChangeRoomRequest" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_requests">
-          <mxGeometry x="20" y="165" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-226" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="AppStatusHistory" vertex="1">
+          <mxGeometry height="40" width="170" x="1750" y="470" as="geometry"/>
         </mxCell>
-        <mxCell id="E_CurfewRequest" value="CurfewRequest" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_requests">
-          <mxGeometry x="20" y="225" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-227" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="StudentHousingAssignment" vertex="1">
+          <mxGeometry height="40" width="170" x="1690" y="550" as="geometry"/>
         </mxCell>
-        <mxCell id="E_UtilityUsage" value="UtilityUsage" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_requests">
-          <mxGeometry x="20" y="285" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-228" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="StayExtension" vertex="1">
+          <mxGeometry height="40" width="160" x="910" y="580" as="geometry"/>
         </mxCell>
-
-        <!-- ===================== -->
-        <!-- PACKAGE: TÀI CHÍNH (Pink) -->
-        <!-- ===================== -->
-        <!-- FIX: swimlane fillColor/strokeColor corrected to Pink (#f8cecc/#b85450) -->
-        <!-- FIX: Removed orphan E_CheckInRecord — not in 29-entity list; check-in date is a field on StudentHousingAssignment -->
-        <mxCell id="pkg_finance" value="Tài chính &amp; Hóa đơn" style="swimlane;startSize=30;fillColor=#f8cecc;strokeColor=#b85450;fontFamily=Times New Roman;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="380" y="380" width="280" height="170" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-229" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="CheckoutRequest" vertex="1">
+          <mxGeometry height="40" width="160" x="920" y="655" as="geometry"/>
         </mxCell>
-        <mxCell id="E_Bill" value="Bill" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_finance">
-          <mxGeometry x="55" y="45" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-230" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="ChangeRoomRequest" vertex="1">
+          <mxGeometry height="40" width="160" x="920" y="715" as="geometry"/>
         </mxCell>
-        <mxCell id="E_Payment" value="Payment" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_finance">
-          <mxGeometry x="55" y="105" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-231" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="CurfewRequest" vertex="1">
+          <mxGeometry height="40" width="160" x="920" y="775" as="geometry"/>
         </mxCell>
-
-        <!-- ===================== -->
-        <!-- PACKAGE: AN NINH IoT & FACE AI (Purple/Violet - #e1d5e7/#9673a6) -->
-        <!-- ===================== -->
-        <mxCell id="pkg_iot" value="An ninh IoT &amp; Face AI" style="swimlane;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1060" y="40" width="280" height="580" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-232" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="UtilityUsage" vertex="1">
+          <mxGeometry height="40" width="160" x="1000" y="850" as="geometry"/>
         </mxCell>
-        <mxCell id="E_Gate" value="Gate" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_iot">
-          <mxGeometry x="55" y="45" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-233" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="Bill" vertex="1">
+          <mxGeometry height="40" width="120" x="1650" y="635" as="geometry"/>
         </mxCell>
-        <mxCell id="E_CurfewPolicy" value="CurfewPolicy" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_iot">
-          <mxGeometry x="55" y="105" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-234" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="Payment" vertex="1">
+          <mxGeometry height="40" width="160" x="1420" y="675" as="geometry"/>
         </mxCell>
-        <mxCell id="E_TimeWindowPolicy" value="TimeWindowPolicy" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_iot">
-          <mxGeometry x="55" y="165" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-235" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="Gate" vertex="1">
+          <mxGeometry height="40" width="160" x="1550" y="10" as="geometry"/>
         </mxCell>
-        <mxCell id="E_AccessHistory" value="AccessHistory" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_iot">
-          <mxGeometry x="55" y="225" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-236" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="CurfewPolicy" vertex="1">
+          <mxGeometry height="40" width="160" x="1280" y="140" as="geometry"/>
         </mxCell>
-        <mxCell id="E_FaceProfile" value="FaceProfile" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_iot">
-          <mxGeometry x="55" y="345" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-237" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="TimeWindowPolicy" vertex="1">
+          <mxGeometry height="40" width="160" x="1120" y="195" as="geometry"/>
         </mxCell>
-        <mxCell id="E_FaceEmbedding" value="FaceEmbedding" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_iot">
-          <mxGeometry x="55" y="405" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-238" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="AccessHistory" vertex="1">
+          <mxGeometry height="40" width="160" x="1150" y="80" as="geometry"/>
         </mxCell>
-        <mxCell id="E_FaceAttempt" value="FaceVerificationAttempt" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_iot">
-          <mxGeometry x="55" y="465" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-239" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="FaceProfile" vertex="1">
+          <mxGeometry height="40" width="160" x="1645" y="750" as="geometry"/>
         </mxCell>
-        <!-- Label divider Face AI -->
-        <mxCell id="lbl_face" value="--- Face AI ---" style="text;html=1;align=center;fontFamily=Times New Roman;fontSize=11;fontStyle=2;strokeColor=none;fillColor=none;" vertex="1" parent="pkg_iot">
-          <mxGeometry x="55" y="302" width="160" height="30" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-240" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="FaceEmbedding" vertex="1">
+          <mxGeometry height="40" width="160" x="1660" y="840" as="geometry"/>
         </mxCell>
-
-        <!-- ===================== -->
-        <!-- PACKAGE: THÔNG BÁO (Violet) -->
-        <!-- ===================== -->
-        <mxCell id="pkg_notification" value="Thông báo" style="swimlane;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1060" y="680" width="280" height="110" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-241" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="FaceVerificationAttempt" vertex="1">
+          <mxGeometry height="40" width="160" x="1960" y="430" as="geometry"/>
         </mxCell>
-        <mxCell id="E_Notification" value="Notification" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="pkg_notification">
-          <mxGeometry x="55" y="45" width="160" height="40" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-242" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" value="Notification" vertex="1">
+          <mxGeometry height="40" width="160" x="690" y="320" as="geometry"/>
         </mxCell>
-
-
-        <!-- ============================================================ -->
-        <!-- RELATIONSHIPS (Crow's Foot) -->
-        <!-- ============================================================ -->
-
-        <!-- Ghi chú ký hiệu: endArrow=ERmany (nhiều), endArrow=ERone (một), ERmandOne (bắt buộc 1) -->
-        <!-- Style Crow's Foot: edgeStyle=entityRelationEdgeStyle -->
-
-        <!-- 1. UserAccount ||--o| Student (1 UserAccount sở hữu 1 Student) -->
-        <mxCell id="R_user_student" value="Sở hữu" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmandOne;startArrow=ERmandOne;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#6c8ebf;" edge="1" parent="1" source="E_UserAccount" target="E_Student">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-243" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-215" style="endArrow=ERmandOne;startArrow=ERmandOne;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#6c8ebf;" target="gWVymDObvouITY2bz1x_-216" value="Sở hữu">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 2. UserAccount ||--o{ Notification (1 UserAccount nhận N Notification) -->
-        <mxCell id="R_user_notif" value="Nhận" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" edge="1" parent="1" source="E_UserAccount" target="E_Notification">
+        <mxCell id="gWVymDObvouITY2bz1x_-244" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-215" style="endArrow=ERmany;startArrow=ERmandOne;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" target="gWVymDObvouITY2bz1x_-242" value="Nhận">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-245" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-217" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#82b366;" target="gWVymDObvouITY2bz1x_-218" value="Gồm">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-246" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-218" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#82b366;" target="gWVymDObvouITY2bz1x_-219" value="Gồm">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-247" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-219" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#82b366;" target="gWVymDObvouITY2bz1x_-220" value="Chứa">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-248" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-221" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" target="gWVymDObvouITY2bz1x_-222" value="Quy định">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-249" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-221" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" target="gWVymDObvouITY2bz1x_-223" value="Tiếp nhận">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-250" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-216" style="endArrow=ERmany;startArrow=ERmandOne;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" target="gWVymDObvouITY2bz1x_-223" value="Nộp đơn">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="360" y="160" />
-              <mxPoint x="1000" y="160" />
-              <mxPoint x="1000" y="720" />
+              <mxPoint x="1190" y="310"/>
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- 3. Building ||--o{ Floor -->
-        <mxCell id="R_building_floor" value="Gồm" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#82b366;" edge="1" parent="1" source="E_Building" target="E_Floor">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-251" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-223" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" target="gWVymDObvouITY2bz1x_-224" value="Kèm ưu tiên">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 4. Floor ||--o{ Room -->
-        <mxCell id="R_floor_room" value="Gồm" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#82b366;" edge="1" parent="1" source="E_Floor" target="E_Room">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-252" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-223" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" target="gWVymDObvouITY2bz1x_-225" value="Cung cấp">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 5. Room ||--o{ Bed -->
-        <mxCell id="R_room_bed" value="Chứa" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#82b366;" edge="1" parent="1" source="E_Room" target="E_Bed">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-253" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-223" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" target="gWVymDObvouITY2bz1x_-226" value="Ghi nhận">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 6. RegistrationPeriod ||--o{ RegistrationEligibility -->
-        <mxCell id="R_period_elig" value="Quy định" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" edge="1" parent="1" source="E_RegistrationPeriod" target="E_RegEligibility">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-254" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-223" style="endArrow=ERone;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" target="gWVymDObvouITY2bz1x_-227" value="Tạo ra (0..1)">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 7. RegistrationPeriod ||--o{ DormitoryApplication -->
-        <mxCell id="R_period_app" value="Tiếp nhận" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" edge="1" parent="1" source="E_RegistrationPeriod" target="E_Application">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-255" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-220" style="endArrow=ERone;startArrow=ERmandOne;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#82b366;" target="gWVymDObvouITY2bz1x_-227" value="Gắn với (0..1)">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 8. Student ||--o{ DormitoryApplication -->
-        <mxCell id="R_student_app" value="Nộp đơn" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" edge="1" parent="1" source="E_Student" target="E_Application">
+        <mxCell id="gWVymDObvouITY2bz1x_-256" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-227" style="endArrow=ERmany;startArrow=ERmandOne;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d79b00;" target="gWVymDObvouITY2bz1x_-228" value="Gia hạn">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-257" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-227" style="endArrow=ERmandOne;startArrow=ERmandOne;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d79b00;" target="gWVymDObvouITY2bz1x_-229" value="Trả phòng">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-258" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-227" style="endArrow=ERmany;startArrow=ERmandOne;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d79b00;" target="gWVymDObvouITY2bz1x_-230" value="Chuyển phòng">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-259" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-216" style="endArrow=ERmany;startArrow=ERmandOne;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d79b00;" target="gWVymDObvouITY2bz1x_-231" value="Xin về trễ">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="360" y="295" />
-              <mxPoint x="660" y="295" />
-              <mxPoint x="660" y="250" />
+              <mxPoint x="840" y="640"/>
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- 9. DormitoryApplication ||--o{ ApplicationPriority -->
-        <mxCell id="R_app_priority" value="Kèm ưu tiên" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" edge="1" parent="1" source="E_Application" target="E_AppPriority">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-260" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-219" style="endArrow=ERmany;startArrow=ERmandOne;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d79b00;" target="gWVymDObvouITY2bz1x_-232" value="Đo điện nước">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 10. DormitoryApplication ||--o{ VerificationDocument -->
-        <mxCell id="R_app_doc" value="Cung cấp" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" edge="1" parent="1" source="E_Application" target="E_VerifDoc">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-261" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-227" style="endArrow=ERmany;startArrow=ERmandOne;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#b85450;" target="gWVymDObvouITY2bz1x_-233" value="Phát sinh">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 11. DormitoryApplication ||--o{ AppStatusHistory -->
-        <mxCell id="R_app_history" value="Ghi nhận" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" edge="1" parent="1" source="E_Application" target="E_AppStatusHistory">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-262" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-233" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#b85450;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="gWVymDObvouITY2bz1x_-234" value="Thanh toán">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 12. DormitoryApplication ||--o| StudentHousingAssignment -->
-        <!-- FIX: endArrow=ERone (0..1) — đơn bị từ chối sẽ không tạo hợp đồng -->
-        <mxCell id="R_app_housing" value="Tạo ra (0..1)" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERone;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#d6b656;" edge="1" parent="1" source="E_Application" target="E_HousingAssignment">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="gWVymDObvouITY2bz1x_-263" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-217" style="endArrow=ERmany;startArrow=ERmandOne;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" target="gWVymDObvouITY2bz1x_-235" value="Lắp đặt">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 13. Bed ||--o| StudentHousingAssignment -->
-        <!-- FIX: endArrow=ERone (0..1) — giường có thể chưa có người ở (trống) -->
-        <mxCell id="R_bed_housing" value="Gắn với (0..1)" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERone;startArrow=ERmandOne;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#82b366;" edge="1" parent="1" source="E_Bed" target="E_HousingAssignment">
+        <mxCell id="gWVymDObvouITY2bz1x_-264" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-217" style="endArrow=ERmany;startArrow=ERmandOne;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" target="gWVymDObvouITY2bz1x_-236" value="Áp dụng GN">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-265" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-236" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="gWVymDObvouITY2bz1x_-237" value="Chi tiết">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-266" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-235" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="gWVymDObvouITY2bz1x_-238" value="Ghi nhận">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-267" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-216" style="endArrow=ERmany;startArrow=ERmandOne;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" target="gWVymDObvouITY2bz1x_-238" value="Ra vào">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="gWVymDObvouITY2bz1x_-268" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-216" style="endArrow=ERone;startArrow=ERmandOne;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" target="gWVymDObvouITY2bz1x_-239" value="Đăng ký Face ID (0..1)">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="660" y="305" />
-              <mxPoint x="660" y="505" />
+              <mxPoint x="1340" y="840"/>
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- 14. StudentHousingAssignment ||--o{ StayExtension -->
-        <mxCell id="R_housing_ext" value="Gia hạn" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d79b00;" edge="1" parent="1" source="E_HousingAssignment" target="E_StayExtension">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="660" y="505" />
-              <mxPoint x="340" y="505" />
-              <mxPoint x="340" y="470" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="gWVymDObvouITY2bz1x_-269" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-239" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" target="gWVymDObvouITY2bz1x_-240" value="Lưu vector">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 15. StudentHousingAssignment ||--o| CheckoutRequest -->
-        <mxCell id="R_housing_checkout" value="Trả phòng" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmandOne;startArrow=ERmandOne;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d79b00;" edge="1" parent="1" source="E_HousingAssignment" target="E_CheckoutRequest">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="660" y="505" />
-              <mxPoint x="340" y="505" />
-              <mxPoint x="340" y="530" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="gWVymDObvouITY2bz1x_-270" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-239" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" target="gWVymDObvouITY2bz1x_-241" value="Khớp với">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 16. StudentHousingAssignment ||--o{ ChangeRoomRequest -->
-        <mxCell id="R_housing_change" value="Chuyển phòng" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d79b00;" edge="1" parent="1" source="E_HousingAssignment" target="E_ChangeRoom">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="660" y="505" />
-              <mxPoint x="340" y="505" />
-              <mxPoint x="340" y="590" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="gWVymDObvouITY2bz1x_-271" edge="1" parent="1" source="gWVymDObvouITY2bz1x_-235" style="endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;exitX=1;exitY=1;exitDx=0;exitDy=0;" target="gWVymDObvouITY2bz1x_-241" value="Gửi ảnh XN">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 17. Student ||--o{ CurfewRequest -->
-        <mxCell id="R_student_curfew" value="Xin về trễ" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d79b00;" edge="1" parent="1" source="E_Student" target="E_CurfewRequest">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="20" y="295" />
-              <mxPoint x="20" y="660" />
-              <mxPoint x="200" y="660" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="gWVymDObvouITY2bz1x_-273" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmandOne;startArrow=ERmandOne;strokeColor=#000000;" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 18. Room ||--o{ UtilityUsage -->
-        <mxCell id="R_room_utility" value="Đo điện nước" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#d79b00;" edge="1" parent="1" source="E_Room" target="E_UtilityUsage">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="380" y="225" />
-              <mxPoint x="340" y="225" />
-              <mxPoint x="340" y="720" />
-              <mxPoint x="200" y="720" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="gWVymDObvouITY2bz1x_-275" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;strokeColor=#000000;" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 19. StudentHousingAssignment ||--o{ Bill -->
-        <mxCell id="R_housing_bill" value="Phát sinh" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#b85450;" edge="1" parent="1" source="E_HousingAssignment" target="E_Bill">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1060" y="505" />
-              <mxPoint x="1020" y="505" />
-              <mxPoint x="1020" y="440" />
-              <mxPoint x="660" y="440" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="gWVymDObvouITY2bz1x_-277" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERone;startArrow=ERmandOne;strokeColor=#000000;" value="">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-
-        <!-- 20. Bill ||--o{ Payment -->
-        <mxCell id="R_bill_payment" value="Thanh toán" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#b85450;" edge="1" parent="1" source="E_Bill" target="E_Payment">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- 21. Building ||--o{ Gate -->
-        <mxCell id="R_building_gate" value="Lắp đặt" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" edge="1" parent="1" source="E_Building" target="E_Gate">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="700" y="105" />
-              <mxPoint x="700" y="105" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-
-        <!-- 22. Building ||--o{ CurfewPolicy -->
-        <!-- FIX: Code is Truth — CurfewPolicy.java có building_id, KHÔNG phải gate_id -->
-        <!-- Một tòa nhà áp dụng nhiều chính sách giới nghiêm (theo loại SV, theo ngày) -->
-        <mxCell id="R_building_policy" value="Áp dụng GN" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" edge="1" parent="1" source="E_Building" target="E_CurfewPolicy">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="700" y="85" />
-              <mxPoint x="1000" y="85" />
-              <mxPoint x="1000" y="145" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-
-        <!-- 23. CurfewPolicy ||--o{ TimeWindowPolicy -->
-        <mxCell id="R_policy_timewin" value="Chi tiết" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" edge="1" parent="1" source="E_CurfewPolicy" target="E_TimeWindowPolicy">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- 24. Gate ||--o{ AccessHistory -->
-        <mxCell id="R_gate_access" value="Ghi nhận" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" edge="1" parent="1" source="E_Gate" target="E_AccessHistory">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1175" y="115" />
-              <mxPoint x="1220" y="115" />
-              <mxPoint x="1220" y="265" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-
-        <!-- 25. Student ||--o{ AccessHistory -->
-        <mxCell id="R_student_access" value="Ra vào" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" edge="1" parent="1" source="E_Student" target="E_AccessHistory">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="360" y="295" />
-              <mxPoint x="1000" y="295" />
-              <mxPoint x="1000" y="265" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-
-        <!-- 26. Student ||--o| FaceProfile -->
-        <!-- FIX: endArrow=ERone (0..1) — đăng ký Face ID là tùy chọn, SV mới có thể chưa đăng ký -->
-        <mxCell id="R_student_face" value="Đăng ký Face ID (0..1)" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERone;startArrow=ERmandOne;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" edge="1" parent="1" source="E_Student" target="E_FaceProfile">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="360" y="295" />
-              <mxPoint x="1000" y="295" />
-              <mxPoint x="1000" y="385" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-
-        <!-- 27. FaceProfile ||--o{ FaceEmbedding -->
-        <mxCell id="R_face_embed" value="Lưu vector" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" edge="1" parent="1" source="E_FaceProfile" target="E_FaceEmbedding">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- 28. FaceProfile ||--o{ FaceVerificationAttempt -->
-        <mxCell id="R_face_attempt" value="Khớp với" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" edge="1" parent="1" source="E_FaceProfile" target="E_FaceAttempt">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1175" y="425" />
-              <mxPoint x="1220" y="425" />
-              <mxPoint x="1220" y="505" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-
-        <!-- 29. Gate ||--o{ FaceVerificationAttempt -->
-        <mxCell id="R_gate_faceattempt" value="Gửi ảnh XN" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;fontFamily=Times New Roman;fontSize=11;strokeColor=#9673a6;" edge="1" parent="1" source="E_Gate" target="E_FaceAttempt">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1280" y="115" />
-              <mxPoint x="1310" y="115" />
-              <mxPoint x="1310" y="505" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-
-        <!-- ============================================================ -->
-        <!-- LEGEND -->
-        <!-- ============================================================ -->
-        <mxCell id="legend_title" value="Chú giải ký hiệu (Crow's Foot Notation)" style="text;html=1;align=center;fontFamily=Times New Roman;fontSize=13;fontStyle=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="1420" y="60" width="320" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="leg1" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmandOne;startArrow=ERmandOne;strokeColor=#000000;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <sourcePoint x="1430" y="120" />
-            <targetPoint x="1560" y="120" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="leg1_lbl" value="Một và chỉ một (1||1)" style="text;html=1;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="1570" y="108" width="180" height="25" as="geometry" />
-        </mxCell>
-        <mxCell id="leg2" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmandOne;strokeColor=#000000;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <sourcePoint x="1430" y="160" />
-            <targetPoint x="1560" y="160" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="leg2_lbl" value="Một đến nhiều (1||N)" style="text;html=1;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="1570" y="148" width="180" height="25" as="geometry" />
-        </mxCell>
-        <mxCell id="leg3" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <sourcePoint x="1430" y="200" />
-            <targetPoint x="1560" y="200" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="leg3_lbl" value="Không hoặc nhiều (0..N)" style="text;html=1;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="1570" y="188" width="180" height="25" as="geometry" />
-        </mxCell>
-        <mxCell id="leg4" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERone;startArrow=ERmandOne;strokeColor=#000000;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <sourcePoint x="1430" y="240" />
-            <targetPoint x="1560" y="240" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="leg4_lbl" value="Không hoặc một (0..1)" style="text;html=1;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="1570" y="228" width="180" height="25" as="geometry" />
-        </mxCell>
-
       </root>
     </mxGraphModel>
   </diagram>

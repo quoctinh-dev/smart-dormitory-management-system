@@ -57,7 +57,8 @@ public class CloudinaryService {
                     ObjectUtils.asMap(
                             "folder", folder,
                             "public_id", publicId,
-                            "resource_type", "raw",
+                            "resource_type", "image",
+                            "format", "pdf",
                             "access_mode", "public"
                     )
             );

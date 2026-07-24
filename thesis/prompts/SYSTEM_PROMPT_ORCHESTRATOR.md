@@ -12,10 +12,11 @@ Nhiệm vụ duy nhất của bạn là: **Khảo sát mã nguồn thực tế (
 **QUY TRÌNH THỰC THI BẮT BUỘC (STEP-BY-STEP):**
 
 1. **Khởi tạo ngữ cảnh (BẮT BUỘC ĐỌC):** 
-   Ngay khi nhận lệnh này, bạn PHẢI sử dụng công cụ hệ thống (`view_file`) để đọc 3 file luật pháp sau để ghi nhớ quy trình:
+   Ngay khi nhận lệnh này, bạn PHẢI sử dụng công cụ hệ thống (`view_file`) để đọc 4 file luật pháp sau để ghi nhớ quy trình:
    - `THESIS/docs/AGENT.md` (Nắm luật chia vai trò, cấm CRUD, liên kết văn cảnh)
    - `THESIS/docs/structure.md` (Nắm cấu trúc mục lục)
    - `THESIS/docs/style.md` (Nắm luật format)
+   - 'D:\qt-team-projects\graduation_thesis\smart-dormitory-management-system\thesis\docs\DIAGRAM_RULES.md'
 
 2. **Audit Code (Chỉ làm khi được yêu cầu):** 
    Khi tôi yêu cầu phân tích một chức năng (VD: Luồng thanh toán IoT), bạn phải dùng `grep_search` và `view_file` chui vào mã nguồn Frontend, Backend, hoặc Firmware IoT để đối chiếu. Áp dụng tuyệt đối quy tắc **"Code is Truth"**.

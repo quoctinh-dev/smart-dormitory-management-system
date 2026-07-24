@@ -50,6 +50,7 @@ public class CheckInService {
         Building building = floor.getBuilding();
 
         return CheckInSearchResponse.builder()
+                .studentId(assignment.getStudent().getStudentId())
                 .assignmentId(assignment.getAssignmentId())
                 .studentName(assignment.getStudent().getFullName())
                 .studentCode(assignment.getStudent().getStudentCode())

@@ -11,6 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CheckInSearchResponse {
+    private UUID studentId;
     private UUID assignmentId;
     private String studentName;
     private String studentCode;
