@@ -26,7 +26,7 @@ public class BedController {
 
     @Operation(summary = "Tạo giường mới")
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<BedResponse> create(@Valid @RequestBody CreateBedRequest request) {
         return ApiResponse.success("Tạo giường thành công", bedService.createBed(request));
     }
@@ -40,7 +40,7 @@ public class BedController {
 
     @Operation(summary = "Tự động sinh giường cho phòng dựa trên sức chứa (Capacity)")
     @PostMapping("/room/{roomId}/auto-generate")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<BedResponse>> autoGenerateBeds(@PathVariable UUID roomId) {
         return ApiResponse.success("Sinh giường tự động thành công", bedService.autoGenerateBeds(roomId));
     }

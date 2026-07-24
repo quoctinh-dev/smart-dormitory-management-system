@@ -25,7 +25,7 @@ public class FloorController {
 
     @Operation(summary = "Tạo tầng mới")
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<FloorResponse> create(@Valid @RequestBody CreateFloorRequest request) {
         return ApiResponse.success("Tạo tầng thành công", floorService.createFloor(request));
     }
@@ -46,7 +46,7 @@ public class FloorController {
 
     @Operation(summary = "Cập nhật chính sách cư trú của tầng")
     @PutMapping("/{floorId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<FloorResponse> update(@PathVariable UUID floorId, @Valid @RequestBody UpdateFloorRequest request) {
         return ApiResponse.success("Cập nhật tầng thành công", floorService.updateFloor(floorId, request));
     }

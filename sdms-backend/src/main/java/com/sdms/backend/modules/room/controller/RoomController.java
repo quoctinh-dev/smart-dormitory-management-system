@@ -35,7 +35,7 @@ public class RoomController {
 
     @Operation(summary = "Tạo phòng mới")
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<RoomResponse> create(@Valid @RequestBody CreateRoomRequest request) {
         return ApiResponse.success("Tạo phòng thành công", roomService.createRoom(request));
     }
@@ -56,7 +56,7 @@ public class RoomController {
 
     @Operation(summary = "Cập nhật thông tin phòng")
     @PutMapping("/{roomId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<RoomResponse> update(@PathVariable UUID roomId, @Valid @RequestBody UpdateRoomRequest request) {
         return ApiResponse.success("Cập nhật phòng thành công", roomService.updateRoom(roomId, request));
     }

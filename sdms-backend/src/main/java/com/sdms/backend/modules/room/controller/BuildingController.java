@@ -27,7 +27,7 @@ public class BuildingController {
 
     @Operation(summary = "Tạo tòa nhà mới", description = "Dành cho Admin để thêm tòa nhà vào hệ thống.")
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<BuildingResponse> create(@Valid @RequestBody CreateBuildingRequest request) {
         BuildingResponse data = buildingService.createBuilding(request);
         return ApiResponse.success("Tạo tòa nhà thành công", data);
@@ -49,7 +49,7 @@ public class BuildingController {
 
     @Operation(summary = "Cập nhật thông tin tòa nhà", description = "Cho phép cập nhật tên và mô tả tòa nhà.")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<BuildingResponse> update(@PathVariable UUID id, @Valid @RequestBody UpdateBuildingRequest request) {
         BuildingResponse data = buildingService.updateBuilding(id, request);
         return ApiResponse.success("Cập nhật tòa nhà thành công", data);
@@ -57,7 +57,7 @@ public class BuildingController {
 
     @Operation(summary = "Thay đổi trạng thái tòa nhà", description = "Chuyển đổi giữa các trạng thái: ACTIVE, MAINTENANCE, CLOSED.")
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> changeStatus(@PathVariable UUID id, @RequestParam BuildingStatus status) {
         buildingService.changeStatus(id, status);
         return ApiResponse.success("Đổi trạng thái tòa nhà thành công", null);
