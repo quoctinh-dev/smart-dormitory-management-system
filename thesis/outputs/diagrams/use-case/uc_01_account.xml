@@ -1,0 +1,76 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="AccountManagement" id="uc1_acc">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        
+        <!-- System Boundary -->
+        <mxCell id="boundary" value="Phân hệ Quản lý Tài khoản" style="swimlane;whiteSpace=wrap;html=1;startSize=23;" vertex="1" parent="1">
+          <mxGeometry x="220" y="40" width="550" height="520" as="geometry"/>
+        </mxCell>
+
+        <!-- Actors -->
+        <mxCell id="actor_student" value="Sinh Viên" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="80" y="120" width="30" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="actor_admin" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="80" y="270" width="30" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="actor_staff" value="Staff" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="80" y="420" width="30" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Main UC -->
+        <mxCell id="uc_main" value="Quản lý Tài khoản" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="boundary">
+          <mxGeometry x="50" y="220" width="160" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Extend UCs -->
+        <mxCell id="uc_login" value="Đăng nhập" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="boundary">
+          <mxGeometry x="350" y="50" width="140" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_change_pwd" value="Đổi mật khẩu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="boundary">
+          <mxGeometry x="350" y="140" width="140" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_forgot_pwd" value="Quên mật khẩu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="boundary">
+          <mxGeometry x="350" y="230" width="140" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_activate" value="Kích hoạt tài khoản" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="boundary">
+          <mxGeometry x="350" y="320" width="140" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_update_profile" value="Cập nhật thông tin cá nhân" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="boundary">
+          <mxGeometry x="350" y="410" width="150" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges Actor -> Main UC -->
+        <mxCell id="edge_admin_main" edge="1" parent="1" source="actor_admin" target="uc_main" style="endArrow=none;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_student_main" edge="1" parent="1" source="actor_student" target="uc_main" style="endArrow=none;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_staff_main" edge="1" parent="1" source="actor_staff" target="uc_main" style="endArrow=none;html=1;rounded=0;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges Extend UC -> Main UC -->
+        <mxCell id="edge_login_ext" edge="1" parent="boundary" source="uc_login" target="uc_main" value="&lt;&lt;Extend&gt;&gt;" style="endArrow=classic;html=1;rounded=0;dashed=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_changepwd_ext" edge="1" parent="boundary" source="uc_change_pwd" target="uc_main" value="&lt;&lt;Extend&gt;&gt;" style="endArrow=classic;html=1;rounded=0;dashed=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_forgotpwd_ext" edge="1" parent="boundary" source="uc_forgot_pwd" target="uc_main" value="&lt;&lt;Extend&gt;&gt;" style="endArrow=classic;html=1;rounded=0;dashed=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_activate_ext" edge="1" parent="boundary" source="uc_activate" target="uc_main" value="&lt;&lt;Extend&gt;&gt;" style="endArrow=classic;html=1;rounded=0;dashed=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_update_ext" edge="1" parent="boundary" source="uc_update_profile" target="uc_main" value="&lt;&lt;Extend&gt;&gt;" style="endArrow=classic;html=1;rounded=0;dashed=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

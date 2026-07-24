@@ -1,0 +1,86 @@
+<mxfile host="Electron" modified="2023-11-20T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.2" type="device">
+  <diagram id="general_usecase" name="Sơ đồ Use Case Tổng quát">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- SYSTEM BOUNDARY -->
+        <mxCell id="system_boundary" value="Hệ thống Quản lý Ký túc xá Thông minh (SDMS)" style="swimlane;whiteSpace=wrap;html=1;startSize=30;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="80" width="400" height="520" as="geometry" />
+        </mxCell>
+
+        <!-- HUMAN ACTORS -->
+        <!-- Ban Quản lý (Left) -->
+        <mxCell id="Actor_Admin" value="Ban Quản lý&#10;(Admin)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="150" y="150" width="40" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Sinh viên KTX (Right) -->
+        <mxCell id="Actor_Student_KTX" value="Sinh viên KTX&#10;(Nội trú)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="270" width="40" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Sinh viên Trường (Right Top) -->
+        <mxCell id="Actor_Student_Truong" value="Sinh viên Trường&#10;(Ngoại lai)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="90" width="40" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- SYSTEM ACTORS -->
+        <!-- Hệ thống SePay (Left Bottom) -->
+        <mxCell id="Actor_SePay" value="&lt;&lt;System&gt;&gt;&#10;Hệ thống SePay" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="380" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Thiết bị IoT (Right Bottom) -->
+        <mxCell id="Actor_IoT" value="&lt;&lt;Device&gt;&gt;&#10;Thiết bị IoT" style="html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="470" width="140" height="50" as="geometry" />
+        </mxCell>
+
+
+        <!-- USE CASES -->
+        <mxCell id="UC1" value="Quản lý Hệ thống &amp; Tài khoản" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;" vertex="1" parent="system_boundary">
+          <mxGeometry x="75" y="60" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="UC2" value="Quản lý Cơ sở vật chất" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;" vertex="1" parent="system_boundary">
+          <mxGeometry x="75" y="150" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="UC3" value="Quản lý Dịch vụ Lưu trú" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;" vertex="1" parent="system_boundary">
+          <mxGeometry x="75" y="240" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="UC4" value="Quản lý Tài chính &amp; Thanh toán" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;" vertex="1" parent="system_boundary">
+          <mxGeometry x="75" y="330" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="UC5" value="Quản lý An ninh &amp; Thông báo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;" vertex="1" parent="system_boundary">
+          <mxGeometry x="75" y="420" width="250" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ADMIN ASSOCIATIONS -->
+        <mxCell id="Edge_A_UC1" edge="1" parent="1" source="Actor_Admin" target="UC1"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="Edge_A_UC2" edge="1" parent="1" source="Actor_Admin" target="UC2"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="Edge_A_UC3" edge="1" parent="1" source="Actor_Admin" target="UC3"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="Edge_A_UC4" edge="1" parent="1" source="Actor_Admin" target="UC4"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="Edge_A_UC5" edge="1" parent="1" source="Actor_Admin" target="UC5"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+
+        <!-- SEPAY ASSOCIATIONS -->
+        <mxCell id="Edge_SePay_UC4" edge="1" parent="1" source="Actor_SePay" target="UC4"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;dashed=1;" /></mxCell>
+
+        <!-- STUDENT KTX ASSOCIATIONS -->
+        <mxCell id="Edge_SKTX_UC1" edge="1" parent="1" source="Actor_Student_KTX" target="UC1"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="Edge_SKTX_UC2" edge="1" parent="1" source="Actor_Student_KTX" target="UC2"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="Edge_SKTX_UC3" edge="1" parent="1" source="Actor_Student_KTX" target="UC3"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="Edge_SKTX_UC4" edge="1" parent="1" source="Actor_Student_KTX" target="UC4"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="Edge_SKTX_UC5" edge="1" parent="1" source="Actor_Student_KTX" target="UC5"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+
+        <!-- STUDENT TRUONG (NGOAI LAI) ASSOCIATIONS -->
+        <mxCell id="Edge_STruong_UC1" edge="1" parent="1" source="Actor_Student_Truong" target="UC1"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="Edge_STruong_UC3" edge="1" parent="1" source="Actor_Student_Truong" target="UC3"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="Edge_STruong_UC4" edge="1" parent="1" source="Actor_Student_Truong" target="UC4"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+
+        <!-- IOT ASSOCIATIONS -->
+        <mxCell id="Edge_IoT_UC5" edge="1" parent="1" source="Actor_IoT" target="UC5"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;dashed=1;" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
