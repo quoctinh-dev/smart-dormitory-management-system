@@ -5,72 +5,50 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
-        <!-- Styles -->
-        <mxCell id="style_root" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=16;fontStyle=1;" vertex="1" parent="0" />
-        <mxCell id="style_module" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" vertex="1" parent="0" />
-        <mxCell id="style_func" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="0" />
-
-        <!-- Root Node -->
         <mxCell id="N_Root" value="HỆ THỐNG KTX - PHÂN HỆ SINH VIÊN&#10;(APP STUDENT)" vertex="1" parent="1">
           <mxGeometry x="510" y="40" width="300" height="60" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=16;fontStyle=1;" />
         </mxCell>
 
         <!-- MODULE 1 -->
-        <mxCell id="N_M1" value="QUẢN LÝ TÀI KHOẢN" vertex="1" parent="1">
+        <mxCell id="N_M1" value="HỆ THỐNG &amp; TÀI KHOẢN" vertex="1" parent="1">
           <mxGeometry x="40" y="160" width="220" height="50" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" />
         </mxCell>
-        <mxCell id="N_M1_1" value="Kích hoạt tài khoản" vertex="1" parent="1">
-          <mxGeometry x="60" y="240" width="180" height="40" as="geometry" />
+        <mxCell id="N_M1_1" value="Quản trị Tài khoản (Cá nhân)" vertex="1" parent="1">
+          <mxGeometry x="50" y="240" width="200" height="40" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
         </mxCell>
-        <mxCell id="N_M1_2" value="Đăng nhập / Đăng xuất" vertex="1" parent="1">
-          <mxGeometry x="60" y="300" width="180" height="40" as="geometry" />
-          <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
-        </mxCell>
-        <mxCell id="N_M1_3" value="Đổi &amp; Khôi phục MK" vertex="1" parent="1">
-          <mxGeometry x="60" y="360" width="180" height="40" as="geometry" />
-          <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
-        </mxCell>
-        <mxCell id="N_M1_4" value="Xem &amp; Cập nhật hồ sơ" vertex="1" parent="1">
-          <mxGeometry x="60" y="420" width="180" height="40" as="geometry" />
+        <mxCell id="N_M1_2" value="Quản lý Hồ sơ Người dùng" vertex="1" parent="1">
+          <mxGeometry x="50" y="300" width="200" height="40" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
         </mxCell>
 
-        <!-- MODULE 2 -->
-        <mxCell id="N_M2" value="DỊCH VỤ LƯU TRÚ" vertex="1" parent="1">
+        <!-- MODULE 2 (Tra cứu CSVC) -->
+        <mxCell id="N_M2" value="CƠ SỞ VẬT CHẤT" vertex="1" parent="1">
           <mxGeometry x="290" y="160" width="220" height="50" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" />
         </mxCell>
-        <mxCell id="N_M2_1" value="Tra cứu đợt &amp; Đăng ký" vertex="1" parent="1">
-          <mxGeometry x="310" y="240" width="180" height="40" as="geometry" />
-          <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
-        </mxCell>
-        <mxCell id="N_M2_2" value="Xin gia hạn lưu trú" vertex="1" parent="1">
-          <mxGeometry x="310" y="300" width="180" height="40" as="geometry" />
-          <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
-        </mxCell>
-        <mxCell id="N_M2_3" value="Xin chuyển phòng" vertex="1" parent="1">
-          <mxGeometry x="310" y="360" width="180" height="40" as="geometry" />
-          <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
-        </mxCell>
-        <mxCell id="N_M2_4" value="Xin trả phòng" vertex="1" parent="1">
-          <mxGeometry x="310" y="420" width="180" height="40" as="geometry" />
+        <mxCell id="N_M2_1" value="Tra cứu &amp; Phân tích CSVC" vertex="1" parent="1">
+          <mxGeometry x="300" y="240" width="200" height="40" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
         </mxCell>
 
         <!-- MODULE 3 -->
-        <mxCell id="N_M3" value="CƠ SỞ VẬT CHẤT" vertex="1" parent="1">
+        <mxCell id="N_M3" value="DỊCH VỤ LƯU TRÚ" vertex="1" parent="1">
           <mxGeometry x="540" y="160" width="220" height="50" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" />
         </mxCell>
-        <mxCell id="N_M3_1" value="Xem kết quả xếp phòng" vertex="1" parent="1">
-          <mxGeometry x="560" y="240" width="180" height="40" as="geometry" />
+        <mxCell id="N_M3_1" value="Đăng ký Lưu trú &amp; Xét duyệt" vertex="1" parent="1">
+          <mxGeometry x="550" y="240" width="200" height="40" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
         </mxCell>
-        <mxCell id="N_M3_2" value="Xem thông tin phòng ở" vertex="1" parent="1">
-          <mxGeometry x="560" y="300" width="180" height="40" as="geometry" />
+        <mxCell id="N_M3_2" value="Thực thi Check-in/Check-out" vertex="1" parent="1">
+          <mxGeometry x="550" y="300" width="200" height="40" as="geometry" />
+          <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
+        </mxCell>
+        <mxCell id="N_M3_3" value="Quản lý Biến động Lưu trú" vertex="1" parent="1">
+          <mxGeometry x="550" y="360" width="200" height="40" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
         </mxCell>
 
@@ -79,12 +57,12 @@
           <mxGeometry x="790" y="160" width="220" height="50" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" />
         </mxCell>
-        <mxCell id="N_M4_1" value="Xem công nợ &amp; hóa đơn" vertex="1" parent="1">
-          <mxGeometry x="810" y="240" width="180" height="40" as="geometry" />
+        <mxCell id="N_M4_1" value="Quản lý Hóa đơn &amp; Công nợ" vertex="1" parent="1">
+          <mxGeometry x="800" y="240" width="200" height="40" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
         </mxCell>
-        <mxCell id="N_M4_2" value="Thanh toán trực tuyến (QR)" vertex="1" parent="1">
-          <mxGeometry x="810" y="300" width="180" height="40" as="geometry" />
+        <mxCell id="N_M4_2" value="Thanh toán &amp; Đối soát" vertex="1" parent="1">
+          <mxGeometry x="800" y="300" width="200" height="40" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
         </mxCell>
 
@@ -93,85 +71,51 @@
           <mxGeometry x="1040" y="160" width="220" height="50" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=14;fontStyle=1;" />
         </mxCell>
-        <mxCell id="N_M5_1" value="Đăng ký khuôn mặt (Face ID)" vertex="1" parent="1">
-          <mxGeometry x="1060" y="240" width="180" height="40" as="geometry" />
+        <mxCell id="N_M5_1" value="Kiểm soát Cổng thông minh" vertex="1" parent="1">
+          <mxGeometry x="1050" y="240" width="200" height="40" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
         </mxCell>
-        <mxCell id="N_M5_2" value="Xin phép về trễ (Curfew)" vertex="1" parent="1">
-          <mxGeometry x="1060" y="300" width="180" height="40" as="geometry" />
+        <mxCell id="N_M5_2" value="Quản trị Dữ liệu Sinh trắc học" vertex="1" parent="1">
+          <mxGeometry x="1050" y="300" width="200" height="40" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
         </mxCell>
-        <mxCell id="N_M5_3" value="Xem lịch sử ra vào" vertex="1" parent="1">
-          <mxGeometry x="1060" y="360" width="180" height="40" as="geometry" />
+        <mxCell id="N_M5_3" value="Quản trị Cư trú &amp; Giờ giới nghiêm" vertex="1" parent="1">
+          <mxGeometry x="1050" y="360" width="200" height="40" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
         </mxCell>
-        <mxCell id="N_M5_4" value="Nhận &amp; Xem thông báo" vertex="1" parent="1">
-          <mxGeometry x="1060" y="420" width="180" height="40" as="geometry" />
-          <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
-        </mxCell>
-        <mxCell id="N_M5_5" value="Báo cáo sự cố cơ sở vật chất" vertex="1" parent="1">
-          <mxGeometry x="1060" y="480" width="180" height="40" as="geometry" />
+        <mxCell id="N_M5_4" value="Hệ thống Thông báo &amp; Phản ánh" vertex="1" parent="1">
+          <mxGeometry x="1050" y="420" width="200" height="40" as="geometry" />
           <Object as="style" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=Times New Roman;fontSize=13;" />
         </mxCell>
 
-        <!-- EDGES -->
-        <!-- Root to Modules -->
-        <mxCell id="E_Root_M1" edge="1" parent="1" source="N_Root" target="N_M1">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="660" y="120" /><mxPoint x="150" y="120" /></Array>
-          </mxGeometry>
-          <Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" />
-        </mxCell>
-        <mxCell id="E_Root_M2" edge="1" parent="1" source="N_Root" target="N_M2">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="660" y="120" /><mxPoint x="400" y="120" /></Array>
-          </mxGeometry>
-          <Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" />
-        </mxCell>
-        <mxCell id="E_Root_M3" edge="1" parent="1" source="N_Root" target="N_M3">
-          <mxGeometry relative="1" as="geometry" />
-          <Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" />
-        </mxCell>
-        <mxCell id="E_Root_M4" edge="1" parent="1" source="N_Root" target="N_M4">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="660" y="120" /><mxPoint x="900" y="120" /></Array>
-          </mxGeometry>
-          <Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" />
-        </mxCell>
-        <mxCell id="E_Root_M5" edge="1" parent="1" source="N_Root" target="N_M5">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="660" y="120" /><mxPoint x="1150" y="120" /></Array>
-          </mxGeometry>
-          <Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" />
-        </mxCell>
+        <!-- EDGES Root -> M -->
+        <mxCell id="E_Root_M1" edge="1" parent="1" source="N_Root" target="N_M1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="660" y="140" /><mxPoint x="150" y="140" /></Array></mxGeometry><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="E_Root_M2" edge="1" parent="1" source="N_Root" target="N_M2"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="660" y="140" /><mxPoint x="400" y="140" /></Array></mxGeometry><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="E_Root_M3" edge="1" parent="1" source="N_Root" target="N_M3"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="660" y="140" /><mxPoint x="650" y="140" /></Array></mxGeometry><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="E_Root_M4" edge="1" parent="1" source="N_Root" target="N_M4"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="660" y="140" /><mxPoint x="900" y="140" /></Array></mxGeometry><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="E_Root_M5" edge="1" parent="1" source="N_Root" target="N_M5"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="660" y="140" /><mxPoint x="1150" y="140" /></Array></mxGeometry><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
 
-        <!-- M1 Children Edges -->
+        <!-- Edges for M1 -->
         <mxCell id="E_M1_1" edge="1" parent="1" source="N_M1" target="N_M1_1"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
         <mxCell id="E_M1_2" edge="1" parent="1" source="N_M1_1" target="N_M1_2"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
-        <mxCell id="E_M1_3" edge="1" parent="1" source="N_M1_2" target="N_M1_3"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
-        <mxCell id="E_M1_4" edge="1" parent="1" source="N_M1_3" target="N_M1_4"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
 
-        <!-- M2 Children Edges -->
+        <!-- Edges for M2 -->
         <mxCell id="E_M2_1" edge="1" parent="1" source="N_M2" target="N_M2_1"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
-        <mxCell id="E_M2_2" edge="1" parent="1" source="N_M2_1" target="N_M2_2"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
-        <mxCell id="E_M2_3" edge="1" parent="1" source="N_M2_2" target="N_M2_3"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
-        <mxCell id="E_M2_4" edge="1" parent="1" source="N_M2_3" target="N_M2_4"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
 
-        <!-- M3 Children Edges -->
+        <!-- Edges for M3 -->
         <mxCell id="E_M3_1" edge="1" parent="1" source="N_M3" target="N_M3_1"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
         <mxCell id="E_M3_2" edge="1" parent="1" source="N_M3_1" target="N_M3_2"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
+        <mxCell id="E_M3_3" edge="1" parent="1" source="N_M3_2" target="N_M3_3"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
 
-        <!-- M4 Children Edges -->
+        <!-- Edges for M4 -->
         <mxCell id="E_M4_1" edge="1" parent="1" source="N_M4" target="N_M4_1"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
         <mxCell id="E_M4_2" edge="1" parent="1" source="N_M4_1" target="N_M4_2"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
 
-        <!-- M5 Children Edges -->
+        <!-- Edges for M5 -->
         <mxCell id="E_M5_1" edge="1" parent="1" source="N_M5" target="N_M5_1"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
         <mxCell id="E_M5_2" edge="1" parent="1" source="N_M5_1" target="N_M5_2"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
         <mxCell id="E_M5_3" edge="1" parent="1" source="N_M5_2" target="N_M5_3"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
         <mxCell id="E_M5_4" edge="1" parent="1" source="N_M5_3" target="N_M5_4"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
-        <mxCell id="E_M5_5" edge="1" parent="1" source="N_M5_4" target="N_M5_5"><mxGeometry relative="1" as="geometry" /><Object as="style" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;" /></mxCell>
-
       </root>
     </mxGraphModel>
   </diagram>
