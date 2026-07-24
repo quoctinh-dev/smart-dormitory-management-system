@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Thêm Phòng (N-Tier)" id="-crud-room-ntier">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Lìfelines -->
+        <mxCell id="actor" value="Admin" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};participant=umlActor;size=60;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="100" y="50" width="30" height="950" as="geometry" />
+        </mxCell>
+        <mxCell id="UI" value="&lt;b&gt;&amp;lt;&amp;lt;View&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;RoomManagementUI" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="300" y="40" width="140" height="960" as="geometry" />
+        </mxCell>
+        <mxCell id="CTRL" value="&lt;b&gt;&amp;lt;&amp;lt;Controller&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;RoomController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="500" y="40" width="140" height="960" as="geometry" />
+        </mxCell>
+        <mxCell id="SVC" value="&lt;b&gt;&amp;lt;&amp;lt;Service&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;RoomService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="700" y="40" width="140" height="960" as="geometry" />
+        </mxCell>
+        <mxCell id="REPO" value="&lt;b&gt;&amp;lt;&amp;lt;Repository&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;RoomRepository" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="900" y="40" width="140" height="960" as="geometry" />
+        </mxCell>
+
+        <!-- Execution Specifications (Bars) -->
+        <mxCell id="e_ui_1" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="365" y="140" width="10" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ct_1" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="565" y="170" width="10" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sv_1" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="765" y="200" width="10" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="e_rp_1" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="965" y="230" width="10" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_ui_2" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="365" y="420" width="10" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ct_2" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="565" y="450" width="10" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sv_2" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="765" y="480" width="10" height="310" as="geometry" />
+        </mxCell>
+        <mxCell id="e_rp_2" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="965" y="500" width="10" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_rp_3" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="965" y="700" width="10" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Messages - Load Form -->
+        <mxCell id="m_1" value="1. Chọn chức năng Thêm Phòng" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="150" as="sourcePoint" />
+            <mxPoint x="365" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_2" value="2. GET /buildings, /floors" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="375" y="180" as="sourcePoint" />
+            <mxPoint x="565" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_3" value="3. getBuildingsAndFloors()" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="575" y="210" as="sourcePoint" />
+            <mxPoint x="765" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_4" value="4. findAll()" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="775" y="240" as="sourcePoint" />
+            <mxPoint x="965" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_5" value="5. Trả về Data List (Entity)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965" y="270" as="sourcePoint" />
+            <mxPoint x="775" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_6" value="6. Trả về List (DTO)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="765" y="300" as="sourcePoint" />
+            <mxPoint x="575" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_7" value="7. Trả về JSON (200 OK)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="565" y="330" as="sourcePoint" />
+            <mxPoint x="375" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_8" value="8. Hiển thị Form Thêm (với Dropdown)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="365" y="360" as="sourcePoint" />
+            <mxPoint x="115" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Messages - Submit -->
+        <mxCell id="m_9" value="9. Điền thông tin &amp; Bấm Lưu" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="430" as="sourcePoint" />
+            <mxPoint x="365" y="430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_10" value="10. POST /rooms (RequestDTO)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="375" y="460" as="sourcePoint" />
+            <mxPoint x="565" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_11" value="11. createRoom(dto)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="575" y="490" as="sourcePoint" />
+            <mxPoint x="765" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_12" value="12. existsByRoomCode(code)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="775" y="520" as="sourcePoint" />
+            <mxPoint x="965" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_13" value="13. return boolean" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965" y="550" as="sourcePoint" />
+            <mxPoint x="775" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ALT Frame -->
+        <mxCell id="alt_frame" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="70" y="570" width="950" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="alt_line" value="" style="endArrow=none;dashed=1;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="70" y="680" as="sourcePoint" />
+            <mxPoint x="1020" y="680" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="txt_err" value="[Trùng mã phòng / Lỗi]" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;autosize=1;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="120" y="580" width="150" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="txt_ok" value="[Dữ liệu hợp lệ]" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;autosize=1;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="120" y="690" width="100" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ALT Branch 1 -->
+        <mxCell id="m_14" value="14. throw AppException(DATA_CONFLICT)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="765" y="600" as="sourcePoint" />
+            <mxPoint x="575" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_15" value="15. return 400 Bad Request" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="565" y="630" as="sourcePoint" />
+            <mxPoint x="375" y="630" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_16" value="16. Hiển thị thông báo lỗi (Toast)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="365" y="660" as="sourcePoint" />
+            <mxPoint x="115" y="660" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ALT Branch 2 -->
+        <mxCell id="m_17" value="17. save(Room Entity)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="775" y="720" as="sourcePoint" />
+            <mxPoint x="965" y="720" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_18" value="18. return Room Entity" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965" y="750" as="sourcePoint" />
+            <mxPoint x="775" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_19" value="19. return RoomResponse (DTO)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="765" y="780" as="sourcePoint" />
+            <mxPoint x="575" y="780" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_20" value="20. return 201 Created (JSON)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="565" y="810" as="sourcePoint" />
+            <mxPoint x="375" y="810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_21" value="21. Thông báo thêm thành công" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="365" y="840" as="sourcePoint" />
+            <mxPoint x="115" y="840" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
