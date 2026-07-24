@@ -52,4 +52,12 @@ public class BedController {
         bedService.changeStatus(bedId, status);
         return ApiResponse.success("Cập nhật trạng thái thành công");
     }
+
+    @Operation(summary = "Xóa giường (Hard Delete)", description = "Chỉ được xóa khi giường chưa từng có sinh viên ở.")
+    @DeleteMapping("/{bedId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> deleteBed(@PathVariable UUID bedId) {
+        bedService.deleteBed(bedId);
+        return ApiResponse.success("Xóa giường thành công");
+    }
 }

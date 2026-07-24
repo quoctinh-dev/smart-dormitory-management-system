@@ -62,12 +62,12 @@ export default function CheckoutManagement() {
         const exportData = requests.filter(req => req.status === 'APPROVED' && req.bankAccountNumber);
 
         if (exportData.length === 0) {
-            snackbar.warning('Không có đơn nào Đã duyệt và có thông tin Ngân hàng để xuất!');
+            snackbar.warning('Không có đơn nào đã duyệt và có thông tin ngân hàng để xuất!');
             return;
         }
 
-        // 2. Tạo header CSV
-        const headers = ['Mã SV', 'Họ Tên', 'Phòng', 'Giường', 'Ngân Hàng', 'Số Tài Khoản', 'Ngày Trả Phòng'];
+        // 2. Tạo header CSV (đã chuẩn hóa hoa/thường)
+        const headers = ['Mã SV', 'Họ tên', 'Phòng', 'Giường', 'Ngân hàng', 'Số tài khoản', 'Ngày trả phòng'];
 
         // 3. Tạo row data
         const rows = exportData.map(req => [
@@ -114,10 +114,10 @@ export default function CheckoutManagement() {
             }}>
                 <Box>
                     <Typography variant="h5" sx={{fontWeight: 600, color: 'text.primary', mb: 0.5}}>
-                        Quản lý trả phòng & Hoàn tiền
+                        Quản lý trả phòng & hoàn tiền
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        Duyệt yêu cầu trả phòng (Checkout) và xuất báo cáo chốt công nợ gửi Phòng Tài Vụ giải ngân.
+                        Duyệt yêu cầu trả phòng (checkout) và xuất báo cáo chốt công nợ gửi phòng Tài vụ giải ngân.
                     </Typography>
                 </Box>
                 <Button
@@ -127,7 +127,7 @@ export default function CheckoutManagement() {
                     sx={{borderRadius: 1.5, fontWeight: 600, textTransform: 'none'}}
                     onClick={handleExportCSV}
                 >
-                    Xuất Báo cáo Tài Vụ
+                    Xuất báo cáo tài vụ
                 </Button>
             </Box>
 
@@ -152,8 +152,8 @@ export default function CheckoutManagement() {
                         >
                             <MenuItem value="ALL">Tất cả trạng thái</MenuItem>
                             <MenuItem value="PENDING">Chờ xử lý</MenuItem>
-                            <MenuItem value="APPROVED">Đã duyệt (Chờ hoàn tiền)</MenuItem>
-                            <MenuItem value="COMPLETED">Đã hoàn tất (Đã hoàn tiền)</MenuItem>
+                            <MenuItem value="APPROVED">Đã duyệt (chờ hoàn tiền)</MenuItem>
+                            <MenuItem value="COMPLETED">Đã hoàn tất (đã hoàn tiền)</MenuItem>
                             <MenuItem value="REJECTED">Bị từ chối</MenuItem>
                         </Select>
                     </FormControl>
@@ -173,7 +173,7 @@ export default function CheckoutManagement() {
                                 <TableRow>
                                     <TableCell sx={{fontWeight: 600}}>Thông tin sinh viên</TableCell>
                                     <TableCell sx={{fontWeight: 600}}>Vị trí phòng/giường</TableCell>
-                                    <TableCell sx={{fontWeight: 600}}>Ngày hẹn Checkout</TableCell>
+                                    <TableCell sx={{fontWeight: 600}}>Ngày hẹn checkout</TableCell>
                                     <TableCell sx={{fontWeight: 600}}>Tài khoản nhận hoàn tiền</TableCell>
                                     <TableCell sx={{fontWeight: 600}}>Trạng thái</TableCell>
                                     <TableCell align="center" sx={{fontWeight: 600}}>Thao tác</TableCell>
@@ -248,7 +248,6 @@ export default function CheckoutManagement() {
                                                     )}
                                                 </TableCell>
 
-                                                {/* CỘT TRẠNG THÁI: Tích hợp icon chấm than (Info) nếu bị từ chối */}
                                                 <TableCell>
                                                     <Stack direction="row" spacing={0.5} alignItems="center">
                                                         <Chip
@@ -271,7 +270,7 @@ export default function CheckoutManagement() {
                                                 <TableCell align="center">
                                                     {row.status === 'PENDING' && (
                                                         <Stack direction="row" spacing={0.5} justifyContent="center">
-                                                            <Tooltip title="Duyệt yêu cầu & Chốt công nợ">
+                                                            <Tooltip title="Duyệt yêu cầu & chốt công nợ">
                                                                 <IconButton
                                                                     color="success"
                                                                     size="small"
@@ -293,7 +292,7 @@ export default function CheckoutManagement() {
                                                     )}
                                                     {row.status === 'APPROVED' && (
                                                         <Box sx={{display: 'flex', justifyContent: 'center'}}>
-                                                            <Tooltip title="Xác nhận đã giải ngân qua Tài Vụ">
+                                                            <Tooltip title="Xác nhận đã giải ngân qua phòng Tài vụ">
                                                                 <Button
                                                                     variant="contained"
                                                                     color="info"
@@ -362,16 +361,16 @@ export default function CheckoutManagement() {
 
                     {reviewStatus === 'APPROVED' && (
                         <Alert severity="warning" sx={{mt: 2, borderRadius: 1.5}}>
-                            <strong>Lưu ý quan trọng:</strong> Sau khi duyệt, sinh viên sẽ bị Checkout khỏi phòng trên
-                            hệ thống ngay lập tức. Các quyền ra vào (FaceID, Thẻ) sẽ bị thu hồi tự động. Hệ thống sẽ tự
-                            động chốt công nợ để chuẩn bị dữ liệu gửi Phòng Tài Vụ.
+                            <strong>Lưu ý quan trọng:</strong> Sau khi duyệt, sinh viên sẽ bị checkout khỏi phòng trên
+                            hệ thống ngay lập tức. Các quyền ra vào (FaceID, thẻ) sẽ bị thu hồi tự động. Hệ thống sẽ tự
+                            động chốt công nợ để chuẩn bị dữ liệu gửi phòng Tài vụ.
                         </Alert>
                     )}
 
                     {reviewStatus === 'COMPLETED' && (
                         <Alert severity="info" sx={{mt: 2, borderRadius: 1.5}}>
-                            Xác nhận hồ sơ này đã được giải ngân thành công từ Phòng Tài Vụ, hoặc sinh viên đã nhận được
-                            tiền hoàn lại. Yêu cầu này sẽ được chuyển vào trạng thái lưu trữ (Hoàn tất).
+                            Xác nhận hồ sơ này đã được giải ngân thành công từ phòng Tài vụ, hoặc sinh viên đã nhận được
+                            tiền hoàn lại. Yêu cầu này sẽ được chuyển vào trạng thái lưu trữ (hoàn tất).
                         </Alert>
                     )}
 

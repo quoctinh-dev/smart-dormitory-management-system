@@ -42,8 +42,6 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "user_accounts")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE user_accounts SET is_deleted = true WHERE account_id=?")
-@org.hibernate.annotations.SQLRestriction("is_deleted = false")
 @Getter
 @Setter
 public class UserAccount extends BaseEntity implements UserDetails {

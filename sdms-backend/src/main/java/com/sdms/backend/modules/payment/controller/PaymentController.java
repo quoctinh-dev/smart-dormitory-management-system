@@ -74,18 +74,4 @@ public class PaymentController {
         );
     }
 
-    /**
-     * MOCK PAYMENT SUCCESS for testing event-driven flow.
-     * This endpoint is for development/testing purposes only.
-     */
-    @Operation(summary = "Mock thanh toán thành công (Chỉ dùng cho testing)")
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/mock-success/{applicationId}")
-    public ApiResponse<PaymentResponse> mockPaymentSuccess(@PathVariable UUID applicationId) {
-        PaymentResponse response = paymentService.mockPaymentSuccess(applicationId);
-        return ApiResponse.success(
-                "Mock thanh toán thành công, hóa đơn đã được thanh toán và sự kiện đã được phát ra.",
-                response
-        );
-    }
 }

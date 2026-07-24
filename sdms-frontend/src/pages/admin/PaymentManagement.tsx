@@ -30,6 +30,7 @@ import {
   Select,
   Autocomplete,
   CircularProgress,
+  Divider,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import React, { useState } from 'react';
@@ -43,7 +44,6 @@ const BILL_TYPES: Record<string, string> = {
   ALL: 'Tất cả loại phí',
   ACCOMMODATION_FEE: 'Phí phòng / Nội trú',
   ELECTRIC_FEE: 'Tiền điện',
-  WATER_FEE: 'Tiền nước',
   PENALTY_FEE: 'Phạt / Đền bù',
 };
 
@@ -92,12 +92,10 @@ export default function PaymentManagement() {
     dueDate: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
   });
 
-  // Autocomplete state cho Sinh viên
   const [studentOptions, setStudentOptions] = useState<StudentProfileResponse[]>([]);
   const [studentSearchLoading, setStudentSearchLoading] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<StudentProfileResponse | null>(null);
 
-  // Debounce search sinh viên
   React.useEffect(() => {
     let active = true;
     const fetchStudents = async () => {
@@ -133,7 +131,6 @@ export default function PaymentManagement() {
 
   return (
       <Box sx={{ p: { xs: 2, md: 3 } }}>
-        {/* Header trang */}
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
@@ -154,7 +151,6 @@ export default function PaymentManagement() {
           </Button>
         </Box>
 
-        {/* Điều hướng và bộ lọc */}
         <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2 }}>
           <Stack spacing={2}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -220,7 +216,6 @@ export default function PaymentManagement() {
           </Stack>
         </Paper>
 
-        {/* Bảng dữ liệu hóa đơn */}
         <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
           <TableContainer>
             <Table sx={{ minWidth: 700 }}>
@@ -375,55 +370,95 @@ export default function PaymentManagement() {
           </DialogActions>
         </Dialog>
 
-        {/* Dialog chi tiết hóa đơn */}
-        <Dialog open={detailsDialog} onClose={() => setDetailsDialog(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 2 } }}>
-          <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>Thông tin chi tiết hóa đơn</DialogTitle>
-          <DialogContent dividers sx={{ py: 2 }}>
-            {selectedBill && (
-                <Stack spacing={1.5}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">Mã hóa đơn:</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600, fontFamily: 'monospace', color: 'primary.main' }}>
-                      {selectedBill.billCode}
-                    </Typography>
-                  </Box>
+        {/* Dialog chi tiết hóa đơn (Chuẩn form Tạo hóa đơn) */}
+        <Dialog
+            open={detailsDialog}
+            onClose={() => setDetailsDialog(false)}
+            maxWidth="xs"
+            fullWidth
+            PaperProps={{ sx: { borderRadius: 2 } }}
+        >
+          <DialogTitle sx={{ fontWeight: 600, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+            Chi tiết hóa đơn
+          </DialogTitle>
+          <DialogContent dividers sx={{ py: 2.5 }}>
+            {selectedBill && (() => {
+              const statusStyle = STATUS_MAP[selectedBill.status] || { label: selectedBill.status, color: 'default' };
 
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">Sinh viên:</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {selectedBill.studentName}
-                    </Typography>
-                  </Box>
+              return (
+                  <Stack direction="column" spacing={2.5} sx={{ width: '100%' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">Trạng thái</Typography>
+                      <Chip
+                          label={statusStyle.label}
+                          color={statusStyle.color}
+                          size="small"
+                          sx={{ fontWeight: 600, borderRadius: 1 }}
+                      />
+                    </Box>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">Loại phí:</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {BILL_TYPES[selectedBill.billType] || selectedBill.billType}
-                    </Typography>
-                  </Box>
+                    <Divider />
 
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">Hạn thanh toán:</Typography>
-                    <Typography variant="body2" color="error.main" sx={{ fontWeight: 500 }}>
-                      {selectedBill.dueDate
-                          ? new Date(selectedBill.dueDate).toLocaleDateString('vi-VN')
-                          : 'Không thời hạn'}
-                    </Typography>
-                  </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">Mã hóa đơn</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main', fontFamily: 'monospace' }}>
+                        {selectedBill.billCode}
+                      </Typography>
+                    </Box>
 
-                  <Box sx={{ borderTop: 1, borderColor: 'divider', pt: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Tổng tiền:</Typography>
-                    <Typography variant="subtitle1" color="primary.main" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
-                      {selectedBill.amount?.toLocaleString('vi-VN')} VNĐ
-                    </Typography>
-                  </Box>
-                </Stack>
-            )}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">Sinh viên</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {selectedBill.studentName}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">Loại phí</Typography>
+                      <Typography variant="body2">
+                        {BILL_TYPES[selectedBill.billType] || selectedBill.billType}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">Hạn thanh toán</Typography>
+                      <Typography variant="body2">
+                        {selectedBill.dueDate ? new Date(selectedBill.dueDate).toLocaleDateString('vi-VN') : 'Không thời hạn'}
+                      </Typography>
+                    </Box>
+
+                    <Divider />
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Tổng thanh toán</Typography>
+                      <Typography variant="h6" color="primary.main" sx={{ fontWeight: 700 }}>
+                        {selectedBill.amount?.toLocaleString('vi-VN')} VNĐ
+                      </Typography>
+                    </Box>
+                  </Stack>
+              );
+            })()}
           </DialogContent>
           <DialogActions sx={{ px: 3, py: 2 }}>
-            <Button onClick={() => setDetailsDialog(false)} variant="outlined" color="inherit" sx={{ borderRadius: 1.5, textTransform: 'none', color: 'text.secondary' }}>
+            <Button onClick={() => setDetailsDialog(false)} color="inherit" sx={{ textTransform: 'none', borderRadius: 1.5, color: 'text.secondary', fontWeight: 600 }}>
               Đóng
             </Button>
+
+            {(selectedBill?.status === 'UNPAID' || selectedBill?.status === 'OVERDUE') && (
+                <Button
+                    variant="contained"
+                    color="success"
+                    disableElevation
+                    startIcon={<CheckCircleIcon fontSize="small" />}
+                    onClick={() => {
+                      setDetailsDialog(false);
+                      openConfirm(selectedBill);
+                    }}
+                    sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600, px: 3 }}
+                >
+                  Thu tiền mặt
+                </Button>
+            )}
           </DialogActions>
         </Dialog>
 
@@ -487,7 +522,6 @@ export default function PaymentManagement() {
                   <MenuItem value="PENALTY_FEE">Đền bù tài sản / Phạt vi phạm</MenuItem>
                   <MenuItem value="ACCOMMODATION_FEE">Thu bù tiền phòng</MenuItem>
                   <MenuItem value="ELECTRIC_FEE">Thu bù tiền điện</MenuItem>
-                  <MenuItem value="WATER_FEE">Thu bù tiền nước</MenuItem>
                 </Select>
               </FormControl>
               <TextField

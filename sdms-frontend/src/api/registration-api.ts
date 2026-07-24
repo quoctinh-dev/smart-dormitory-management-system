@@ -56,6 +56,13 @@ export const adminRegistrationApi = {
   },
 
   /**
+   * Xóa cứng đợt đăng ký (Hard delete)
+   */
+  deletePeriod: (id: string): Promise<void> => {
+    return axiosClient.delete(`${ADMIN_PREFIX}/${id}`);
+  },
+
+  /**
    * Import danh sách sinh viên đủ điều kiện từ file Excel
    */
   importEligibility: (periodId: string, file: File): Promise<EligibilityImportResponse> => {

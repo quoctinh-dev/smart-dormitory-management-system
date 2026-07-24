@@ -137,17 +137,21 @@ public class BedService {
 
 
     /**
-     * Logic kiểm tra chặt chẽ trước khi xóa (nếu hệ thống cho phép xóa).
+     * Logic kiểm tra chặt chẽ trước khi xóa.
+     * CHỈ ĐƯỢC XÓA nếu giường hoàn toàn trống (chưa từng có ai ở).
      */
     public void validateBedCanDelete(UUID bedId) {
-        boolean hasActiveAssignment = assignmentRepository.existsByBed_BedIdAndStatusIn(
-                bedId,
-                List.of(AssignmentStatus.RESERVED, AssignmentStatus.OCCUPIED)
-        );
+        boolean hasAnyAssignment = assignmentRepository.existsByBed_BedId(bedId);
 
-        if (hasActiveAssignment) {
-            throw new AppException(ErrorCode.DATA_CONFLICT, "Không thể xóa giường: Giường này đang được liên kết với một hợp đồng lưu trú còn hiệu lực");
+        if (hasAnyAssignment) {
+            throw new AppException(ErrorCode.DATA_CONFLICT, "Không thể xóa giường: Giường này đã có lịch sử lưu trú. Vui lòng chuyển sang trạng thái bảo trì hoặc ngưng sử dụng thay vì xóa.");
         }
+    }
+
+    @Transactional
+    public void deleteBed(UUID bedId) {
+        validateBedCanDelete(bedId);
+        bedRepository.deleteById(bedId);
     }
 
     private Bed findById(UUID id) {

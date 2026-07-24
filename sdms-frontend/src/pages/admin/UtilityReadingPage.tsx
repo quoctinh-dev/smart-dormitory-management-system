@@ -1,7 +1,6 @@
 import BoltIcon from '@mui/icons-material/Bolt';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
-import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import LockIcon from '@mui/icons-material/Lock';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import {
@@ -77,10 +76,10 @@ export default function UtilityReadingPage() {
         >
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
-              Ghi chỉ số điện & nước
+              Ghi chỉ số điện
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Cập nhật và chốt chỉ số tiêu thụ điện, nước hàng tháng theo từng phòng.
+              Cập nhật và chốt chỉ số tiêu thụ điện hàng tháng theo từng phòng.
             </Typography>
           </Box>
 
@@ -109,13 +108,6 @@ export default function UtilityReadingPage() {
                 iconPosition="start"
                 label="Chốt chỉ số điện"
                 value="ELECTRICITY"
-                sx={{ fontWeight: 600, textTransform: 'none' }}
-            />
-            <Tab
-                icon={<WaterDropIcon fontSize="small" />}
-                iconPosition="start"
-                label="Chốt chỉ số nước"
-                value="WATER"
                 sx={{ fontWeight: 600, textTransform: 'none' }}
             />
           </Tabs>

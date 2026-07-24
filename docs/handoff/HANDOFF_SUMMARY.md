@@ -1,30 +1,24 @@
-# HANDOFF SUMMARY (BÀN GIAO PHIÊN LÀM VIỆC)
+# BẢN GIAO CA (HANDOFF SUMMARY) - SDMS PROJECT
+**Thời gian cập nhật:** 2026-07-24
+**Trạng thái:** Tạm nghỉ
 
-## 1. TIẾN ĐỘ HIỆN TẠI (LATEST PROGRESS)
-- Đã hoàn thành xuất sắc **8 Sơ đồ Quy trình nghiệp vụ (Flowcharts)** bằng định dạng XML (Draw.io) cho Mục 2.3.1 của Luận văn:
-  1. `registration_flowchart.xml` (Đăng ký lưu trú)
-  2. `extension_flowchart.xml` (Gia hạn lưu trú)
-  3. `transfer_room_flowchart.xml` (Chuyển phòng)
-  4. `payment_flowchart.xml` (Thanh toán phí - Tích hợp Webhook)
-  5. `checkout_flowchart.xml` (Trả phòng)
-  6. `access_control_flowchart.xml` (Kiểm soát ra vào - Tích hợp IoT/AI)
-  7. `utility_billing_flowchart.xml` (Chốt chỉ số điện nước & tính tiền)
-  8. `maintenance_flowchart.xml` (Bảo trì cơ sở vật chất)
-- Đã cung cấp đầy đủ **Báo cáo Audit Code Backend** chứng minh logic nghiệp vụ cho toàn bộ 8 quy trình trên.
-- Đã hoàn thiện văn bản cho mục 2.3.1, 2.3.2 trong file `thesis/outputs/draft_2.3.md`.
+## 1. TÌNH TRẠNG HIỆN TẠI (CURRENT STATE)
+- **Frontend & Backend (Phân quyền):** Đã hoàn tất rà soát và fix triệt để phân quyền (RBAC) giữa ADMIN và STAFF đối với phân hệ Quản lý Phòng/Giường. STAFF hiện tại chỉ có thể đổi trạng thái (Bảo trì/Mở lại) và cấp mới mã PIN. Các nút xóa, sửa, sinh tự động đã bị ẩn/chặn hoàn toàn trên cả UI (`RoomActionMenu.tsx`, `BedDetailDrawer.tsx`) và API (`RoomController`, `BedController`).
+- **Feature Map:** File `thesis/docs/FEATURE_MAP.md` đã được update cực kỳ chính xác (khớp 100% với Code) làm nền tảng cho việc sinh UML.
+- **Sơ đồ UML (Use Case):** 
+  - Đã thống nhất phương án chia hệ thống thành **10 biểu đồ Use Case chi tiết** (Dựa trên cấu trúc `<Extend>`).
+  - Đã sinh xong **2 file XML** mẫu cho Phân hệ 1 (Tài khoản & Sinh viên) tại thư mục `thesis/outputs/diagrams/use-case/`.
+- **Roadmap:** Đã tạo file `docs/roadmap/features/01_UML_DESIGN_FLOW.md` lưu lại toàn bộ chiến lược vẽ Usecase, lập Bảng mô tả, và danh sách 12 Sơ đồ Tuần tự "ăn tiền" nhất.
 
-## 2. TRẠNG THÁI HIỆN TẠI (CURRENT STATE)
-- Đang dừng ở cuối phần 2.3.1 (Các quy trình, nghiệp vụ). User yêu cầu nghỉ ngơi.
+## 2. TIẾN ĐỘ ĐÃ ĐẠT ĐƯỢC KỂ TỪ CA TRƯỚC
+- [x] Sửa lỗi quyền hạn giao diện cho STAFF.
+- [x] Khớp nối tài liệu `FEATURE_MAP.md` với code thực tế.
+- [x] Lập chiến lược bóc tách Sơ đồ chức năng thành 10 Sơ đồ Use case.
+- [x] Viết file Roadmap định hướng vẽ UML.
 
-## 3. CÔNG VIỆC TIẾP THEO (NEXT STEPS)
-- **Bắt tay vào làm Mục 2.3.3: Sơ đồ Use case tổng quát**.
-- **Hành động đầu tiên của Agent tiếp theo:** Liệt kê danh sách các Tác nhân (Actors) và các Nhóm chức năng chính (Use Cases) để User duyệt trước khi tiến hành sinh mã XML.
-
-## 4. QUY TẮC LÀM VIỆC BẮT BUỘC (USER'S STRICT PREFERENCES - MUST FOLLOW)
-Incoming Agent **BẮT BUỘC** phải tuân thủ các quy tắc sau khi vẽ Sơ đồ (Draw.io XML) cho luận văn:
-1. **Hình khối:** Tuyệt đối dùng hình chữ nhật vuông vức, không bo góc (THUỘC TÍNH: `rounded=0`).
-2. **Màu sắc:** Trắng đen (White background, Black stroke). Không dùng màu mè.
-3. **Font chữ:** Bắt buộc dùng `fontFamily="Times New Roman"`.
-4. **Đường nối điều kiện:** Đường nối từ Khối Text mô tả điều kiện sang Khối hình thoi quyết định BẮT BUỘC phải là đường thẳng không có mũi tên (`endArrow=none`).
-5. **Ngôn ngữ:** Dùng Ngôn ngữ Nghiệp vụ (Business Language), hướng tới người đọc bình thường. Tuyệt đối không dùng thuật ngữ kỹ thuật (như "Status PENDING", "Event triggered", "REST API") trong hình ảnh sơ đồ.
-6. **Code is Truth:** Mọi sơ đồ phân tích thiết kế đều phải bám sát 100% logic đang chạy thật dưới Backend (Java Spring Boot). Agent phải đọc Code trước khi vẽ và luôn cung cấp Audit Code để chứng minh.
+## 3. NHIỆM VỤ TIẾP THEO (NEXT TASKS CHO AGENT MỚI)
+Khi User quay lại, Agent tiếp theo cần thực thi:
+1. Đọc file `docs/roadmap/features/01_UML_DESIGN_FLOW.md`.
+2. Yêu cầu User kiểm tra 2 file `uc_01_account.xml` và `uc_02_student.xml` (trong `thesis/outputs/diagrams/use-case/`) trên Draw.io xem đã ưng ý bố cục chưa.
+3. Nếu User đồng ý, kích hoạt **BƯỚC 1** trong Roadmap: Chạy script hoặc sinh nốt 8 file XML còn lại cho các biểu đồ Use case từ số 3 đến số 10.
+4. Chuyển sang lập Bảng mô tả Usecase (Usecase Specifications) và vẽ Sơ đồ Tuần tự (Sequence Diagrams) theo danh sách đã chốt.

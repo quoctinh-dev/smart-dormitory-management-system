@@ -1,7 +1,10 @@
 // src/pages/admin/RoomManagement/components/BuildingListDialog.tsx
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
+import { snackbar } from '@/helpers/snackbar';
 import EditIcon from '@mui/icons-material/Edit';
+import { confirmDialog } from '@/helpers/confirm';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Dialog,
   DialogTitle,
@@ -17,6 +20,7 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 
+import roomApi from '@/api/room-api';
 import type { BuildingResponse } from '@/types/room';
 
 import BuildingFormDialog from './BuildingFormDialog';
@@ -53,6 +57,22 @@ export default function BuildingListDialog({
     setFormOpen(true);
   };
 
+  const handleDelete = async (b: BuildingResponse) => {
+    const isConfirmed = await confirmDialog({
+        title: 'Xóa Tòa nhà',
+        message: `Bạn có chắc muốn xóa Tòa nhà ${b.name} (${b.code})? Chỉ được xóa nếu chưa có dữ liệu sinh viên.`
+    });
+    if (!isConfirmed) return;
+
+    try {
+      await roomApi.deleteBuilding(b.buildingId);
+      snackbar.success('Xóa Tòa nhà thành công');
+      onRefresh();
+    } catch (error: any) {
+      snackbar.error(error.response?.data?.message || 'Lỗi khi xóa Tòa nhà');
+    }
+  };
+
   return (
       <>
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 2 } }}>
@@ -82,14 +102,24 @@ export default function BuildingListDialog({
                       key={b.buildingId}
                       divider
                       secondaryAction={
-                        <IconButton
-                            edge="end"
-                            onClick={() => handleEdit(b)}
-                            size="small"
-                            sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, color: 'text.secondary' }}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
+                        <Stack direction="row" spacing={1}>
+                          <IconButton
+                              edge="end"
+                              onClick={() => handleEdit(b)}
+                              size="small"
+                              sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, color: 'text.secondary' }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                              edge="end"
+                              onClick={() => handleDelete(b)}
+                              size="small"
+                              sx={{ border: '1px solid', borderColor: 'error.main', borderRadius: 1.5, color: 'error.main', '&:hover': { bgcolor: 'error.lighter' } }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Stack>
                       }
                       sx={{ py: 1.5, px: 2 }}
                   >

@@ -1,12 +1,9 @@
 package com.sdms.backend.modules.application.service;
 
-import com.sdms.backend.modules.application.entity.ApplicationGeneratedDocument;
 import com.sdms.backend.modules.application.entity.ApplicationPriority;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.student.entity.StayExtension;
 import com.sdms.backend.modules.student.entity.Student;
-import com.sdms.backend.modules.application.enums.GeneratedDocumentType;
-import com.sdms.backend.modules.application.repository.ApplicationGeneratedDocumentRepository;
 import com.sdms.backend.modules.upload.service.CloudinaryService;
 import com.sdms.backend.modules.user.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +47,6 @@ public class ApplicationPdfService {
 
     private final TemplateEngine templateEngine;
     private final CloudinaryService cloudinaryService;
-    private final ApplicationGeneratedDocumentRepository generatedDocumentRepository;
     private final UserAccountRepository userAccountRepository;
 
     public String generateAndUploadRegistrationFormPdf(DormitoryApplication application) {
@@ -96,7 +92,6 @@ public class ApplicationPdfService {
         String fileName = "registration_form_" + application.getApplicationCode();
 
         String fileUrl = generateAndUploadPdf(htmlContent, fileName);
-        saveGeneratedDocument(application, GeneratedDocumentType.REGISTRATION_FORM, fileUrl);
         log.info("Successfully generated and uploaded registration form PDF for application code: {}", application.getApplicationCode());
         return fileUrl;
     }
@@ -117,7 +112,6 @@ public class ApplicationPdfService {
         String fileName = "commitment_form_" + application.getApplicationCode();
 
         String fileUrl = generateAndUploadPdf(htmlContent, fileName);
-        saveGeneratedDocument(application, GeneratedDocumentType.COMMITMENT_FORM, fileUrl);
         log.info("Successfully generated and uploaded commitment form PDF for application code: {}", application.getApplicationCode());
         return fileUrl;
     }
@@ -267,14 +261,5 @@ public class ApplicationPdfService {
             log.error("Error generating or uploading PDF for file: {}", fileName, e);
             throw new RuntimeException("Failed to generate or upload PDF", e);
         }
-    }
-
-    private void saveGeneratedDocument(DormitoryApplication application, GeneratedDocumentType documentType, String fileUrl) {
-        ApplicationGeneratedDocument generatedDocument = new ApplicationGeneratedDocument();
-        generatedDocument.setApplication(application);
-        generatedDocument.setDocumentType(documentType);
-        generatedDocument.setFileUrl(fileUrl);
-        generatedDocument.setGeneratedAt(LocalDateTime.now());
-        generatedDocumentRepository.save(generatedDocument);
     }
 }

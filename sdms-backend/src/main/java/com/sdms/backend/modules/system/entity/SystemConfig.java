@@ -26,6 +26,9 @@ public class SystemConfig {
     @Column(name = "description", length = 255)
     private String description;
 
+    @Column(name = "group_name", length = 100)
+    private String groupName;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;

@@ -92,25 +92,46 @@ public class IotVerificationController {
 
         if (isDualAuthTime) {
             log.info("[IoT] Dual Authentication required for RFID {}", rfidCode);
-            if (snapshot == null || snapshot.isEmpty()) {
-                log.warn("[IoT] Missing snapshot for dual authentication.");
-                accessEvaluationService.logFailedAccess(studentId, gateId, VerificationMethod.RFID_AND_FACE, snapshotUrl, "DUAL_AUTH_MISSING_FACE");
-                return new ApiResponse<>(false, "Thiếu ảnh khuôn mặt cho xác thực kép", Map.of("status", "DENIED"), "DUAL_AUTH_MISSING_FACE");
+            var studentSnapshot = eligibilityOpt.get();
+            boolean isGracePeriodBypass = false;
+            
+            if (Boolean.FALSE.equals(studentSnapshot.getIsFaceRegistered())) {
+                String gracePeriodStr = systemConfigService.getConfigValue("FACE_GRACE_PERIOD_DAYS", "3");
+                try {
+                    int graceDays = Integer.parseInt(gracePeriodStr);
+                    if (studentSnapshot.getCheckInAt() != null) {
+                        java.time.LocalDateTime graceDeadline = studentSnapshot.getCheckInAt().plusDays(graceDays);
+                        if (java.time.LocalDateTime.now().isBefore(graceDeadline)) {
+                            isGracePeriodBypass = true;
+                            log.info("[IoT] Bypassing Dual Auth for student {} (Grace Period: {} days)", studentId, graceDays);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("[IoT] Invalid Grace Period config", e);
+                }
             }
             
-            // Perform Face Verification
-            try {
-                var faceResult = faceVerificationService.verifyFace(gateIdStr, snapshot);
-                if (!faceResult.isMatch() || !faceResult.matchedProfileId().equals(studentId)) {
-                    log.warn("[IoT] DUAL AUTH FAILED: Face does not match RFID for student {}", studentId);
-                    accessEvaluationService.logFailedAccess(studentId, gateId, VerificationMethod.RFID_AND_FACE, snapshotUrl, "DUAL_AUTH_MISMATCH");
-                    return new ApiResponse<>(false, "Khuôn mặt không khớp thẻ (Xác thực kép thất bại)", Map.of("status", "DENIED"), "DUAL_AUTH_MISMATCH");
+            if (!isGracePeriodBypass) {
+                if (snapshot == null || snapshot.isEmpty()) {
+                    log.warn("[IoT] Missing snapshot for dual authentication.");
+                    accessEvaluationService.logFailedAccess(studentId, gateId, VerificationMethod.RFID_AND_FACE, snapshotUrl, "DUAL_AUTH_MISSING_FACE");
+                    return new ApiResponse<>(false, "Thiếu ảnh khuôn mặt cho xác thực kép", Map.of("status", "DENIED"), "DUAL_AUTH_MISSING_FACE");
                 }
-                finalMethod = VerificationMethod.RFID_AND_FACE;
-            } catch (Exception e) {
-                log.error("[IoT] Face verification error during Dual Auth", e);
-                accessEvaluationService.logFailedAccess(studentId, gateId, VerificationMethod.RFID_AND_FACE, snapshotUrl, "FACE_VERIFICATION_ERROR");
-                return new ApiResponse<>(false, "Lỗi xác thực khuôn mặt", Map.of("status", "DENIED"), "FACE_VERIFICATION_ERROR");
+                
+                // Perform Face Verification
+                try {
+                    var faceResult = faceVerificationService.verifyFace(gateIdStr, snapshot);
+                    if (!faceResult.isMatch() || !faceResult.matchedProfileId().equals(studentId)) {
+                        log.warn("[IoT] DUAL AUTH FAILED: Face does not match RFID for student {}", studentId);
+                        accessEvaluationService.logFailedAccess(studentId, gateId, VerificationMethod.RFID_AND_FACE, snapshotUrl, "DUAL_AUTH_MISMATCH");
+                        return new ApiResponse<>(false, "Khuôn mặt không khớp thẻ (Xác thực kép thất bại)", Map.of("status", "DENIED"), "DUAL_AUTH_MISMATCH");
+                    }
+                    finalMethod = VerificationMethod.RFID_AND_FACE;
+                } catch (Exception e) {
+                    log.error("[IoT] Face verification error during Dual Auth", e);
+                    accessEvaluationService.logFailedAccess(studentId, gateId, VerificationMethod.RFID_AND_FACE, snapshotUrl, "FACE_VERIFICATION_ERROR");
+                    return new ApiResponse<>(false, "Lỗi xác thực khuôn mặt", Map.of("status", "DENIED"), "FACE_VERIFICATION_ERROR");
+                }
             }
         }
 

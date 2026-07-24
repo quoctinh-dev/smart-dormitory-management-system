@@ -6,6 +6,7 @@ import com.sdms.backend.modules.smartaccess.domain.enums.ResidentType;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import com.sdms.backend.common.entity.BaseEntity;
 import java.time.LocalTime;
 import java.util.UUID;
 

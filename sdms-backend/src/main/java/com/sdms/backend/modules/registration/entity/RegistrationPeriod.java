@@ -38,8 +38,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "registration_periods")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE registration_periods SET is_deleted = true WHERE period_id=?")
-@org.hibernate.annotations.SQLRestriction("is_deleted = false")
 @Getter
 @Setter
 public class RegistrationPeriod extends BaseEntity {

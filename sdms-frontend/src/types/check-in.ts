@@ -31,4 +31,6 @@ export interface HousingAssignmentListParams {
   size?: number;
   search?: string;
   status?: string;
+  startDate?: string;
+  endDate?: string;
 }

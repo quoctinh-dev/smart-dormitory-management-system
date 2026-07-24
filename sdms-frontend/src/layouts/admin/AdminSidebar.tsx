@@ -19,6 +19,7 @@ import MoreTimeIcon from '@mui/icons-material/MoreTime';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import LockClockIcon from '@mui/icons-material/LockClock';
 import {
   Box,
   Drawer,
@@ -87,6 +88,7 @@ const MENU_GROUPS: MenuGroup[] = [
       { text: 'Kiểm duyệt khuôn mặt', path: '/admin/faces/approve', icon: <FaceIcon fontSize="medium" />, roles: ['ADMIN', 'STAFF'] },
       { text: 'Quản lý thiết bị Cổng', path: '/admin/gates', icon: <SensorsIcon fontSize="medium" />, roles: ['ADMIN'] },
       { text: 'Log cửa thông minh', path: '/admin/smart-access', icon: <VpnKeyIcon fontSize="medium" />, roles: ['ADMIN', 'STAFF'] },
+      { text: 'Quản lý chính sách', path: '/admin/smart-access/policies', icon: <LockClockIcon fontSize="medium" />, roles: ['ADMIN'] },
       { text: 'Cấu hình hệ thống', path: '/admin/system-configs', icon: <SettingsIcon fontSize="medium" />, roles: ['ADMIN'] },
     ],
   },
@@ -200,9 +202,15 @@ export default function AdminSidebar({
                 )}
 
                 {group.items.map((item) => {
-                  const isSelected =
-                      location.pathname === item.path ||
-                      (item.path !== '/admin' && location.pathname.startsWith(item.path));
+                  let isSelected = false;
+                  if (item.path === '/admin') {
+                      isSelected = location.pathname === '/admin';
+                  } else if (item.path === '/admin/smart-access') {
+                      isSelected = location.pathname === '/admin/smart-access' || 
+                                   (location.pathname.startsWith('/admin/smart-access/') && !location.pathname.startsWith('/admin/smart-access/policies'));
+                  } else {
+                      isSelected = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+                  }
 
                   const listItemButton = (
                       <ListItemButton

@@ -11,6 +11,7 @@ import com.sdms.backend.modules.room.enums.RoomStatus;
 import com.sdms.backend.modules.room.mapper.RoomMapper;
 import com.sdms.backend.modules.room.repository.FloorRepository;
 import com.sdms.backend.modules.room.repository.RoomRepository;
+import com.sdms.backend.modules.room.repository.BedRepository;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.enums.RoomRole;
@@ -46,6 +47,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final FloorRepository floorRepository;
+    private final BedRepository bedRepository;
     private final StudentHousingAssignmentRepository assignmentRepository;
     private final RoomMapper roomMapper;
 
@@ -224,6 +226,29 @@ public class RoomService {
                 .totalRoomsUnderMaintenance(records.size())
                 .records(records)
                 .build();
+    }
+
+    // ========================================================================
+    // DELETION LOGIC (HARD DELETE FOR DRAFTS ONLY)
+    // ========================================================================
+
+    @Transactional
+    public void deleteRoom(UUID roomId) {
+        Room room = findById(roomId);
+        
+        // 1. Validate if room has any historical assignments
+        boolean hasHistory = assignmentRepository.existsByBed_Room_RoomId(roomId);
+
+        if (hasHistory) {
+            throw new AppException(ErrorCode.DATA_CONFLICT, "Không thể xóa phòng: Phòng này đã có lịch sử sinh viên lưu trú. Vui lòng cập nhật trạng thái phòng thay vì xóa.");
+        }
+
+        // 2. Room is empty and has no history. Safe to Hard Delete.
+        // First, delete all beds inside the room
+        bedRepository.deleteAll(bedRepository.findByRoom_RoomId(room.getRoomId()));
+
+        // Then delete the room itself
+        roomRepository.delete(room);
     }
 
     // ========================================================================

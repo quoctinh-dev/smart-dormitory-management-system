@@ -65,7 +65,7 @@ public class StudentController {
 
     @Operation(summary = "Cập nhật hồ sơ sinh viên", description = "Dành cho Admin/Staff cập nhật thông tin sinh viên")
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<StudentProfileResponse> updateStudentProfile(
             @PathVariable java.util.UUID id,
             @Valid @RequestBody AdminUpdateStudentProfileRequest request) {
@@ -74,7 +74,7 @@ public class StudentController {
 
     @Operation(summary = "Gán thẻ RFID cho sinh viên", description = "Admin gán một thẻ RFID cho một sinh viên cụ thể.")
     @PostMapping("/{studentId}/rfid")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> assignRfid(
             @PathVariable java.util.UUID studentId,
             @RequestParam("rfidCode") String rfidCode) {

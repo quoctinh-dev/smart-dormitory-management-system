@@ -9,6 +9,13 @@ import com.sdms.backend.modules.room.entity.Building;
 import com.sdms.backend.modules.room.enums.BuildingStatus;
 import com.sdms.backend.modules.room.mapper.BuildingMapper;
 import com.sdms.backend.modules.room.repository.BuildingRepository;
+import com.sdms.backend.modules.room.repository.FloorRepository;
+import com.sdms.backend.modules.room.repository.RoomRepository;
+import com.sdms.backend.modules.room.repository.BedRepository;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import com.sdms.backend.modules.room.entity.Floor;
+import com.sdms.backend.modules.room.entity.Room;
+import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.validator.BuildingValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +36,10 @@ import java.util.stream.Collectors;
 public class BuildingService {
 
     private final BuildingRepository buildingRepository;
+    private final FloorRepository floorRepository;
+    private final RoomRepository roomRepository;
+    private final BedRepository bedRepository;
+    private final StudentHousingAssignmentRepository assignmentRepository;
     private final BuildingMapper buildingMapper;
 
     // ROOM-04 INTEGRATION: Thay thế việc trực tiếp gọi AssignmentRepository bằng BuildingValidator lớp chuyên trách
@@ -91,6 +102,30 @@ public class BuildingService {
 
         building.setStatus(status);
         buildingRepository.save(building);
+    }
+
+    @Transactional
+    public void deleteBuilding(UUID buildingId) {
+        Building building = findById(buildingId);
+        
+        // 1. Validate if any bed in any room on any floor in this building has history
+        boolean hasHistory = assignmentRepository.existsByBed_Room_Floor_Building_BuildingId(buildingId);
+
+        if (hasHistory) {
+            throw new AppException(ErrorCode.DATA_CONFLICT, "Không thể xóa tòa nhà: Đã có sinh viên từng lưu trú tại tòa nhà này. Vui lòng cập nhật trạng thái tòa nhà thành Dừng hoạt động thay vì xóa.");
+        }
+
+        // 2. Tòa nhà trống, được phép xóa cứng
+        List<Floor> floors = floorRepository.findByBuilding_BuildingId(buildingId);
+        for (Floor floor : floors) {
+            List<Room> rooms = roomRepository.findByFloor_FloorId(floor.getFloorId());
+            for (Room room : rooms) {
+                bedRepository.deleteAll(bedRepository.findByRoom_RoomId(room.getRoomId()));
+            }
+            roomRepository.deleteAll(rooms);
+        }
+        floorRepository.deleteAll(floors);
+        buildingRepository.delete(building);
     }
 
     // ========================================================================

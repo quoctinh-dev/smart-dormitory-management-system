@@ -50,10 +50,17 @@ public class RegistrationAdminController {
         return ApiResponse.success("Đã tắt đợt");
     }
 
-    @Operation(summary = "Cập nhật thông tin đợt")
+    @Operation(summary = "Cập nhật thông quyết đợt")
     @PatchMapping("/{id}")
     public ApiResponse<RegistrationPeriodResponse> update(
             @PathVariable UUID id, @Valid @RequestBody UpdateRegistrationPeriodRequest req) {
         return ApiResponse.success("Cập nhật thành công", service.updatePeriod(id, req));
+    }
+
+    @Operation(summary = "Xóa đợt đăng ký (Hard Delete)")
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable UUID id) {
+        service.deletePeriod(id);
+        return ApiResponse.success("Xóa cứng thành công");
     }
 }

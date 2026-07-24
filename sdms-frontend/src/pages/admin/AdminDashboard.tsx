@@ -14,6 +14,7 @@ import { Box, Paper, Typography, CircularProgress, useTheme, alpha, Avatar, Divi
 import Grid from '@mui/material/Grid2';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
+import { Navigate } from 'react-router-dom';
 
 import StatCard from '@/components/common/StatCard';
 import { useAuth } from '@/providers/AuthProvider';
@@ -23,6 +24,11 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const { data, expiringList, loading } = useAdminDashboard();
   const theme = useTheme();
+
+  // Ngăn chặn STAFF truy cập trang Dashboard
+  if (user?.role?.toUpperCase() === 'STAFF') {
+    return <Navigate to="/admin/applications/review" replace />;
+  }
 
   // 1. Tỉ lệ lấp đầy & Khả năng tiếp nhận
   const totalBeds = data?.totalBeds || 0;

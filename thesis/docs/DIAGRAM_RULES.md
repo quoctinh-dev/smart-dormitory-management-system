@@ -42,3 +42,7 @@ Khi sinh mã XML cho công cụ Draw.io ở các sơ đồ Luồng nghiệp vụ
 3. **Mũi tên đi vào hình thoi:** Phải là nét liền và KHÔNG CÓ đầu mũi tên (`endArrow=none`).
 4. **Mũi tên rẽ nhánh từ hình thoi:** Phải có đầu mũi tên và BẮT BUỘC có Text Label (VD: "Hợp lệ", "Không hợp lệ", "Trực tiếp", "Trực tuyến").
 5. **Điểm Kết thúc:** Toàn bộ sơ đồ chỉ có MỘT khối "Kết thúc" duy nhất. Tất cả các nhánh rẽ (dù là luồng thành công hay thất bại về mặt nghiệp vụ) đều phải hội tụ về điểm "Kết thúc" này để hoàn thành vòng đời quy trình. Quy tắc này khác biệt hoàn toàn với Sequence Diagram ở Chương 3 (nơi các lỗi sẽ văng ra Exception và kết thúc sớm - Early Return).
+
+## 8. QUY TẮC MÀU SẮC & THẨM MỸ (VISUAL STYLING RULE)
+- **Chuẩn học thuật (Trắng Đen):** Tất cả các sơ đồ (Flowchart, Use Case, Sequence, Activity...) khi sinh ra mã XML/Mermaid BẮT BUỘC phải là sơ đồ Trắng Đen (Black & White) để tuân thủ tính hàn lâm của Luận văn. 
+- **Định dạng XML cụ thể:** Thuộc tính màu nền bắt buộc là `fillColor=#ffffff` và viền là `strokeColor=#000000`. Tuyệt đối không sử dụng các màu pastel (như `#e3f2fd`, `#fff3e0`) hay bất kỳ màu sắc loè loẹt nào khác trừ khi có yêu cầu đặc biệt. Khối Text thì sử dụng màu chữ đen mặc định.

@@ -47,10 +47,6 @@ export const paymentApi = {
     return await axiosClient.get('/v1/public/payment-instructions');
   },
 
-  // Mock payment success for testing event-driven flow
-  mockPaymentSuccess: async (applicationId: string): Promise<PaymentActionResponse> => {
-    return await axiosClient.post(`/v1/payments/mock-success/${applicationId}`);
-  },
 };
 
 export default paymentApi;

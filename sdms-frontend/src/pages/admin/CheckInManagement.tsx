@@ -38,6 +38,10 @@ export default function CheckInManagement() {
         setSearchQuery,
         filterStatus,
         setFilterStatus,
+        startDate,       // Cần bổ sung thêm state này trong hook của bạn
+        setStartDate,    // Cần bổ sung thêm state này trong hook của bạn
+        endDate,         // Cần bổ sung thêm state này trong hook của bạn
+        setEndDate,      // Cần bổ sung thêm state này trong hook của bạn
         fetchList,
         handleManualCheckIn,
     } = useCheckInManagement();
@@ -54,24 +58,30 @@ export default function CheckInManagement() {
             {/* Header trang */}
             <Box sx={{ mb: 3 }}>
                 <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
-                    Quản lý & Báo cáo nhận phòng
+                    Quản lý & báo cáo nhận phòng
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                     Bảng đối soát danh sách sinh viên đã và đang chờ nhận phòng. Thao tác thực thi chính nên
-                    dùng qua App Mobile.
+                    dùng qua ứng dụng di động.
                 </Typography>
             </Box>
 
             {/* Thanh công cụ lọc */}
             <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2 }}>
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
+                <Stack
+                    direction={{ xs: 'column', md: 'row' }}
+                    spacing={2}
+                    alignItems="center"
+                    useFlexGap
+                    flexWrap="wrap"
+                >
                     <TextField
                         size="small"
-                        placeholder="Tìm theo MSSV, Tên..."
+                        placeholder="Tìm theo MSSV, tên..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={handleSearch}
-                        sx={{ width: { xs: '100%', md: 320 }, '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                        sx={{ flexGrow: 1, minWidth: { xs: '100%', md: 250 }, '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -93,10 +103,30 @@ export default function CheckInManagement() {
                             sx={{ borderRadius: 1.5 }}
                         >
                             <MenuItem value="ALL">Tất cả trạng thái</MenuItem>
-                            <MenuItem value="PENDING_CHECKIN">Chưa nhận phòng (Chờ)</MenuItem>
-                            <MenuItem value="OCCUPIED">Đã nhận phòng (Đang ở)</MenuItem>
+                            <MenuItem value="PENDING_CHECKIN">Chưa nhận phòng (chờ)</MenuItem>
+                            <MenuItem value="OCCUPIED">Đã nhận phòng (đang ở)</MenuItem>
                         </Select>
                     </FormControl>
+
+                    <TextField
+                        type="date"
+                        size="small"
+                        label="Từ ngày"
+                        InputLabelProps={{ shrink: true }}
+                        value={startDate || ''}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        sx={{ minWidth: 150, width: { xs: '100%', md: 'auto' }, '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                    />
+
+                    <TextField
+                        type="date"
+                        size="small"
+                        label="Đến ngày"
+                        InputLabelProps={{ shrink: true }}
+                        value={endDate || ''}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        sx={{ minWidth: 150, width: { xs: '100%', md: 'auto' }, '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                    />
 
                     <Button
                         variant="contained"
@@ -122,7 +152,7 @@ export default function CheckInManagement() {
             {/* Bảng dữ liệu */}
             <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
                 <TableContainer sx={{ maxHeight: 600 }}>
-                    <Table stickyHeader sx={{ minWidth: 800 }}>
+                    <Table stickyHeader sx={{ minWidth: 900 }}>
                         <TableHead>
                             <TableRow>
                                 <TableCell sx={{ fontWeight: 600, bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
@@ -222,7 +252,7 @@ export default function CheckInManagement() {
                                                         '&:hover': { bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1) }
                                                     }}
                                                 >
-                                                    Check-in tay
+                                                    Check-in thủ công
                                                 </Button>
                                             ) : (
                                                 <Typography variant="caption" color="text.disabled">

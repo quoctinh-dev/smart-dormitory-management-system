@@ -12,6 +12,7 @@ import com.sdms.backend.modules.smartaccess.application.mapper.GateMapper;
 import com.sdms.backend.modules.smartaccess.domain.entity.Gate;
 import com.sdms.backend.modules.smartaccess.domain.enums.GateType;
 import com.sdms.backend.modules.smartaccess.domain.repository.GateRepository;
+import com.sdms.backend.modules.smartaccess.domain.repository.AccessHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ public class GateService {
     private final BuildingRepository buildingRepository;
     private final RoomRepository roomRepository;
     private final GateMapper gateMapper;
+    private final AccessHistoryRepository accessHistoryRepository;
 
     @Transactional(readOnly = true)
     public List<GateResponse> getAllGates() {
@@ -99,6 +101,10 @@ public class GateService {
     public void deleteGate(UUID id) {
         if (!gateRepository.existsById(id)) {
             throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy cổng");
+        }
+        // Kiểm tra xem cổng này đã từng có ai quẹt thẻ chưa
+        if (accessHistoryRepository.existsByGateId(id)) {
+            throw new AppException(ErrorCode.DATA_CONFLICT, "Cổng này đã có lịch sử ra vào, không thể xóa cứng. Vui lòng chuyển trạng thái sang ngưng hoạt động (Inactive).");
         }
         gateRepository.deleteById(id);
     }

@@ -21,6 +21,8 @@ public interface AccessHistoryRepository extends Repository<AccessHistory, UUID>
 
     Page<AccessHistory> findByGateId(UUID gateId, Pageable pageable);
     
+    boolean existsByGateId(UUID gateId);
+    
     Page<AccessHistory> findByBuildingId(UUID buildingId, Pageable pageable);
 
     Page<AccessHistory> findAll(Pageable pageable);

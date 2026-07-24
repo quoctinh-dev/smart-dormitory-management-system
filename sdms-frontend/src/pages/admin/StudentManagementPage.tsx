@@ -29,6 +29,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import { useStudentManagement, Student } from '@/hooks/useStudentManagement';
+import { useAuth } from '@/providers/AuthProvider';
 import { alpha } from '@mui/material/styles';
 
 const STATUS_MAP: Record<string, { label: string; color: "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" }> = {
@@ -39,6 +40,9 @@ const STATUS_MAP: Record<string, { label: string; color: "default" | "primary" |
 };
 
 export default function StudentManagementPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role?.toUpperCase() === 'ADMIN';
+
   const {
     students,
     totalElements,
@@ -210,14 +214,20 @@ export default function StudentManagementPage() {
                       </TableCell>
 
                       <TableCell align="center">
-                        <IconButton
-                            color="primary"
-                            size="small"
-                            onClick={() => handleOpenEdit(student)}
-                            title="Chỉnh sửa thông tin"
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
+                        {isAdmin ? (
+                            <IconButton
+                                color="primary"
+                                size="small"
+                                onClick={() => handleOpenEdit(student)}
+                                title="Chỉnh sửa thông tin"
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                        ) : (
+                            <Typography variant="caption" color="text.disabled">
+                                Không có quyền
+                            </Typography>
+                        )}
                       </TableCell>
                     </TableRow>
                 ))}
@@ -257,19 +267,14 @@ export default function StudentManagementPage() {
             fullWidth
             PaperProps={{ sx: { borderRadius: 2 } }}
         >
-          <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>Cập nhật hồ sơ sinh viên</DialogTitle>
+          <DialogTitle sx={{ fontWeight: 600, pb: 1.5 }}>
+            Cập nhật hồ sơ sinh viên
+          </DialogTitle>
+
+          {/* TRỊ LỖI CẮT CHỮ: Bật dividers lại và thêm margin-top cho Grid */}
           <DialogContent dividers sx={{ py: 2.5 }}>
             {editStudent && (
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Typography variant="caption" color="text.secondary">
-                      Đang chỉnh sửa cho sinh viên:
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      {editStudent.fullName} ({editStudent.studentCode})
-                    </Typography>
-                  </Grid>
-
+                <Grid container spacing={2} sx={{ mt: 0.5 }}>
                   <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
@@ -277,6 +282,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.fullName || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, fullName: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -286,6 +292,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.studentCode || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, studentCode: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -295,6 +302,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.cccd || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, cccd: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -304,6 +312,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.email || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -313,6 +322,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.phone || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -322,6 +332,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.contactAddress || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, contactAddress: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -333,6 +344,7 @@ export default function StudentManagementPage() {
                         rows={2}
                         value={editForm.permanentAddress || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, permanentAddress: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -342,6 +354,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.faculty || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, faculty: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -351,6 +364,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.academicYear || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, academicYear: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
 
@@ -361,6 +375,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.fatherName || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, fatherName: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -370,6 +385,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.fatherPhone || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, fatherPhone: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -379,6 +395,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.motherName || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, motherName: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -388,6 +405,7 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.motherPhone || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, motherPhone: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
 
@@ -401,20 +419,21 @@ export default function StudentManagementPage() {
                         size="small"
                         value={editForm.rfidCode || ''}
                         onChange={(e) => setEditForm(prev => ({ ...prev, rfidCode: e.target.value }))}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                   </Grid>
                 </Grid>
             )}
           </DialogContent>
-          <DialogActions sx={{ px: 3, py: 2 }}>
-            <Button onClick={handleCloseEdit} color="inherit" sx={{ borderRadius: 1.5, textTransform: 'none' }}>
+          <DialogActions sx={{ px: 3, py: 2, bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
+            <Button onClick={handleCloseEdit} color="inherit" sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}>
               Hủy bỏ
             </Button>
             <Button
                 onClick={handleSaveEdit}
                 variant="contained"
                 disableElevation
-                sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
+                sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600, px: 3 }}
             >
               Lưu thay đổi
             </Button>

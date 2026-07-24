@@ -14,4 +14,6 @@ public class StudentEligibilitySnapshot {
     private ResidentType residentType;
     private UUID buildingId;
     private UUID roomId;
+    private Boolean isFaceRegistered;
+    private java.time.LocalDateTime checkInAt;
 }

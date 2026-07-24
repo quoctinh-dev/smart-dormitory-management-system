@@ -3,53 +3,61 @@
     <mxCell id="0" />
     <mxCell id="1" parent="0" />
     
-    <!-- START NODE -->
     <mxCell id="start" value="Bắt đầu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontStyle=1" vertex="1" parent="1">
       <mxGeometry x="364" y="40" width="100" height="40" as="geometry" />
     </mxCell>
 
-    <!-- STEP 1: Sinh viên xem hóa đơn -->
-    <mxCell id="step1" value="Sinh viên xem thông báo&#10;thu phí lưu trú" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
-      <mxGeometry x="344" y="120" width="140" height="60" as="geometry" />
+    <mxCell id="step1" value="Hệ thống tạo &amp; phân loại hóa đơn&#10;(Phí lưu trú, Điện, Nước, Phạt)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="314" y="120" width="200" height="60" as="geometry" />
     </mxCell>
     <mxCell id="edge1" parent="1" source="start" target="step1" edge="1">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
 
-    <!-- STEP 2: Sinh viên quét mã QR -->
-    <mxCell id="step2" value="Sinh viên quét mã QR và&#10;chuyển khoản ngân hàng" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
-      <mxGeometry x="344" y="220" width="140" height="60" as="geometry" />
+    <mxCell id="step2" value="Sinh viên truy cập Ứng dụng&#10;xem Tổng dư nợ cần thanh toán" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="220" width="180" height="60" as="geometry" />
     </mxCell>
     <mxCell id="edge2" parent="1" source="step1" target="step2" edge="1">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
 
-    <!-- STEP 3: Hệ thống nhận Webhook -->
-    <mxCell id="step3" value="Hệ thống tự động tiếp nhận&#10;giao dịch (Webhook SePay)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
-      <mxGeometry x="334" y="320" width="160" height="60" as="geometry" />
+    <mxCell id="step3" value="Hệ thống tự động khởi tạo mã&#10;Smart QR theo dư nợ thực tế" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="320" width="180" height="60" as="geometry" />
     </mxCell>
     <mxCell id="edge3" parent="1" source="step2" target="step3" edge="1">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
 
-    <!-- CONDITION 1: Kiểm tra tính hợp lệ -->
-    <mxCell id="cond1_label" value="Đúng cú pháp&#10;và đủ số tiền?" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
-      <mxGeometry x="344" y="420" width="140" height="40" as="geometry" />
+    <mxCell id="step4" value="Sinh viên dùng Ứng dụng Ngân&#10;hàng quét mã QR để chuyển khoản" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="420" width="180" height="60" as="geometry" />
     </mxCell>
-    <mxCell id="edge4" parent="1" source="step3" target="cond1_label" edge="1">
+    <mxCell id="edge4" parent="1" source="step3" target="step4" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="step5" value="Hệ thống tự động tiếp nhận&#10;và đối soát giao dịch ngân hàng" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="520" width="180" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge5" parent="1" source="step4" target="step5" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="cond1_label" value="Giao dịch hợp lệ&#10;và đủ số dư?" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="344" y="620" width="140" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="edge6" parent="1" source="step5" target="cond1_label" edge="1">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
     
     <mxCell id="cond1_rhombus" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
-      <mxGeometry x="394" y="460" width="40" height="40" as="geometry" />
+      <mxGeometry x="394" y="660" width="40" height="40" as="geometry" />
     </mxCell>
     <mxCell id="edge_cond1_link" style="endArrow=none;html=1;strokeColor=#000000;" parent="1" source="cond1_label" target="cond1_rhombus" edge="1">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
 
-    <!-- FAIL CONDITION 1 -> THẤT BẠI -->
     <mxCell id="step_fail" value="Cảnh báo lỗi giao dịch&#10;(Ghi nhận thanh toán thất bại)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
-      <mxGeometry x="560" y="450" width="180" height="60" as="geometry" />
+      <mxGeometry x="560" y="650" width="180" height="60" as="geometry" />
     </mxCell>
     <mxCell id="edge_cond1_no" parent="1" source="cond1_rhombus" target="step_fail" edge="1">
       <mxGeometry relative="1" as="geometry" />
@@ -60,9 +68,8 @@
       </mxCell>
     </mxCell>
 
-    <!-- SUCCESS CONDITION 1 -> CẬP NHẬT TRẠNG THÁI -->
-    <mxCell id="step_success" value="Ghi nhận thanh toán thành công" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
-      <mxGeometry x="334" y="550" width="160" height="60" as="geometry" />
+    <mxCell id="step_success" value="Ghi nhận thanh toán thành công&#10;Cập nhật trạng thái Hóa đơn" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="750" width="180" height="60" as="geometry" />
     </mxCell>
     <mxCell id="edge_cond1_yes" parent="1" source="cond1_rhombus" target="step_success" edge="1">
       <mxGeometry relative="1" as="geometry" />
@@ -73,17 +80,15 @@
       </mxCell>
     </mxCell>
 
-    <!-- BƯỚC KÍCH HOẠT -->
-    <mxCell id="step_activate" value="Hệ thống tự động kích hoạt&#10;quyết định xếp phòng" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
-      <mxGeometry x="334" y="650" width="160" height="60" as="geometry" />
+    <mxCell id="step_activate" value="Kích hoạt quyết định xếp phòng&#10;(Nếu thanh toán phí nhập học)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="850" width="180" height="60" as="geometry" />
     </mxCell>
     <mxCell id="edge_activate" parent="1" source="step_success" target="step_activate" edge="1">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
 
-    <!-- KẾT THÚC CHUNG -->
     <mxCell id="end" value="Kết thúc" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontStyle=1" vertex="1" parent="1">
-      <mxGeometry x="364" y="750" width="100" height="40" as="geometry" />
+      <mxGeometry x="364" y="950" width="100" height="40" as="geometry" />
     </mxCell>
     
     <mxCell id="edge_end1" parent="1" source="step_activate" target="end" edge="1">
@@ -92,10 +97,9 @@
     <mxCell id="edge_end2" parent="1" source="step_fail" target="end" edge="1">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
-          <mxPoint x="650" y="770" />
+          <mxPoint x="650" y="970" />
         </Array>
       </mxGeometry>
     </mxCell>
-
   </root>
 </mxGraphModel>

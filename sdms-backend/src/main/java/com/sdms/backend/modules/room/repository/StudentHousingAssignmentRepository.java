@@ -42,12 +42,17 @@ public interface StudentHousingAssignmentRepository extends JpaRepository<Studen
 
     boolean existsByStudent_StudentIdAndStatusIn(UUID studentId, Collection<AssignmentStatus> statuses);
 
+    boolean existsByBed_BedId(UUID bedId);
+
     boolean existsByBed_BedIdAndStatusIn(UUID bedId, Collection<AssignmentStatus> statuses);
 
+    boolean existsByBed_Room_Floor_FloorId(UUID floorId);
     boolean existsByBed_Room_Floor_FloorIdAndStatusIn(UUID floorId, Collection<AssignmentStatus> statuses);
 
+    boolean existsByBed_Room_RoomId(UUID roomId);
     boolean existsByBed_Room_RoomIdAndStatusIn(UUID roomId, Collection<AssignmentStatus> statuses);
 
+    boolean existsByBed_Room_Floor_Building_BuildingId(UUID buildingId);
     boolean existsByBed_Room_Floor_Building_BuildingIdAndStatusIn(UUID buildingId, Collection<AssignmentStatus> statuses);
 
     Optional<StudentHousingAssignment> findByBed_BedIdAndStatusIn(UUID bedId, Collection<AssignmentStatus> statuses);

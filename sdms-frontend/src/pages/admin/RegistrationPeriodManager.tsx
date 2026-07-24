@@ -5,6 +5,7 @@ import {
   Group,
   Search,
   FilterList,
+  Delete,
 } from '@mui/icons-material';
 import {
   Typography,
@@ -79,6 +80,7 @@ export default function RegistrationPeriodManager() {
     handleFormChange,
     handleSubmitPeriod,
     handleToggleStatus,
+    handleDelete,
   } = useRegistrationManagerUi();
 
   const [page, setPage] = useState(0);
@@ -296,6 +298,12 @@ export default function RegistrationPeriodManager() {
                                   ) : (
                                       <PlayCircleOutline fontSize="small" />
                                   )}
+                                </IconButton>
+                              </Tooltip>
+
+                              <Tooltip title="Xóa cứng đợt đăng ký">
+                                <IconButton color="error" size="small" onClick={() => handleDelete(row.periodId)}>
+                                  <Delete fontSize="small" />
                                 </IconButton>
                               </Tooltip>
                             </Stack>

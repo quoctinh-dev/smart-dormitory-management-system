@@ -5,6 +5,7 @@ import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
 import { SnackbarUtilsConfigurator } from '@/helpers/snackbar';
+import GlobalConfirmDialog from '@/components/common/GlobalConfirmDialog';
 import { AuthProvider } from '@/providers/AuthProvider';
 import AppRouter from '@/routes';
 import { theme } from '@/theme';
@@ -19,6 +20,7 @@ const App: React.FC = () => {
         autoHideDuration={3000}
       >
         <SnackbarUtilsConfigurator />
+        <GlobalConfirmDialog />
         <BrowserRouter>
           <AuthProvider>
             <AppRouter />

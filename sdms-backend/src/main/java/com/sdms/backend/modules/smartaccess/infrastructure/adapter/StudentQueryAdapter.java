@@ -49,6 +49,8 @@ public class StudentQueryAdapter implements StudentQueryPort {
                 .residentType(ResidentType.BOARDING)
                 .buildingId(assignment.getBed().getRoom().getFloor().getBuilding().getBuildingId())
                 .roomId(assignment.getBed().getRoom().getRoomId())
+                .isFaceRegistered(assignment.getStudent().getIsFaceRegistered())
+                .checkInAt(assignment.getCheckInAt())
                 .build();
     }
 

@@ -1,4 +1,4 @@
-# LUẬT HỆ THỐNG CHO THESIS AI ECOSYSTEM (AGENT.md)
+``# LUẬT HỆ THỐNG CHO THESIS AI ECOSYSTEM (AGENT.md)
 
 Tài liệu này là TỐI CAO cho mọi AI tham gia vào quá trình viết Luận văn SDMS. Mọi Subagent (Technical AI, Writing AI, Diagram AI) đều phải tuân thủ các quy tắc này.
 

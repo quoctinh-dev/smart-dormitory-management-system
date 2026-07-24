@@ -13,4 +13,5 @@ public class SystemConfigDTO {
     private String configKey;
     private String configValue;
     private String description;
+    private String groupName;
 }

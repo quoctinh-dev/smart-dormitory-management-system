@@ -32,8 +32,6 @@ import java.util.UUID;
         @Index(name = "idx_app_student_code", columnList = "studentCode")
     }
 )
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE dormitory_applications SET is_deleted = true WHERE application_id=? AND version=?")
-@org.hibernate.annotations.SQLRestriction("is_deleted = false")
 @Getter
 @Setter
 public class DormitoryApplication extends BaseEntity {
@@ -178,9 +176,6 @@ public class DormitoryApplication extends BaseEntity {
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.Set<VerificationDocument> documents = new java.util.HashSet<>();
-
-    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<ApplicationGeneratedDocument> generatedDocuments = new ArrayList<>();
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<DormitoryApplicationStatusHistory> statusHistory = new ArrayList<>();

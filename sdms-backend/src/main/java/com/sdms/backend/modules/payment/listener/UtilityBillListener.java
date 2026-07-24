@@ -30,13 +30,16 @@ public class UtilityBillListener {
     @EventListener
     @Transactional
     public void onUtilityBillCalculated(UtilityBillCalculatedEvent event) {
+        if (event.getUtilityType() == UtilityType.WATER) {
+            // Nước hiện tại được miễn phí, không tạo hóa đơn
+            return;
+        }
+
         BigDecimal electricityPrice = new BigDecimal(systemConfigService.getConfigValue("ELECTRICITY_PRICE_PER_KWH", "3500"));
-        BigDecimal waterPrice = new BigDecimal(systemConfigService.getConfigValue("WATER_PRICE_PER_M3", "15000"));
-        
-        BigDecimal unitPrice = event.getUtilityType() == UtilityType.ELECTRICITY ? electricityPrice : waterPrice;
-        BillType billType = event.getUtilityType() == UtilityType.ELECTRICITY ? BillType.ELECTRIC_FEE : BillType.WATER_FEE;
-        String utilityName = event.getUtilityType() == UtilityType.ELECTRICITY ? "điện" : "nước";
-        String unitName = event.getUtilityType() == UtilityType.ELECTRICITY ? "kWh" : "m3";
+        BigDecimal unitPrice = electricityPrice;
+        BillType billType = BillType.ELECTRIC_FEE;
+        String utilityName = "điện";
+        String unitName = "kWh";
 
         BigDecimal totalAmount = unitPrice.multiply(new BigDecimal(event.getTotalUsage()));
         YearMonth billingMonth = YearMonth.of(event.getYear(), event.getMonth());

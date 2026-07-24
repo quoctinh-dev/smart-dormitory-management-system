@@ -9,6 +9,7 @@ import com.sdms.backend.modules.smartaccess.domain.enums.GateDirection;
 import com.sdms.backend.modules.smartaccess.domain.enums.VerificationMethod;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import com.sdms.backend.common.entity.BaseEntity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

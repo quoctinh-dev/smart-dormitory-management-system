@@ -50,4 +50,12 @@ public class FloorController {
     public ApiResponse<FloorResponse> update(@PathVariable UUID floorId, @Valid @RequestBody UpdateFloorRequest request) {
         return ApiResponse.success("Cập nhật tầng thành công", floorService.updateFloor(floorId, request));
     }
+
+    @Operation(summary = "Xóa cứng tầng (Draft Only)", description = "Chỉ cho phép xóa tầng trống chưa từng có sinh viên ở.")
+    @DeleteMapping("/{floorId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> delete(@PathVariable UUID floorId) {
+        floorService.deleteFloor(floorId);
+        return ApiResponse.success("Xóa tầng thành công", null);
+    }
 }

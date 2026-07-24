@@ -7,6 +7,7 @@ import com.sdms.backend.modules.registration.dto.request.UpdateRegistrationPerio
 import com.sdms.backend.modules.registration.dto.response.RegistrationPeriodResponse;
 import com.sdms.backend.modules.registration.entity.RegistrationPeriod;
 import com.sdms.backend.modules.registration.repository.RegistrationPeriodRepository;
+import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,19 @@ import java.util.stream.Collectors;
 public class RegistrationAdminService {
 
     private final RegistrationPeriodRepository repository;
+    private final DormitoryApplicationRepository applicationRepository;
+
+    // Xóa cứng đợt đăng ký (Chỉ xóa nếu chưa có đơn đăng ký)
+    public void deletePeriod(UUID id) {
+        RegistrationPeriod p = repository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đợt đăng ký"));
+
+        if (applicationRepository.existsByRegistrationPeriod_PeriodId(id)) {
+            throw new AppException(ErrorCode.DATA_CONFLICT, "Không thể xóa đợt đăng ký này vì đã có đơn đăng ký liên kết. Vui lòng Tạm dừng (Inactive) thay vì xóa.");
+        }
+
+        repository.delete(p);
+    }
 
     // Tạo đợt đăng ký mới
     public RegistrationPeriodResponse createPeriod(CreateRegistrationPeriodRequest req) {

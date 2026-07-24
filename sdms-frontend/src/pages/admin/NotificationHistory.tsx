@@ -233,6 +233,7 @@ export default function NotificationHistory() {
                             setFilter((prev) => ({ ...prev, keyword: e.target.value }));
                             setPage(0);
                         }}
+                        sx={{ minWidth: { xs: '100%', sm: 300 }, '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -251,6 +252,7 @@ export default function NotificationHistory() {
                                 setFilter((prev) => ({ ...prev, isBroadcast: e.target.value }));
                                 setPage(0);
                             }}
+                            sx={{ borderRadius: 1.5 }}
                         >
                             <MenuItem value="">Tất cả nguồn</MenuItem>
                             <MenuItem value="BROADCAST">Gửi đồng loạt (Broadcast)</MenuItem>
@@ -267,6 +269,7 @@ export default function NotificationHistory() {
                                 setFilter((prev) => ({ ...prev, type: e.target.value }));
                                 setPage(0);
                             }}
+                            sx={{ borderRadius: 1.5 }}
                         >
                             <MenuItem value="">Tất cả loại</MenuItem>
                             <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
@@ -391,7 +394,7 @@ export default function NotificationHistory() {
                 )}
             </Paper>
 
-            {/* Dialog gửi thông báo đồng loạt */}
+            {/* Dialog gửi thông báo đồng loạt (Đã fix lỗi hiển thị dọc) */}
             <Dialog
                 open={openBroadcast}
                 onClose={() => setOpenBroadcast(false)}
@@ -399,11 +402,11 @@ export default function NotificationHistory() {
                 maxWidth="sm"
                 PaperProps={{ sx: { borderRadius: 2 } }}
             >
-                <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>
+                <DialogTitle sx={{ fontWeight: 600, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
                     Gửi thông báo đồng loạt (Broadcast)
                 </DialogTitle>
-                <DialogContent dividers sx={{ py: 2 }}>
-                    <Stack spacing={2.5} sx={{ mt: 1 }}>
+                <DialogContent dividers sx={{ py: 2.5 }}>
+                    <Stack direction="column" spacing={2.5} sx={{ width: '100%', mt: 1 }}>
                         <TextField
                             label="Tiêu đề thông báo"
                             fullWidth
@@ -413,38 +416,41 @@ export default function NotificationHistory() {
                                 setBroadcastForm((prev) => ({ ...prev, title: event.target.value }))
                             }
                             placeholder="Nhập tiêu đề..."
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                         />
 
-                        <TextField
-                            select
-                            label="Loại thông báo"
-                            fullWidth
-                            size="small"
-                            value={broadcastForm.type}
-                            onChange={(event) =>
-                                setBroadcastForm((prev) => ({ ...prev, type: event.target.value }))
-                            }
-                        >
-                            <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
-                            <MenuItem value="SYSTEM">Tin nhắn từ hệ thống</MenuItem>
-                            <MenuItem value="WARNING">Cảnh báo an ninh / nội quy</MenuItem>
-                        </TextField>
+                        <FormControl fullWidth size="small">
+                            <InputLabel>Loại thông báo</InputLabel>
+                            <Select
+                                label="Loại thông báo"
+                                value={broadcastForm.type}
+                                onChange={(event) =>
+                                    setBroadcastForm((prev) => ({ ...prev, type: event.target.value }))
+                                }
+                                sx={{ borderRadius: 1.5 }}
+                            >
+                                <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
+                                <MenuItem value="SYSTEM">Tin nhắn từ hệ thống</MenuItem>
+                                <MenuItem value="WARNING">Cảnh báo an ninh / nội quy</MenuItem>
+                            </Select>
+                        </FormControl>
 
-                        <TextField
-                            select
-                            label="Đối tượng nhận"
-                            fullWidth
-                            size="small"
-                            value={broadcastForm.targetAudience}
-                            onChange={(event) =>
-                                setBroadcastForm((prev) => ({ ...prev, targetAudience: event.target.value }))
-                            }
-                        >
-                            <MenuItem value="ALL">Gửi đến tất cả mọi người</MenuItem>
-                            <MenuItem value="STUDENT">Chỉ gửi cho sinh viên</MenuItem>
-                            <MenuItem value="STAFF">Chỉ gửi cho nhân viên</MenuItem>
-                            <MenuItem value="ADMIN">Chỉ gửi cho quản trị viên</MenuItem>
-                        </TextField>
+                        <FormControl fullWidth size="small">
+                            <InputLabel>Đối tượng nhận</InputLabel>
+                            <Select
+                                label="Đối tượng nhận"
+                                value={broadcastForm.targetAudience}
+                                onChange={(event) =>
+                                    setBroadcastForm((prev) => ({ ...prev, targetAudience: event.target.value }))
+                                }
+                                sx={{ borderRadius: 1.5 }}
+                            >
+                                <MenuItem value="ALL">Gửi đến tất cả mọi người</MenuItem>
+                                <MenuItem value="STUDENT">Chỉ gửi cho sinh viên</MenuItem>
+                                <MenuItem value="STAFF">Chỉ gửi cho nhân viên</MenuItem>
+                                <MenuItem value="ADMIN">Chỉ gửi cho quản trị viên</MenuItem>
+                            </Select>
+                        </FormControl>
 
                         <TextField
                             label="Nội dung thông điệp"
@@ -456,6 +462,7 @@ export default function NotificationHistory() {
                                 setBroadcastForm((prev) => ({ ...prev, message: event.target.value }))
                             }
                             placeholder="Nhập nội dung cần truyền đạt..."
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                         />
                     </Stack>
                 </DialogContent>
@@ -463,7 +470,7 @@ export default function NotificationHistory() {
                     <Button
                         onClick={() => setOpenBroadcast(false)}
                         color="inherit"
-                        sx={{ borderRadius: 1.5, textTransform: 'none' }}
+                        sx={{ borderRadius: 1.5, textTransform: 'none', color: 'text.secondary' }}
                     >
                         Hủy bỏ
                     </Button>
@@ -472,7 +479,7 @@ export default function NotificationHistory() {
                         variant="contained"
                         disableElevation
                         disabled={broadcasting || !broadcastForm.title || !broadcastForm.message}
-                        sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
+                        sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600, px: 3 }}
                     >
                         {broadcasting ? 'Đang gửi đi...' : 'Phát sóng ngay'}
                     </Button>

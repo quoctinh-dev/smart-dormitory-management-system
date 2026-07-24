@@ -14,9 +14,11 @@ import {
     CircularProgress,
     TablePagination,
     InputAdornment,
+    Tabs,
+    Tab,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 import { useSystemConfig } from '@/hooks/useSystemConfig';
 
@@ -71,8 +73,29 @@ export default function SystemConfigPage() {
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [activeGroup, setActiveGroup] = useState<string>('GENERAL');
 
-    const paginatedConfigs = configs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    // Lấy danh sách các nhóm duy nhất từ dữ liệu API
+    const groups = useMemo(() => {
+        const groupSet = new Set<string>();
+        configs.forEach((c) => groupSet.add(c.groupName || 'GENERAL'));
+        const arr = Array.from(groupSet);
+        if (!arr.includes('GENERAL')) arr.unshift('GENERAL'); // Đảm bảo luôn có GENERAL
+        return arr;
+    }, [configs]);
+
+    // Khi load data xong, nếu activeGroup không tồn tại thì set về tab đầu tiên
+    useEffect(() => {
+        if (groups.length > 0 && !groups.includes(activeGroup)) {
+            setActiveGroup(groups[0]);
+        }
+    }, [groups, activeGroup]);
+
+    const filteredConfigs = useMemo(() => {
+        return configs.filter((c) => (c.groupName || 'GENERAL') === activeGroup);
+    }, [configs, activeGroup]);
+
+    const paginatedConfigs = filteredConfigs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     return (
         <Box sx={{ p: { xs: 2, md: 3 } }}>
@@ -84,6 +107,32 @@ export default function SystemConfigPage() {
                 <Typography variant="body2" color="text.secondary">
                     Thiết lập các tham số toàn cục như đơn giá dịch vụ và thời gian quy định.
                 </Typography>
+            </Box>
+
+            {/* Tabs Lọc theo Nhóm */}
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                <Tabs
+                    value={activeGroup}
+                    onChange={(_, newValue) => {
+                        setActiveGroup(newValue);
+                        setPage(0); // Reset trang khi đổi tab
+                    }}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    textColor="primary"
+                    indicatorColor="primary"
+                >
+                    {groups.map((grp) => (
+                        <Tab 
+                            key={grp} 
+                            label={grp === 'GENERAL' ? 'Cấu hình chung' : 
+                                   grp === 'SMART_ACCESS' ? 'Kiểm soát ra vào' : 
+                                   grp === 'PAYMENT' ? 'Tài chính - Dịch vụ' : grp} 
+                            value={grp} 
+                            sx={{ fontWeight: 600 }}
+                        />
+                    ))}
+                </Tabs>
             </Box>
 
             {/* Bảng thông số cấu hình */}
@@ -194,7 +243,7 @@ export default function SystemConfigPage() {
                 </TableContainer>
                 <TablePagination
                     component="div"
-                    count={configs.length}
+                    count={filteredConfigs.length}
                     page={page}
                     onPageChange={(_, newPage) => setPage(newPage)}
                     rowsPerPage={rowsPerPage}

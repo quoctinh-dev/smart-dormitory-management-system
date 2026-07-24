@@ -14,6 +14,8 @@ export const useCheckInManagement = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('ALL');
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
 
   const fetchList = useCallback(async () => {
     setLoading(true);
@@ -23,6 +25,8 @@ export const useCheckInManagement = () => {
         size: rowsPerPage,
         search: searchQuery,
         status: filterStatus === 'ALL' ? undefined : filterStatus,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
       });
       setData(res.content ?? []);
       setTotalElements(res.totalElements ?? res.content?.length ?? 0);
@@ -32,7 +36,7 @@ export const useCheckInManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, rowsPerPage, searchQuery, filterStatus]);
+  }, [page, rowsPerPage, searchQuery, filterStatus, startDate, endDate]);
 
   useEffect(() => {
     fetchList();
@@ -60,6 +64,10 @@ export const useCheckInManagement = () => {
     setSearchQuery,
     filterStatus,
     setFilterStatus,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
     fetchList,
     handleManualCheckIn,
   };

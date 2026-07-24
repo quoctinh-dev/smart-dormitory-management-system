@@ -21,9 +21,6 @@ public abstract class BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
-
     /**
      * Khởi tạo mốc thời gian lúc tạo mới bản ghi.
      * Cơ chế JPA Lifecycle Callback ngầm định thực thi logic này ngay trước lệnh INSERT vào cơ sở dữ liệu.

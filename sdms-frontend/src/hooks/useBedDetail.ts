@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { snackbar } from '@/helpers/snackbar';
+import { confirmDialog } from '@/helpers/confirm';
 
 import roomApi from '@/api/room-api';
 import type { ActiveAssignmentResponse, BedResponse, BedStatus, RoomWithBeds } from '@/types/room';
@@ -47,7 +49,7 @@ export const useBedDetail = (
       onClose();
       onRefresh();
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Không thể thay đổi trạng thái giường.');
+      snackbar.error(err?.response?.data?.message ?? 'Không thể thay đổi trạng thái giường.');
     } finally {
       setActionLoading(false);
     }
@@ -60,8 +62,30 @@ export const useBedDetail = (
       await roomApi.assignRoomRole(assignment.assignmentId, newRole);
       setAssignment((prev) => (prev ? { ...prev, roomRole: newRole } : null));
       onRefresh();
+      snackbar.success('Thay đổi chức vụ thành công');
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Không thể thay đổi chức vụ.');
+      snackbar.error(err?.response?.data?.message ?? 'Không thể thay đổi chức vụ.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteBed = async () => {
+    if (!bed) return;
+    const isConfirmed = await confirmDialog({
+      title: 'Xóa Giường',
+      message: `Bạn có chắc muốn xóa giường ${bed.bedCode}? Chỉ xóa được nếu chưa có sinh viên ở.`
+    });
+    if (!isConfirmed) return;
+
+    setActionLoading(true);
+    try {
+      await roomApi.deleteBed(bed.bedId);
+      snackbar.success('Xóa giường thành công');
+      onClose();
+      onRefresh();
+    } catch (err: any) {
+      snackbar.error(err?.response?.data?.message ?? 'Không thể xóa giường.');
     } finally {
       setActionLoading(false);
     }
@@ -74,5 +98,6 @@ export const useBedDetail = (
     error,
     handleChangeBedStatus,
     handleChangeRoomRole,
+    handleDeleteBed,
   };
 };

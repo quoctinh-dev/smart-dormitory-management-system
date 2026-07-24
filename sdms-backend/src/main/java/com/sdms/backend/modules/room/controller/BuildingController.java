@@ -60,6 +60,14 @@ public class BuildingController {
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<Void> changeStatus(@PathVariable UUID id, @RequestParam BuildingStatus status) {
         buildingService.changeStatus(id, status);
-        return ApiResponse.success("Cập nhật trạng thái thành công");
+        return ApiResponse.success("Đổi trạng thái tòa nhà thành công", null);
+    }
+
+    @Operation(summary = "Xóa cứng tòa nhà (Draft Only)", description = "Chỉ cho phép xóa tòa nhà trống chưa từng có sinh viên ở.")
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> delete(@PathVariable UUID id) {
+        buildingService.deleteBuilding(id);
+        return ApiResponse.success("Xóa tòa nhà thành công", null);
     }
 }

@@ -10,6 +10,7 @@ import com.sdms.backend.modules.smartaccess.domain.entity.TimeWindowPolicy;
 import com.sdms.backend.modules.smartaccess.domain.repository.TimeWindowPolicyRepository;
 import com.sdms.backend.modules.smartaccess.security.SmartAccessPermissions;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -19,6 +20,13 @@ import java.util.UUID;
 public class TimeWindowPolicyController {
 
     private final TimeWindowPolicyRepository timeWindowPolicyRepository;
+
+    @Operation(summary = "Lấy danh sách", description = "Lấy tất cả chính sách")
+    @GetMapping
+    @PreAuthorize(SmartAccessPermissions.MANAGE_TIME_WINDOW_POLICY)
+    public ApiResponse<List<TimeWindowPolicy>> getAllPolicies() {
+        return ApiResponse.success("Thành công", timeWindowPolicyRepository.findAll());
+    }
 
     @Operation(summary = "Tạo chính sách mới", description = "Tạo chính sách khung giờ ra vào mới")
     @PostMapping
@@ -36,5 +44,13 @@ public class TimeWindowPolicyController {
             timeWindowPolicyRepository.save(p);
         });
         return ApiResponse.success("Cập nhật trạng thái thành công");
+    }
+
+    @Operation(summary = "Xóa chính sách", description = "Xóa chính sách")
+    @DeleteMapping("/{id}")
+    @PreAuthorize(SmartAccessPermissions.MANAGE_TIME_WINDOW_POLICY)
+    public ApiResponse<Void> deletePolicy(@PathVariable UUID id) {
+        timeWindowPolicyRepository.deleteById(id);
+        return ApiResponse.success("Xóa thành công");
     }
 }

@@ -51,6 +51,7 @@ public class SystemConfigService {
                 .configKey(config.getConfigKey())
                 .configValue(config.getConfigValue())
                 .description(config.getDescription())
+                .groupName(config.getGroupName())
                 .build();
     }
 }

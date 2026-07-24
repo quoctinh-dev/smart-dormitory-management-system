@@ -121,6 +121,9 @@ const roomApi = {
   patchBuildingStatus: (id: string, status: BuildingStatus): Promise<BuildingResponse> =>
     axiosClient.patch(`${BASE}/buildings/${id}/status?status=${status}`),
 
+  deleteBuilding: (id: string): Promise<void> =>
+    axiosClient.delete(`${BASE}/buildings/${id}`),
+
   // ─── FLOOR ─────────────────────────────────────────────────────────────────
   getFloorsByBuilding: (buildingId: string): Promise<FloorResponse[]> =>
     axiosClient.get(`${BASE}/floors/building/${buildingId}`),
@@ -133,6 +136,9 @@ const roomApi = {
 
   updateFloor: (floorId: string, data: UpdateFloorPayload): Promise<FloorResponse> =>
     axiosClient.put(`${BASE}/floors/${floorId}`, data),
+
+  deleteFloor: (floorId: string): Promise<void> =>
+    axiosClient.delete(`${BASE}/floors/${floorId}`),
 
   // ─── ROOM ──────────────────────────────────────────────────────────────────
   getRoomsByFloor: (floorId: string): Promise<RoomResponse[]> =>
@@ -150,6 +156,9 @@ const roomApi = {
   // ✅ FIX: @RequestParam → query string
   patchRoomStatus: (roomId: string, status: RoomStatus): Promise<RoomResponse> =>
     axiosClient.patch(`${BASE}/rooms/${roomId}/status?status=${status}`),
+
+  deleteRoom: (roomId: string): Promise<void> =>
+    axiosClient.delete(`${BASE}/rooms/${roomId}`),
 
   searchRooms: (
     params: SearchRoomsParams
@@ -182,6 +191,9 @@ const roomApi = {
   // ✅ FIX: @RequestParam → query string
   patchBedStatus: (bedId: string, status: BedStatus): Promise<BedResponse> =>
     axiosClient.patch(`${BASE}/beds/${bedId}/status?status=${status}`),
+
+  deleteBed: (bedId: string): Promise<void> =>
+    axiosClient.delete(`${BASE}/beds/${bedId}`),
 
   // ─── HOUSING ASSIGNMENT (BED DRILL-DOWN) ───────────────────────────────────
   getActiveAssignmentByBed: (bedId: string): Promise<ActiveAssignmentResponse> =>

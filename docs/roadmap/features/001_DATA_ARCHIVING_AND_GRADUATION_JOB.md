@@ -5,12 +5,12 @@ Tính năng nhằm tối ưu hóa hiệu suất và dọn dẹp không gian củ
 
 ## 2. Business Flow (Luồng nghiệp vụ)
 1. **Trigger:** Hệ thống thiết lập một Cronjob (Ví dụ: chạy vào 00:00 ngày 1 tháng 8 hằng năm).
-2. **Scan (Quét):** Spring Boot Job quét tất cả các sinh viên có trạng thái `GRADUATED` và `INACTIVE` (đã quá thời hạn lưu trú).
-3. **Deactivate UserAccount:** Vô hiệu hóa hoặc xóa cứng UserAccount của sinh viên đó để giải phóng thông tin đăng nhập (nhưng vẫn giữ lại thực thể Student).
-4. **Soft Delete / Archiving:** 
-   - Đánh dấu cờ `is_deleted = true` ở bảng `students`.
-   - Chuyển các dữ liệu nặng (như `access_history`, `notifications`) của sinh viên này sang bảng lưu trữ lạnh (Ví dụ: `access_history_archives`) hoặc chỉ đơn giản xóa các log cũ quá 2 năm.
-5. **Notification:** Gửi Email thông báo (hoặc Notification nội bộ cho Admin) về báo cáo kết quả tiến trình dọn dẹp (VD: "Đã archive thành công 500 sinh viên ra trường").
+2. **Scan (Quét):** Spring Boot Job quét tất cả các sinh viên có trạng thái `GRADUATED` và `INACTIVE` (đã quá thời hạn lưu trú 2 năm).
+3. **Deactivate UserAccount:** Chuyển `isActive = false` cho UserAccount của sinh viên đó để chặn đăng nhập, nhưng tuyệt đối không Xóa (để giữ khóa ngoại của hóa đơn).
+4. **Data Archiving (Lưu trữ lạnh) & Hard Delete:**
+   - Chuyển các dữ liệu lịch sử nặng (như `access_history`, `notifications`) của sinh viên này sang bảng lưu trữ lạnh (Ví dụ: `access_history_archives`) hoặc Export ra file CSV đẩy lên Cloud Storage.
+   - Sau khi sao lưu thành công, thực hiện **Xóa cứng (Hard Delete)** trực tiếp các record cũ này khỏi Database vận hành (Operational DB) để tối ưu tốc độ query hằng ngày.
+5. **Notification:** Gửi Email thông báo (hoặc Notification nội bộ cho Admin) về báo cáo kết quả tiến trình dọn dẹp (VD: "Đã archive và tối ưu DB cho 500 sinh viên ra trường").
 
 ## 3. Implementation Roadmap (Lộ trình triển khai)
 

@@ -209,6 +209,17 @@ export function useRegistrationManagerUi() {
     [fetchPeriods, showSnackbar]
   );
 
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Bạn có chắc muốn xóa cứng đợt đăng ký này? Nếu đợt đã có đơn đăng ký, hệ thống sẽ từ chối.')) return;
+    try {
+      await adminRegistrationApi.deletePeriod(id);
+      showSnackbar('Đã xóa cứng thành công', 'success');
+      fetchPeriods();
+    } catch (err: any) {
+      showSnackbar(err.message || err || 'Xóa thất bại.', 'error');
+    }
+  };
+
   return {
     periods: filteredPeriods, // Trả về danh sách đã lọc thay vì toàn bộ
     rawPeriods: periods,
@@ -239,5 +250,6 @@ export function useRegistrationManagerUi() {
     handleFormChange,
     handleSubmitPeriod,
     handleToggleStatus,
+    handleDelete,
   };
 }

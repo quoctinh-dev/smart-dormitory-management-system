@@ -5,8 +5,7 @@ import com.sdms.backend.modules.room.entity.Building;
 import com.sdms.backend.modules.room.entity.Room;
 import com.sdms.backend.modules.smartaccess.domain.enums.GateType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 

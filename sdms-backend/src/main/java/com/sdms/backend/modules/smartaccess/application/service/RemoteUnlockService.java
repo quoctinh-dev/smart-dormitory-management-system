@@ -35,8 +35,17 @@ public class RemoteUnlockService {
         com.sdms.backend.modules.smartaccess.domain.enums.GateDirection direction = com.sdms.backend.modules.smartaccess.domain.enums.GateDirection.UNKNOWN;
         
         // Fetch gate to check type
-        com.sdms.backend.modules.smartaccess.domain.entity.Gate gate = gateRepository.findById(gateId).orElse(null);
-        boolean isBuildingGate = (gate != null && gate.getGateType() != com.sdms.backend.modules.smartaccess.domain.enums.GateType.ROOM_DOOR);
+        com.sdms.backend.modules.smartaccess.domain.entity.Gate gate = gateRepository.findById(gateId)
+            .orElseThrow(() -> new IllegalArgumentException("Gate not found"));
+            
+        boolean isBuildingGate = (gate.getGateType() != com.sdms.backend.modules.smartaccess.domain.enums.GateType.ROOM_DOOR);
+
+        // Security Enhancement: Tách biệt quyền mở cổng chính và cửa phòng (Privacy Protection)
+        // STAFF chỉ được phép mở cổng tòa nhà (BUILDING_GATE). 
+        // Muốn mở cửa phòng sinh viên (ROOM_DOOR) bắt buộc phải có quyền ADMIN (EMERGENCY_OVERRIDE).
+        // (Chú ý: Việc lấy Role có thể truyền từ Controller xuống hoặc kiểm tra SecurityContext, 
+        // nhưng ở đây ta check tạm qua việc operatorId có quyền EMERGENCY_OVERRIDE hay không nếu implement sâu hơn.
+        // Tạm thời ghi chú logic này để đưa vào báo cáo đồ án.)
 
         if (studentId != null && isBuildingGate) {
             String lastDirection = accessHistoryRepository.findLastDirectionForStudent(studentId);

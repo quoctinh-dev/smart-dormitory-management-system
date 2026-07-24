@@ -4,11 +4,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
 import React from 'react';
 
 import { useRoomActionMenu } from '@/hooks/useRoomActionMenu';
 import type { RoomStatus } from '@/types/room';
+import { useAuth } from '@/providers/AuthProvider';
 
 export interface RoomActionMenuProps {
   roomId: string;
@@ -29,6 +31,9 @@ export default function RoomActionMenu({
                                          onEditRoom,
                                          onRefresh,
                                        }: RoomActionMenuProps) {
+  const { user } = useAuth();
+  const isAdmin = user?.role?.toUpperCase() === 'ADMIN';
+
   const {
     anchorEl,
     open,
@@ -38,6 +43,7 @@ export default function RoomActionMenu({
     handleAutoGenerateBeds,
     handleEditRoom,
     handleResetPin,
+    handleDeleteRoom,
   } = useRoomActionMenu(roomId, onChangeStatus, onEditRoom, onRefresh);
 
   const isMaintenance = roomStatus === 'MAINTENANCE';
@@ -71,14 +77,16 @@ export default function RoomActionMenu({
             }}
         >
           {/* Edit Room */}
-          <MenuItem onClick={handleEditRoom} sx={{ py: 1.25 }}>
-            <ListItemIcon>
-              <EditIcon fontSize="small" color="info" />
-            </ListItemIcon>
-            <ListItemText primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}>
-              Sửa thông tin phòng
-            </ListItemText>
-          </MenuItem>
+          {isAdmin && (
+              <MenuItem onClick={handleEditRoom} sx={{ py: 1.25 }}>
+                <ListItemIcon>
+                  <EditIcon fontSize="small" color="info" />
+                </ListItemIcon>
+                <ListItemText primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}>
+                  Sửa thông tin phòng
+                </ListItemText>
+              </MenuItem>
+          )}
 
           {/* Reset PIN */}
           <MenuItem onClick={handleResetPin} sx={{ py: 1.25 }}>
@@ -91,7 +99,7 @@ export default function RoomActionMenu({
           </MenuItem>
 
           {/* Generate Beds (chỉ hiện nếu số giường < sức chứa) */}
-          {canGenerateBeds && (
+          {isAdmin && canGenerateBeds && (
               <MenuItem onClick={handleAutoGenerateBeds} sx={{ py: 1.25 }}>
                 <ListItemIcon>
                   <AddTaskIcon fontSize="small" color="primary" />
@@ -102,7 +110,7 @@ export default function RoomActionMenu({
               </MenuItem>
           )}
 
-          <Divider sx={{ my: '4px !important' }} />
+          {isAdmin && <Divider sx={{ my: '4px !important' }} />}
 
           {/* Toggle Maintenance */}
           <MenuItem onClick={() => handleStatus(isMaintenance ? 'AVAILABLE' : 'MAINTENANCE')} sx={{ py: 1.25 }}>
@@ -127,6 +135,20 @@ export default function RoomActionMenu({
               {isClosed ? 'Mở lại phòng (AVAILABLE)' : 'Đóng phòng (CLOSED)'}
             </ListItemText>
           </MenuItem>
+
+          {isAdmin && <Divider sx={{ my: '4px !important' }} />}
+
+          {/* Delete Room */}
+          {isAdmin && (
+              <MenuItem onClick={handleDeleteRoom} sx={{ py: 1.25 }}>
+                <ListItemIcon>
+                  <DeleteIcon fontSize="small" color="error" />
+                </ListItemIcon>
+                <ListItemText primaryTypographyProps={{ variant: 'body2', fontWeight: 500, color: 'error.main' }}>
+                  Xóa phòng
+                </ListItemText>
+              </MenuItem>
+          )}
         </Menu>
       </>
   );

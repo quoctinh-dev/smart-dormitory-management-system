@@ -1,4 +1,3 @@
-// src/pages/admin/RoomManagement/RoomManagementPage.tsx
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import {
@@ -21,6 +20,10 @@ import React, { useState } from 'react';
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useRoomDashboard } from '@/hooks/useRoomDashboard';
 import { useAuth } from '@/providers/AuthProvider';
+import roomApi from '@/api/room-api';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { snackbar } from '@/helpers/snackbar';
+import { confirmDialog } from '@/helpers/confirm';
 
 import BuildingFormDialog from './components/BuildingFormDialog';
 import CreateRoomDialog from './components/CreateRoomDialog';
@@ -61,6 +64,42 @@ export default function RoomManagementPage() {
     ).length;
     const occupancyRate = totalCapacity > 0 ? Math.round((occupiedBeds / totalCapacity) * 100) : 0;
 
+    const handleDeleteBuilding = async () => {
+        if (!currentBuilding) return;
+        const isConfirmed = await confirmDialog({
+            title: 'Xóa tòa nhà',
+            message: `Bạn có chắc muốn xóa tòa nhà ${currentBuilding.name}? Chỉ được xóa khi chưa có dữ liệu phòng.`
+        });
+        if (!isConfirmed) return;
+
+        try {
+            await roomApi.deleteBuilding(currentBuilding.buildingId);
+            snackbar.success('Xóa tòa nhà thành công');
+            setSelectedBuilding('');
+            refresh();
+        } catch (error: any) {
+            snackbar.error(error.response?.data?.message || 'Lỗi khi xóa tòa nhà');
+        }
+    };
+
+    const handleDeleteFloor = async () => {
+        if (!currentFloor) return;
+        const isConfirmed = await confirmDialog({
+            title: 'Xóa tầng',
+            message: `Bạn có chắc muốn xóa tầng ${currentFloor.floorNumber}? Chỉ được xóa khi các phòng chưa từng có sinh viên.`
+        });
+        if (!isConfirmed) return;
+
+        try {
+            await roomApi.deleteFloor(currentFloor.floorId);
+            snackbar.success('Xóa tầng thành công');
+            setSelectedFloor('');
+            refresh();
+        } catch (error: any) {
+            snackbar.error(error.response?.data?.message || 'Lỗi khi xóa tầng');
+        }
+    };
+
     return (
         <Box sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.default', minHeight: '100vh' }}>
             {/* ── Tiêu đề ─────────────────────────────────── */}
@@ -76,7 +115,7 @@ export default function RoomManagementPage() {
             >
                 <Box>
                     <Typography variant="h5" sx={{ color: 'text.primary', fontWeight: 600, mb: 0.5 }}>
-                        Quản lý Phòng Ký túc xá
+                        Quản lý phòng ký túc xá
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                         Theo dõi phòng, tầng và trạng thái sử dụng theo từng tòa nhà.
@@ -123,11 +162,11 @@ export default function RoomManagementPage() {
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, flex: 1 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
                         <FormControl fullWidth size="small">
-                            <InputLabel id="building-label">Chọn Tòa nhà</InputLabel>
+                            <InputLabel id="building-label">Chọn tòa nhà</InputLabel>
                             <Select
                                 labelId="building-label"
                                 value={selectedBuilding}
-                                label="Chọn Tòa nhà"
+                                label="Chọn tòa nhà"
                                 onChange={(e) => setSelectedBuilding(e.target.value)}
                                 sx={{ borderRadius: 1.5 }}
                             >
@@ -169,15 +208,28 @@ export default function RoomManagementPage() {
                                 </IconButton>
                             </Tooltip>
                         )}
+                        {isAdmin && (
+                            <Tooltip title="Xóa tòa nhà này">
+                                <IconButton
+                                    size="small"
+                                    color="error"
+                                    disabled={!selectedBuilding}
+                                    onClick={handleDeleteBuilding}
+                                    sx={{ border: '1px solid', borderColor: 'error.main', borderRadius: 1.5, '&:hover': { bgcolor: 'error.lighter' } }}
+                                >
+                                    <DeleteIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        )}
                     </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
                         <FormControl fullWidth size="small" disabled={!selectedBuilding}>
-                            <InputLabel id="floor-label">Chọn Tầng</InputLabel>
+                            <InputLabel id="floor-label">Chọn tầng</InputLabel>
                             <Select
                                 labelId="floor-label"
                                 value={selectedFloor}
-                                label="Chọn Tầng"
+                                label="Chọn tầng"
                                 onChange={(e) => setSelectedFloor(e.target.value)}
                                 sx={{ borderRadius: 1.5 }}
                             >
@@ -221,6 +273,19 @@ export default function RoomManagementPage() {
                                 </IconButton>
                             </Tooltip>
                         )}
+                        {isAdmin && (
+                            <Tooltip title="Xóa tầng này">
+                                <IconButton
+                                    size="small"
+                                    color="error"
+                                    disabled={!selectedFloor}
+                                    onClick={handleDeleteFloor}
+                                    sx={{ border: '1px solid', borderColor: 'error.main', borderRadius: 1.5, '&:hover': { bgcolor: 'error.lighter' } }}
+                                >
+                                    <DeleteIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        )}
                     </Box>
                 </Box>
 
@@ -233,7 +298,7 @@ export default function RoomManagementPage() {
                                 onClick={handleBulkGeneratePins}
                                 sx={{ whiteSpace: 'nowrap', borderRadius: 1.5, textTransform: 'none', fontWeight: 600, px: 2 }}
                             >
-                                Tạo PIN hàng loạt
+                                Tạo mã PIN hàng loạt
                             </Button>
                             <Button
                                 variant="contained"
@@ -243,7 +308,7 @@ export default function RoomManagementPage() {
                                 sx={{ whiteSpace: 'nowrap', borderRadius: 1.5, textTransform: 'none', fontWeight: 600, px: 2.5 }}
                                 onClick={() => setCreateRoomOpen(true)}
                             >
-                                Thêm Phòng
+                                Thêm phòng
                             </Button>
                         </>
                     )}

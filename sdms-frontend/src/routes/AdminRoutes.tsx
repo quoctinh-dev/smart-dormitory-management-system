@@ -28,6 +28,7 @@ const UtilityReadingPage = lazy(() => import('@/pages/admin/UtilityReadingPage')
 const AccountManagementPage = lazy(() => import('@/pages/admin/AccountManagementPage'));
 const StudentManagementPage = lazy(() => import('@/pages/admin/StudentManagementPage'));
 const SystemConfigPage = lazy(() => import('@/pages/admin/SystemConfigPage'));
+const SmartAccessPolicyPage = lazy(() => import('@/pages/admin/SmartAccessPolicyPage'));
 
 // Wrapped components for suspense
 const LoginLazy = wrap(LoginPage);
@@ -51,6 +52,7 @@ const AccountManagementLazy = wrap(AccountManagementPage);
 const StudentManagementLazy = wrap(StudentManagementPage);
 const UtilityReadingPageLazy = wrap(UtilityReadingPage);
 const SystemConfigPageLazy = wrap(SystemConfigPage);
+const SmartAccessPolicyLazy = wrap(SmartAccessPolicyPage);
 
 export const adminRoutes: RouteObject[] = [
   // Auth layout for admin login
@@ -87,6 +89,7 @@ export const adminRoutes: RouteObject[] = [
           { path: 'admin/gates', element: <GateManagementLazy /> },
           { path: 'admin/students', element: <StudentManagementLazy /> },
           { path: 'admin/system-configs', element: <SystemConfigPageLazy /> },
+          { path: 'admin/smart-access/policies', element: <SmartAccessPolicyLazy /> },
         ],
       },
     ],

@@ -51,17 +51,5 @@ public class AdminAccountController {
         return ApiResponse.success("Tạo tài khoản Staff thành công");
     }
 
-    @Operation(summary = "Xem hồ sơ sinh viên từ tài khoản")
-    @GetMapping("/{id}/student-profile")
-    public ApiResponse<com.sdms.backend.modules.student.dto.response.StudentProfileResponse> getStudentProfileByAccountId(@PathVariable UUID id) {
-        return ApiResponse.success("Lấy hồ sơ sinh viên thành công", userService.getStudentProfileByAccountId(id));
-    }
-
-    @Operation(summary = "Cập nhật thông tin học vụ của sinh viên (Khoa/Khóa)")
-    @PatchMapping("/{id}/student-profile/academic")
-    public ApiResponse<com.sdms.backend.modules.student.dto.response.StudentProfileResponse> updateStudentAcademicInfo(
-            @PathVariable UUID id,
-            @Valid @RequestBody com.sdms.backend.modules.student.dto.request.UpdateAcademicInfoRequest request) {
-        return ApiResponse.success("Cập nhật học vụ thành công", userService.updateStudentAcademicInfo(id, request));
-    }
+    // Xóa các API thừa không được sử dụng ở frontend (GET /student-profile, PATCH /student-profile/academic)
 }

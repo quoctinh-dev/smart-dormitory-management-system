@@ -1,0 +1,98 @@
+<mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <mxCell id="start" value="Bắt đầu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="364" y="40" width="100" height="40" as="geometry" />
+    </mxCell>
+
+    <mxCell id="step1" value="Sinh viên gửi yêu cầu trả phòng&#10;thông qua Ứng dụng di động" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="314" y="120" width="200" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge1" parent="1" source="start" target="step1" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="step2" value="Hệ thống tiếp nhận, kiểm tra dữ liệu&#10;và tạo bản ghi Đơn xin trả phòng" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="314" y="220" width="200" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge2" parent="1" source="step1" target="step2" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="step3" value="Ban quản lý xét duyệt yêu cầu&#10;trên hệ thống Quản trị" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="314" y="320" width="200" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge3" parent="1" source="step2" target="step3" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="cond1_label" value="Phê duyệt?" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="344" y="420" width="140" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="edge4" parent="1" source="step3" target="cond1_label" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="cond1_rhombus" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="394" y="460" width="40" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_cond1_link" style="endArrow=none;html=1;strokeColor=#000000;" parent="1" source="cond1_label" target="cond1_rhombus" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="step_reject" value="Từ chối và gửi Thông báo&#10;cho sinh viên" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="560" y="450" width="160" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_cond1_no" parent="1" source="cond1_rhombus" target="step_reject" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+      <mxCell value="Từ chối" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Times New Roman;" vertex="1" connectable="0" parent="edge_cond1_no">
+        <mxGeometry x="-0.2" relative="1" as="geometry">
+          <mxPoint as="offset" />
+        </mxGeometry>
+      </mxCell>
+    </mxCell>
+
+    <mxCell id="step_approve" value="Hệ thống tự động thay đổi&#10;trạng thái Hợp đồng thành &quot;Đã trả&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="314" y="550" width="200" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_cond1_yes" parent="1" source="cond1_rhombus" target="step_approve" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+      <mxCell value="Đồng ý" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Times New Roman;" vertex="1" connectable="0" parent="edge_cond1_yes">
+        <mxGeometry x="-0.2" relative="1" as="geometry">
+          <mxPoint as="offset" />
+        </mxGeometry>
+      </mxCell>
+    </mxCell>
+
+    <mxCell id="step_update" value="Hệ thống tự động giải phóng giường&#10;về trạng thái &quot;Đang trống&quot;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="314" y="650" width="200" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_update" parent="1" source="step_approve" target="step_update" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="step_iot" value="Hệ thống tự động phát tín hiệu thu hồi&#10;quyền mở cửa ra vào của sinh viên" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="314" y="750" width="220" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_iot" parent="1" source="step_update" target="step_iot" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="end" value="Kết thúc" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="374" y="860" width="100" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="edge_end1" parent="1" source="step_iot" target="end" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_end2" parent="1" source="step_reject" target="end" edge="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="640" y="880" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+  </root>
+</mxGraphModel>

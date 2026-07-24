@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import com.sdms.backend.modules.smartaccess.domain.enums.CurfewType;
 import com.sdms.backend.modules.smartaccess.domain.enums.ResidentType;
+import com.sdms.backend.common.entity.BaseEntity;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;

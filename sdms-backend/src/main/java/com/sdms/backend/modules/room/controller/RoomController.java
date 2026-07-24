@@ -121,4 +121,12 @@ public class RoomController {
     public ApiResponse<MaintenanceReportResponse> getMaintenanceReport() {
         return ApiResponse.success("Lấy báo cáo bảo trì thành công", roomService.getMaintenanceReport());
     }
+
+    @Operation(summary = "Xóa cứng phòng (Draft Only)", description = "Chỉ cho phép xóa phòng trống chưa từng có sinh viên ở.")
+    @DeleteMapping("/{roomId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> delete(@PathVariable UUID roomId) {
+        roomService.deleteRoom(roomId);
+        return ApiResponse.success("Xóa phòng thành công", null);
+    }
 }

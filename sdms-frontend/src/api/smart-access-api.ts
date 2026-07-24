@@ -63,4 +63,31 @@ export const smartAccessApi = {
   syncStudentState(studentId: string, direction: 'IN' | 'OUT', reason?: string) {
     return axiosClient.post(`${ACCESS_URL}/history/sync-state`, { studentId, direction, reason });
   },
+
+  // --- Policies ---
+  getCurfewPolicies() {
+    return axiosClient.get(`${ACCESS_URL}/curfew-policies`);
+  },
+  createCurfewPolicy(data: any) {
+    return axiosClient.post(`${ACCESS_URL}/curfew-policies`, data);
+  },
+  updateCurfewPolicyStatus(id: string, isActive: boolean) {
+    return axiosClient.put(`${ACCESS_URL}/curfew-policies/${id}/status`, null, { params: { isActive } });
+  },
+  deleteCurfewPolicy(id: string) {
+    return axiosClient.delete(`${ACCESS_URL}/curfew-policies/${id}`);
+  },
+
+  getTimeWindowPolicies() {
+    return axiosClient.get(`${ACCESS_URL}/time-window-policies`);
+  },
+  createTimeWindowPolicy(data: any) {
+    return axiosClient.post(`${ACCESS_URL}/time-window-policies`, data);
+  },
+  updateTimeWindowPolicyStatus(id: string, isActive: boolean) {
+    return axiosClient.put(`${ACCESS_URL}/time-window-policies/${id}/status`, null, { params: { isActive } });
+  },
+  deleteTimeWindowPolicy(id: string) {
+    return axiosClient.delete(`${ACCESS_URL}/time-window-policies/${id}`);
+  },
 };

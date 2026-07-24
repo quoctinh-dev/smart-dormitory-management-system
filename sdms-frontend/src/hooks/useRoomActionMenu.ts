@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import roomApi from '@/api/room-api';
 import { snackbar } from '@/helpers/snackbar';
+import { confirmDialog } from '@/helpers/confirm';
 
 export const useRoomActionMenu = (
   roomId: string,
@@ -42,8 +43,13 @@ export const useRoomActionMenu = (
 
   const handleResetPin = async () => {
     handleClose();
-    if (!window.confirm('Bạn có chắc chắn muốn tạo mã PIN mới cho phòng này? Mã PIN cũ sẽ bị hủy.'))
-      return;
+    const isConfirmed = await confirmDialog({
+      title: 'Xác nhận tạo mã PIN',
+      message: 'Bạn có chắc chắn muốn tạo mã PIN mới cho phòng này? Mã PIN cũ sẽ bị hủy.',
+      confirmText: 'Tạo mã mới'
+    });
+    if (!isConfirmed) return;
+
     try {
       const { default: roomPinApi } = await import('@/api/room-pin-api');
       await roomPinApi.resetRoomPin(roomId);
@@ -51,6 +57,24 @@ export const useRoomActionMenu = (
       onRefresh();
     } catch (err: any) {
       const msg = err?.response?.data?.message || 'Không thể reset mã PIN';
+      snackbar.error(msg);
+    }
+  };
+
+  const handleDeleteRoom = async () => {
+    handleClose();
+    const isConfirmed = await confirmDialog({
+      title: 'Xóa phòng',
+      message: 'Bạn có chắc muốn xóa phòng này? (Chỉ áp dụng khi phòng trống)'
+    });
+    if (!isConfirmed) return;
+    
+    try {
+      await roomApi.deleteRoom(roomId);
+      snackbar.success('Xóa phòng thành công');
+      onRefresh();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Không thể xóa phòng';
       snackbar.error(msg);
     }
   };
@@ -64,5 +88,6 @@ export const useRoomActionMenu = (
     handleAutoGenerateBeds,
     handleEditRoom,
     handleResetPin,
+    handleDeleteRoom,
   };
 };

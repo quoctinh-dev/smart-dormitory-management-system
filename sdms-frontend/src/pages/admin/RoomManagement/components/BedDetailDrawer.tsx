@@ -1,6 +1,7 @@
 import BuildIcon from '@mui/icons-material/Build';
 import CloseIcon from '@mui/icons-material/Close';
 import HotelIcon from '@mui/icons-material/Hotel';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Box,
   Button,
@@ -22,6 +23,7 @@ import React from 'react';
 
 import { useBedDetail } from '@/hooks/useBedDetail';
 import type { BedResponse, BedStatus, RoomWithBeds } from '@/types/room';
+import { useAuth } from '@/providers/AuthProvider';
 
 export interface BedDetailDrawerProps {
   open: boolean;
@@ -52,7 +54,10 @@ export default function BedDetailDrawer({
                                           room,
                                           onRefresh,
                                         }: BedDetailDrawerProps) {
-  const { assignment, loading, actionLoading, error, handleChangeBedStatus, handleChangeRoomRole } =
+  const { user } = useAuth();
+  const isAdmin = user?.role?.toUpperCase() === 'ADMIN';
+
+  const { assignment, loading, actionLoading, error, handleChangeBedStatus, handleChangeRoomRole, handleDeleteBed } =
       useBedDetail(open, bed, room, onClose, onRefresh);
 
   if (!bed || !room) return null;
@@ -266,6 +271,20 @@ export default function BedDetailDrawer({
                       sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600, py: 1 }}
                   >
                     Mở lại (AVAILABLE)
+                  </Button>
+              )}
+              {isAdmin && bed.status !== 'OCCUPIED' && bed.status !== 'RESERVED' && (
+                  <Button
+                      variant="outlined"
+                      color="error"
+                      disableElevation
+                      startIcon={<DeleteIcon fontSize="small" />}
+                      fullWidth
+                      disabled={actionLoading}
+                      onClick={handleDeleteBed}
+                      sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600, py: 1 }}
+                  >
+                    Xóa giường
                   </Button>
               )}
               {actionLoading && <CircularProgress size={20} sx={{ alignSelf: 'center' }} />}

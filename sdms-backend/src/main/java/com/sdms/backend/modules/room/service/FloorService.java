@@ -24,6 +24,12 @@ import java.util.stream.Collectors;
 import com.sdms.backend.common.enums.Gender;
 import com.sdms.backend.modules.room.enums.BuildingGender;
 
+import com.sdms.backend.modules.room.repository.RoomRepository;
+import com.sdms.backend.modules.room.repository.BedRepository;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import com.sdms.backend.modules.room.entity.Room;
+import com.sdms.backend.modules.room.enums.AssignmentStatus;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -31,6 +37,9 @@ public class FloorService {
 
     private final FloorRepository floorRepository;
     private final BuildingRepository buildingRepository;
+    private final RoomRepository roomRepository;
+    private final BedRepository bedRepository;
+    private final StudentHousingAssignmentRepository assignmentRepository;
     private final FloorMapper floorMapper;
     private final FloorValidator floorValidator;
 
@@ -99,6 +108,26 @@ public class FloorService {
         return floorRepository.findByBuilding_BuildingId(buildingId).stream()
                 .map(floorMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteFloor(UUID floorId) {
+        Floor floor = findById(floorId);
+        
+        // 1. Validate if any bed in any room on this floor has history
+        boolean hasHistory = assignmentRepository.existsByBed_Room_Floor_FloorId(floorId);
+
+        if (hasHistory) {
+            throw new AppException(ErrorCode.DATA_CONFLICT, "Không thể xóa tầng: Đã có phòng trên tầng này có lịch sử sinh viên lưu trú. Vui lòng cập nhật trạng thái phòng thay vì xóa.");
+        }
+
+        // 2. Tầng trống, được phép xóa cứng
+        List<Room> rooms = roomRepository.findByFloor_FloorId(floorId);
+        for (Room room : rooms) {
+            bedRepository.deleteAll(bedRepository.findByRoom_RoomId(room.getRoomId()));
+        }
+        roomRepository.deleteAll(rooms);
+        floorRepository.delete(floor);
     }
 
     private Floor findById(UUID id) {

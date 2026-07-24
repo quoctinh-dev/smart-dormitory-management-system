@@ -170,7 +170,7 @@ export default function ApplicationReviewQueue() {
                                 <TableCell sx={{ fontWeight: 600 }}>Mã đơn</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Họ và tên</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>MSSV</TableCell>
-                                <TableCell sx={{ fontWeight: 600 }}>CCCD / CMND</TableCell>
+                                <TableCell sx={{ fontWeight: 600 }}>CCCD </TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Ngày nộp</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
                                 <TableCell align="center" sx={{ fontWeight: 600 }}>

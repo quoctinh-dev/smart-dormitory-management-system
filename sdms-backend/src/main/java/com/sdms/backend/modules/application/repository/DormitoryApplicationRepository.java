@@ -54,6 +54,8 @@ public interface DormitoryApplicationRepository
     
     boolean existsByEmailAndRegistrationPeriod_PeriodId(String email, UUID periodId);
 
+    boolean existsByRegistrationPeriod_PeriodId(UUID periodId);
+
     Optional<DormitoryApplication> findByEmailAndRegistrationPeriod_PeriodId(String email, UUID periodId);
 
     List<DormitoryApplication> findByRegistrationPeriod_PeriodIdAndStatusIn(UUID periodId, List<ApplicationStatus> statuses);
