@@ -21,11 +21,11 @@ void RelayController::init() {
 void RelayController::unlock() {
     if (!ENABLE_SERVO) return;
 
-    Serial.println("[Servo] --> UNLOCK (pulling latch in)");
+    Serial.println("[Servo] --> UNLOCK (Quay Phải để Mở)");
     chotCua.attach(SERVO_PIN, 500, 2400);
-    chotCua.write(180);
-    delay(150);
-    chotCua.write(94);   // Stop (neutral for 360-degree servo)
+    chotCua.write(0);   // Quay qua phải (0 độ)
+    delay(150);         // Xoay trong 0.15 giây để kéo chốt
+    chotCua.write(94);  // Lệnh dừng (Stop cho Servo 360)
     delay(50);
     chotCua.detach();
     digitalWrite(SERVO_PIN, LOW);
@@ -37,11 +37,11 @@ void RelayController::unlock() {
 void RelayController::lock() {
     if (!ENABLE_SERVO) return;
 
-    Serial.println("[Servo] --> LOCK (pushing latch out)");
+    Serial.println("[Servo] --> LOCK (Quay Trái để Đóng)");
     chotCua.attach(SERVO_PIN, 500, 2400);
-    chotCua.write(0);
-    delay(150);
-    chotCua.write(94);   // Stop
+    chotCua.write(180); // Quay qua trái (180 độ)
+    delay(150);         // Xoay trong 0.15 giây để đẩy chốt
+    chotCua.write(94);  // Lệnh dừng (Stop cho Servo 360)
     delay(50);
     chotCua.detach();
     digitalWrite(SERVO_PIN, LOW);

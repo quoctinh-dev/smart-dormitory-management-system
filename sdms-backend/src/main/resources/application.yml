@@ -75,3 +75,8 @@ ai:
   face:
     engine:
       url: http://localhost:8000/api/v1/faces/extract
+
+sdms:
+  face:
+    verification:
+      threshold: 0.38 # Ngưỡng nhận diện (từ 0.2 lên 0.38 để dễ nhận hơn với cam ESP32)

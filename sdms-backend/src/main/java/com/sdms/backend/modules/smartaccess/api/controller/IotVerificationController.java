@@ -68,7 +68,7 @@ public class IotVerificationController {
         }
 
         UUID studentId = eligibilityOpt.get().getStudentId();
-        UUID gateId = gateIdStr != null ? UUID.fromString(gateIdStr) : UUID.randomUUID();
+        UUID gateId = gateIdStr != null ? UUID.fromString(gateIdStr.trim()) : UUID.randomUUID();
         String eventId = UUID.randomUUID().toString();
         
         // Upload snapshot to Cloudinary and get URL, then pass it to the Event/Service
@@ -198,7 +198,7 @@ public class IotVerificationController {
             
             if (result.isMatch()) {
                 // 2. Face matched! Now evaluate curfew and time window policies synchronously
-                UUID gateId = gateIdStr != null ? UUID.fromString(gateIdStr) : UUID.randomUUID();
+                UUID gateId = gateIdStr != null ? UUID.fromString(gateIdStr.trim()) : UUID.randomUUID();
                 AccessDecision decision = accessEvaluationService.evaluateAccessSync(result.matchedProfileId(), gateId, VerificationMethod.FACE_AI);
                 
                 // 3. Return immediate result to ESP32 to trigger Relay
@@ -255,7 +255,7 @@ public class IotVerificationController {
 
         UUID gateId;
         try {
-            gateId = UUID.fromString(gateIdStr);
+            gateId = UUID.fromString(gateIdStr.trim());
         } catch (Exception e) {
             return new ApiResponse<>(
                 false, "Mã cổng (Gate ID) không hợp lệ", Map.of("status", "DENIED"), "UNREGISTERED_OR_INACTIVE_GATE"

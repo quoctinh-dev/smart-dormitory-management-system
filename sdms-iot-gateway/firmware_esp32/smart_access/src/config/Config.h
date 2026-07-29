@@ -19,7 +19,7 @@ static const String HARDWARE_MODEL = "AI-Thinker ESP32-CAM";
 // ==============================================================================
 // 2. NETWORK CONFIGURATION (Cấu hình Mạng & Kết nối)
 // ==============================================================================
-static const char* WIFI_SSID     = "TECNO POVA 6";
+static const char* WIFI_SSID     = "LVTT";
 static const char* WIFI_PASSWORD = "12345678";
 
 // ⚠️ KHÔNG DÙNG IP CỨNG — Dùng mDNS hostname để chống đổi IP khi dùng 4G Hotspot.
@@ -27,15 +27,15 @@ static const char* WIFI_PASSWORD = "12345678";
 //   > Add-DnsClientNrptRule -Namespace "sdms-backend.local" -NameServers "127.0.0.1"
 // Hoặc cài Bonjour (https://support.apple.com/kb/DL999) → máy sẽ tự broadcast "<hostname>.local"
 // Sau đó đổi BACKEND_MDNS_HOST thành tên máy tính (hostname) của bạn + ".local"
-static const char* BACKEND_MDNS_HOST = "sdms-backend.local"; // ← Tên hostname máy chạy Spring Boot
+static const char* BACKEND_MDNS_HOST = "192.168.137.1"; // Using IP instead of mDNS
 static const int   BACKEND_PORT      = 8080;
 
 // URL đầy đủ — KHÔNG DÙNG trực tiếp, NetworkManager sẽ resolve mDNS rồi build URL động.
 // Giữ lại để fallback thủ công nếu mDNS không hoạt động trong môi trường test:
-static const String BACKEND_BASE_URL = "http://sdms-backend.local:8080/api/v1/smartaccess";
+static const String BACKEND_BASE_URL = "http://192.168.137.1:8080/api/v1/smartaccess";
 
 // MQTT Broker — cùng máy với Backend
-static const char* MQTT_BROKER_HOST = "sdms-backend.local"; // mDNS hostname
+static const char* MQTT_BROKER_HOST = "192.168.137.1"; // IP of Windows Mobile Hotspot
 static const int   MQTT_BROKER_PORT = 1883;
 static const char* MQTT_USERNAME    = ""; // Điền nếu có
 static const char* MQTT_PASSWORD    = "";

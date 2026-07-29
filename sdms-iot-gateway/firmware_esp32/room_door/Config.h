@@ -13,19 +13,19 @@ static const String FIRMWARE_VERSION = "1.0.0-Room";
 // ====================================================================== ========
 // 2. NETWORK CONFIGURATION
 // ==============================================================================
-static const char* WIFI_SSID = "TECNO POVA 6";
+static const char* WIFI_SSID = "LVTT";
 static const char* WIFI_PASSWORD = "12345678";
 
 // ⚠️ KHÔNG DÙNG IP CỨNG — Dùng mDNS hostname để chống đổi IP khi dùng 4G Hotspot.
 // Trên máy tính chạy Backend (Windows): cài Bonjour (https://support.apple.com/kb/DL999)
 // Máy tính sẽ tự broadcast theo hostname. Đổi giá trị bên dưới thành <hostname-máy-bạn>.local
-static const String BACKEND_BASE_URL = "http://sdms-backend.local:8080/api/v1/smartaccess";
+static const String BACKEND_BASE_URL = "http://192.168.137.1:8080/api/v1/smartaccess";
 
 // Offline PIN Fallback
 static const String OFFLINE_MASTER_PIN = "999999"; // Mã mở cửa khẩn cấp khi mất mạng
 
 // MQTT Broker — cùng máy với Backend
-static const char* MQTT_SERVER = "sdms-backend.local"; // mDNS hostname
+static const char* MQTT_SERVER = "192.168.137.1"; // IP of Windows Mobile Hotspot
 static const int MQTT_PORT = 1883;
 
 // ==============================================================================

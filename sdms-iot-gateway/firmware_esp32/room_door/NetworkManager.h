@@ -45,6 +45,15 @@ void initWiFi() {
     Serial.print("[WiFi] Connecting to ");
     Serial.println(WIFI_SSID);
 
+    IPAddress local_IP(192, 168, 137, 50);
+    IPAddress gateway(192, 168, 137, 1);
+    IPAddress subnet(255, 255, 255, 0);
+    IPAddress primaryDNS(8, 8, 8, 8);
+    
+    if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, gateway)) {
+        Serial.println("[WiFi] STA Failed to configure static IP");
+    }
+
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     
     lcdPrintMessage("CONNECTING...", "WIFI");

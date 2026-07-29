@@ -4,7 +4,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import List, Optional
-from PIL import Image
+from PIL import Image, ImageEnhance, ImageStat
 import torch
 from facenet_pytorch import MTCNN, InceptionResnetV1
 
@@ -31,7 +31,7 @@ try:
     # margin=20 để lấy thêm phần rìa khuôn mặt, keep_all=False để chỉ lấy mặt bự nhất
     mtcnn = MTCNN(
         image_size=160, margin=20, keep_all=False, 
-        min_face_size=60, thresholds=[0.6, 0.7, 0.7], device=device
+        min_face_size=50, thresholds=[0.5, 0.6, 0.6], device=device
     )
     
     # InceptionResnetV1 để trích xuất đặc trưng (Feature Extraction -> 512 dimensions)
@@ -73,6 +73,21 @@ async def extract_face(file: UploadFile = File(...)):
         # 1. Đọc file vào bộ nhớ
         image_bytes = await file.read()
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        
+        # --- BỘ LỌC XỬ LÝ ẢNH THIẾU SÁNG (NIGHT VISION ENHANCEMENT) ---
+        stat = ImageStat.Stat(image)
+        # Tính độ sáng trung bình của ảnh (Luminance formula)
+        mean_brightness = stat.mean[0] * 0.299 + stat.mean[1] * 0.587 + stat.mean[2] * 0.114 
+        
+        if mean_brightness < 90:
+            logger.info(f"Phát hiện ảnh thiếu sáng (Độ sáng={mean_brightness:.1f}/255). Bật chế độ tự động bù sáng...")
+            # Tăng độ sáng lên 1.8 lần
+            enhancer_bright = ImageEnhance.Brightness(image)
+            image = enhancer_bright.enhance(1.8)
+            # Tăng độ tương phản lên 1.3 lần để rõ nét khối mặt
+            enhancer_contrast = ImageEnhance.Contrast(image)
+            image = enhancer_contrast.enhance(1.3)
+        # --------------------------------------------------------------
         
         # 2. Phát hiện và căn chỉnh khuôn mặt (Face Detection & Alignment)
         face_tensor = mtcnn(image)

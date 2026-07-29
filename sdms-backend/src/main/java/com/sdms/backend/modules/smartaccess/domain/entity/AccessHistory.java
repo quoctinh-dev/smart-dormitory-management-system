@@ -36,7 +36,11 @@ public class AccessHistory {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "student_id", insertable = false, updatable = false)
-    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "sourceApplication", "userAccount", "room", "building", "rfidCard"})
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({
+        "hibernateLazyInitializer", "handler",
+        "sourceApplication", "userAccount", "room", "building", "rfidCard",
+        "assignments"  // LAZY collection — tránh LazyInitializationException khi serialize ngoài Session
+    })
     private com.sdms.backend.modules.student.entity.Student student;
 
     @Column(name = "gate_id", nullable = false)
