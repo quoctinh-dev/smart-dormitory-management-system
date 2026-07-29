@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { useRoutes } from 'react-router-dom';
+import { Box, CircularProgress } from '@mui/material';
 
-import CustomSkeleton from '@/components/common/CustomSkeleton';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 import { adminRoutes } from './AdminRoutes';
@@ -12,7 +12,13 @@ const AppRouter: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<CustomSkeleton type="list" count={5} />}>{element}</Suspense>
+      <Suspense fallback={
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%' }}>
+          <CircularProgress />
+        </Box>
+      }>
+        {element}
+      </Suspense>
     </ErrorBoundary>
   );
 };

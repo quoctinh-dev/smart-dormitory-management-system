@@ -57,6 +57,8 @@ const DENIAL_REASONS_MAP: Record<string, string> = {
   NOT_ASSIGNED_TO_BUILDING: 'Không thuộc tòa nhà này',
   OFFLINE_SYNC_VIOLATION: 'Vượt rào cúp điện',
   OFFLINE_MASTER_PIN_GRANT: 'Mở bằng mã khẩn cấp',
+  FACE_VERIFICATION_ERROR: 'Lỗi xác thực khuôn mặt',
+  DUAL_AUTH_MISMATCH: 'Khuôn mặt không khớp thẻ',
 };
 
 export default function SmartAccessManagement() {
@@ -326,7 +328,7 @@ export default function SmartAccessManagement() {
     setSelectedStudent(null);
     setStudentOptions([]);
     if (buildings && buildings.length > 0) {
-      setBuildingId(buildings[0].id);
+      setBuildingId(buildings[0].buildingId);
     } else {
       setBuildingId('');
     }
@@ -635,12 +637,12 @@ export default function SmartAccessManagement() {
                                       <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
                                         {row.studentId === '00000000-0000-0000-0000-000000000000'
                                             ? 'Hệ thống'
-                                            : row.studentId}
+                                            : row.student?.studentCode || row.studentId}
                                       </Typography>
                                     </TableCell>
                                     <TableCell>
                                       <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                                        {row.gateId}
+                                        {allGates.find(g => g.gateId === row.gateId)?.name || row.gate?.name || row.gateId}
                                       </Typography>
                                     </TableCell>
                                     <TableCell>
@@ -1055,7 +1057,7 @@ export default function SmartAccessManagement() {
               >
                 <MenuItem value="">Vui lòng chọn tòa nhà</MenuItem>
                 {buildings.map((b) => (
-                    <MenuItem key={b.id} value={b.id}>
+                    <MenuItem key={b.buildingId} value={b.buildingId}>
                       {b.name}
                     </MenuItem>
                 ))}

@@ -31,28 +31,28 @@ const SystemConfigPage = lazy(() => import('@/pages/admin/SystemConfigPage'));
 const SmartAccessPolicyPage = lazy(() => import('@/pages/admin/SmartAccessPolicyPage'));
 
 // Wrapped components for suspense
-const LoginLazy = wrap(LoginPage);
-const ForgotPasswordLazy = wrap(ForgotPasswordPage);
-const ResetPasswordLazy = wrap(ResetPasswordPage);
-const AdminDashboardLazy = wrap(AdminDashboard);
-const RegistrationPeriodManagerLazy = wrap(RegistrationPeriodManager);
-const ApplicationReviewQueueLazy = wrap(ApplicationReviewQueue);
-const ApplicationReviewDetailLazy = wrap(ApplicationReviewDetail);
-const FaceApprovalQueueLazy = wrap(FaceApprovalQueue);
-const PaymentManagementLazy = wrap(PaymentManagement);
-const CheckInManagementLazy = wrap(CheckInManagement);
-const NotificationHistoryLazy = wrap(NotificationHistory);
-const ExtensionManagementLazy = wrap(ExtensionManagementPage);
-const CheckoutManagementLazy = wrap(CheckoutManagementPage);
-const ChangeRoomManagementLazy = wrap(ChangeRoomManagementPage);
-const RoomManagementLazy = wrap(RoomManagementPage);
-const SmartAccessManagementLazy = wrap(SmartAccessManagement);
-const GateManagementLazy = wrap(GateManagement);
-const AccountManagementLazy = wrap(AccountManagementPage);
-const StudentManagementLazy = wrap(StudentManagementPage);
-const UtilityReadingPageLazy = wrap(UtilityReadingPage);
-const SystemConfigPageLazy = wrap(SystemConfigPage);
-const SmartAccessPolicyLazy = wrap(SmartAccessPolicyPage);
+const LoginLazy = wrap(LoginPage, { skeletonType: 'form' });
+const ForgotPasswordLazy = wrap(ForgotPasswordPage, { skeletonType: 'form' });
+const ResetPasswordLazy = wrap(ResetPasswordPage, { skeletonType: 'form' });
+const AdminDashboardLazy = wrap(AdminDashboard, { skeletonType: 'dashboard' });
+const RegistrationPeriodManagerLazy = wrap(RegistrationPeriodManager, { skeletonType: 'table', skeletonCount: 5 });
+const ApplicationReviewQueueLazy = wrap(ApplicationReviewQueue, { skeletonType: 'table', skeletonCount: 5 });
+const ApplicationReviewDetailLazy = wrap(ApplicationReviewDetail, { skeletonType: 'form' });
+const FaceApprovalQueueLazy = wrap(FaceApprovalQueue, { skeletonType: 'table', skeletonCount: 5 });
+const PaymentManagementLazy = wrap(PaymentManagement, { skeletonType: 'table', skeletonCount: 5 });
+const CheckInManagementLazy = wrap(CheckInManagement, { skeletonType: 'table', skeletonCount: 5 });
+const NotificationHistoryLazy = wrap(NotificationHistory, { skeletonType: 'list', skeletonCount: 5 });
+const ExtensionManagementLazy = wrap(ExtensionManagementPage, { skeletonType: 'table', skeletonCount: 5 });
+const CheckoutManagementLazy = wrap(CheckoutManagementPage, { skeletonType: 'table', skeletonCount: 5 });
+const ChangeRoomManagementLazy = wrap(ChangeRoomManagementPage, { skeletonType: 'table', skeletonCount: 5 });
+const RoomManagementLazy = wrap(RoomManagementPage, { skeletonType: 'table', skeletonCount: 5 });
+const SmartAccessManagementLazy = wrap(SmartAccessManagement, { skeletonType: 'table', skeletonCount: 5 });
+const GateManagementLazy = wrap(GateManagement, { skeletonType: 'table', skeletonCount: 5 });
+const AccountManagementLazy = wrap(AccountManagementPage, { skeletonType: 'table', skeletonCount: 5 });
+const StudentManagementLazy = wrap(StudentManagementPage, { skeletonType: 'table', skeletonCount: 5 });
+const UtilityReadingPageLazy = wrap(UtilityReadingPage, { skeletonType: 'table', skeletonCount: 5 });
+const SystemConfigPageLazy = wrap(SystemConfigPage, { skeletonType: 'form' });
+const SmartAccessPolicyLazy = wrap(SmartAccessPolicyPage, { skeletonType: 'table', skeletonCount: 5 });
 
 export const adminRoutes: RouteObject[] = [
   // Auth layout for admin login

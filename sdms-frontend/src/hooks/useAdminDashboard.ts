@@ -26,6 +26,18 @@ export const useAdminDashboard = () => {
     }
   }, []);
 
+  const handleRefresh = useCallback(async () => {
+    try {
+      setLoading(true);
+      await dashboardApi.clearCache();
+      await fetchStats();
+      snackbar.success('Đã làm mới dữ liệu thống kê');
+    } catch (err: unknown) {
+      snackbar.error('Lỗi khi làm mới dữ liệu');
+      setLoading(false);
+    }
+  }, [fetchStats]);
+
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
@@ -34,6 +46,7 @@ export const useAdminDashboard = () => {
     data,
     expiringList,
     loading,
-    refetch: fetchStats
+    refetch: fetchStats,
+    handleRefresh
   };
 };

@@ -50,6 +50,8 @@ public interface DormitoryApplicationRepository
     
     List<DormitoryApplication> findByEmail(String email);
 
+    List<DormitoryApplication> findByStatusAndSubmittedAtIsNullAndCreatedAtBefore(ApplicationStatus status, LocalDateTime thresholdDate);
+
     boolean existsByCccdAndRegistrationPeriod_PeriodId(String cccd, UUID periodId);
     
     boolean existsByEmailAndRegistrationPeriod_PeriodId(String email, UUID periodId);
@@ -87,4 +89,8 @@ public interface DormitoryApplicationRepository
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM DormitoryApplication a WHERE a.applicationId = :id")
     Optional<DormitoryApplication> findByIdForUpdate(@Param("id") UUID id);
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
+    @Query("UPDATE DormitoryApplication a SET a.registrationFormPdfUrl = :regUrl, a.commitmentFormPdfUrl = :comUrl WHERE a.applicationId = :id")
+    void updatePdfUrls(@Param("id") UUID id, @Param("regUrl") String regUrl, @Param("comUrl") String comUrl);
 }

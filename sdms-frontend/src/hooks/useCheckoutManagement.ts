@@ -11,6 +11,9 @@ export const useCheckoutManagement = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalElements, setTotalElements] = useState(0);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [endDate, setEndDate] = useState<string | undefined>(undefined);
+  const [selectedRequestIds, setSelectedRequestIds] = useState<string[]>([]);
 
   const [openReview, setOpenReview] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<CheckoutRequestResponse | null>(null);
@@ -23,18 +26,21 @@ export const useCheckoutManagement = () => {
     try {
       const data = await checkoutApi.getAllCheckoutRequests(
         statusFilter === 'ALL' ? undefined : statusFilter,
+        startDate,
+        endDate,
         page,
         rowsPerPage
       );
       setRequests(data.content || []);
       setTotalElements(data.totalElements || 0);
+      setSelectedRequestIds([]); // Clear selection on fetch
     } catch (err: any) {
       console.error(err);
       snackbar.error('Lỗi khi tải danh sách đơn trả phòng');
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, page, rowsPerPage]);
+  }, [statusFilter, startDate, endDate, page, rowsPerPage]);
 
   useEffect(() => {
     fetchRequests();
@@ -71,6 +77,26 @@ export const useCheckoutManagement = () => {
     }
   };
 
+  const handleBulkReviewSubmit = async (status: 'APPROVED' | 'COMPLETED') => {
+    if (selectedRequestIds.length === 0) {
+      snackbar.warning('Vui lòng chọn ít nhất một đơn');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await checkoutApi.bulkReviewCheckoutRequests(selectedRequestIds, status);
+      snackbar.success(`Đã xử lý hàng loạt thành công ${selectedRequestIds.length} đơn!`);
+      setSelectedRequestIds([]);
+      fetchRequests();
+    } catch (err: any) {
+      console.error(err);
+      snackbar.error(err.response?.data?.message || 'Lỗi khi duyệt hàng loạt');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return {
     requests,
     loading,
@@ -81,6 +107,12 @@ export const useCheckoutManagement = () => {
     totalElements,
     statusFilter,
     setStatusFilter,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    selectedRequestIds,
+    setSelectedRequestIds,
     openReview,
     setOpenReview,
     selectedRequest,
@@ -90,5 +122,6 @@ export const useCheckoutManagement = () => {
     submitting,
     handleOpenReview,
     handleReviewSubmit,
+    handleBulkReviewSubmit,
   };
 };

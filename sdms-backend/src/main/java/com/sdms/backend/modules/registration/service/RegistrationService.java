@@ -13,6 +13,8 @@ import com.sdms.backend.modules.registration.repository.RegistrationPeriodReposi
 import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.application.enums.ApplicationStatus;
+import com.sdms.backend.modules.student.repository.StudentRepository;
+import com.sdms.backend.modules.student.enums.StudentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +40,7 @@ public class RegistrationService {
     private final RegistrationEligibilityRepository registrationEligibilityRepository;
     private final RegistrationOtpService registrationOtpService;
     private final DormitoryApplicationRepository applicationRepository;
+    private final StudentRepository studentRepository;
 
     /**
      * Truy xuất đợt đăng ký đang trong thời gian hoạt động (Active).
@@ -82,7 +85,8 @@ public class RegistrationService {
      * Tiếp nhận yêu cầu gửi mã OTP xác thực email từ sinh viên.
      * <p>
      * Trước khi gửi OTP, hệ thống sẽ kiểm tra xem sinh viên đã có đơn đăng ký nào
-     * hợp lệ trong đợt này hay chưa để tránh spam dữ liệu.
+     * hợp lệ trong đợt này hay chưa, đồng thời tối ưu tài nguyên bằng cách kiểm tra trước
+     * tư cách (đối với đợt giới hạn/gia hạn) để tránh lãng phí việc gửi mail.
      * </p>
      *
      * @param email Email trường cấp của sinh viên cần nhận OTP
@@ -90,9 +94,39 @@ public class RegistrationService {
      */
     public void requestOtp(String email) {
         RegistrationPeriod activePeriod = getActivePeriod();
+        String studentCode = email.split("@")[0].toUpperCase();
 
         // Kiểm tra xem sinh viên đã nộp đơn cho đợt này chưa
         validateExistingApplication(email, activePeriod.getPeriodId());
+
+        // Kiểm tra trước xem sinh viên có nằm trong danh sách được phép đăng ký hay không 
+        // để tránh lãng phí email OTP
+        if (activePeriod.getRegistrationType() != RegistrationType.OPEN_REGISTRATION &&
+            activePeriod.getRegistrationType() != RegistrationType.CURRENT_RESIDENT) {
+            
+            boolean isEligible = registrationEligibilityRepository
+                    .findByRegistrationPeriod_PeriodIdAndEmail(activePeriod.getPeriodId(), email)
+                    .isPresent();
+            
+            if (!isEligible) {
+                throw new AppException(
+                        ErrorCode.FORBIDDEN,
+                        "Email của bạn không nằm trong danh sách được phép đăng ký cho đợt này."
+                );
+            }
+        } else if (activePeriod.getRegistrationType() == RegistrationType.CURRENT_RESIDENT) {
+            
+            boolean isResident = studentRepository.findByStudentCode(studentCode)
+                    .map(student -> student.getStatus() == StudentStatus.ACTIVE)
+                    .orElse(false);
+                    
+            if (!isResident) {
+                throw new AppException(
+                        ErrorCode.FORBIDDEN,
+                        "Bạn không phải là sinh viên đang lưu trú, không thể xin OTP trong đợt gia hạn này."
+                );
+            }
+        }
 
         registrationOtpService.generateAndSendOtp(email);
     }

@@ -57,7 +57,7 @@ public class RegistrationAdminController {
         return ApiResponse.success("Cập nhật thành công", service.updatePeriod(id, req));
     }
 
-    @Operation(summary = "Xóa đợt đăng ký (Hard Delete)")
+    @Operation(summary = "Xóa đợt đăng ký")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable UUID id) {
         service.deletePeriod(id);

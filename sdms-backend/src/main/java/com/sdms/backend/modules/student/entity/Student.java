@@ -94,4 +94,7 @@ public class Student extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private StudentStatus status = StudentStatus.PENDING_CHECKIN;
+
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
+    private java.util.List<com.sdms.backend.modules.room.entity.StudentHousingAssignment> assignments;
 }

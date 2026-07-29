@@ -58,6 +58,9 @@ const STATUS_MAP: Record<
   CANCELLED: { label: 'Đã hủy', color: 'default' },
 };
 
+// Gợi ý mốc tiền nhanh cho hóa đơn phạt/đền bù
+const QUICK_AMOUNTS = [50000, 100000, 200000, 500000, 1000000];
+
 export default function PaymentManagement() {
   const {
     bills,
@@ -86,7 +89,7 @@ export default function PaymentManagement() {
   const [manualBillData, setManualBillData] = useState({
     studentId: '',
     roomId: '',
-    amount: '',
+    amount: '', // Lưu giá trị chuỗi nguyên bản (VD: "150000")
     description: '',
     billType: 'PENALTY_FEE',
     dueDate: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
@@ -118,6 +121,19 @@ export default function PaymentManagement() {
       active = false;
     };
   }, [manualBillDialog]);
+
+  // Hàm định dạng số tiền hiển thị có dấu phân cách
+  const formatAmountDisplay = (val: string) => {
+    if (!val) return '';
+    const numericValue = val.replace(/\D/g, '');
+    return numericValue ? Number(numericValue).toLocaleString('vi-VN') : '';
+  };
+
+  // Hàm xử lý khi người dùng gõ số tiền
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, ''); // Lấy nguyên số
+    setManualBillData({ ...manualBillData, amount: rawValue });
+  };
 
   const displayedBills = bills.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -370,7 +386,7 @@ export default function PaymentManagement() {
           </DialogActions>
         </Dialog>
 
-        {/* Dialog chi tiết hóa đơn (Chuẩn form Tạo hóa đơn) */}
+        {/* Dialog chi tiết hóa đơn */}
         <Dialog
             open={detailsDialog}
             onClose={() => setDetailsDialog(false)}
@@ -502,6 +518,7 @@ export default function PaymentManagement() {
                       />
                   )}
               />
+
               <TextField
                   label="Room ID (Tùy chọn)"
                   fullWidth
@@ -511,6 +528,7 @@ export default function PaymentManagement() {
                   placeholder="Nhập UUID của phòng nếu có"
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
               />
+
               <FormControl fullWidth size="small">
                 <InputLabel>Loại hóa đơn</InputLabel>
                 <Select
@@ -524,15 +542,45 @@ export default function PaymentManagement() {
                   <MenuItem value="ELECTRIC_FEE">Thu bù tiền điện</MenuItem>
                 </Select>
               </FormControl>
-              <TextField
-                  label="Số tiền (VND)"
-                  type="number"
-                  fullWidth
-                  size="small"
-                  value={manualBillData.amount}
-                  onChange={(e) => setManualBillData({ ...manualBillData, amount: e.target.value })}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
-              />
+
+              {/* KHỐI NHẬP SỐ TIỀN ĐÃ TỐI ƯU UI/UX */}
+              <Box>
+                <TextField
+                    label="Số tiền thanh toán"
+                    fullWidth
+                    size="small"
+                    value={formatAmountDisplay(manualBillData.amount)}
+                    onChange={handleAmountChange}
+                    placeholder="0"
+                    sx={{
+                      '& .MuiOutlinedInput-root': { borderRadius: 1.5 },
+                      '& input': { textAlign: 'right', fontWeight: 700, fontSize: '1.05rem', color: 'error.main' }
+                    }}
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end" sx={{ '& p': { fontWeight: 700, color: 'text.primary' } }}>VNĐ</InputAdornment>,
+                    }}
+                />
+
+                {/* Các nút bấm chọn nhanh mốc tiền */}
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'center', mr: 0.5 }}>
+                    Gợi ý nhanh:
+                  </Typography>
+                  {QUICK_AMOUNTS.map((amt) => (
+                      <Chip
+                          key={amt}
+                          label={`${amt.toLocaleString('vi-VN')}đ`}
+                          size="small"
+                          clickable
+                          variant={Number(manualBillData.amount) === amt ? 'filled' : 'outlined'}
+                          color={Number(manualBillData.amount) === amt ? 'error' : 'default'}
+                          onClick={() => setManualBillData({ ...manualBillData, amount: String(amt) })}
+                          sx={{ borderRadius: 1, fontSize: '0.75rem', fontWeight: 600 }}
+                      />
+                  ))}
+                </Stack>
+              </Box>
+
               <TextField
                   label="Lý do phạt / đền bù"
                   fullWidth
@@ -543,6 +591,7 @@ export default function PaymentManagement() {
                   onChange={(e) => setManualBillData({ ...manualBillData, description: e.target.value })}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
               />
+
               <TextField
                   label="Hạn thanh toán"
                   type="date"
@@ -566,7 +615,7 @@ export default function PaymentManagement() {
                 sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5, px: 3 }}
                 onClick={async () => {
                   if (!manualBillData.studentId || !manualBillData.amount || !manualBillData.description) {
-                    alert('Vui lòng nhập đầy đủ Student ID, Số tiền và Lý do!');
+                    alert('Vui lòng nhập đầy đủ Sinh viên, Số tiền và Lý do!');
                     return;
                   }
                   const success = await handleCreateManualBill({

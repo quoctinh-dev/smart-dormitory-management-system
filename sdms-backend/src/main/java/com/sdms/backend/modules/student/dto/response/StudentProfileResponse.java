@@ -24,6 +24,9 @@ public class StudentProfileResponse {
     private String permanentAddress;
     private String avatarUrl;
     private String status;
+    private String roomCode;
+    private String bedCode;
+    private String rfidCode;
 
     private String dob;
     private String gender;
@@ -42,6 +45,21 @@ public class StudentProfileResponse {
 
     public static StudentProfileResponse fromEntity(Student student) {
         com.sdms.backend.modules.application.entity.DormitoryApplication app = student.getSourceApplication();
+        String roomCode = null;
+        String bedCode = null;
+        if (student.getAssignments() != null) {
+            for (com.sdms.backend.modules.room.entity.StudentHousingAssignment assignment : student.getAssignments()) {
+                if (assignment.getStatus() == com.sdms.backend.modules.room.enums.AssignmentStatus.OCCUPIED) {
+                    if (assignment.getBed() != null) {
+                        bedCode = assignment.getBed().getBedCode();
+                        if (assignment.getBed().getRoom() != null) {
+                            roomCode = assignment.getBed().getRoom().getRoomCode();
+                        }
+                    }
+                    break;
+                }
+            }
+        }
         return StudentProfileResponse.builder()
                 .studentId(student.getStudentId())
                 .studentCode(student.getStudentCode())
@@ -73,6 +91,9 @@ public class StudentProfileResponse {
                 .permanentAddress(student.getPermanentAddress())
                 .avatarUrl(student.getAvatarUrl())
                 .status(student.getStatus() != null ? student.getStatus().name() : null)
+                .rfidCode(student.getRfidCode())
+                .roomCode(roomCode)
+                .bedCode(bedCode)
                 .build();
     }
 }

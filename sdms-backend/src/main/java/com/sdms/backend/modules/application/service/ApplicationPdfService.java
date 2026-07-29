@@ -33,9 +33,9 @@ import java.util.stream.Collectors;
  *    trong Database (bảng Student), TUYỆT ĐỐI KHÔNG TẠO LẠI (Re-generate) 2 file PDF cũ. 
  *    Nhằm đảm bảo tính pháp lý và không làm sai lệch hồ sơ gốc của năm học đó.
  * 
- * 4. Luồng Gia Hạn (Stay Extension): Sinh viên xin ở thêm ngắn hạn sẽ KHÔNG in lại 2 phiếu trên.
- *    Thay vào đó, hệ thống gọi hàm `generateAndUploadExtensionDecisionPdf` để in ra 
- *    "Quyết Định Gia Hạn" (File loại 3).
+ * 4. Luồng Gia Hạn (Stay Extension): Khi sinh viên được duyệt gia hạn, hệ thống SẼ IN LẠI 2 
+ *    tài liệu (Phiếu Đăng Ký & Bản Cam Kết) mới dành riêng cho lần gia hạn đó, với thông tin 
+ *    nhân trắc học mới nhất lấy từ bảng Student.
  * 5. Luồng Đăng ký năm học mới: Sinh viên bắt buộc phải nộp 1 Đơn Đăng Ký Mới (Application mới).
  *    Lúc đó, hệ thống sẽ sinh ra 1 cặp PDF mới toanh cho Application ID mới đó. 
  *    Dữ liệu cũ hoàn toàn không bị đụng tới.
@@ -54,14 +54,15 @@ public class ApplicationPdfService {
         Context context = new Context();
         context.setVariable("app", application);
         
-        // Ensure priorities is not null and convert to a Set of strings for easy checking in template
+        // Đảm bảo danh sách ưu tiên không bị null và chuyển sang Set<String> 
+        // để tối ưu tốc độ tra cứu (O(1) lookup) trong Thymeleaf template
         Set<String> priorityCategories = application.getPriorities() != null ?
                 application.getPriorities().stream()
                         .map(ap -> ap.getPriorityCategory().name())
                         .collect(Collectors.toSet()) : Collections.emptySet();
         context.setVariable("priorities", priorityCategories);
 
-        // Determine academicYear from registrationPeriod
+        // Trích xuất Năm học (Academic Year) từ kỳ đăng ký (Registration Period)
         String academicYear = "20..... - 20.....";
         if (application.getRegistrationPeriod() != null && application.getRegistrationPeriod().getStayStartDate() != null) {
             int startYear = application.getRegistrationPeriod().getStayStartDate().getYear();
@@ -72,7 +73,7 @@ public class ApplicationPdfService {
         }
         context.setVariable("academicYear", academicYear);
 
-        // Find portrait photo
+        // Trích xuất URL ảnh thẻ (Portrait Photo) từ danh sách tài liệu minh chứng đính kèm
         String portraitPhotoUrl = null;
         if (application.getDocuments() != null) {
             portraitPhotoUrl = application.getDocuments().stream()
@@ -101,7 +102,8 @@ public class ApplicationPdfService {
         Context context = new Context();
         context.setVariable("app", application);
         
-        // Ensure priorities is not null and convert to a Set of strings for easy checking in template
+        // Đảm bảo danh sách ưu tiên không bị null và chuyển sang Set<String> 
+        // để tối ưu tốc độ tra cứu (O(1) lookup) trong Thymeleaf template
         Set<String> priorityCategories = application.getPriorities() != null ?
                 application.getPriorities().stream()
                         .map(ap -> ap.getPriorityCategory().name())
@@ -123,11 +125,11 @@ public class ApplicationPdfService {
      *   2. commitment_form.html    → Bản cam kết (sinh viên cam kết)
      *
      * Data strategy:
-     *   - Các trường KHÔNG THAY ĐỔI (dob, gender, pob, ethnic, issueDate...) → lấy từ srcApp (đơn gốc)
-     *   - Các trường CÓ THỂ CẬP NHẬT (cccd, phone, permanentAddress, fatherName, motherName...) → lấy từ Student
-     *   Điều này đảm bảo PDF gia hạn luôn phản ánh đúng thông tin MỚI NHẤT của sinh viên.
+     *   - Các trường KHÔNG THAY ĐỔI (dob, gender, pob, ethnic, issueDate...) -> lấy từ srcApp (đơn gốc)
+     *   - Các trường CÓ THỂ CẬP NHẬT (cccd, phone, permanentAddress...) -> lấy từ Student Entity
+     *   Chiến lược này đảm bảo PDF gia hạn luôn phản ánh đúng thông tin MỚI NHẤT của sinh viên.
      *
-     * @return String[0] = contractPdfUrl (Phiếu đăng ký), String[1] = commitmentPdfUrl (Bản cam kết)
+     * @return mảng String chứa URL: [0] = URL Phiếu đăng ký, [1] = URL Bản cam kết
      */
     public String[] generateExtensionPdfs(StayExtension extension, String reviewerName) {
         log.info("Generating extension PDFs for extension id: {}", extension.getExtensionId());
@@ -135,7 +137,8 @@ public class ApplicationPdfService {
         Student student = extension.getStudent();
         DormitoryApplication srcApp = student.getSourceApplication();
 
-        // Build virtual app: srcApp làm nền (dob, gender, ethnic...) + Student override các trường cập nhật được
+        // Khởi tạo đối tượng Application ảo: Dùng srcApp làm base (chứa các thông tin bất biến) 
+        // kết hợp với data override từ Student (đảm bảo luôn fetch thông tin mới nhất)
         DormitoryApplication virtualApp = new DormitoryApplication();
         virtualApp.setApplicationCode("EXT-" + student.getStudentCode());
         virtualApp.setStudentCode(student.getStudentCode());
@@ -179,7 +182,7 @@ public class ApplicationPdfService {
                 : Collections.emptySet();
         context.setVariable("priorities", priorityCategories);
 
-        // Determine academicYear for extension
+        // Trích xuất Năm học (Academic Year) cho Đơn gia hạn
         String academicYear = "20..... - 20.....";
         if (extension.getRegistrationPeriod() != null) {
             int startYear = extension.getRegistrationPeriod().getStayStartDate().getYear();
@@ -192,7 +195,7 @@ public class ApplicationPdfService {
         }
         context.setVariable("academicYear", academicYear);
 
-        // Passed explicitly by StayExtensionService if possible, or fallback
+        // Thiết lập tên người duyệt (fallback về giá trị mặc định nếu không được truyền từ Service)
         if (context.getVariable("reviewerName") == null) {
             context.setVariable("reviewerName", "Hệ thống / Ban Quản lý");
         }
@@ -243,7 +246,7 @@ public class ApplicationPdfService {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ITextRenderer renderer = new ITextRenderer();
             
-            // Add custom fonts for Vietnamese support
+            // Nhúng (Embed) custom fonts để hỗ trợ render Unicode Tiếng Việt chuẩn xác
             if (this.regularFontPath != null) {
                 renderer.getFontResolver().addFont(this.regularFontPath, com.itextpdf.text.pdf.BaseFont.IDENTITY_H, com.itextpdf.text.pdf.BaseFont.EMBEDDED);
             }

@@ -17,10 +17,14 @@ import com.sdms.backend.modules.upload.service.CloudinaryService;
 import com.sdms.backend.common.response.ApiResponse;
 import org.springframework.web.multipart.MultipartFile;
 import com.sdms.backend.modules.system.service.SystemConfigService;
+import com.sdms.backend.modules.smartaccess.domain.repository.GateRepository;
+import com.sdms.backend.modules.smartaccess.domain.entity.Gate;
+import com.sdms.backend.modules.smartaccess.domain.enums.GateType;
 
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -36,6 +40,8 @@ public class IotVerificationController {
     private final CloudinaryService cloudinaryService;
     private final SystemConfigService systemConfigService;
     private final InAppNotificationService inAppNotificationService;
+    private final GateRepository gateRepository;
+    
     /**
      * Endpoint for IoT ESP32 to send RFID card verification requests.
      */
@@ -89,8 +95,11 @@ public class IotVerificationController {
         }
 
         VerificationMethod finalMethod = VerificationMethod.RFID;
+        
+        Optional<Gate> gateOpt = gateRepository.findById(gateId);
+        boolean isBuildingGate = gateOpt.isPresent() && gateOpt.get().getGateType() == GateType.BUILDING_GATE;
 
-        if (isDualAuthTime) {
+        if (isBuildingGate && isDualAuthTime) {
             log.info("[IoT] Dual Authentication required for RFID {}", rfidCode);
             var studentSnapshot = eligibilityOpt.get();
             boolean isGracePeriodBypass = false;
@@ -158,9 +167,16 @@ public class IotVerificationController {
         log.info("[IoT] Fetching RFID Whitelist for offline mode sync");
         java.util.Map<java.util.UUID, java.util.List<String>> rfids = eligibilityEvaluationService.getActiveRfidWhitelistsByBuilding();
         
+        // Cấp thêm cấu hình Thẻ Master (Master Card) để ESP32 lưu vào bộ nhớ Offline (EEPROM/Flash)
+        String masterCardUid = systemConfigService.getConfigValue("MASTER_CARD_UID", "FF FF FF FF");
+        
         return ApiResponse.success(
             "Lấy danh sách whitelist thành công",
-            Map.of("count", rfids.size(), "data", rfids)
+            Map.of(
+                "count", rfids.size(), 
+                "data", rfids,
+                "masterCardUid", masterCardUid
+            )
         );
     }
 

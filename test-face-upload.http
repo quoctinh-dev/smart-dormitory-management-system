@@ -1,0 +1,97 @@
+### ==============================================================================
+### TEST KỊCH BẢN UPLOAD VÀ DUYỆT ẢNH KHUÔN MẶT BẰNG HTTP CLIENT (INTELLIJ/VSCODE)
+### ==============================================================================
+
+### ------------------------------------------------------------------------------
+### PHẦN 1: ĐĂNG KÝ ẢNH LẦN ĐẦU
+### ------------------------------------------------------------------------------
+
+### 1. Đăng nhập với tư cách SINH VIÊN để lấy Token
+# @name studentLogin
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "dh52201580@student.stu.edu.vn",
+  "password": "Qt@12345678"
+}
+
+> {%
+    // Lưu tự động token sinh viên vào biến toàn cục
+    client.global.set("student_token", response.body.data.accessToken);
+%}
+
+### 2. Sinh viên Upload ảnh khuôn mặt (Lần đầu đăng ký)
+# @name uploadFace
+POST http://localhost:8080/api/v1/students/me/face
+Authorization: Bearer {{student_token}}
+Content-Type: multipart/form-data; boundary=boundary12345
+
+--boundary12345
+Content-Disposition: form-data; name="file"; filename="daa6c5f4f77d76232f6c.jpg"
+Content-Type: image/jpeg
+
+< C:\Users\DELL\Downloads\daa6c5f4f77d76232f6c.jpg
+--boundary12345--
+
+> {%
+    // Lưu tự động profileId (UUID) vào biến để lát Admin duyệt
+    client.global.set("profile_id", response.body.data);
+%}
+
+### 3. Đăng nhập với tư cách ADMIN để lấy Token
+# @name adminLogin
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "admin@sdms.com",
+  "password": "Admin@123"
+}
+
+> {%
+    // Lưu tự động token admin
+    client.global.set("admin_token", response.body.data.accessToken);
+%}
+
+### 4. Admin Duyệt hồ sơ khuôn mặt vừa Upload
+# @name approveFace
+POST http://localhost:8080/api/v1/admin/faces/{{profile_id}}/approve
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+
+
+### ------------------------------------------------------------------------------
+### PHẦN 2: ĐỔI ẢNH (DÀNH CHO SINH VIÊN ĐÃ CÓ ẢNH RỒI)
+### (Đảm bảo đã chạy Bước 1 và 3 để lấy Token trước)
+### ------------------------------------------------------------------------------
+
+### 5. Lấy Profile ID hiện tại của Sinh viên
+# @name getMyFaceProfile
+GET http://localhost:8080/api/v1/students/me/face
+Authorization: Bearer {{student_token}}
+
+> {%
+    // Lưu tự động profileId hiện tại vào biến
+    client.global.set("profile_id", response.body.data.profileId);
+%}
+
+### 6. Sinh viên yêu cầu ĐỔI ẢNH MỚI
+# @name requestReplacement
+POST http://localhost:8080/api/v1/students/me/face/replacements
+Authorization: Bearer {{student_token}}
+Content-Type: multipart/form-data; boundary=boundaryReplace
+
+--boundaryReplace
+Content-Disposition: form-data; name="file"; filename="daa6c5f4f77d76232f6c.jpg"
+Content-Type: image/jpeg
+
+< C:\Users\DELL\Downloads\daa6c5f4f77d76232f6c.jpg
+--boundaryReplace--
+
+### 7. Admin Duyệt yêu cầu ĐỔI ẢNH
+# @name approveReplacement
+POST http://localhost:8080/api/v1/admin/faces/{{profile_id}}/replacements/approve
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json

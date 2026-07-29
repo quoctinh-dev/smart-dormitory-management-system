@@ -430,7 +430,6 @@ export default function NotificationHistory() {
                                 sx={{ borderRadius: 1.5 }}
                             >
                                 <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
-                                <MenuItem value="SYSTEM">Tin nhắn từ hệ thống</MenuItem>
                                 <MenuItem value="WARNING">Cảnh báo an ninh / nội quy</MenuItem>
                             </Select>
                         </FormControl>

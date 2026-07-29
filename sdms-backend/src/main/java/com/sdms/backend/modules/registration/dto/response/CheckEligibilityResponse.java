@@ -32,7 +32,7 @@ public class CheckEligibilityResponse {
     @Schema(description = "Mã số sinh viên từ danh sách (nếu có)")
     private String studentCode;
 
-    @Schema(description = "Đối tượng áp dụng (FRESHMAN, CURRENT_STUDENT, ALL) - Dùng để Frontend điều hướng Form", example = "FRESHMAN")
+    @Schema(description = "Đối tượng áp dụng (NEW_STUDENT, CURRENT_RESIDENT, OPEN_REGISTRATION) - Dùng để Frontend điều hướng Form", example = "NEW_STUDENT")
     private String target;
 
     @Schema(description = "Thông báo chi tiết trả về cho sinh viên", example = "Bạn đủ điều kiện tham gia đợt đăng ký này.")

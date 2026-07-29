@@ -25,14 +25,24 @@ public class CheckoutRequestAdminController {
 
     private final CheckoutRequestService checkoutRequestService;
 
-    @Operation(summary = "Lấy danh sách đơn trả phòng", description = "Lấy tất cả đơn xin trả phòng của sinh viên, có hỗ trợ phân trang và lọc theo trạng thái")
+    @Operation(summary = "Lấy danh sách đơn trả phòng", description = "Lấy tất cả đơn xin trả phòng của sinh viên, có hỗ trợ phân trang và lọc theo trạng thái, ngày")
     @GetMapping
     public ApiResponse<PageResponse<CheckoutRequestResponse>> getAllRequests(
             @RequestParam(required = false) CheckoutStatus status,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate endDate,
             Pageable pageable) {
 
-        PageResponse<CheckoutRequestResponse> response = checkoutRequestService.getAllCheckoutRequests(status, pageable);
+        PageResponse<CheckoutRequestResponse> response = checkoutRequestService.getAllCheckoutRequests(status, startDate, endDate, pageable);
         return ApiResponse.success("Lấy danh sách đơn trả phòng thành công", response);
+    }
+
+    @Operation(summary = "Xét duyệt đơn trả phòng hàng loạt", description = "Admin hoàn tất nhiều đơn trả phòng cùng lúc")
+    @PostMapping("/bulk-review")
+    public ApiResponse<Integer> bulkReviewRequests(
+            @Valid @RequestBody com.sdms.backend.modules.student.dto.request.BulkCheckoutReviewDto request) {
+        int updatedCount = checkoutRequestService.bulkReviewCheckoutRequests(request);
+        return ApiResponse.success("Cập nhật thành công " + updatedCount + " đơn", updatedCount);
     }
 
     @Operation(summary = "Xét duyệt đơn trả phòng", description = "Admin duyệt hoặc từ chối đơn xin trả phòng của sinh viên")

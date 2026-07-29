@@ -34,8 +34,18 @@ public class AccessHistory {
     @Column(name = "student_id", nullable = false)
     private UUID studentId;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "student_id", insertable = false, updatable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "sourceApplication", "userAccount", "room", "building", "rfidCard"})
+    private com.sdms.backend.modules.student.entity.Student student;
+
     @Column(name = "gate_id", nullable = false)
     private UUID gateId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "gate_id", insertable = false, updatable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "building", "room"})
+    private com.sdms.backend.modules.smartaccess.domain.entity.Gate gate;
 
     @Column(name = "building_id", nullable = false)
     private UUID buildingId;

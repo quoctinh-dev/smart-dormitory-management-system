@@ -7,6 +7,9 @@ const dashboardApi = {
   },
   getExpiringAssignments(days: number = 7): Promise<ExpiringAssignmentDto[]> {
     return axiosClient.get('/v1/dashboard/expiring-assignments', { params: { days } });
+  },
+  clearCache(): Promise<string> {
+    return axiosClient.get('/v1/dashboard/clear-cache');
   }
 };
 

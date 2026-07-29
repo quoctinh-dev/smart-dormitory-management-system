@@ -3,6 +3,7 @@ package com.sdms.backend.modules.notification.strategy;
 import com.sdms.backend.modules.notification.core.payload.NotificationPayload;
 import com.sdms.backend.modules.notification.entity.Notification;
 import com.sdms.backend.modules.notification.enums.NotificationChannel;
+import com.sdms.backend.modules.notification.enums.NotificationStatus;
 import com.sdms.backend.modules.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,11 @@ public class InAppNotificationStrategy implements NotificationStrategy {
                     .actionUrl(payload.getActionUrl())
                     .type(payload.getType())
                     .isRead(false)
+                    .recipient(payload.getStudentId().toString())
+                    .channel(NotificationChannel.IN_APP)
+                    .status(NotificationStatus.SENT)
+                    .eventId(payload.getEventId())
+                    .sentAt(java.time.LocalDateTime.now())
                     .build();
 
             notificationRepository.save(notification);

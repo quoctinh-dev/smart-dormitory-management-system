@@ -40,4 +40,12 @@ public class DashboardController {
             dashboardService.getExpiringAssignments(days)
         );
     }
+
+    @GetMapping("/clear-cache")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Xóa cache và làm mới thống kê Dashboard")
+    public ApiResponse<String> clearDashboardCache() {
+        dashboardService.clearDashboardCache();
+        return ApiResponse.success("Đã làm mới dữ liệu thống kê thành công", null);
+    }
 }

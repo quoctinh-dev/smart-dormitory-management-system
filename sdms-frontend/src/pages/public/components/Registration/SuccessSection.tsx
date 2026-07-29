@@ -10,7 +10,7 @@ export default function SuccessSection() {
                 sx={{ fontSize: 80, color: 'success.main', mb: 3 }}
             />
 
-            <Typography variant="h4" sx={{ fontWeight: 900, textAlign: 'center', mt: 2 }}>
+            <Typography variant="h4" sx={{ fontWeight: 700, textAlign: 'center', mt: 2 }}>
                 Nộp Hồ Sơ Thành Công!
             </Typography>
 
@@ -21,7 +21,6 @@ export default function SuccessSection() {
                     textAlign: 'center',
                     maxWidth: 400,
                     mx: 'auto',
-                    fontSize: '1.1rem',
                 }}
             >
                 Hồ sơ của bạn đã được ghi nhận vào hệ thống và đang chờ Ban Quản Lý xét duyệt. Bạn có thể

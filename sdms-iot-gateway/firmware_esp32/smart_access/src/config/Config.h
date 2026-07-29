@@ -8,28 +8,37 @@
 // ==============================================================================
 // Thiết bị tự định danh với hệ thống Backend thông qua các ID này.
 static const String DEVICE_ID = "ESP32_CAM_001";
-static const String GATE_ID = "123e4567-e89b-12d3-a456-426614174000"; // Thay bằng Gate UUID thật
+static const String GATE_ID = "1fe2de28-3fbe-46c4-b2fb-335aba513f26"; // Thay bằng Gate UUID thật
 // ⚠️ QUAN TRỌNG: BUILDING_ID phải là UUID thật từ bảng buildings.building_id trong DB
 // Không được dùng "B1" hay tên viết tắt — Backend dùng UUID để group whitelist
 // Lấy UUID bằng: SELECT building_id FROM buildings WHERE building_name = 'Tên tòa nhà';
-static const String BUILDING_ID = "00000000-0000-0000-0000-000000000001"; // ← ĐỔI THÀNH UUID THẬT
+static const String BUILDING_ID = "dd979326-9196-497f-b35e-068b99f6e3ff"; // ← ĐỔI THÀNH UUID THẬT
 static const String FIRMWARE_VERSION = "1.0.0-Sprint1";
 static const String HARDWARE_MODEL = "AI-Thinker ESP32-CAM";
 
 // ==============================================================================
 // 2. NETWORK CONFIGURATION (Cấu hình Mạng & Kết nối)
 // ==============================================================================
-static const char* WIFI_SSID = "TECNO POVA 6";
+static const char* WIFI_SSID     = "TECNO POVA 6";
 static const char* WIFI_PASSWORD = "12345678";
 
-// API Backend (Spring Boot)
-static const String BACKEND_BASE_URL = "http://10.152.127.74:8080/api/v1/smartaccess";
+// ⚠️ KHÔNG DÙNG IP CỨNG — Dùng mDNS hostname để chống đổi IP khi dùng 4G Hotspot.
+// Trên máy tính chạy Backend (Windows): mở PowerShell với quyền Admin, chạy:
+//   > Add-DnsClientNrptRule -Namespace "sdms-backend.local" -NameServers "127.0.0.1"
+// Hoặc cài Bonjour (https://support.apple.com/kb/DL999) → máy sẽ tự broadcast "<hostname>.local"
+// Sau đó đổi BACKEND_MDNS_HOST thành tên máy tính (hostname) của bạn + ".local"
+static const char* BACKEND_MDNS_HOST = "sdms-backend.local"; // ← Tên hostname máy chạy Spring Boot
+static const int   BACKEND_PORT      = 8080;
 
-// MQTT Broker
-static const char* MQTT_BROKER_HOST = "10.152.127.74"; // Đổi thành IP của Broker
-static const int MQTT_BROKER_PORT = 1883;
-static const char* MQTT_USERNAME = ""; // Điền nếu có
-static const char* MQTT_PASSWORD = "";
+// URL đầy đủ — KHÔNG DÙNG trực tiếp, NetworkManager sẽ resolve mDNS rồi build URL động.
+// Giữ lại để fallback thủ công nếu mDNS không hoạt động trong môi trường test:
+static const String BACKEND_BASE_URL = "http://sdms-backend.local:8080/api/v1/smartaccess";
+
+// MQTT Broker — cùng máy với Backend
+static const char* MQTT_BROKER_HOST = "sdms-backend.local"; // mDNS hostname
+static const int   MQTT_BROKER_PORT = 1883;
+static const char* MQTT_USERNAME    = ""; // Điền nếu có
+static const char* MQTT_PASSWORD    = "";
 
 // ==============================================================================
 // 3. SYSTEM TIMEOUT & INTERVALS (Các khoảng thời gian - mili giây)

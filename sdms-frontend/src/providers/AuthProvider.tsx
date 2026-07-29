@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 
 import { authApi } from '@/api';
-import CustomSkeleton from '@/components/common/CustomSkeleton';
+import { Box, CircularProgress } from '@mui/material';
 import { authStorage } from '@/helpers/auth-storage';
 import { UserProfile } from '@/types/auth';
 
@@ -70,7 +70,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   if (loading) {
-    return <CustomSkeleton type="dashboard" count={1} />;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%' }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (

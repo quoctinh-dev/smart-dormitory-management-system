@@ -26,10 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -168,5 +171,10 @@ public class DashboardService {
         }
         
         return result;
+    }
+
+    @CacheEvict(value = "dashboard_static", allEntries = true)
+    public void clearDashboardCache() {
+        log.info("Admin triggered manual cache clear for Dashboard");
     }
 }

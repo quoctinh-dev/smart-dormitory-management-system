@@ -4,120 +4,242 @@
     <meta charset="UTF-8"/>
     <title>Phiếu Đăng Ký Lưu Trú Ký Túc Xá</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         @page {
             size: A4;
-            margin: 20mm;
+            margin: 10mm 15mm 15mm 15mm;
         }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .checkbox-group {
+                page-break-inside: avoid;
+            }
+            .section-title {
+                page-break-inside: avoid;
+            }
+            .info-table tr {
+                page-break-inside: avoid;
+            }
+        }
+
         body {
             font-family: "Times New Roman", Times, serif;
-            font-size: 14pt;
-            line-height: 1.5;
+            font-size: 12pt;
+            line-height: 1.4;
             color: #000;
+            background-color: #fff;
         }
+
         .header {
             width: 100%;
             display: table;
-            margin-bottom: 20px;
-            font-size: 13pt;
+            margin-bottom: 8px;
+            border-collapse: collapse;
+            font-size: 12pt;
         }
+
         .header-left, .header-right {
             display: table-cell;
             text-align: center;
             width: 50%;
             vertical-align: top;
-        }
-        .header-left {
+            padding: 0 5px;
             font-weight: bold;
+            line-height: 1.3;
         }
-        .header-right {
-            font-weight: bold;
+
+        .header-left u, .header-right u {
+            text-decoration: underline;
         }
+
         .title-container {
             text-align: center;
             font-weight: bold;
-            font-size: 15pt;
-            margin-top: 10px;
-            margin-bottom: 20px;
+            font-size: 16pt;
+            margin: 8px 0;
             line-height: 1.3;
         }
+
         .kinh-gui {
             text-align: center;
             font-style: italic;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
+            font-size: 11pt;
         }
+
+        .kinh-gui strong {
+            font-weight: bold;
+        }
+
         .main-content {
             display: table;
             width: 100%;
+            margin-bottom: 8px;
         }
+
         .photo-box-container {
             display: table-cell;
-            width: 30mm;
+            width: 32mm;
             vertical-align: top;
-            padding-right: 15px;
+            padding-right: 10px;
         }
+
         .photo-box {
-            width: 30mm;
-            height: 40mm;
+            width: 32mm;
+            height: 42mm;
             border: 1px solid #000;
             text-align: center;
             vertical-align: middle;
             display: table-cell;
+            font-size: 10pt;
+            color: #666;
         }
+
+        .photo-box img {
+            display: block;
+            width: 32mm;
+            height: 42mm;
+            object-fit: cover;
+        }
+
         .info-container {
             display: table-cell;
             vertical-align: top;
-            padding-left: 15px;
-            width: 100%;
+            padding-left: 10px;
+            width: calc(100% - 32mm);
         }
+
         .info-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13pt;
+            font-size: 11pt;
+            line-height: 1.3;
         }
+
         .info-table td {
-            padding: 4px 0;
+            padding: 2px 0;
             vertical-align: top;
+            text-align: justify;
         }
+
+        .info-table tr {
+            page-break-inside: avoid;
+        }
+
         .value {
             font-weight: bold;
         }
+
         .section-title {
             text-align: center;
             font-weight: bold;
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin: 10px 0 6px 0;
+            font-size: 12pt;
         }
+
+        .section-title span {
+            font-weight: normal;
+            font-size: 11pt;
+        }
+
         .checkbox-group {
             margin-bottom: 6px;
             text-align: justify;
+            font-size: 11pt;
+            line-height: 1.35;
         }
+
         .checkbox {
             display: inline-block;
-            width: 15px;
-            height: 15px;
+            width: 14px;
+            height: 14px;
             border: 1px solid #000;
             text-align: center;
-            line-height: 15px;
-            margin-right: 5px;
+            line-height: 14px;
+            margin: 0 4px;
             vertical-align: middle;
+            font-size: 10pt;
+            font-weight: bold;
         }
+
+        .checkbox-group i {
+            font-size: 10pt;
+            color: #555;
+        }
+
+        .closing-text {
+            text-align: justify;
+            margin: 8px 0;
+            font-size: 11pt;
+            line-height: 1.4;
+            text-indent: 25px;
+        }
+
         .footer {
             width: 100%;
             display: table;
-            margin-top: 20px;
+            margin-top: 15px;
+            border-collapse: collapse;
         }
+
         .footer-left, .footer-right {
             display: table-cell;
             width: 50%;
             text-align: center;
             vertical-align: top;
-        }
-        .signature-box {
-            height: 80px;
-        }
-        .doc-list {
+            padding-top: 5px;
             font-size: 11pt;
-            margin-top: 40px;
+        }
+
+        .footer-left {
+            padding-right: 15px;
+        }
+
+        .footer-right {
+            padding-left: 15px;
+        }
+
+        .footer-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .footer-sublabel {
+            font-style: italic;
+            font-size: 10pt;
+            margin-bottom: 8px;
+        }
+
+        .signature-box {
+            height: 50px;
+            margin: 8px 0;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 11pt;
+            margin-top: 2px;
+        }
+
+        .doc-list {
+            font-size: 10pt;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+
+        .doc-list-title {
+            font-weight: bold;
+            margin-bottom: 3px;
         }
     </style>
 </head>
@@ -149,7 +271,7 @@
     <div class="photo-box-container">
         <div class="photo-box">
             <span th:if="${portraitPhotoUrl == null}">ảnh 3x4</span>
-            <img th:if="${portraitPhotoUrl != null}" th:src="${portraitPhotoUrl}" style="width: 30mm; height: 40mm; object-fit: cover; display: block;" />
+            <img th:if="${portraitPhotoUrl != null}" th:src="${portraitPhotoUrl}" />
         </div>
     </div>
     <div class="info-container">
@@ -180,7 +302,7 @@
                 <td colspan="3">Hộ khẩu thường trú: <span class="value" th:text="${app.permanentAddress}"></span></td>
             </tr>
             <tr>
-                <td colspan="3"><div style="border-top: 1px dotted #000; margin: 5px 0;"></div></td>
+                <td colspan="3"><div style="border-top: 1px dotted #999; margin: 5px 0;"></div></td>
             </tr>
             <tr>
                 <td colspan="2">Họ tên cha: <span class="value" th:text="${app.fatherName}"></span></td>
@@ -205,59 +327,72 @@
     </div>
 </div>
 
-<div class="section-title">Thuộc các đối tượng sau <span style="font-weight: normal;">(đánh dấu X vào ô phù hợp):</span></div>
+<div class="section-title">Thuộc các đối tượng sau <span>(đánh dấu X vào ô phù hợp):</span></div>
+
 <div class="checkbox-group">
     1. <span class="checkbox" th:text="${priorities.contains('PRIORITY_01') ? 'X' : ''}"></span> Con liệt sĩ, con thương binh, bệnh binh (<i>Bản sao công chứng thẻ thương binh, bệnh binh hoặc giấy xác nhận của cơ quan chức năng có thẩm quyền</i>).
 </div>
+
 <div class="checkbox-group">
     2. <span class="checkbox" th:text="${priorities.contains('PRIORITY_02') ? 'X' : ''}"></span> Con đẻ của những người hoạt động kháng chiến bị nhiễm chất độc hóa học (<i>Giấy chứng nhận người hoạt động kháng chiến bị nhiễm chất độc hóa học của cơ quan chức năng có thẩm quyền</i>).
 </div>
+
 <div class="checkbox-group">
     3. <span class="checkbox" th:text="${priorities.contains('PRIORITY_03') ? 'X' : ''}"></span> Sinh viên là người dân tộc thiểu số.
 </div>
+
 <div class="checkbox-group">
     4. <span class="checkbox" th:text="${priorities.contains('PRIORITY_04') ? 'X' : ''}"></span> Sinh viên có hộ khẩu và sinh sống tại xã khó khăn; Sinh viên gia đình thuộc diện xóa đói giảm nghèo theo quy định của nhà nước (<i>gia đình có sổ hộ khẩu, sổ hộ cận nghèo</i>).
 </div>
+
 <div class="checkbox-group">
     5. <span class="checkbox" th:text="${priorities.contains('PRIORITY_05') ? 'X' : ''}"></span> Sinh viên là người khuyết tật, sinh viên mồ côi cả cha lẫn mẹ không nơi nương tựa.
 </div>
+
 <div class="checkbox-group">
     6. <span class="checkbox" th:text="${priorities.contains('PRIORITY_06') ? 'X' : ''}"></span> Sinh viên là Đảng viên, bộ đội, công an đã hoàn tất nghĩa vụ và xuất ngũ.
 </div>
+
 <div class="checkbox-group">
     7. <span class="checkbox" th:text="${priorities.contains('PRIORITY_07') ? 'X' : ''}"></span> Sinh viên tham gia hoạt động công tác xã hội (cán bộ đoàn, hội, khác): .............................................
 </div>
 
-<p style="text-align: justify; margin-top: 15px; text-indent: 30px;">
+<p class="closing-text">
     Tôi xin cam đoan những lời khai trên là đúng sự thật, nếu sai tôi hoàn toàn chịu trách nhiệm và tôi xin cam kết thực hiện nghiêm túc các quy định của Nhà trường, nội quy của Ký túc xá. Nếu vi phạm tôi chấp nhận chịu mọi hình thức xử lý của Nhà trường và Ký túc xá.
 </p>
 
 <div class="footer">
     <div class="footer-left">
-        <strong>Phần xét duyệt</strong><br/>
+        <div class="footer-label">Phần xét duyệt</div>
         <div th:if="${app.status == T(com.sdms.backend.modules.application.enums.ApplicationStatus).APPROVED || app.status == T(com.sdms.backend.modules.application.enums.ApplicationStatus).WAITING_PAYMENT}">
-            <i>Đã duyệt hồ sơ hợp lệ</i><br/>
-            <div class="signature-box" style="height: 60px;"></div>
-            <strong>Ban Quản lý Ký túc xá</strong>
+            <div class="footer-sublabel">Đã duyệt hồ sơ hợp lệ</div>
+        </div>
+        <div th:unless="${app.status == T(com.sdms.backend.modules.application.enums.ApplicationStatus).APPROVED || app.status == T(com.sdms.backend.modules.application.enums.ApplicationStatus).WAITING_PAYMENT}">
+            <div class="footer-sublabel">&nbsp;</div>
+        </div>
+        <div class="signature-box" style="height: 70px;"></div>
+        <div class="footer-label">Ban Quản lý Ký túc xá</div>
+        <div class="signature-name" style="margin-top: 5px; font-size: 11pt;" th:if="${reviewerName != null}" th:text="${reviewerName}"></div>
+        
+        <div class="doc-list" style="text-align: left; padding-left: 10px;">
+            <div class="doc-list-title">Hồ sơ gồm có:</div>
+            1. Phiếu đăng ký lưu trú KTX theo mẫu<br/>
+            2. Bản cam kết<br/>
+            3. 04 ảnh 3 x 4 (chụp không quá 06 tháng)<br/>
+            4. 02 giấy photo CMND
         </div>
     </div>
     <div class="footer-right">
-        <i>TP.HCM, ngày <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'dd')}"></span> 
-        tháng <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'MM')}"></span> 
-        năm <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'yyyy')}"></span></i><br/>
-        <strong>Kính đơn</strong><br/>
-        <i>(Sinh viên ký, ghi rõ họ tên)</i><br/>
+        <div style="font-style: italic; font-size: 11pt; margin-bottom: 8px;">
+            TP.HCM, ngày <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'dd')}"></span> 
+            tháng <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'MM')}"></span> 
+            năm <span th:text="${#temporals.format(app.submittedAt != null ? app.submittedAt : app.createdAt, 'yyyy')}"></span>
+        </div>
+        <div class="footer-label">Kính đơn</div>
+        <div class="footer-sublabel">(Sinh viên ký, ghi rõ họ tên)</div>
         <div class="signature-box"></div>
-        <strong th:text="${app.fullName}" style="text-transform: uppercase;"></strong>
+        <div class="signature-name" th:text="${app.fullName}"></div>
     </div>
-</div>
-
-<div class="doc-list">
-    Hồ sơ gồm có:<br/>
-    1. Phiếu đăng ký lưu trú KTX theo mẫu<br/>
-    2. Bản cam kết<br/>
-    3. 04 ảnh 3 x 4 (chụp không quá 06 tháng)<br/>
-    4. 02 giấy photo CMND
 </div>
 
 </body>

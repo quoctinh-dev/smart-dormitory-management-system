@@ -12,6 +12,7 @@ import com.sdms.backend.modules.application.entity.VerificationDocument;
 import com.sdms.backend.modules.application.enums.ApplicationStatus;
 import com.sdms.backend.modules.application.enums.VerificationDocumentType;
 import com.sdms.backend.modules.application.enums.VerificationStatus;
+import com.sdms.backend.modules.application.event.ApplicationPdfGenerationEvent;
 import com.sdms.backend.modules.application.event.ApplicationSubmittedEvent;
 import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
 import com.sdms.backend.modules.application.repository.DormitoryApplicationStatusHistoryRepository;
@@ -244,12 +245,9 @@ public class ApplicationService {
 
         saveHistory(savedApplication, null, ApplicationStatus.PENDING, null, "Sinh viên nộp đơn chính thức thành công");
 
-        String registrationPdf = pdfService.generateAndUploadRegistrationFormPdf(savedApplication);
-        String commitmentPdf = pdfService.generateAndUploadCommitmentFormPdf(savedApplication);
-        
-        savedApplication.setRegistrationFormPdfUrl(registrationPdf);
-        savedApplication.setCommitmentFormPdfUrl(commitmentPdf);
-        savedApplication = applicationRepository.save(savedApplication);
+        // 🌟 TỐI ƯU HIỆU SUẤT: Offload việc sinh PDF và Upload Cloudinary sang Background Thread
+        // Không block HTTP Request hiện tại, trả về 200 OK ngay lập tức cho sinh viên
+        eventPublisher.publishEvent(new ApplicationPdfGenerationEvent(this, savedApplication.getApplicationId()));
 
         // KÍCH HOẠT VIỆC XẾP PHÒNG Ở ĐÂY
         eventPublisher.publishEvent(new ApplicationSubmittedEvent(

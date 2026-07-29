@@ -31,12 +31,7 @@ function normalizeDocumentUrl(url?: string | null) {
 function getDocumentKind(url?: string | null) {
     if (!url) return 'unknown';
     const normalized = url.toLowerCase();
-    if (
-        normalized.includes('/image/upload/') ||
-        /\.(jpg|jpeg|png|gif|webp|bmp|svg|avif|ico)(\?.*)?$/.test(normalized)
-    ) {
-        return 'image';
-    }
+    
     if (
         normalized.includes('/raw/upload/') ||
         normalized.includes('/pdf') ||
@@ -44,6 +39,14 @@ function getDocumentKind(url?: string | null) {
     ) {
         return 'pdf';
     }
+    
+    if (
+        normalized.includes('/image/upload/') ||
+        /\.(jpg|jpeg|png|gif|webp|bmp|svg|avif|ico)(\?.*)?$/.test(normalized)
+    ) {
+        return 'image';
+    }
+    
     return 'other';
 }
 

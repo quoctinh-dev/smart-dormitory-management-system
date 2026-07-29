@@ -10,7 +10,8 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { Box, Paper, Typography, CircularProgress, useTheme, alpha, Avatar, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { Box, Paper, Typography, CircularProgress, useTheme, alpha, Avatar, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, IconButton, Tooltip } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
@@ -22,7 +23,7 @@ import { useAdminDashboard } from '@/hooks/useAdminDashboard';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const { data, expiringList, loading } = useAdminDashboard();
+  const { data, expiringList, loading, handleRefresh } = useAdminDashboard();
   const theme = useTheme();
 
   // Ngăn chặn STAFF truy cập trang Dashboard
@@ -259,13 +260,25 @@ export default function AdminDashboard() {
 
   return (
       <Box sx={{ p: { xs: 2, md: 3 } }}>
-        <Box mb={3}>
-          <Typography variant="h5" fontWeight={600} color="text.primary" mb={0.5}>
-            Dashboard Quản Trị
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Chào mừng trở lại, {user?.username || 'Quản trị viên'}! 👋 Dưới đây là tổng quan Cơ sở vật chất & Hoạt động KTX.
-          </Typography>
+        <Box mb={3} display="flex" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Typography variant="h5" fontWeight={600} color="text.primary" mb={0.5}>
+              Dashboard Quản Trị
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Chào mừng trở lại, {user?.username || 'Quản trị viên'}! 👋 Dưới đây là tổng quan Cơ sở vật chất & Hoạt động KTX.
+            </Typography>
+          </Box>
+          <Tooltip title="Làm mới dữ liệu">
+            <IconButton 
+              onClick={handleRefresh} 
+              disabled={loading}
+              color="primary"
+              sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1) }}
+            >
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
         </Box>
 
         {loading ? (

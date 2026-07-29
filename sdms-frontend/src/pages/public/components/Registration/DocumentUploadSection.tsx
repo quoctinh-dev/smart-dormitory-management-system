@@ -111,7 +111,7 @@ const DocumentUploadBox = ({
           component="label"
           title={isUploaded ? uploadedName || undefined : undefined}
       >
-        <input type="file" hidden onChange={handleFileChange} disabled={loading} />
+        <input type="file" hidden accept="image/jpeg, image/png, image/jpg" onChange={handleFileChange} disabled={loading} />
         {isUploaded ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               {previewUrl ? (
@@ -200,7 +200,7 @@ export default function DocumentUploadSection({
       .map((p) => PRIORITY_DOC_MAP[p]);
 
   const displayDocTypes = DOC_TYPES.filter((doc) => {
-    if (doc.type === 'STUDENT_CARD' && (targetGroup === 'FRESHMAN' || period?.registrationType === 'NEW_STUDENT')) {
+    if (doc.type === 'STUDENT_CARD' && (targetGroup === 'NEW_STUDENT' || period?.registrationType === 'NEW_STUDENT')) {
       return false;
     }
     return true;

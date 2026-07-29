@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.sdms.backend.modules.smartaccess.application.port.out.StudentEligibilitySnapshot;
 import com.sdms.backend.modules.smartaccess.application.strategy.CurfewResolutionStrategy;
-import com.sdms.backend.modules.smartaccess.application.strategy.TimeWindowEvaluationStrategy;
 import com.sdms.backend.modules.smartaccess.domain.entity.AccessHistory;
 import com.sdms.backend.modules.smartaccess.domain.enums.AccessDecision;
 import com.sdms.backend.modules.smartaccess.domain.enums.GateDirection;
@@ -35,7 +34,6 @@ public class AccessEvaluationService {
     private final IdempotencyService idempotencyService;
     private final EligibilityEvaluationService eligibilityEvaluationService;
     private final CurfewResolutionStrategy curfewResolutionStrategy;
-    private final TimeWindowEvaluationStrategy timeWindowEvaluationStrategy;
     private final AccessHistoryRepository accessHistoryRepository;
     private final GateRepository gateRepository;
     private final CurfewRequestRepository curfewRequestRepository;
@@ -92,69 +90,64 @@ public class AccessEvaluationService {
                 return;
             }
             
-            // Strategy selection for Building Gates (Curfew and Time Windows)
-            if (snapshot.getResidentType() == ResidentType.BOARDING) {
-                isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);
-                if (!isAllowed) {
-                    // Xác định "Business Date" (Ngày làm việc) cho việc kiểm tra đơn.
-                    // Nếu sinh viên về lúc 01:00 AM, thực chất là họ đang về trễ cho đêm hôm trước.
-                    LocalDate businessDate = now.toLocalDate();
-                    if (now.toLocalTime().isBefore(LocalTime.of(6, 0))) {
-                        businessDate = businessDate.minusDays(1);
-                    }
-                    
-                    LocalDateTime startOfDay = businessDate.atStartOfDay();
-                    LocalDateTime endOfDay = businessDate.atTime(23, 59, 59, 999999999);
-                    
-                    if (curfewRequestRepository.hasApprovedRequestForDate(studentId, startOfDay, endOfDay)) {
-                        // KHI CÓ ĐƠN XIN PHÉP: Kiểm tra xem Tòa nhà đang dùng luật Global hay luật Custom
-                        boolean isSpecialEvent = false;
-                        boolean isHardLockdown = false;
-                        
-                        java.util.List<com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy> policies = curfewPolicyRepository.findByBuildingIdAndIsActiveTrue(snapshot.getBuildingId());
-                        if (!policies.isEmpty()) {
-                            com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy highest = policies.stream().max(java.util.Comparator.comparingInt(com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy::getPriority)).orElse(null);
-                            if (highest != null) {
-                                if (highest.getType() == com.sdms.backend.modules.smartaccess.domain.enums.CurfewType.SPECIAL_EVENT) isSpecialEvent = true;
-                                if (highest.getType() == com.sdms.backend.modules.smartaccess.domain.enums.CurfewType.HARD_LOCKDOWN) isHardLockdown = true;
-                            }
-                        }
-                        
-                        if (isHardLockdown || isSpecialEvent) {
-                            // Cấm cửa tuyệt đối HOẶC Sự kiện đặc biệt (đã dời giờ rất trễ rồi) -> Dù có đơn xin phép cũng KHÔNG ĐƯỢC VÀO TỰ ĐỘNG
-                            isAllowed = false;
-                            denialReason = isHardLockdown ? "HARD_LOCKDOWN_ACTIVE" : "SPECIAL_EVENT_DEADLINE_EXCEEDED";
-                        } else {
-                            // Chính sách Tiêu Chuẩn (STANDARD) HOẶC Luật Global -> Vẫn bị siết bởi Global Deadline
-                            String deadlineStr = systemConfigService.getConfigValue("LATE_RETURN_DEADLINE", "00:00");
-                            
-                            if ("OFF".equalsIgnoreCase(deadlineStr)) {
-                                isAllowed = true;
-                            } else {
-                                try {
-                                    LocalTime deadlineTime = LocalTime.parse(deadlineStr);
-                                    LocalDateTime deadlineDateTime = businessDate.atTime(deadlineTime);
-                                    if (deadlineTime.isBefore(LocalTime.of(12, 0))) {
-                                        deadlineDateTime = deadlineDateTime.plusDays(1);
-                                    }
-                                    
-                                    if (now.isBefore(deadlineDateTime) || now.isEqual(deadlineDateTime)) {
-                                        isAllowed = true;
-                                    } else {
-                                        denialReason = "LATE_DEADLINE_EXCEEDED"; // Quá hạn giờ về trễ, phải gọi ban quản lý
-                                    }
-                                } catch (Exception e) {
-                                    isAllowed = true; // Fallback nếu parse lỗi
-                                }
-                            }
-                        }
-                    } else {
-                        denialReason = "CURFEW_VIOLATION";
-                    }
+            // Strategy selection for Building Gates (Curfew)
+            isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);
+            if (!isAllowed) {
+                // Xác định "Business Date" (Ngày làm việc) cho việc kiểm tra đơn.
+                // Nếu sinh viên về lúc 01:00 AM, thực chất là họ đang về trễ cho đêm hôm trước.
+                LocalDate businessDate = now.toLocalDate();
+                if (now.toLocalTime().isBefore(LocalTime.of(6, 0))) {
+                    businessDate = businessDate.minusDays(1);
                 }
-            } else {
-                isAllowed = timeWindowEvaluationStrategy.isAllowed(snapshot.getBuildingId(), snapshot.getResidentType(), currentTime);
-                if (!isAllowed) denialReason = "OUTSIDE_TIME_WINDOW";
+                
+                LocalDateTime startOfDay = businessDate.atStartOfDay();
+                LocalDateTime endOfDay = businessDate.atTime(23, 59, 59, 999999999);
+                
+                if (curfewRequestRepository.hasApprovedRequestForDate(studentId, startOfDay, endOfDay)) {
+                    // KHI CÓ ĐƠN XIN PHÉP: Kiểm tra xem Tòa nhà đang dùng luật Global hay luật Custom
+                    boolean isSpecialEvent = false;
+                    boolean isHardLockdown = false;
+                    
+                    java.util.List<com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy> policies = curfewPolicyRepository.findByBuildingIdAndIsActiveTrue(snapshot.getBuildingId());
+                    if (!policies.isEmpty()) {
+                        com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy highest = policies.stream().max(java.util.Comparator.comparingInt(com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy::getPriority)).orElse(null);
+                        if (highest != null) {
+                            if (highest.getType() == com.sdms.backend.modules.smartaccess.domain.enums.CurfewType.SPECIAL_EVENT) isSpecialEvent = true;
+                            if (highest.getType() == com.sdms.backend.modules.smartaccess.domain.enums.CurfewType.HARD_LOCKDOWN) isHardLockdown = true;
+                        }
+                    }
+                    
+                    if (isHardLockdown || isSpecialEvent) {
+                        // Cấm cửa tuyệt đối HOẶC Sự kiện đặc biệt (đã dời giờ rất trễ rồi) -> Dù có đơn xin phép cũng KHÔNG ĐƯỢC VÀO TỰ ĐỘNG
+                        isAllowed = false;
+                        denialReason = isHardLockdown ? "HARD_LOCKDOWN_ACTIVE" : "SPECIAL_EVENT_DEADLINE_EXCEEDED";
+                    } else {
+                        // Chính sách Tiêu Chuẩn (STANDARD) HOẶC Luật Global -> Vẫn bị siết bởi Global Deadline
+                        String deadlineStr = systemConfigService.getConfigValue("LATE_RETURN_DEADLINE", "00:00");
+                        
+                        if ("OFF".equalsIgnoreCase(deadlineStr)) {
+                            isAllowed = true;
+                        } else {
+                            try {
+                                LocalTime deadlineTime = LocalTime.parse(deadlineStr);
+                                LocalDateTime deadlineDateTime = businessDate.atTime(deadlineTime);
+                                if (deadlineTime.isBefore(LocalTime.of(12, 0))) {
+                                    deadlineDateTime = deadlineDateTime.plusDays(1);
+                                }
+                                
+                                if (now.isBefore(deadlineDateTime) || now.isEqual(deadlineDateTime)) {
+                                    isAllowed = true;
+                                } else {
+                                    denialReason = "LATE_DEADLINE_EXCEEDED"; // Quá hạn giờ về trễ, phải gọi ban quản lý
+                                }
+                            } catch (Exception e) {
+                                isAllowed = true; // Fallback nếu parse lỗi
+                            }
+                        }
+                    }
+                } else {
+                    denialReason = "CURFEW_VIOLATION";
+                }
             }
         }
 
@@ -207,60 +200,55 @@ public class AccessEvaluationService {
                 return AccessDecision.DENIED;
             }
             
-            if (snapshot.getResidentType() == ResidentType.BOARDING) {
-                isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);
-                if (!isAllowed) {
-                    LocalDate businessDate = now.toLocalDate();
-                    if (now.toLocalTime().isBefore(LocalTime.of(6, 0))) {
-                        businessDate = businessDate.minusDays(1);
-                    }
-                    LocalDateTime startOfDay = businessDate.atStartOfDay();
-                    LocalDateTime endOfDay = businessDate.atTime(23, 59, 59, 999999999);
-                    
-                    if (curfewRequestRepository.hasApprovedRequestForDate(studentId, startOfDay, endOfDay)) {
-                        boolean isSpecialEvent = false;
-                        boolean isHardLockdown = false;
-                        
-                        java.util.List<com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy> policies = curfewPolicyRepository.findByBuildingIdAndIsActiveTrue(snapshot.getBuildingId());
-                        if (!policies.isEmpty()) {
-                            com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy highest = policies.stream().max(java.util.Comparator.comparingInt(com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy::getPriority)).orElse(null);
-                            if (highest != null) {
-                                if (highest.getType() == com.sdms.backend.modules.smartaccess.domain.enums.CurfewType.SPECIAL_EVENT) isSpecialEvent = true;
-                                if (highest.getType() == com.sdms.backend.modules.smartaccess.domain.enums.CurfewType.HARD_LOCKDOWN) isHardLockdown = true;
-                            }
-                        }
-                        
-                        if (isHardLockdown || isSpecialEvent) {
-                            isAllowed = false;
-                            denialReason = isHardLockdown ? "HARD_LOCKDOWN_ACTIVE" : "SPECIAL_EVENT_DEADLINE_EXCEEDED";
-                        } else {
-                            String deadlineStr = systemConfigService.getConfigValue("LATE_RETURN_DEADLINE", "00:00");
-                            if ("OFF".equalsIgnoreCase(deadlineStr)) {
-                                isAllowed = true;
-                            } else {
-                                try {
-                                    LocalTime deadlineTime = LocalTime.parse(deadlineStr);
-                                    LocalDateTime deadlineDateTime = businessDate.atTime(deadlineTime);
-                                    if (deadlineTime.isBefore(LocalTime.of(12, 0))) {
-                                        deadlineDateTime = deadlineDateTime.plusDays(1);
-                                    }
-                                    if (now.isBefore(deadlineDateTime) || now.isEqual(deadlineDateTime)) {
-                                        isAllowed = true;
-                                    } else {
-                                        denialReason = "LATE_DEADLINE_EXCEEDED";
-                                    }
-                                } catch (Exception e) {
-                                    isAllowed = true;
-                                }
-                            }
-                        }
-                    } else {
-                        denialReason = "CURFEW_VIOLATION";
-                    }
+            isAllowed = curfewResolutionStrategy.isAllowed(snapshot.getBuildingId(), currentTime);
+            if (!isAllowed) {
+                LocalDate businessDate = now.toLocalDate();
+                if (now.toLocalTime().isBefore(LocalTime.of(6, 0))) {
+                    businessDate = businessDate.minusDays(1);
                 }
-            } else {
-                isAllowed = timeWindowEvaluationStrategy.isAllowed(snapshot.getBuildingId(), snapshot.getResidentType(), currentTime);
-                if (!isAllowed) denialReason = "OUTSIDE_TIME_WINDOW";
+                LocalDateTime startOfDay = businessDate.atStartOfDay();
+                LocalDateTime endOfDay = businessDate.atTime(23, 59, 59, 999999999);
+                
+                if (curfewRequestRepository.hasApprovedRequestForDate(studentId, startOfDay, endOfDay)) {
+                    boolean isSpecialEvent = false;
+                    boolean isHardLockdown = false;
+                    
+                    java.util.List<com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy> policies = curfewPolicyRepository.findByBuildingIdAndIsActiveTrue(snapshot.getBuildingId());
+                    if (!policies.isEmpty()) {
+                        com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy highest = policies.stream().max(java.util.Comparator.comparingInt(com.sdms.backend.modules.smartaccess.domain.entity.CurfewPolicy::getPriority)).orElse(null);
+                        if (highest != null) {
+                            if (highest.getType() == com.sdms.backend.modules.smartaccess.domain.enums.CurfewType.SPECIAL_EVENT) isSpecialEvent = true;
+                            if (highest.getType() == com.sdms.backend.modules.smartaccess.domain.enums.CurfewType.HARD_LOCKDOWN) isHardLockdown = true;
+                        }
+                    }
+                    
+                    if (isHardLockdown || isSpecialEvent) {
+                        isAllowed = false;
+                        denialReason = isHardLockdown ? "HARD_LOCKDOWN_ACTIVE" : "SPECIAL_EVENT_DEADLINE_EXCEEDED";
+                    } else {
+                        String deadlineStr = systemConfigService.getConfigValue("LATE_RETURN_DEADLINE", "00:00");
+                        if ("OFF".equalsIgnoreCase(deadlineStr)) {
+                            isAllowed = true;
+                        } else {
+                            try {
+                                LocalTime deadlineTime = LocalTime.parse(deadlineStr);
+                                LocalDateTime deadlineDateTime = businessDate.atTime(deadlineTime);
+                                if (deadlineTime.isBefore(LocalTime.of(12, 0))) {
+                                    deadlineDateTime = deadlineDateTime.plusDays(1);
+                                }
+                                if (now.isBefore(deadlineDateTime) || now.isEqual(deadlineDateTime)) {
+                                    isAllowed = true;
+                                } else {
+                                    denialReason = "LATE_DEADLINE_EXCEEDED";
+                                }
+                            } catch (Exception e) {
+                                isAllowed = true;
+                            }
+                        }
+                    }
+                } else {
+                    denialReason = "CURFEW_VIOLATION";
+                }
             }
         }
 
@@ -327,7 +315,7 @@ public class AccessEvaluationService {
             UUID buildingId = null;
             ResidentType residentType = null;
             
-            if ("MASTER_PIN".equals(logItem.uid())) {
+            if ("MASTER_CARD".equals(logItem.uid())) {
                 studentId = UUID.fromString("00000000-0000-0000-0000-000000000000"); // System / Unknown
             } else {
                 Optional<StudentEligibilitySnapshot> eligibilityOpt = eligibilityEvaluationService.evaluateEligibilityByRfid(logItem.uid());
@@ -357,9 +345,9 @@ public class AccessEvaluationService {
             // --- HẬU KIỂM (AUDIT LATER) TRÊN THỜI GIAN THỰC TẾ ---
             String reason = "OFFLINE_SYNC";
             
-            if ("MASTER_PIN".equals(logItem.uid())) {
-                reason = "OFFLINE_MASTER_PIN_GRANT";
-            } else if (gateType == GateType.BUILDING_GATE && residentType == ResidentType.BOARDING) {
+            if ("MASTER_CARD".equals(logItem.uid())) {
+                reason = "OFFLINE_MASTER_CARD_GRANT";
+            } else if (gateType == GateType.BUILDING_GATE) {
                 boolean isTimeAllowed = curfewResolutionStrategy.isAllowed(buildingId, eventTime.toLocalTime());
                 if (!isTimeAllowed) {
                     LocalDateTime startOfDay = eventTime.toLocalDate().atStartOfDay();
@@ -377,7 +365,7 @@ public class AccessEvaluationService {
                     .eventTimestamp(eventTime)
                     .decision(AccessDecision.GRANTED) // Mạch offline đã mở cửa rồi
                     .denialReason(reason) 
-                    .method("MASTER_PIN".equals(logItem.uid()) ? VerificationMethod.PIN : VerificationMethod.RFID)
+                    .method("MASTER_CARD".equals(logItem.uid()) ? VerificationMethod.RFID : VerificationMethod.RFID)
                     .direction(currentDirection)
                     .build();
 

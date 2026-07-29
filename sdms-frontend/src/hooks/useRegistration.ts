@@ -318,6 +318,12 @@ export const useRegistration = () => {
         return setError('Vui lòng tải lên Ảnh thẻ 3x4.');
       }
 
+      const isNewStudent = targetGroup === 'NEW_STUDENT' || period?.registrationType === 'NEW_STUDENT';
+      if (!isNewStudent && !uploadedDocs.STUDENT_CARD) {
+        snackbar.warning('Vui lòng tải lên Thẻ Sinh viên.');
+        return setError('Vui lòng tải lên Thẻ Sinh viên.');
+      }
+
       const priorities = (formData.priorityCategories || []).filter((p) => p !== 'NONE');
       for (const p of priorities) {
         const proofType = `${p}_PROOF`;
@@ -355,8 +361,15 @@ export const useRegistration = () => {
   };
 
   const handleScanUpload = async (type: string, file: File) => {
+    if (!file.type.startsWith('image/')) {
+      const errorMsg = 'Vui lòng chỉ tải lên định dạng ảnh (JPEG, PNG).';
+      setError(errorMsg);
+      snackbar.error(errorMsg);
+      return;
+    }
+
     if (file.size > 5 * 1024 * 1024) {
-      const errorMsg = 'Kích thước file không được vượt quá 5MB.';
+      const errorMsg = 'Kích thước file ảnh không được vượt quá 5MB.';
       setError(errorMsg);
       snackbar.error(errorMsg);
       return;
@@ -385,8 +398,15 @@ export const useRegistration = () => {
   };
 
   const handleUpload = async (type: string, file: File) => {
+    if (!file.type.startsWith('image/')) {
+      const errorMsg = 'Vui lòng chỉ tải lên định dạng ảnh (JPEG, PNG).';
+      setError(errorMsg);
+      snackbar.error(errorMsg);
+      return;
+    }
+
     if (file.size > 5 * 1024 * 1024) {
-      const errorMsg = 'Kích thước file không được vượt quá 5MB.';
+      const errorMsg = 'Kích thước file ảnh không được vượt quá 5MB.';
       setError(errorMsg);
       snackbar.error(errorMsg);
       return;

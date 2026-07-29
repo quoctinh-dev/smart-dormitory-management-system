@@ -7,7 +7,7 @@ import com.sdms.backend.modules.registration.dto.response.EligibilityResponse;
 import com.sdms.backend.modules.registration.entity.RegistrationEligibility;
 import com.sdms.backend.modules.registration.entity.RegistrationPeriod;
 import com.sdms.backend.modules.registration.enums.RegistrationType;
-import com.sdms.backend.modules.registration.enums.RegistrationTarget;
+
 import com.sdms.backend.modules.registration.repository.RegistrationEligibilityRepository;
 import com.sdms.backend.modules.registration.repository.RegistrationPeriodRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class RegistrationEligibilityService {
     private final DataFormatter dataFormatter = new DataFormatter();
 
     /**
-     * Import danh sách từ Excel (Có Transaction bảo vệ toàn vẹn dữ liệu)
+     * Import danh sách từ Excel
      */
     @Transactional
     public EligibilityImportResponse importEligibility(UUID periodId, MultipartFile file) throws IOException {
@@ -49,7 +49,7 @@ public class RegistrationEligibilityService {
         RegistrationPeriod period = periodRepository.findById(periodId)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đợt đăng ký"));
 
-        // Đợt gia hạn (CURRENT_RESIDENT) không cần import danh sách, hệ thống tự kiểm tra theo hợp đồng/kỷ luật sau.
+        // Đợt gia hạn (CURRENT_RESIDENT)
         if (period.getRegistrationType() == RegistrationType.CURRENT_RESIDENT) {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Đợt gia hạn không cần import danh sách");
         }
@@ -88,12 +88,12 @@ public class RegistrationEligibilityService {
                     e.setEmail(email);
 
                     // Map Enum sạch sẽ bằng cách tận dụng biến import cụ thể
-                    e.setTarget(RegistrationTarget.FRESHMAN);
+                    e.setTarget(RegistrationType.NEW_STUDENT);
                     if (!targetStr.isEmpty()) {
                         try {
-                            e.setTarget(RegistrationTarget.valueOf(targetStr.toUpperCase().trim()));
+                            e.setTarget(RegistrationType.valueOf(targetStr.toUpperCase().trim()));
                         } catch (IllegalArgumentException ex) {
-                            // Giữ nguyên mặc định FRESHMAN khi gõ sai
+                            // Giữ nguyên mặc định NEW_STUDENT khi gõ sai
                         }
                     }
 

@@ -1,4 +1,6 @@
 import SaveIcon from '@mui/icons-material/Save';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
     Box,
     Typography,
@@ -16,14 +18,27 @@ import {
     InputAdornment,
     Tabs,
     Tab,
+    Chip,
+    Stack,
+    Tooltip,
+    Collapse,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import React, { useState, useMemo, useEffect } from 'react';
 
 import { useSystemConfig } from '@/hooks/useSystemConfig';
 
-// Tự động nhận diện đơn vị dựa trên mã cấu hình
-const getUnitSuffix = (key: string) => {
+// Tên hiển thị nhóm cấu hình
+const GROUP_LABEL_MAP: Record<string, string> = {
+    GENERAL: 'Chung',
+    SMART_ACCESS: 'Kiểm soát ra vào',
+    PAYMENT: 'Tài chính & Chi phí',
+    NOTIFICATIONS: 'Thông báo',
+    SYSTEM: 'Hệ thống',
+};
+
+// Nhận diện kiểu dữ liệu & đơn vị tính
+const getConfigMetadata = (key: string) => {
     const upperKey = key.toUpperCase();
 
     if (
@@ -34,7 +49,7 @@ const getUnitSuffix = (key: string) => {
         (upperKey.includes('DEADLINE') && !upperKey.includes('DAYS')) ||
         upperKey.includes('LATE_RETURN')
     ) {
-        return 'HH:mm';
+        return { unit: 'HH:mm', type: 'time' };
     }
     if (
         upperKey.includes('PRICE') ||
@@ -42,27 +57,27 @@ const getUnitSuffix = (key: string) => {
         upperKey.includes('AMOUNT') ||
         upperKey.includes('MONEY')
     ) {
-        return 'VNĐ';
+        return { unit: 'VNĐ', type: 'currency' };
     }
     if (upperKey.includes('DAY') || upperKey.includes('DEADLINE')) {
-        return 'Ngày';
+        return { unit: 'ngày', type: 'number' };
     }
     if (upperKey.includes('MONTH')) {
-        return 'Tháng';
+        return { unit: 'tháng', type: 'number' };
     }
     if (upperKey.includes('PERCENT')) {
-        return '%';
+        return { unit: '%', type: 'number' };
     }
-    return '';
+    return { unit: '', type: 'text' };
 };
 
-// Định dạng giá trị hiển thị có dấu phân cách hàng nghìn (VD: 15000 -> 15,000)
-const formatDisplayValue = (val: string, unit: string) => {
+// Định dạng hiển thị phân cách hàng nghìn
+const formatDisplayValue = (val: string, type: string) => {
     if (!val) return '';
-    if (unit === 'VNĐ') {
+    if (type === 'currency') {
         const num = Number(val);
         if (!isNaN(num)) {
-            return new Intl.NumberFormat('en-US').format(num);
+            return new Intl.NumberFormat('vi-VN').format(num);
         }
     }
     return val;
@@ -74,17 +89,17 @@ export default function SystemConfigPage() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [activeGroup, setActiveGroup] = useState<string>('GENERAL');
+    const [savingAll, setSavingAll] = useState(false);
 
-    // Lấy danh sách các nhóm duy nhất từ dữ liệu API
+    // Lấy danh sách nhóm tham số
     const groups = useMemo(() => {
         const groupSet = new Set<string>();
         configs.forEach((c) => groupSet.add(c.groupName || 'GENERAL'));
         const arr = Array.from(groupSet);
-        if (!arr.includes('GENERAL')) arr.unshift('GENERAL'); // Đảm bảo luôn có GENERAL
+        if (!arr.includes('GENERAL')) arr.unshift('GENERAL');
         return arr;
     }, [configs]);
 
-    // Khi load data xong, nếu activeGroup không tồn tại thì set về tab đầu tiên
     useEffect(() => {
         if (groups.length > 0 && !groups.includes(activeGroup)) {
             setActiveGroup(groups[0]);
@@ -95,56 +110,95 @@ export default function SystemConfigPage() {
         return configs.filter((c) => (c.groupName || 'GENERAL') === activeGroup);
     }, [configs, activeGroup]);
 
+    // Tổng số lượng tham số bị thay đổi chưa lưu
+    const changedConfigs = useMemo(() => {
+        return configs.filter((c) => {
+            const currentVal = editValues[c.configKey];
+            return currentVal !== undefined && currentVal !== c.configValue;
+        });
+    }, [configs, editValues]);
+
     const paginatedConfigs = filteredConfigs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
+    // Lưu toàn bộ thay đổi
+    const handleSaveAllChanged = async () => {
+        setSavingAll(true);
+        try {
+            for (const config of changedConfigs) {
+                await handleSave(config);
+            }
+        } finally {
+            setSavingAll(false);
+        }
+    };
+
     return (
-        <Box sx={{ p: { xs: 2, md: 3 } }}>
+        <Box sx={{ p: { xs: 2, md: 3 }, pb: changedConfigs.length > 0 ? 10 : 3 }}>
             {/* Header trang */}
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
-                    Cấu hình hệ thống
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    Thiết lập các tham số toàn cục như đơn giá dịch vụ và thời gian quy định.
-                </Typography>
+            <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+                <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', mb: 0.5 }}>
+                        Cấu hình hệ thống
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Quản lý tham số vận hành toàn cục, khung giờ truy cập và biểu phí dịch vụ.
+                    </Typography>
+                </Box>
+
+                {/* Badge đếm thay đổi */}
+                {changedConfigs.length > 0 && (
+                    <Chip
+                        icon={<InfoOutlinedIcon fontSize="small" />}
+                        label={`Có ${changedConfigs.length} thay đổi chưa lưu`}
+                        color="warning"
+                        variant="outlined"
+                        sx={{ fontWeight: 600, borderRadius: 2 }}
+                    />
+                )}
             </Box>
 
-            {/* Tabs Lọc theo Nhóm */}
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            {/* Tabs chọn nhóm */}
+            <Paper variant="outlined" sx={{ borderRadius: 2, mb: 3, bgcolor: 'background.paper' }}>
                 <Tabs
                     value={activeGroup}
                     onChange={(_, newValue) => {
                         setActiveGroup(newValue);
-                        setPage(0); // Reset trang khi đổi tab
+                        setPage(0);
                     }}
                     variant="scrollable"
                     scrollButtons="auto"
                     textColor="primary"
                     indicatorColor="primary"
+                    sx={{
+                        px: 1,
+                        '& .MuiTab-root': {
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.92rem',
+                            minHeight: 48,
+                        },
+                    }}
                 >
                     {groups.map((grp) => (
-                        <Tab 
-                            key={grp} 
-                            label={grp === 'GENERAL' ? 'Cấu hình chung' : 
-                                   grp === 'SMART_ACCESS' ? 'Kiểm soát ra vào' : 
-                                   grp === 'PAYMENT' ? 'Tài chính - Dịch vụ' : grp} 
-                            value={grp} 
-                            sx={{ fontWeight: 600 }}
+                        <Tab
+                            key={grp}
+                            label={GROUP_LABEL_MAP[grp] || grp}
+                            value={grp}
                         />
                     ))}
                 </Tabs>
-            </Box>
+            </Paper>
 
-            {/* Bảng thông số cấu hình */}
-            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
+            {/* Bảng cấu hình */}
+            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
                 <TableContainer>
-                    <Table sx={{ minWidth: 650 }} aria-label="Bảng cấu hình hệ thống">
+                    <Table sx={{ minWidth: 650 }}>
                         <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
                             <TableRow>
-                                <TableCell width="30%" sx={{ fontWeight: 600 }}>Tham số (Mã cấu hình)</TableCell>
-                                <TableCell width="35%" sx={{ fontWeight: 600 }}>Mô tả chức năng</TableCell>
-                                <TableCell width="22%" sx={{ fontWeight: 600 }}>Giá trị thiết lập</TableCell>
-                                <TableCell width="13%" align="center" sx={{ fontWeight: 600 }}>Thao tác</TableCell>
+                                <TableCell width="28%" sx={{ fontWeight: 700 }}>Mã tham số</TableCell>
+                                <TableCell width="34%" sx={{ fontWeight: 700 }}>Mô tả</TableCell>
+                                <TableCell width="26%" sx={{ fontWeight: 700 }}>Giá trị</TableCell>
+                                <TableCell width="12%" align="center" sx={{ fontWeight: 700 }}>Thao tác</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -154,34 +208,47 @@ export default function SystemConfigPage() {
                                         <CircularProgress size={28} />
                                     </TableCell>
                                 </TableRow>
-                            ) : configs.length === 0 ? (
+                            ) : filteredConfigs.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={4} align="center" sx={{ py: 6 }}>
-                                        <Typography color="text.secondary" variant="body2">
-                                            Chưa có tham số cấu hình nào trong hệ thống.
+                                        <Typography color="text.secondary" variant="body2" sx={{ fontStyle: 'italic' }}>
+                                            Không tìm thấy tham số nào thuộc nhóm này.
                                         </Typography>
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 paginatedConfigs.map((config) => {
-                                    const currentValue = editValues[config.configKey] ?? '';
+                                    const currentValue = editValues[config.configKey] ?? config.configValue ?? '';
                                     const isChanged = currentValue !== config.configValue;
-                                    const unit = getUnitSuffix(config.configKey);
-                                    const isTimeType = unit === 'HH:mm';
+                                    const { unit, type } = getConfigMetadata(config.configKey);
 
                                     return (
-                                        <TableRow hover key={config.configKey}>
+                                        <TableRow
+                                            hover
+                                            key={config.configKey}
+                                            sx={{
+                                                bgcolor: isChanged ? (theme) => alpha(theme.palette.warning.main, 0.04) : 'inherit',
+                                                transition: 'background-color 0.2s',
+                                            }}
+                                        >
                                             <TableCell>
-                                                <Typography
-                                                    variant="body2"
-                                                    sx={{ fontFamily: 'monospace', fontWeight: 600, color: 'primary.main' }}
-                                                >
-                                                    {config.configKey}
-                                                </Typography>
+                                                <Stack spacing={0.5}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{ fontFamily: 'monospace', fontWeight: 700, color: 'primary.main' }}
+                                                    >
+                                                        {config.configKey}
+                                                    </Typography>
+                                                    {isChanged && (
+                                                        <Typography variant="caption" color="text.secondary">
+                                                            Ban đầu: <strong>{formatDisplayValue(config.configValue, type)} {unit}</strong>
+                                                        </Typography>
+                                                    )}
+                                                </Stack>
                                             </TableCell>
 
                                             <TableCell>
-                                                <Typography variant="body2" color="text.secondary">
+                                                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>
                                                     {config.description}
                                                 </Typography>
                                             </TableCell>
@@ -190,25 +257,28 @@ export default function SystemConfigPage() {
                                                 <TextField
                                                     size="small"
                                                     fullWidth
-                                                    value={unit === 'VNĐ' ? formatDisplayValue(currentValue, unit) : currentValue}
+                                                    type={type === 'time' ? 'time' : 'text'}
+                                                    value={type === 'currency' ? formatDisplayValue(currentValue, type) : currentValue}
                                                     onChange={(e) => {
                                                         let val = e.target.value;
-                                                        if (unit === 'VNĐ') {
-                                                            val = val.replace(/,/g, '');
-                                                        }
-                                                        if (unit === 'VNĐ' && val !== '' && !/^\d+$/.test(val)) {
-                                                            return;
-                                                        }
-                                                        if (isTimeType && val !== '' && !/^([01]?\d|2[0-3])?(:[0-5]?\d?)?$/.test(val)) {
-                                                            return;
+                                                        if (type === 'currency') {
+                                                            val = val.replace(/\D/g, ''); // Loại bỏ ký tự không phải số
                                                         }
                                                         handleValueChange(config.configKey, val);
                                                     }}
-                                                    placeholder={isTimeType ? 'HH:mm (VD: 22:00)' : 'Nhập giá trị...'}
+                                                    placeholder={type === 'time' ? '' : 'Nhập giá trị...'}
+                                                    sx={{
+                                                        '& .MuiOutlinedInput-root': {
+                                                            borderRadius: 1.5,
+                                                            bgcolor: isChanged ? 'background.paper' : 'transparent',
+                                                            borderColor: isChanged ? 'warning.main' : 'divider',
+                                                            fontWeight: isChanged ? 700 : 400,
+                                                        }
+                                                    }}
                                                     InputProps={{
-                                                        endAdornment: unit ? (
+                                                        endAdornment: unit && type !== 'time' ? (
                                                             <InputAdornment position="end">
-                                                                <Typography variant="caption" sx={{ fontWeight: 500, color: 'text.disabled' }}>
+                                                                <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary' }}>
                                                                     {unit}
                                                                 </Typography>
                                                             </InputAdornment>
@@ -218,21 +288,31 @@ export default function SystemConfigPage() {
                                             </TableCell>
 
                                             <TableCell align="center">
-                                                <Button
-                                                    variant="contained"
-                                                    size="small"
-                                                    startIcon={<SaveIcon />}
-                                                    disabled={!isChanged || loading}
-                                                    onClick={() => handleSave(config)}
-                                                    disableElevation
-                                                    sx={{
-                                                        borderRadius: 1.5,
-                                                        textTransform: 'none',
-                                                        fontWeight: 600,
-                                                    }}
-                                                >
-                                                    Lưu lại
-                                                </Button>
+                                                {isChanged ? (
+                                                    <Button
+                                                        variant="contained"
+                                                        size="small"
+                                                        color="warning"
+                                                        disableElevation
+                                                        startIcon={<SaveIcon fontSize="small" />}
+                                                        disabled={loading || savingAll}
+                                                        onClick={() => handleSave(config)}
+                                                        sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
+                                                    >
+                                                        Lưu
+                                                    </Button>
+                                                ) : (
+                                                    <Tooltip title="Giá trị chưa thay đổi">
+                                                        <Chip
+                                                            icon={<CheckCircleIcon fontSize="small" />}
+                                                            label="Đã lưu"
+                                                            size="small"
+                                                            variant="outlined"
+                                                            color="default"
+                                                            sx={{ borderRadius: 1, fontWeight: 500, opacity: 0.7 }}
+                                                        />
+                                                    </Tooltip>
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     );
@@ -252,8 +332,49 @@ export default function SystemConfigPage() {
                         setPage(0);
                     }}
                     labelRowsPerPage="Số dòng mỗi trang:"
+                    sx={{ borderTop: '1px solid', borderColor: 'divider' }}
                 />
             </Paper>
+
+            {/* Thanh tác vụ nổi phía dưới khi có thay đổi */}
+            <Collapse in={changedConfigs.length > 0}>
+                <Paper
+                    elevation={6}
+                    sx={{
+                        position: 'fixed',
+                        bottom: 24,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        zIndex: 1200,
+                        px: 3,
+                        py: 1.5,
+                        borderRadius: 3,
+                        bgcolor: 'grey.900',
+                        color: 'common.white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 3,
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
+                    }}
+                >
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        Có <strong>{changedConfigs.length}</strong> tham số chưa lưu thay đổi.
+                    </Typography>
+                    <Stack direction="row" spacing={1.5}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            startIcon={savingAll ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
+                            disabled={savingAll}
+                            onClick={handleSaveAllChanged}
+                            sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 700, px: 2.5 }}
+                        >
+                            {savingAll ? 'Đang lưu...' : 'Lưu tất cả'}
+                        </Button>
+                    </Stack>
+                </Paper>
+            </Collapse>
         </Box>
     );
 }

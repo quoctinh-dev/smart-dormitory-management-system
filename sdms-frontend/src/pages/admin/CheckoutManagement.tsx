@@ -1,4 +1,4 @@
-import {CheckCircle, Cancel} from '@mui/icons-material';
+import {CheckCircle, Cancel, ChecklistRtl} from '@mui/icons-material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import DownloadIcon from '@mui/icons-material/Download';
 import {
@@ -27,6 +27,7 @@ import {
     IconButton,
     Tooltip,
     Stack,
+    Checkbox,
 } from '@mui/material';
 import {alpha} from '@mui/material/styles';
 import React from 'react';
@@ -46,6 +47,12 @@ export default function CheckoutManagement() {
         totalElements,
         statusFilter,
         setStatusFilter,
+        startDate,
+        setStartDate,
+        endDate,
+        setEndDate,
+        selectedRequestIds,
+        setSelectedRequestIds,
         openReview,
         setOpenReview,
         selectedRequest,
@@ -55,7 +62,35 @@ export default function CheckoutManagement() {
         submitting,
         handleOpenReview,
         handleReviewSubmit,
+        handleBulkReviewSubmit,
     } = useCheckoutManagement();
+
+    const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.checked) {
+            setSelectedRequestIds(requests.map(r => r.requestId));
+        } else {
+            setSelectedRequestIds([]);
+        }
+    };
+
+    const handleSelectRow = (requestId: string) => {
+        const selectedIndex = selectedRequestIds.indexOf(requestId);
+        let newSelected: string[] = [];
+
+        if (selectedIndex === -1) {
+            newSelected = newSelected.concat(selectedRequestIds, requestId);
+        } else if (selectedIndex === 0) {
+            newSelected = newSelected.concat(selectedRequestIds.slice(1));
+        } else if (selectedIndex === selectedRequestIds.length - 1) {
+            newSelected = newSelected.concat(selectedRequestIds.slice(0, -1));
+        } else if (selectedIndex > 0) {
+            newSelected = newSelected.concat(
+                selectedRequestIds.slice(0, selectedIndex),
+                selectedRequestIds.slice(selectedIndex + 1),
+            );
+        }
+        setSelectedRequestIds(newSelected);
+    };
 
     const handleExportCSV = () => {
         // 1. Lọc ra những người có số tài khoản và ở trạng thái APPROVED
@@ -120,15 +155,28 @@ export default function CheckoutManagement() {
                         Duyệt yêu cầu trả phòng (checkout) và xuất báo cáo chốt công nợ gửi phòng Tài vụ giải ngân.
                     </Typography>
                 </Box>
-                <Button
-                    variant="outlined"
-                    color="primary"
-                    startIcon={<DownloadIcon fontSize="small"/>}
-                    sx={{borderRadius: 1.5, fontWeight: 600, textTransform: 'none'}}
-                    onClick={handleExportCSV}
-                >
-                    Xuất báo cáo tài vụ
-                </Button>
+                <Stack direction="row" spacing={2}>
+                    {selectedRequestIds.length > 0 && statusFilter === 'APPROVED' && (
+                        <Button
+                            variant="contained"
+                            color="info"
+                            startIcon={<ChecklistRtl fontSize="small"/>}
+                            sx={{borderRadius: 1.5, fontWeight: 600, textTransform: 'none'}}
+                            onClick={() => handleBulkReviewSubmit('COMPLETED')}
+                        >
+                            Hoàn tất ({selectedRequestIds.length})
+                        </Button>
+                    )}
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        startIcon={<DownloadIcon fontSize="small"/>}
+                        sx={{borderRadius: 1.5, fontWeight: 600, textTransform: 'none'}}
+                        onClick={handleExportCSV}
+                    >
+                        Xuất báo cáo tài vụ
+                    </Button>
+                </Stack>
             </Box>
 
             {/* Bộ lọc */}
@@ -157,6 +205,26 @@ export default function CheckoutManagement() {
                             <MenuItem value="REJECTED">Bị từ chối</MenuItem>
                         </Select>
                     </FormControl>
+
+                    <TextField
+                        type="date"
+                        size="small"
+                        label="Từ ngày"
+                        InputLabelProps={{ shrink: true }}
+                        value={startDate || ''}
+                        onChange={(e) => setStartDate(e.target.value || undefined)}
+                        sx={{borderRadius: 1.5}}
+                    />
+                    
+                    <TextField
+                        type="date"
+                        size="small"
+                        label="Đến ngày"
+                        InputLabelProps={{ shrink: true }}
+                        value={endDate || ''}
+                        onChange={(e) => setEndDate(e.target.value || undefined)}
+                        sx={{borderRadius: 1.5}}
+                    />
                 </Stack>
             </Paper>
 
@@ -171,6 +239,14 @@ export default function CheckoutManagement() {
                         <Table sx={{minWidth: 800}}>
                             <TableHead sx={{bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05)}}>
                                 <TableRow>
+                                    <TableCell padding="checkbox">
+                                        <Checkbox
+                                            color="primary"
+                                            indeterminate={selectedRequestIds.length > 0 && selectedRequestIds.length < requests.length}
+                                            checked={requests.length > 0 && selectedRequestIds.length === requests.length}
+                                            onChange={handleSelectAll}
+                                        />
+                                    </TableCell>
                                     <TableCell sx={{fontWeight: 600}}>Thông tin sinh viên</TableCell>
                                     <TableCell sx={{fontWeight: 600}}>Vị trí phòng/giường</TableCell>
                                     <TableCell sx={{fontWeight: 600}}>Ngày hẹn checkout</TableCell>
@@ -193,8 +269,21 @@ export default function CheckoutManagement() {
                                         const isApproved = row.status === 'APPROVED';
                                         const isRejected = row.status === 'REJECTED';
                                         const isCompleted = row.status === 'COMPLETED';
+                                        const isSelected = selectedRequestIds.indexOf(row.requestId) !== -1;
+                                        
                                         return (
-                                            <TableRow key={row.requestId} hover>
+                                            <TableRow 
+                                                key={row.requestId} 
+                                                hover 
+                                                selected={isSelected}
+                                            >
+                                                <TableCell padding="checkbox">
+                                                    <Checkbox
+                                                        color="primary"
+                                                        checked={isSelected}
+                                                        onChange={() => handleSelectRow(row.requestId)}
+                                                    />
+                                                </TableCell>
                                                 <TableCell>
                                                     <Typography variant="body2"
                                                                 sx={{fontWeight: 600, color: 'text.primary'}}>

@@ -159,7 +159,6 @@ export default function StudentManagementPage() {
                 <TableRow>
                   <TableCell sx={{ fontWeight: 600 }}>Sinh viên</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Thông tin liên hệ</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Khoa / Lớp</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Chỗ ở hiện tại</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 600 }}>Thao tác</TableCell>
@@ -173,18 +172,13 @@ export default function StudentManagementPage() {
                           {student.fullName}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {student.studentCode} • {student.gender === 'MALE' ? 'Nam' : 'Nữ'}
+                          {student.studentCode} • {student.gender === 'MALE' ? 'Nam' : 'Nữ'} {student.rfidCode ? ` • Thẻ RFID: ${student.rfidCode}` : ' • Chưa có thẻ RFID'}
                         </Typography>
                       </TableCell>
 
                       <TableCell>
                         <Typography variant="body2">{student.phone || '-'}</Typography>
                         <Typography variant="caption" color="text.secondary">{student.email}</Typography>
-                      </TableCell>
-
-                      <TableCell>
-                        <Typography variant="body2">{student.faculty || '-'}</Typography>
-                        <Typography variant="caption" color="text.secondary">{student.studentClass}</Typography>
                       </TableCell>
 
                       <TableCell>

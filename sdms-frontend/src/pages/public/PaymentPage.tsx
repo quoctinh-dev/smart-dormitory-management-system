@@ -16,20 +16,24 @@ import {
     IconButton,
     Tooltip,
     Stack,
+    Snackbar,
+    Alert,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { alpha } from '@mui/material/styles';
-import { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import {alpha} from '@mui/material/styles';
+import {useState, useMemo} from 'react';
+import {useParams} from 'react-router-dom';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
-import { usePayment } from '@/hooks/usePayment';
+import {usePayment} from '@/hooks/usePayment';
 
 export default function PaymentPage() {
-    const { applicationId } = useParams();
+    const {applicationId} = useParams();
     const [paymentQrUrl, setPaymentQrUrl] = useState<string | null>(null);
+    const [toastOpen, setToastOpen] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
 
-    const { bill, application, paymentInstructions, loading, paying, handleOnlinePayment } =
+    const {bill, application, paymentInstructions, loading, paying, handleOnlinePayment} =
         usePayment(applicationId || '');
 
     const qrDetails = useMemo(() => {
@@ -47,11 +51,14 @@ export default function PaymentPage() {
         }
     }, [paymentQrUrl]);
 
-    const handleCopy = (text: string) => {
+    const handleCopy = (text: string, label: string) => {
+        if (!text) return;
         navigator.clipboard.writeText(text);
+        setToastMessage(`Đã sao chép ${label}!`);
+        setToastOpen(true);
     };
 
-    if (loading) return <CustomSkeleton type="dashboard" count={1} />;
+    if (loading) return <CustomSkeleton type="dashboard" count={1}/>;
 
     const transferContent =
         typeof (paymentInstructions as any)?.contentPrefix === 'string' && typeof bill?.billId === 'string'
@@ -59,68 +66,164 @@ export default function PaymentPage() {
             : '';
 
     return (
-        <Container maxWidth="md" sx={{ py: 8 }}>
+        <Container maxWidth="md" sx={{py: {xs: 4, md: 8}}}>
             <Paper
                 variant="outlined"
                 sx={{
-                    p: { xs: 3, md: 5 },
+                    p: {xs: 2.5, sm: 3, md: 5},
                     borderRadius: 2,
                     borderColor: 'divider',
                     bgcolor: 'background.paper'
                 }}
             >
-                <Box sx={{ textAlign: 'center', mb: 4 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, letterSpacing: '-0.5px', mb: 1 }}>
+                {/* --- HEADER --- */}
+                <Box sx={{textAlign: 'center', mb: {xs: 4, md: 5}}}>
+                    <Typography
+                        variant="h5"
+                        sx={{
+                            fontWeight: 700,
+                            letterSpacing: '-0.5px',
+                            mb: 1.5,
+                            fontSize: {xs: '1.5rem', md: '1.75rem'}
+                        }}
+                    >
                         Thanh toán phí nội trú
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480, mx: 'auto', lineHeight: 1.6 }}>
-                        Hoàn tất nghĩa vụ tài chính để hệ thống tự động xác nhận giường ở chính thức và kích hoạt quyền truy cập ứng dụng.
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                            maxWidth: 520,
+                            mx: 'auto',
+                            lineHeight: 1.6,
+                            fontSize: {xs: '0.875rem', md: '0.95rem'}
+                        }}
+                    >
+                        Hoàn tất nghĩa vụ tài chính để hệ thống tự động xác nhận giường ở chính thức và kích hoạt quyền
+                        truy cập ứng dụng.
                     </Typography>
                 </Box>
 
-                <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <Box sx={{ p: 3, borderRadius: 2, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider', height: '100%' }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2, textTransform: 'uppercase', color: 'text.secondary' }}>
+                {/* --- STUDENT INFO & BILL DETAILS --- */}
+                <Grid container spacing={{xs: 2, md: 3}} sx={{mb: {xs: 4, md: 5}}}>
+                    {/* Thông tin sinh viên */}
+                    <Grid size={{xs: 12, md: 6}}>
+                        <Box
+                            sx={{
+                                p: {xs: 2, md: 2.5},
+                                borderRadius: 1.5,
+                                bgcolor: 'background.default',
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                            <Typography
+                                variant="subtitle2"
+                                sx={{
+                                    fontWeight: 700,
+                                    mb: 2,
+                                    textTransform: 'uppercase',
+                                    color: 'text.secondary',
+                                    fontSize: '0.75rem',
+                                    letterSpacing: '0.5px'
+                                }}
+                            >
                                 Thông tin sinh viên
                             </Typography>
-                            <Stack spacing={2}>
+                            <Stack spacing={1.5}>
                                 <Box>
-                                    <Typography variant="caption" color="text.secondary" display="block">Họ và tên</Typography>
-                                    <Typography variant="body1" sx={{ fontWeight: 700 }}>{application?.fullName}</Typography>
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        display="block"
+                                        sx={{mb: 0.5, fontWeight: 600}}
+                                    >
+                                        Họ và tên
+                                    </Typography>
+                                    <Typography variant="body2" sx={{fontWeight: 600}}>
+                                        {application?.fullName}
+                                    </Typography>
                                 </Box>
                                 <Box>
-                                    <Typography variant="caption" color="text.secondary" display="block">Mã số định danh (CCCD)</Typography>
-                                    <Typography variant="body1" sx={{ fontWeight: 700 }}>{application?.cccd}</Typography>
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        display="block"
+                                        sx={{mb: 0.5, fontWeight: 600}}
+                                    >
+                                        Mã số định danh (CCCD)
+                                    </Typography>
+                                    <Typography variant="body2" sx={{fontWeight: 600}}>
+                                        {application?.cccd}
+                                    </Typography>
                                 </Box>
                             </Stack>
                         </Box>
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <Box sx={{ p: 3, borderRadius: 2, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider', height: '100%' }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2, textTransform: 'uppercase', color: 'text.secondary' }}>
+                    {/* Chi tiết hóa đơn */}
+                    <Grid size={{xs: 12, md: 6}}>
+                        <Box
+                            sx={{
+                                p: {xs: 2, md: 2.5},
+                                borderRadius: 1.5,
+                                bgcolor: 'background.default',
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                height: '100%'
+                            }}
+                        >
+                            <Typography
+                                variant="subtitle2"
+                                sx={{
+                                    fontWeight: 700,
+                                    mb: 2,
+                                    textTransform: 'uppercase',
+                                    color: 'text.secondary',
+                                    fontSize: '0.75rem',
+                                    letterSpacing: '0.5px'
+                                }}
+                            >
                                 Chi tiết hóa đơn
                             </Typography>
-                            <Stack spacing={1.5}>
-                                <Stack direction="row" justifyContent="space-between">
-                                    <Typography variant="body2" color="text.secondary">Mã hóa đơn:</Typography>
-                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{bill?.billId}</Typography>
-                                </Stack>
-                                <Stack direction="row" justifyContent="space-between">
-                                    <Typography variant="body2" color="text.secondary">Nội dung:</Typography>
-                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{bill?.description}</Typography>
-                                </Stack>
-                                <Stack direction="row" justifyContent="space-between">
-                                    <Typography variant="body2" color="text.secondary">Hạn nộp phí:</Typography>
-                                    <Typography variant="body2" sx={{ fontWeight: 700, color: 'error.main' }}>
+                            <Stack spacing={1}>
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary"
+                                                sx={{fontWeight: 600, display: 'block', mb: 0.25}}>
+                                        Mã hóa đơn
+                                    </Typography>
+                                    <Typography variant="body2" sx={{fontWeight: 600}}>
+                                        {bill?.billId}
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary"
+                                                sx={{fontWeight: 600, display: 'block', mb: 0.25}}>
+                                        Nội dung
+                                    </Typography>
+                                    <Typography variant="body2" sx={{fontWeight: 600}}>
+                                        {bill?.description}
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary"
+                                                sx={{fontWeight: 600, display: 'block', mb: 0.25}}>
+                                        Hạn nộp phí
+                                    </Typography>
+                                    <Typography variant="body2" sx={{fontWeight: 600, color: 'error.main'}}>
                                         {bill?.dueDate ? new Date(bill.dueDate).toLocaleDateString('vi-VN') : ''}
                                     </Typography>
-                                </Stack>
-                                <Divider sx={{ my: 0.5 }} />
+                                </Box>
+                                <Divider sx={{my: 1}}/>
                                 <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                    <Typography variant="body1" sx={{ fontWeight: 700 }}>Tổng tiền:</Typography>
-                                    <Typography variant="h6" sx={{ fontWeight: 800, color: 'primary.main' }}>
+                                    <Typography variant="body2" sx={{fontWeight: 600}}>
+                                        Tổng tiền
+                                    </Typography>
+                                    <Typography variant="h6" sx={{fontWeight: 800, color: 'primary.main'}}>
                                         {bill?.amount ? bill.amount.toLocaleString('vi-VN') : 0} VNĐ
                                     </Typography>
                                 </Stack>
@@ -129,43 +232,77 @@ export default function PaymentPage() {
                     </Grid>
                 </Grid>
 
+                {/* --- PAYMENT INSTRUCTIONS --- */}
                 {paymentInstructions && (
                     <Box
                         sx={{
-                            p: 3,
-                            borderRadius: 2,
+                            p: {xs: 2, md: 3},
+                            borderRadius: 1.5,
                             border: '1px solid',
                             borderColor: 'divider',
                             bgcolor: (theme) => alpha(theme.palette.success.main, 0.02),
-                            mb: 4,
-                            textAlign: 'left'
+                            mb: {xs: 4, md: 5}
                         }}
                     >
-                        <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'success.dark', mb: 2, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        <Typography
+                            variant="subtitle1"
+                            sx={{
+                                fontWeight: 700,
+                                color: 'success.dark',
+                                mb: 2.5,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                fontSize: '0.95rem'
+                            }}
+                        >
                             Hướng dẫn chuyển khoản ngân hàng
                         </Typography>
 
-                        <Stack spacing={2} sx={{ mb: 3 }}>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 0.5, sm: 2 }}>
-                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 120 }}>Ngân hàng nhận:</Typography>
-                                <Typography variant="body2" sx={{ fontWeight: 700 }}>{paymentInstructions.bankName}</Typography>
+                        <Stack spacing={1.5} sx={{mb: 3}}>
+                            <Stack direction={{xs: 'column', sm: 'row'}} spacing={{xs: 1, sm: 2}}
+                                   alignItems={{xs: 'flex-start', sm: 'center'}}>
+                                <Typography variant="body2" color="text.secondary"
+                                            sx={{fontWeight: 600, minWidth: {sm: 140}, flexShrink: 0}}>
+                                    Ngân hàng nhận:
+                                </Typography>
+                                <Typography variant="body2" sx={{fontWeight: 600}}>
+                                    {paymentInstructions.bankName}
+                                </Typography>
                             </Stack>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 0.5, sm: 2 }}>
-                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 120 }}>Số tài khoản:</Typography>
-                                <Typography variant="body2" sx={{ fontWeight: 700, color: 'error.main' }}>{paymentInstructions.accountNumber}</Typography>
+                            <Stack direction={{xs: 'column', sm: 'row'}} spacing={{xs: 1, sm: 2}}
+                                   alignItems={{xs: 'flex-start', sm: 'center'}}>
+                                <Typography variant="body2" color="text.secondary"
+                                            sx={{fontWeight: 600, minWidth: {sm: 140}, flexShrink: 0}}>
+                                    Số tài khoản:
+                                </Typography>
+                                <Typography variant="body2" sx={{fontWeight: 700, color: 'error.main'}}>
+                                    {paymentInstructions.accountNumber}
+                                </Typography>
                             </Stack>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 0.5, sm: 2 }}>
-                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 120 }}>Tên thụ hưởng:</Typography>
-                                <Typography variant="body2" sx={{ fontWeight: 700 }}>TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN</Typography>
+                            <Stack direction={{xs: 'column', sm: 'row'}} spacing={{xs: 1, sm: 2}}
+                                   alignItems={{xs: 'flex-start', sm: 'center'}}>
+                                <Typography variant="body2" color="text.secondary"
+                                            sx={{fontWeight: 600, minWidth: {sm: 140}, flexShrink: 0}}>
+                                    Tên thụ hưởng:
+                                </Typography>
+                                <Typography variant="body2" sx={{fontWeight: 600}}>
+                                    TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN
+                                </Typography>
                             </Stack>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 0.5, sm: 2 }}>
-                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 120 }}>Nội dung mẫu:</Typography>
-                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                    Họ tên sinh viên, MSSV, HK, Năm học (VD: NGUYEN VAN A, {application?.studentCode || 'MSSV...'}, HỌC KỲ 3 2025-2026)
+                            <Stack direction={{xs: 'column', sm: 'row'}} spacing={{xs: 1, sm: 2}}
+                                   alignItems={{xs: 'flex-start', sm: 'center'}}>
+                                <Typography variant="body2" color="text.secondary"
+                                            sx={{fontWeight: 600, minWidth: {sm: 140}, flexShrink: 0}}>
+                                    Nội dung mẫu:
+                                </Typography>
+                                <Typography variant="body2" sx={{fontWeight: 500, lineHeight: 1.5}}>
+                                    Họ tên sinh viên, MSSV, HK, Năm học (VD: NGUYEN VAN
+                                    A, {application?.studentCode || 'MSSV...'}, HỌC KỲ 3 2025-2026)
                                 </Typography>
                             </Stack>
                         </Stack>
 
+                        {/* Syntax requirement box */}
                         <Box
                             sx={(theme) => ({
                                 p: 2,
@@ -175,43 +312,94 @@ export default function PaymentPage() {
                                 borderColor: 'warning.light'
                             })}
                         >
-                            <Typography variant="body2" sx={{ color: 'warning.dark', fontWeight: 700, mb: 1 }}>
-                                Cú pháp bắt buộc để xác nhận tự động (SEPAY)
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    color: 'warning.dark',
+                                    fontWeight: 700,
+                                    mb: 1.5,
+                                    fontSize: '0.9rem'
+                                }}
+                            >
+                                ⚠ Cú pháp bắt buộc để xác nhận tự động (SEPAY)
                             </Typography>
-                            <Typography variant="body2" sx={{ color: 'text.primary', mb: 2, lineHeight: 1.5 }}>
-                                Để cổng kết nối tự động gạch nợ hóa đơn, trong chuỗi nội dung chuyển khoản của bạn <strong>bắt buộc phải điền chính xác cụm mã sau</strong>:
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    color: 'text.primary',
+                                    mb: 1.5,
+                                    lineHeight: 1.6,
+                                    fontSize: '0.875rem'
+                                }}
+                            >
+                                Để cổng kết nối tự động gạch nợ hóa đơn, trong chuỗi nội dung chuyển khoản của
+                                bạn <strong>bắt buộc phải điền chính xác cụm mã sau</strong>:
                             </Typography>
-                            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 1.5, border: '1px solid', borderColor: 'divider', width: 'fit-content' }}>
-                                <Typography variant="body1" sx={{ fontWeight: 700, color: 'error.main', letterSpacing: '0.5px' }}>
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={1}
+                                sx={{
+                                    bgcolor: 'background.paper',
+                                    p: 1.5,
+                                    borderRadius: 1,
+                                    border: '1px solid',
+                                    borderColor: 'divider',
+                                    width: 'fit-content'
+                                }}
+                            >
+                                <Typography
+                                    variant="body1"
+                                    sx={{
+                                        fontWeight: 800,
+                                        color: 'error.main',
+                                        letterSpacing: '1px',
+                                        fontSize: '1rem'
+                                    }}
+                                >
                                     {transferContent}
                                 </Typography>
-                                <Tooltip title="Sao chép mã định danh">
-                                    <IconButton size="small" onClick={() => handleCopy(transferContent)}>
-                                        <ContentCopyIcon fontSize="small" />
+                                <Tooltip title="Sao chép">
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => handleCopy(transferContent, 'Mã định danh')}
+                                        sx={{ml: 0.5}}
+                                    >
+                                        <ContentCopyIcon fontSize="small"/>
                                     </IconButton>
                                 </Tooltip>
                             </Stack>
                         </Box>
 
+                        {/* QR Code */}
                         {paymentInstructions.qrCodeUrl && (
-                            <Box sx={{ mt: 3, pt: 3, borderTop: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
-                                <Typography variant="body2" sx={{ mb: 2, fontWeight: 700, color: 'text.secondary' }}>
-                                    Quét nhanh mã QR cấu hình sẵn của nhà trường
+                            <Box sx={{mt: 3, pt: 3, borderTop: '1px solid', borderColor: 'divider'}}>
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        mb: 2,
+                                        fontWeight: 700,
+                                        color: 'text.secondary',
+                                        fontSize: '0.875rem'
+                                    }}
+                                >
+                                    Mã QR từ nhà trường
                                 </Typography>
                                 <Box
                                     sx={{
-                                        display: 'inline-flex',
+                                        display: 'flex',
+                                        justifyContent: 'center',
                                         p: 2,
                                         border: '1px solid',
                                         borderColor: 'divider',
-                                        borderRadius: 2,
+                                        borderRadius: 1.5,
                                         bgcolor: 'common.white',
                                     }}
                                 >
                                     <img
                                         src={paymentInstructions.qrCodeUrl}
                                         alt="Mã QR Trường cung cấp"
-                                        style={{ maxWidth: '200px', height: 'auto', display: 'block' }}
+                                        style={{maxWidth: '160px', height: 'auto', display: 'block'}}
                                     />
                                 </Box>
                             </Box>
@@ -219,12 +407,13 @@ export default function PaymentPage() {
                     </Box>
                 )}
 
+                {/* --- CTA BUTTON --- */}
                 <Button
                     variant="contained"
-                    size="medium"
+                    size="large"
                     fullWidth
                     color="primary"
-                    startIcon={paying ? <CircularProgress size={20} color="inherit" /> : <PaymentIcon />}
+                    startIcon={paying ? <CircularProgress size={20} color="inherit"/> : <PaymentIcon/>}
                     onClick={async () => {
                         const url = await handleOnlinePayment('BANK_TRANSFER');
                         if (url) setPaymentQrUrl(url);
@@ -232,25 +421,27 @@ export default function PaymentPage() {
                     disabled={paying}
                     disableElevation
                     sx={{
-                        py: 1.2,
-                        fontSize: '0.95rem',
+                        py: 1.5,
+                        fontSize: '1rem',
                         borderRadius: 1.5,
                         fontWeight: 600,
                         textTransform: 'none',
+                        letterSpacing: '0.3px'
                     }}
                 >
-                    {paying ? 'Đang khởi tạo liên kết...' : 'Tạo mã QR trực tuyến thông minh'}
+                    {paying ? 'Đang khởi tạo...' : 'Tạo mã QR trực tuyến'}
                 </Button>
             </Paper>
 
+            {/* --- PAYMENT MODAL DIALOG --- */}
             <Dialog
                 open={!!paymentQrUrl}
                 onClose={() => setPaymentQrUrl(null)}
-                maxWidth="md"
+                maxWidth="sm"
                 fullWidth
                 PaperProps={{
                     variant: 'outlined',
-                    sx: { borderRadius: 2, overflow: 'hidden' },
+                    sx: {borderRadius: 2, overflow: 'hidden'}
                 }}
             >
                 <DialogTitle
@@ -263,45 +454,64 @@ export default function PaymentPage() {
                         borderColor: 'divider'
                     }}
                 >
-                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                        Cổng xử lý thanh toán tự động
+                    <Typography variant="h6" sx={{fontWeight: 700, fontSize: '1.1rem'}}>
+                        Thanh toán trực tuyến
                     </Typography>
                     <IconButton onClick={() => setPaymentQrUrl(null)} size="small">
-                        <CloseIcon />
+                        <CloseIcon/>
                     </IconButton>
                 </DialogTitle>
 
-                <DialogContent sx={{ p: 0, bgcolor: 'background.default' }}>
-                    <Stack direction={{ xs: 'column', md: 'row' }}>
+                <DialogContent sx={{p: {xs: 2, sm: 3}, bgcolor: 'background.default'}}>
+                    <Stack direction="column" spacing={2.5}>
+                        {/* QR Code Block */}
                         <Box
                             sx={{
-                                flex: 1,
-                                p: 3,
+                                p: 2.5,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                borderRight: { md: '1px solid' },
-                                borderColor: { md: 'divider' },
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                borderRadius: 1.5,
                                 bgcolor: 'background.paper',
                             }}
                         >
-                            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: 'primary.main' }}>
-                                Quét ứng dụng ngân hàng
+                            <Typography
+                                variant="subtitle2"
+                                sx={{
+                                    fontWeight: 700,
+                                    mb: 0.5,
+                                    color: 'primary.main',
+                                    fontSize: '0.95rem'
+                                }}
+                            >
+                                Quét mã nhanh
                             </Typography>
-                            <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
-                                Mở app ngân hàng quét mã QR để tự động điền giá trị và nội dung giao dịch
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                textAlign="center"
+                                sx={{
+                                    mb: 2,
+                                    lineHeight: 1.5,
+                                    fontSize: '0.8rem'
+                                }}
+                            >
+                                Sử dụng QR Pay trên ứng dụng ngân hàng
                             </Typography>
 
                             <Box
                                 sx={{
-                                    p: 2,
+                                    p: 1.5,
                                     border: '1px solid',
                                     borderColor: 'divider',
-                                    borderRadius: 2,
+                                    borderRadius: 1.5,
                                     bgcolor: 'common.white',
-                                    width: 220,
-                                    height: 220,
+                                    width: '100%',
+                                    maxWidth: 200,
+                                    aspectRatio: '1',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -310,75 +520,252 @@ export default function PaymentPage() {
                                 {paymentQrUrl && (
                                     <img
                                         src={paymentQrUrl}
-                                        alt="Mã QR Cổng Thanh Toán"
-                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                        alt="Mã QR thanh toán"
+                                        style={{width: '100%', height: '100%', objectFit: 'contain'}}
                                     />
                                 )}
                             </Box>
                         </Box>
 
-                        <Box sx={{ flex: 1, p: 3 }}>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: 'primary.main' }}>
-                                Sao chép dữ liệu thủ công
+                        {/* Payment Details Block */}
+                        <Box
+                            sx={{
+                                p: 2.5,
+                                bgcolor: 'background.paper',
+                                borderRadius: 1.5,
+                                border: '1px solid',
+                                borderColor: 'divider'
+                            }}
+                        >
+                            <Typography
+                                variant="subtitle2"
+                                sx={{
+                                    fontWeight: 700,
+                                    mb: 0.5,
+                                    color: 'primary.main',
+                                    fontSize: '0.95rem'
+                                }}
+                            >
+                                Thông tin chuyển khoản
                             </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
-                                Nhấp nút sao chép bên phải khi thực hiện các tác vụ chuyển khoản rời
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{
+                                    mb: 2,
+                                    display: 'block',
+                                    lineHeight: 1.5,
+                                    fontSize: '0.8rem'
+                                }}
+                            >
+                                Nhấp sao chép để đảm bảo thông tin chính xác
                             </Typography>
 
                             {qrDetails && (
-                                <Stack spacing={2}>
-                                    <Box>
-                                        <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                                            Ngân hàng thụ hưởng
-                                        </Typography>
-                                        <Typography variant="body1" sx={{ fontWeight: 700 }}>{qrDetails.bank}</Typography>
-                                    </Box>
+                                <Stack spacing={1.5}>
+                                    {/* Bank & Beneficiary */}
+                                    <Grid container spacing={1.5}>
+                                        <Grid size={{xs: 12, sm: 6}}>
+                                            <Box>
+                                                <Typography
+                                                    variant="caption"
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        display: 'block',
+                                                        mb: 0.5,
+                                                        fontWeight: 600,
+                                                        fontSize: '0.75rem'
+                                                    }}
+                                                >
+                                                    Ngân hàng
+                                                </Typography>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        fontWeight: 600,
+                                                        wordBreak: 'break-word'
+                                                    }}
+                                                >
+                                                    {qrDetails.bank}
+                                                </Typography>
+                                            </Box>
+                                        </Grid>
 
-                                    <Box>
-                                        <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                                            Đơn vị tiếp nhận tài chính
-                                        </Typography>
-                                        <Typography variant="body1" sx={{ fontWeight: 700 }}>TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN</Typography>
-                                    </Box>
+                                        <Grid size={{xs: 12, sm: 6}}>
+                                            <Box>
+                                                <Typography
+                                                    variant="caption"
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        display: 'block',
+                                                        mb: 0.5,
+                                                        fontWeight: 600,
+                                                        fontSize: '0.75rem'
+                                                    }}
+                                                >
+                                                    Thụ hưởng
+                                                </Typography>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        fontWeight: 600,
+                                                        wordBreak: 'break-word',
+                                                        fontSize: '0.85rem'
+                                                    }}
+                                                >
+                                                    TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN
+                                                </Typography>
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
 
-                                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
-                                        <Box sx={{ flexGrow: 1 }}>
-                                            <Typography variant="caption" color="text.secondary" display="block">Số tài khoản đích</Typography>
-                                            <Typography variant="body1" sx={{ fontWeight: 700, color: 'primary.main' }}>{qrDetails.acc}</Typography>
+                                    {/* Account Number */}
+                                    <Stack
+                                        direction="row"
+                                        justifyContent="space-between"
+                                        alignItems="center"
+                                        spacing={1}
+                                        sx={{
+                                            bgcolor: 'background.default',
+                                            p: 1.25,
+                                            borderRadius: 1,
+                                            border: '1px solid',
+                                            borderColor: 'divider'
+                                        }}
+                                    >
+                                        <Box sx={{flex: 1, minWidth: 0}}>
+                                            <Typography
+                                                variant="caption"
+                                                color="text.secondary"
+                                                sx={{
+                                                    display: 'block',
+                                                    mb: 0.25,
+                                                    fontWeight: 600,
+                                                    fontSize: '0.75rem'
+                                                }}
+                                            >
+                                                Số tài khoản
+                                            </Typography>
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    fontWeight: 700,
+                                                    color: 'primary.main',
+                                                    wordBreak: 'break-all',
+                                                    fontSize: '0.9rem'
+                                                }}
+                                            >
+                                                {qrDetails.acc}
+                                            </Typography>
                                         </Box>
-                                        <Tooltip title="Sao chép số tài khoản">
-                                            <IconButton size="small" onClick={() => handleCopy(qrDetails.acc)}>
-                                                <ContentCopyIcon fontSize="small" />
+                                        <Tooltip title="Sao chép">
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => handleCopy(qrDetails.acc, 'Số tài khoản')}
+                                                sx={{flexShrink: 0}}
+                                            >
+                                                <ContentCopyIcon fontSize="small"/>
                                             </IconButton>
                                         </Tooltip>
                                     </Stack>
 
-                                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
-                                        <Box sx={{ flexGrow: 1 }}>
-                                            <Typography variant="caption" color="text.secondary" display="block">Số tiền thanh toán</Typography>
-                                            <Typography variant="body1" sx={{ fontWeight: 700, color: 'error.main' }}>
+                                    {/* Amount */}
+                                    <Stack
+                                        direction="row"
+                                        justifyContent="space-between"
+                                        alignItems="center"
+                                        spacing={1}
+                                        sx={{
+                                            bgcolor: 'background.default',
+                                            p: 1.25,
+                                            borderRadius: 1,
+                                            border: '1px solid',
+                                            borderColor: 'divider'
+                                        }}
+                                    >
+                                        <Box sx={{flex: 1, minWidth: 0}}>
+                                            <Typography
+                                                variant="caption"
+                                                color="text.secondary"
+                                                sx={{
+                                                    display: 'block',
+                                                    mb: 0.25,
+                                                    fontWeight: 600,
+                                                    fontSize: '0.75rem'
+                                                }}
+                                            >
+                                                Số tiền
+                                            </Typography>
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    fontWeight: 700,
+                                                    color: 'error.main',
+                                                    wordBreak: 'break-all',
+                                                    fontSize: '0.9rem'
+                                                }}
+                                            >
                                                 {parseInt(qrDetails.amount).toLocaleString('vi-VN')} VNĐ
                                             </Typography>
                                         </Box>
-                                        <Tooltip title="Sao chép số tiền">
-                                            <IconButton size="small" onClick={() => handleCopy(qrDetails.amount)}>
-                                                <ContentCopyIcon fontSize="small" />
+                                        <Tooltip title="Sao chép">
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => handleCopy(qrDetails.amount, 'Số tiền')}
+                                                sx={{flexShrink: 0}}
+                                            >
+                                                <ContentCopyIcon fontSize="small"/>
                                             </IconButton>
                                         </Tooltip>
                                     </Stack>
 
-                                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ bgcolor: (theme) => alpha(theme.palette.warning.main, 0.08), p: 1.5, borderRadius: 1.5, border: '1px solid', borderColor: 'warning.light' }}>
-                                        <Box sx={{ flexGrow: 1 }}>
-                                            <Typography variant="caption" sx={{ color: 'warning.dark', display: 'block', fontWeight: 700, mb: 0.5 }}>
-                                                Nội dung giao dịch chính xác
+                                    {/* Transfer Content (Required) */}
+                                    <Stack
+                                        direction="row"
+                                        justifyContent="space-between"
+                                        alignItems="center"
+                                        spacing={1}
+                                        sx={{
+                                            bgcolor: (theme) => alpha(theme.palette.warning.main, 0.08),
+                                            p: 1.25,
+                                            borderRadius: 1,
+                                            border: '1px solid',
+                                            borderColor: 'warning.light'
+                                        }}
+                                    >
+                                        <Box sx={{flex: 1, minWidth: 0}}>
+                                            <Typography
+                                                variant="caption"
+                                                sx={{
+                                                    color: 'warning.dark',
+                                                    display: 'block',
+                                                    fontWeight: 700,
+                                                    mb: 0.25,
+                                                    fontSize: '0.75rem'
+                                                }}
+                                            >
+                                                Nội dung (bắt buộc)
                                             </Typography>
-                                            <Typography variant="body1" sx={{ fontWeight: 700, color: 'error.main', letterSpacing: '0.5px' }}>
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    fontWeight: 700,
+                                                    color: 'error.main',
+                                                    letterSpacing: '0.5px',
+                                                    wordBreak: 'break-all',
+                                                    fontSize: '0.9rem'
+                                                }}
+                                            >
                                                 {qrDetails.des}
                                             </Typography>
                                         </Box>
-                                        <Tooltip title="Sao chép nội dung">
-                                            <IconButton size="small" onClick={() => handleCopy(qrDetails.des)}>
-                                                <ContentCopyIcon fontSize="small" color="warning" />
+                                        <Tooltip title="Sao chép">
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => handleCopy(qrDetails.des, 'Nội dung chuyển khoản')}
+                                                sx={{flexShrink: 0}}
+                                            >
+                                                <ContentCopyIcon fontSize="small" color="warning"/>
                                             </IconButton>
                                         </Tooltip>
                                     </Stack>
@@ -387,12 +774,36 @@ export default function PaymentPage() {
                         </Box>
                     </Stack>
                 </DialogContent>
-                <DialogActions sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-                    <Button onClick={() => setPaymentQrUrl(null)} variant="outlined" color="inherit" disableElevation sx={{ borderRadius: 1.5, px: 3, textTransform: 'none' }}>
-                        Quay lại
+
+                <DialogActions sx={{p: 2, borderTop: '1px solid', borderColor: 'divider', gap: 1}}>
+                    <Button
+                        onClick={() => setPaymentQrUrl(null)}
+                        variant="outlined"
+                        color="inherit"
+                        disableElevation
+                        sx={{
+                            borderRadius: 1.5,
+                            px: 2.5,
+                            textTransform: 'none',
+                            fontWeight: 600
+                        }}
+                    >
+                        Đóng
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Thông báo sao chép thành công */}
+            <Snackbar
+                open={toastOpen}
+                autoHideDuration={3000}
+                onClose={() => setToastOpen(false)}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+            >
+                <Alert onClose={() => setToastOpen(false)} severity="success" variant="filled" sx={{width: '100%'}}>
+                    {toastMessage}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 }

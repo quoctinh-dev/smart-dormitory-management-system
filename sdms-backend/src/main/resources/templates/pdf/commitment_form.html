@@ -4,104 +4,190 @@
     <meta charset="UTF-8"/>
     <title>Bản Cam Kết Ký Túc Xá</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         @page {
             size: A4;
-            margin: 20mm;
+            margin: 15mm 15mm 20mm 15mm;
         }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .page-break {
+                page-break-after: always;
+            }
+            .commitment-table tr {
+                page-break-inside: avoid;
+            }
+        }
+
         body {
             font-family: "Times New Roman", Times, serif;
-            font-size: 14pt;
-            line-height: 1.5;
+            font-size: 13pt;
+            line-height: 1.6;
             color: #000;
+            background-color: #fff;
         }
+
         .header {
             width: 100%;
             display: table;
-            margin-bottom: 20px;
-            font-size: 13pt;
+            margin-bottom: 15px;
+            border-collapse: collapse;
         }
+
         .header-left, .header-right {
             display: table-cell;
             text-align: center;
             width: 50%;
             vertical-align: top;
-        }
-        .header-left {
+            font-size: 12pt;
+            padding: 0 5px;
             font-weight: bold;
+            line-height: 1.4;
         }
-        .header-right {
-            font-weight: bold;
+
+        .header-left strong {
+            display: block;
+            margin-top: 3px;
         }
+
+        .header-separator {
+            display: block;
+            margin: 5px 0;
+        }
+
         .title {
             text-align: center;
             font-weight: bold;
-            font-size: 16pt;
-            margin-top: 20px;
-            margin-bottom: 5px;
+            font-size: 18pt;
+            margin: 15px 0 10px 0;
         }
-        .subtitle {
-            text-align: center;
-            font-style: italic;
-            margin-bottom: 30px;
-        }
+
         .to {
             font-weight: bold;
-            margin-bottom: 20px;
+            margin: 15px 0 10px 0;
+            text-transform: uppercase;
+            font-size: 12pt;
         }
+
+        .student-info {
+            margin: 15px 0;
+            font-size: 12pt;
+            line-height: 1.5;
+        }
+
         .field {
             margin-bottom: 8px;
         }
+
         .value {
             font-weight: bold;
         }
-        .clause {
-            margin-top: 15px;
+
+        .intro-text {
             text-align: justify;
+            margin: 20px 0;
+            font-size: 12pt;
+            line-height: 1.6;
         }
-        .clause-title {
+
+        .commitment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 12pt;
+        }
+
+        .commitment-table td {
+            border: 1px solid #000;
+            padding: 8px 6px;
+            vertical-align: top;
+        }
+
+        .col-num {
+            width: 4%;
+            text-align: center;
             font-weight: bold;
         }
-        .penalty {
-            font-style: italic;
-            margin-left: 20px;
+
+        .col-content {
+            width: 66%;
+            text-align: justify;
+            line-height: 1.5;
         }
+
+        .col-penalty {
+            width: 30%;
+            text-align: center;
+            vertical-align: middle;
+            font-weight: 500;
+        }
+
+        .commitment-table tr {
+            page-break-inside: avoid;
+        }
+
+        .closing-text {
+            text-align: justify;
+            margin: 20px 0;
+            font-size: 12pt;
+            line-height: 1.6;
+        }
+
         .footer {
             width: 100%;
             display: table;
             margin-top: 40px;
+            border-collapse: collapse;
         }
+
         .footer-left, .footer-right {
             display: table-cell;
             width: 50%;
             text-align: center;
+            padding-top: 10px;
         }
-        .signature-box {
-            height: 100px;
+
+        .footer-left {
+            padding-right: 20px;
         }
-        /* Table Styles for Commitments */
-        .commitment-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
+
+        .footer-right {
+            padding-left: 20px;
+        }
+
+        .signature-date {
+            font-size: 11pt;
+            font-style: italic;
             margin-bottom: 20px;
+            line-height: 1.4;
         }
-        .commitment-table th, .commitment-table td {
-            border: 1px solid #000;
-            padding: 8px;
-            vertical-align: top;
+
+        .signature-label {
+            font-weight: bold;
+            font-size: 12pt;
+            margin: 10px 0 5px 0;
         }
-        .col-num {
-            width: 5%;
-            text-align: center;
+
+        .signature-sublabel {
+            font-size: 11pt;
+            font-style: italic;
+            margin-bottom: 80px;
         }
-        .col-content {
-            width: 70%;
-            text-align: justify;
-        }
-        .col-penalty {
-            width: 25%;
-            text-align: center;
-            vertical-align: middle !important;
+
+        .signature-name {
+            font-weight: bold;
+            font-size: 12pt;
+            text-transform: uppercase;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -111,108 +197,107 @@
     <div class="header-left">
         TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN<br/>
         <strong>KÝ TÚC XÁ</strong><br/>
-        -----------------------
+        <span class="header-separator">-----------------------</span>
     </div>
     <div class="header-right">
         CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br/>
         Độc lập - Tự do - Hạnh phúc<br/>
-        -----------------------------
+        <span class="header-separator">-----------------------------</span>
     </div>
 </div>
 
-<div class="title" style="margin-bottom: 20px;">BẢN CAM KẾT</div>
+<div class="title">BẢN CAM KẾT</div>
 
-<div class="to" style="text-transform: uppercase;">Kính gửi: BAN QUẢN LÝ KÝ TÚC XÁ TRƯỜNG ĐH CÔNG NGHỆ SÀI GÒN</div>
+<div class="to">Kính gửi: Ban Quản Lý Ký Túc Xá Trường ĐH Công Nghệ Sài Gòn</div>
 
-<div class="field" style="margin-top: 10px; margin-bottom: 10px;">
-    Tôi tên: <span class="value" style="text-transform: uppercase;" th:text="${app.fullName}"></span>
-    <span style="margin-left: 20px;">MSSV: <span class="value" th:text="${app.studentCode != null ? app.studentCode : '....................'}"></span></span>
-    <span style="margin-left: 20px;">Khoa: <span class="value" th:text="${app.faculty}"></span></span>
-    <span style="margin-left: 20px;">Khóa: <span class="value" th:text="${app.cohort}"></span></span>
+<div class="student-info">
+    <div class="field">
+        Tôi tên: <span class="value" style="text-transform: uppercase;" th:text="${app.fullName}"></span>
+        <span style="margin-left: 20px;">MSSV: <span class="value" th:text="${app.studentCode != null ? app.studentCode : '....................'}"></span></span>
+        <span style="margin-left: 20px;">Khoa: <span class="value" th:text="${app.faculty}"></span></span>
+        <span style="margin-left: 20px;">Khóa: <span class="value" th:text="${app.cohort}"></span></span>
+    </div>
 </div>
 
-<p style="text-align: justify; margin-top: 15px; font-size: 13pt;">
+<p class="intro-text">
     Sau khi đọc kỹ Quy chế lưu trú KTX Trường ĐH Công nghệ Sài Gòn, tôi hoàn toàn nhất trí và cam kết như sau:
 </p>
 
 <table class="commitment-table">
     <tr>
         <td class="col-num">1</td>
-        <td class="col-content">- Không mua bán, tàng trữ và sử dụng ma túy; không hút thuốc lá trong ký túc xá; không xăm mình.</td>
+        <td class="col-content">Không mua bán, tàng trữ và sử dụng ma túy; không hút thuốc lá trong ký túc xá; không xăm mình.</td>
         <td class="col-penalty">BUỘC RA KHỎI<br/>KTX</td>
     </tr>
     <tr>
         <td class="col-num">2</td>
-        <td class="col-content">- Không nấu ăn, đốt lửa trong phòng ở, hành lang, lan can và những nơi công cộng; không tàng trữ, sử dụng các dụng cụ đun nấu bằng điện, các chất dễ nổ, dễ cháy (pháo, xăng, dầu, cồn, than, củi, hóa chất).</td>
+        <td class="col-content">Không nấu ăn, đốt lửa trong phòng ở, hành lang, lan can và những nơi công cộng; không tàng trữ, sử dụng các dụng cụ đun nấu bằng điện, các chất dễ nổ, dễ cháy (pháo, xăng, dầu, cồn, than, củi, hóa chất).</td>
         <td class="col-penalty">BUỘC RA KHỎI<br/>KTX</td>
     </tr>
     <tr>
         <td class="col-num">3</td>
-        <td class="col-content">- Không chứa chấp người lưu trú trái quy định của KTX, tiếp người thân và bạn bè tại phòng khách (tầng trệt).</td>
+        <td class="col-content">Không chứa chấp người lưu trú trái quy định của KTX, tiếp người thân và bạn bè tại phòng khách (tầng trệt).</td>
         <td class="col-penalty">BUỘC RA KHỎI<br/>KTX</td>
     </tr>
     <tr>
         <td class="col-num">4</td>
-        <td class="col-content">- Không nghịch phá hệ thống PCCC hoặc báo động giả trong KTX.</td>
+        <td class="col-content">Không nghịch phá hệ thống PCCC hoặc báo động giả trong KTX.</td>
         <td class="col-penalty">BUỘC RA KHỎI<br/>KTX</td>
     </tr>
     <tr>
         <td class="col-num">5</td>
-        <td class="col-content">- Không uống rượu bia, đánh bài, cá độ, ghi và chơi số đề; không tàng trữ, sử dụng và phát tán các tài liệu phim ảnh đồi trụy, phản động hoặc truy cập các trang WEB có nội dung xấu; không tàng trữ, sử dụng và phát tán các loại hung khí; không làm mất an ninh trật tự, làm mất vệ sinh môi trường.</td>
+        <td class="col-content">Không uống rượu bia, đánh bài, cá độ, ghi và chơi số đề; không tàng trữ, sử dụng và phát tán các tài liệu phim ảnh đồi trụy, phản động hoặc truy cập các trang WEB có nội dung xấu; không tàng trữ, sử dụng và phát tán các loại hung khí; không làm mất an ninh trật tự, làm mất vệ sinh môi trường.</td>
         <td class="col-penalty">BUỘC RA KHỎI<br/>KTX</td>
     </tr>
     <tr>
         <td class="col-num">6</td>
-        <td class="col-content">- Không đóng đinh, đục lỗ, viết, vẽ, dán giấy, tranh ảnh làm bẩn tường, trần nhà trong phòng ở và các nơi công cộng khác; ăn mặc lịch sự (không mặc quần cụt), tóc chải gọn gàng, quan hệ nam nữ lành mạnh. Sinh viên nam không lên khu vực của sinh viên nữ (lầu 1).</td>
+        <td class="col-content">Không đóng đinh, đục lỗ, viết, vẽ, dán giấy, tranh ảnh làm bẩn tường, trần nhà trong phòng ở và các nơi công cộng khác; ăn mặc lịch sự (không mặc quần cụt), tóc chải gọn gàng, quan hệ nam nữ lành mạnh. Sinh viên nam không lên khu vực của sinh viên nữ (lầu 1).</td>
         <td class="col-penalty">Xử lý theo<br/>Quy chế lưu trú</td>
     </tr>
     <tr>
         <td class="col-num">7</td>
-        <td class="col-content">- Bảo quản tài sản, thiết bị của KTX, sử dụng đúng mục đích, đúng theo chức năng, mọi hư hỏng đều phải đền bù theo nguyên trạng.</td>
+        <td class="col-content">Bảo quản tài sản, thiết bị của KTX, sử dụng đúng mục đích, đúng theo chức năng, mọi hư hỏng đều phải đền bù theo nguyên trạng.</td>
         <td class="col-penalty">Xử lý theo<br/>Quy chế lưu trú</td>
     </tr>
     <tr>
         <td class="col-num">8</td>
-        <td class="col-content">- Không xâm phạm trái phép khu vực kho tàng, phòng làm việc, phòng SV khác, khu vực cấm người không có phận sự.<br/>
-        - Nâng cao ý thức cảnh giác, phát hiện kịp thời bọn trộm cắp, báo ngay cho BQL KTX khi phát hiện người lạ mặt.<br/>
-        - Báo ngay cho BQL KTX khi phát hiện người có hành vi xâm phạm, phá hoại tài sản KTX.</td>
+        <td class="col-content">Không xâm phạm trái phép khu vực kho tàng, phòng làm việc, phòng SV khác, khu vực cấm người không có phận sự.<br/>Nâng cao ý thức cảnh giác, phát hiện kịp thời bọn trộm cắp, báo ngay cho BQL KTX khi phát hiện người lạ mặt.<br/>Báo ngay cho BQL KTX khi phát hiện người có hành vi xâm phạm, phá hoại tài sản KTX.</td>
         <td class="col-penalty">Xử lý theo<br/>Quy chế lưu trú</td>
     </tr>
     <tr>
         <td class="col-num">9</td>
-        <td class="col-content">- Giữ trật tự và tắt chuông điện thoại sau 22h00.<br/>
-        - Vệ sinh phòng theo lịch phân công và đổ rác đúng nơi quy định.</td>
+        <td class="col-content">Giữ trật tự và tắt chuông điện thoại sau 22h00.<br/>Vệ sinh phòng theo lịch phân công và đổ rác đúng nơi quy định.</td>
         <td class="col-penalty">Xử lý theo<br/>Quy chế lưu trú</td>
     </tr>
     <tr>
         <td class="col-num">10</td>
-        <td class="col-content">- Có nghĩa vụ và trách nhiệm thực hiện Quy chế lưu trú KTX.<br/>
-        - Có ý thức – kỷ luật, chấp hành việc sắp xếp chỗ ở theo quy định của KTX.<br/>
-        - Có trách nhiệm với tập thể, bạn bè và chính bản thân mình.<br/>
-        - Sinh viên tự chịu trách nhiệm và bảo quản tài sản cá nhân có giá trị (tiền, laptop, điện thoại, đồ trang sức...), công cụ, dụng cụ cá nhân.</td>
+        <td class="col-content">Có nghĩa vụ và trách nhiệm thực hiện Quy chế lưu trú KTX.<br/>Có ý thức – kỷ luật, chấp hành việc sắp xếp chỗ ở theo quy định của KTX.<br/>Có trách nhiệm với tập thể, bạn bè và chính bản thân mình.<br/>Sinh viên tự chịu trách nhiệm và bảo quản tài sản cá nhân có giá trị (tiền, laptop, điện thoại, đồ trang sức...), công cụ, dụng cụ cá nhân.</td>
         <td class="col-penalty">Xử lý theo<br/>Quy chế lưu trú</td>
     </tr>
     <tr>
         <td class="col-num">11</td>
-        <td class="col-content">- Đeo thẻ lưu trú KTX trước khi ra vào KTX để tránh tình trạng người lạ xâm nhập vào KTX, sinh viên vi phạm sẽ bị xử lý theo quy chế.</td>
+        <td class="col-content">Đeo thẻ lưu trú KTX trước khi ra vào KTX để tránh tình trạng người lạ xâm nhập vào KTX, sinh viên vi phạm sẽ bị xử lý theo quy chế.</td>
         <td class="col-penalty">BUỘC RA KHỎI<br/>KTX</td>
     </tr>
 </table>
 
-<p style="text-align: justify; margin-top: 20px;">
+<p class="closing-text">
     Tôi xin cam đoan đã đọc kỹ, hiểu rõ toàn bộ nội dung trên và cam kết thực hiện nghiêm chỉnh. Nếu vi phạm bất kỳ điều khoản nào, tôi xin hoàn toàn chịu các hình thức kỷ luật cao nhất từ Ban Quản lý Ký túc xá và Nhà trường, bao gồm cả việc buộc ra khỏi Ký túc xá ngay lập tức mà không khiếu nại.
 </p>
 
 <div class="footer" th:with="submitDate=${app.submittedAt != null ? app.submittedAt : app.createdAt}">
     <div class="footer-left"></div>
     <div class="footer-right">
-        <i>TP.HCM, ngày <span th:text="${#temporals.format(submitDate, 'dd')}"></span>
-        tháng <span th:text="${#temporals.format(submitDate, 'MM')}"></span>
-        năm <span th:text="${#temporals.format(submitDate, 'yyyy')}"></span></i><br/>
-        <strong>Sinh viên cam kết</strong><br/>
-        <i>(Ký và ghi rõ họ tên)</i><br/>
-        <div class="signature-box"></div>
-        <strong th:text="${app.fullName}" style="text-transform: uppercase;"></strong>
+        <div class="signature-date">
+            <i>TP.HCM, ngày <span th:text="${#temporals.format(submitDate, 'dd')}"></span>
+            tháng <span th:text="${#temporals.format(submitDate, 'MM')}"></span>
+            năm <span th:text="${#temporals.format(submitDate, 'yyyy')}"></span></i>
+        </div>
+        <div>
+            <div class="signature-label">Sinh viên cam kết</div>
+            <div class="signature-sublabel"><i>(Ký và ghi rõ họ tên)</i></div>
+            <div class="signature-name" th:text="${app.fullName}"></div>
+        </div>
     </div>
 </div>
 

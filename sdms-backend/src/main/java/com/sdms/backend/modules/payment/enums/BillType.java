@@ -5,6 +5,5 @@ public enum         BillType {
     ACCOMMODATION_FEE,
     ELECTRIC_FEE,
     WATER_FEE,
-    PENALTY_FEE,
-    DEPOSIT_FEE
+    PENALTY_FEE
 }

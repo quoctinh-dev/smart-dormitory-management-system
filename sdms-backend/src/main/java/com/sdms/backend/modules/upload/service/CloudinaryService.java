@@ -52,21 +52,52 @@ public class CloudinaryService {
 
         try {
             String publicId = fileName.endsWith(".pdf") ? fileName : fileName + ".pdf";
+            
             Map uploadResult = cloudinary.uploader().upload(
                     pdfBytes,
                     ObjectUtils.asMap(
                             "folder", folder,
                             "public_id", publicId,
-                            "resource_type", "image",
-                            "format", "pdf",
-                            "access_mode", "public"
+                            "resource_type", "raw"
                     )
             );
-            String url = uploadResult.get("secure_url").toString();
-            log.info("Successfully uploaded PDF to Cloudinary. URL: {}", url);
-            return url;
+            return uploadResult.get("secure_url").toString();
         } catch (IOException e) {
             throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR, "Tải tệp PDF lên Cloudinary thất bại: " + e.getMessage());
         }
     }
-}
+
+    public void deleteFileByUrl(String fileUrl) {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return;
+        }
+        try {
+            // URL format: https://res.cloudinary.com/<cloud_name>/<resource_type>/upload/v<version>/<folder>/<filename>.<ext>
+            // We need to extract <folder>/<filename> as public_id
+            int uploadIndex = fileUrl.indexOf("/upload/");
+            if (uploadIndex != -1) {
+                String pathAfterUpload = fileUrl.substring(uploadIndex + 8);
+                // Remove version tag (v1234567890/) if present
+                if (pathAfterUpload.matches("^v\\d+/.*")) {
+                    pathAfterUpload = pathAfterUpload.replaceFirst("^v\\d+/", "");
+                }
+                // Xử lý tách publicId tùy thuộc vào loại tài nguyên (raw, image, video)
+                boolean isRaw = fileUrl.contains("/raw/");
+                String publicId = pathAfterUpload;
+                
+                if (!isRaw) {
+                    // Đối với image/video, Cloudinary yêu cầu publicId không bao gồm phần mở rộng file
+                    int lastDotIndex = pathAfterUpload.lastIndexOf('.');
+                    publicId = (lastDotIndex != -1) ? pathAfterUpload.substring(0, lastDotIndex) : pathAfterUpload;
+                }
+                
+                // Khi xóa tài liệu dạng raw, cần phải chỉ định tham số resource_type tương ứng
+                Map<String, Object> options = isRaw ? ObjectUtils.asMap("resource_type", "raw") : ObjectUtils.emptyMap();
+                cloudinary.uploader().destroy(publicId, options);
+                log.info("Đã xóa file trên Cloudinary: {}", publicId);
+            }
+        } catch (Exception e) {
+            log.warn("Không thể xóa file rác trên Cloudinary: {}. Lỗi: {}", fileUrl, e.getMessage());
+        }
+    }
+}

@@ -1,7 +1,7 @@
 package com.sdms.backend.modules.registration.entity;
 
 import com.sdms.backend.common.entity.BaseEntity;
-import com.sdms.backend.modules.registration.enums.RegistrationTarget;
+import com.sdms.backend.modules.registration.enums.RegistrationType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -70,10 +70,10 @@ public class RegistrationEligibility extends BaseEntity {
     private String studentCode;
 
     /**
-     * Đối tượng đăng ký (Ví dụ: Sinh viên năm nhất, sinh viên năm 2,...).
-     * Mặc định là {@link RegistrationTarget#FRESHMAN}.
+     * Đối tượng đăng ký.
+     * Mặc định là {@link RegistrationType#NEW_STUDENT}.
      */
     @Enumerated(EnumType.STRING)
     @Column(length = 50)
-    private RegistrationTarget target = RegistrationTarget.FRESHMAN;
+    private RegistrationType target = RegistrationType.NEW_STUDENT;
 }

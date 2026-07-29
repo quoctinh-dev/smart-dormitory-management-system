@@ -118,18 +118,36 @@ public class CheckoutRequestService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<CheckoutRequestResponse> getAllCheckoutRequests(CheckoutStatus status, Pageable pageable) {
-        Page<CheckoutRequest> page;
-        if (status != null) {
-            page = checkoutRequestRepository.findByStatus(status, pageable);
-        } else {
-            page = checkoutRequestRepository.findAll(pageable);
-        }
+    public PageResponse<CheckoutRequestResponse> getAllCheckoutRequests(CheckoutStatus status, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59, 999999999) : null;
+
+        Page<CheckoutRequest> page = checkoutRequestRepository.findByFilters(status, startDateTime, endDateTime, pageable);
         
         List<CheckoutRequestResponse> content = page.getContent().stream()
                 .map(this::buildResponse)
                 .collect(Collectors.toList());
         return PageResponse.fromPage(page, content);
+    }
+
+    @Transactional
+    public int bulkReviewCheckoutRequests(com.sdms.backend.modules.student.dto.request.BulkCheckoutReviewDto request) {
+        if (request.getRequestIds() == null || request.getRequestIds().isEmpty()) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Danh sách đơn xin trả phòng trống");
+        }
+
+        int count = 0;
+        for (UUID requestId : request.getRequestIds()) {
+            try {
+                CheckoutRequestReviewDto reviewDto = new CheckoutRequestReviewDto();
+                reviewDto.setStatus(request.getStatus());
+                reviewCheckoutRequest(requestId, reviewDto);
+                count++;
+            } catch (Exception e) {
+                // Có thể log lỗi cho từng đơn bị thất bại, tiếp tục với đơn khác
+            }
+        }
+        return count;
     }
 
     @Transactional

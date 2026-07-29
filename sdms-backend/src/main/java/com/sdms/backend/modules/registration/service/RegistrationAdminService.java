@@ -26,7 +26,7 @@ public class RegistrationAdminService {
     private final RegistrationPeriodRepository repository;
     private final DormitoryApplicationRepository applicationRepository;
 
-    // Xóa cứng đợt đăng ký (Chỉ xóa nếu chưa có đơn đăng ký)
+    // Xóa đợt đăng ký (Chỉ xóa nếu chưa có đơn đăng ký)
     public void deletePeriod(UUID id) {
         RegistrationPeriod p = repository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đợt đăng ký"));
@@ -57,7 +57,7 @@ public class RegistrationAdminService {
         period.setEndDate(req.getEndDate());
         period.setStayStartDate(req.getStayStartDate());
         period.setStayEndDate(req.getStayEndDate());
-        period.setIsActive(false); // Mặc định tạo ra là nháp (tạm dừng)
+        period.setIsActive(false);
 
         return mapToResponse(repository.save(period));
     }
@@ -104,12 +104,12 @@ public class RegistrationAdminService {
         // 2. Kiểm tra xem đợt này có ĐANG TRONG THỜI GIAN HOẠT ĐỘNG thực tế hay không
         if (Boolean.TRUE.equals(p.getIsActive()) && now.isAfter(p.getStartDate())) {
 
-            // Chốt chặn 1: Không được đổi loại hình đăng ký khi đợt đang mở
+            // Không được đổi loại hình đăng ký khi đợt đang mở
             if (!p.getRegistrationType().equals(req.getRegistrationType())) {
                 throw new AppException(ErrorCode.VALIDATION_FAILED, "Đợt đăng ký đang hoạt động, không thể thay đổi loại đợt đăng ký");
             }
 
-            // Chốt chặn 2: Không được sửa ngày bắt đầu vì đợt đã chạy qua mốc đó rồi
+            // Không được sửa ngày bắt đầu vì đợt đã chạy qua mốc đó rồi
             if (!p.getStartDate().equals(req.getStartDate())) {
                 throw new AppException(ErrorCode.VALIDATION_FAILED, "Đợt đăng ký đã hoặc đang diễn ra, không thể thay đổi ngày bắt đầu");
             }

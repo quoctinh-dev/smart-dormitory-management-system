@@ -12,11 +12,11 @@ const PaymentPage = lazy(() => import('@/pages/public/PaymentPage'));
 const ActivateAccountPage = lazy(() => import('@/pages/public/ActivateAccountPage'));
 
 // 2. Bọc component qua hàm wrap phục vụ tối ưu render của Sinh viên
-const HomeLazy = wrap(HomePage);
-const RegisterLazy = wrap(RegistrationPage);
-const StatusLazy = wrap(StatusPage);
-const PaymentLazy = wrap(PaymentPage);
-const ActivateLazy = wrap(ActivateAccountPage);
+const HomeLazy = wrap(HomePage, { skeletonType: 'home', skeletonCount: 1, withContainer: false });
+const RegisterLazy = wrap(RegistrationPage, { skeletonType: 'page', withContainer: false });
+const StatusLazy = wrap(StatusPage, { skeletonType: 'page', withContainer: false });
+const PaymentLazy = wrap(PaymentPage, { skeletonType: 'page', withContainer: false });
+const ActivateLazy = wrap(ActivateAccountPage, { skeletonType: 'page', withContainer: false });
 
 export const publicRoutes: RouteObject[] = [
   {

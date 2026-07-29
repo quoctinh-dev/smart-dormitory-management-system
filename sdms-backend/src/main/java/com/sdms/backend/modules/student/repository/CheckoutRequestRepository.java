@@ -21,4 +21,14 @@ public interface CheckoutRequestRepository extends JpaRepository<CheckoutRequest
     List<CheckoutRequest> findAllByStudent_StudentIdOrderByCreatedAtDesc(UUID studentId);
 
     Page<CheckoutRequest> findByStatus(CheckoutStatus status, Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Query("SELECT c FROM CheckoutRequest c WHERE " +
+            "(:status IS NULL OR c.status = :status) AND " +
+            "(CAST(:startDate AS timestamp) IS NULL OR c.createdAt >= :startDate) AND " +
+            "(CAST(:endDate AS timestamp) IS NULL OR c.createdAt <= :endDate)")
+    Page<CheckoutRequest> findByFilters(
+            @org.springframework.data.repository.query.Param("status") CheckoutStatus status,
+            @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate,
+            @org.springframework.data.repository.query.Param("endDate") java.time.LocalDateTime endDate,
+            Pageable pageable);
 }

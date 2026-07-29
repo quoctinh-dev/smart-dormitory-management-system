@@ -52,7 +52,7 @@ public class ReservationExpiryJob {
         log.info("[Scheduler] Found {} expired unpaid bills to process.", expiredBills.size());
         for (Bill bill : expiredBills) {
             try {
-                if (bill.getBillType() == BillType.ACCOMMODATION_FEE || bill.getBillType() == BillType.DEPOSIT_FEE) { // assuming these are the reservation types
+                if (bill.getBillType() == BillType.ACCOMMODATION_FEE) { // assuming these are the reservation types
                     Optional<StudentHousingAssignment> assignmentOpt = assignmentRepository.findById(bill.getAssignmentId());
                     if (assignmentOpt.isPresent() && assignmentOpt.get().getStatus() == AssignmentStatus.RESERVED) {
                         StudentHousingAssignment assignment = assignmentOpt.get();

@@ -192,7 +192,7 @@ export default function CommitmentSection({
                         }}
                     />
                     <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2" sx={{ textAlign: 'justify', lineHeight: 1.7 }}>
+                      <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
                         {clause.content}
                       </Typography>
                       <Typography
@@ -228,7 +228,7 @@ export default function CommitmentSection({
         >
           <Typography
               variant="body2"
-              sx={{ textAlign: 'justify', lineHeight: 1.8, color: 'text.secondary' }}
+              sx={{ lineHeight: 1.6, color: 'text.secondary' }}
           >
             Tôi xin cam đoan đã đọc kỹ, hiểu rõ toàn bộ nội dung trên và cam kết thực hiện nghiêm
             chỉnh. Nếu vi phạm bất kỳ điều khoản nào, tôi xin hoàn toàn chịu các hình thức kỷ luật cao
