@@ -113,6 +113,16 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
         
         String studentName = account.getStudent() != null ? account.getStudent().getFullName() : account.getUsername();
         
+        if (account.getRole() == Role.STUDENT) {
+            if (account.getStudent() == null) {
+                throw new AppException(ErrorCode.UNAUTHORIZED, "Tài khoản sinh viên không hợp lệ");
+            }
+            boolean hasActiveRoom = assignmentRepository.findByStudent_StudentIdAndStatus(account.getStudent().getStudentId(), AssignmentStatus.OCCUPIED).isPresent();
+            if (!hasActiveRoom) {
+                throw new AppException(ErrorCode.VALIDATION_FAILED, "Bạn hiện không lưu trú tại Ký túc xá nên không thể gửi báo cáo sự cố");
+            }
+        }
+
         String roomCode = "Khu vực chung";
         if (request.isCommonArea()) {
             roomCode = "Khu vực chung";
@@ -123,7 +133,7 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
         } else if (account.getStudent() != null) {
             roomCode = assignmentRepository.findByStudent_StudentIdAndStatus(account.getStudent().getStudentId(), AssignmentStatus.OCCUPIED)
                     .map(assignment -> assignment.getBed().getRoom().getRoomCode())
-                    .orElse("Khu vực chung (Chưa phân phòng)");
+                    .orElse("Khu vực chung");
         }
         
         // Find all admins and staff to notify

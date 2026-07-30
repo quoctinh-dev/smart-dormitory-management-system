@@ -25,10 +25,13 @@ public class HousingAssignmentScheduler {
     private final CheckoutRequestRepository checkoutRequestRepository;
 
     /**
-     * [LUẬT LƯU TRÚ ĐÚNG HẠN]
+     * [LUẬT LƯU TRÚ ĐÚNG HẠN - GIẢI PHÁP CHỐNG QUÁ TẢI CHO ADMIN]
      * Chạy vào lúc 00:01 mỗi ngày.
      * Tìm tất cả các sinh viên đang ở (OCCUPIED) nhưng Kỳ đăng ký đã kết thúc.
      * Tự động Checkout và thu hồi quyền (FaceID/Thẻ) mà KHÔNG CẦN SINH VIÊN LÀM ĐƠN.
+     * Giá trị nghiệp vụ: Vào cuối học kỳ, hàng ngàn sinh viên sẽ hết hạn cùng 1 lúc. 
+     * Nếu bắt Admin phải duyệt tay từng người thì hệ thống sẽ sập và BQL không kham nổi. 
+     * Job này đóng vai trò như một "Admin ảo" dọn dẹp hàng loạt để tối ưu hóa quy trình.
      */
     @Scheduled(cron = "0 1 0 * * ?") // 00:01 AM every day
     public void autoCheckoutExpiredAssignments() {

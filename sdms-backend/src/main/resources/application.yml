@@ -61,6 +61,10 @@ server:
 payment:
   sepay:
     api-key: ${SEPAY_API_KEY}
+    bank-account: ${SEPAY_BANK_ACCOUNT:0819281512}  # Số tài khoản ngân hàng nhận tiền (MBBank mặc định)
+    bank-code: ${SEPAY_BANK_CODE:MBBank}           # Mã ngân hàng theo chuẩn SePay (VD: MBBank, VCB, TCB...)
+    bank-name: ${SEPAY_BANK_NAME:Ngân hàng TMCP Quân đội (MBBank)}  # Tên ngân hàng hiển thị cho sinh viên
+    account-holder: ${SEPAY_ACCOUNT_HOLDER:TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN}  # Tên chủ tài khoản
 
 logging:
   level:

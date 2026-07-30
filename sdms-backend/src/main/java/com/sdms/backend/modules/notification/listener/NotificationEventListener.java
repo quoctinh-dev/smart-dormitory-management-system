@@ -1,36 +1,45 @@
 package com.sdms.backend.modules.notification.listener;
 
+import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.application.event.ApplicationApprovedEvent;
 import com.sdms.backend.modules.application.event.ApplicationRejectedEvent;
 import com.sdms.backend.modules.application.event.ApplicationSubmittedEvent;
+import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
 import com.sdms.backend.modules.face.event.FaceProfileApprovedEvent;
 import com.sdms.backend.modules.notification.core.NotificationRouter;
 import com.sdms.backend.modules.notification.core.payload.NotificationPayload;
 import com.sdms.backend.modules.notification.enums.NotificationChannel;
 import com.sdms.backend.modules.notification.enums.NotificationType;
+import com.sdms.backend.modules.notification.service.NotificationService;
 import com.sdms.backend.modules.payment.event.PaymentSuccessEvent;
+import com.sdms.backend.modules.payment.event.ReservationPaymentExpiredEvent;
+import com.sdms.backend.modules.payment.event.UtilityBillCalculatedEvent;
+import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
+import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.event.CheckInCompletedEvent;
+import com.sdms.backend.modules.room.event.HousingReservationExpiredEvent;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import com.sdms.backend.modules.smartaccess.event.RoomPinChangedEvent;
 import com.sdms.backend.modules.student.event.ExtensionApprovedEvent;
+import com.sdms.backend.modules.student.event.StudentCheckedOutEvent;
+import com.sdms.backend.modules.student.repository.StudentRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import com.sdms.backend.modules.room.enums.AssignmentStatus;
-import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
-import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
-import com.sdms.backend.modules.application.entity.DormitoryApplication;
-import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
-import com.sdms.backend.modules.payment.event.ReservationPaymentExpiredEvent;
-import com.sdms.backend.modules.smartaccess.event.RoomPinChangedEvent;
-import com.sdms.backend.modules.notification.service.NotificationService;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -41,16 +50,16 @@ public class NotificationEventListener {
     private final NotificationService notificationService;
     private final DormitoryApplicationRepository applicationRepository;
     private final StudentHousingAssignmentRepository assignmentRepository;
-    private final com.sdms.backend.modules.student.repository.StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
 
-    private String getReadableAppCode(java.util.UUID applicationId) {
+    private String getReadableAppCode(UUID applicationId) {
         if (applicationId == null) return "UNKNOWN";
         return applicationRepository.findById(applicationId)
                 .map(app -> (app.getStudentCode() != null && !app.getStudentCode().isBlank()) ? app.getStudentCode() : app.getApplicationCode())
                 .orElse(applicationId.toString().substring(0, 8));
     }
 
-    private String getReadableStudentCode(java.util.UUID studentId) {
+    private String getReadableStudentCode(UUID studentId) {
         if (studentId == null) return "UNKNOWN";
         return studentRepository.findById(studentId)
                 .map(student -> student.getStudentCode() != null ? student.getStudentCode() : studentId.toString().substring(0, 8))
@@ -65,26 +74,30 @@ public class NotificationEventListener {
     public void handleApplicationSubmitted(ApplicationSubmittedEvent event) {
         log.info("Notification-Event: Tiếp nhận đơn đăng ký số {} của sinh viên thành công.", event.getApplicationId());
         try {
+            // TỐI ƯU BREVO: Khi nộp đơn, sinh viên đang ngồi trực tiếp thao tác trên hệ thống.
+            // Chỉ cần thông báo IN_APP là đủ để xác nhận tức thì.
+            // Không gửi EMAIL để tiết kiệm quota (email quan trọng hơn dành cho kết quả duyệt).
+            // Nếu là người dùng công khai (chưa có account/studentId) thì không gửi gì cả.
+            if (event.getStudentId() == null) {
+                log.info("Notification-Event: Bỏ qua thông báo nộp đơn vì chưa có studentId (người dùng công khai).");
+                return;
+            }
+
             Map<String, Object> variables = new HashMap<>();
             variables.put("studentName", event.getStudentName());
             variables.put("applicationId", event.getApplicationId().toString());
             variables.put("status", "CHỜ XÉT DUYỆT");
             variables.put("reason", null);
 
-            Set<NotificationChannel> channels = new java.util.HashSet<>();
-            channels.add(NotificationChannel.EMAIL);
-            if (event.getStudentId() != null) channels.add(NotificationChannel.IN_APP);
-
             NotificationPayload payload = NotificationPayload.builder()
                     .eventId("APP_SUBMIT_" + getReadableAppCode(event.getApplicationId()))
                     .type(NotificationType.APPLICATION)
-                    .channels(channels)
+                    .channels(Set.of(NotificationChannel.IN_APP)) // Chỉ IN_APP - không tốn quota email
                     .studentId(event.getStudentId())
-                    .email(event.getStudentEmail())
                     .recipientName(event.getStudentName())
                     .title("SDMS - Tiếp nhận đơn đăng ký phòng ở thành công")
-                    .emailTemplateName("application-status")
-                    .templateData(variables)
+                    .inAppMessage("Đơn đăng ký KTX của bạn đã được tiếp nhận và đang chờ xét duyệt.")
+                    .actionUrl("/student/application")
                     .build();
 
             notificationRouter.route(payload);
@@ -107,7 +120,7 @@ public class NotificationEventListener {
             variables.put("status", "ĐA_PHE_DUYET");
             variables.put("reason", "Hồ sơ đủ điều kiện ưu tiên. Vui lòng kiểm tra hóa đơn tiền phòng được đính kèm tại cổng thông tin để hoàn tất nghĩa vụ tài chính.");
 
-            Set<NotificationChannel> channels = new java.util.HashSet<>();
+            Set<NotificationChannel> channels = new HashSet<>();
             channels.add(NotificationChannel.EMAIL);
             if (event.getStudentId() != null) channels.add(NotificationChannel.IN_APP);
 
@@ -267,7 +280,7 @@ public class NotificationEventListener {
             variables.put("status", "ĐA_PHE_DUYET");
             variables.put("reason", "Quyết định gia hạn của bạn đã được phê duyệt. Hệ thống đã tạo một hóa đơn thanh toán tiền KTX. Vui lòng kiểm tra mục Hóa đơn trên ứng dụng và hoàn tất nghĩa vụ tài chính.");
 
-            Set<NotificationChannel> channels = new java.util.HashSet<>();
+            Set<NotificationChannel> channels = new HashSet<>();
             channels.add(NotificationChannel.EMAIL);
             if (event.getStudentId() != null) channels.add(NotificationChannel.IN_APP);
 
@@ -322,7 +335,7 @@ public class NotificationEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleHousingReservationExpired(com.sdms.backend.modules.room.event.HousingReservationExpiredEvent event) {
+    public void handleHousingReservationExpired(HousingReservationExpiredEvent event) {
         log.info("[Notification] Processing HousingReservationExpiredEvent for applicationId: {}", event.getApplicationId());
         try {
             java.util.Optional<DormitoryApplication> applicationOpt = applicationRepository.findById(event.getApplicationId());
@@ -382,7 +395,7 @@ public class NotificationEventListener {
      */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleUtilityBillCalculated(com.sdms.backend.modules.payment.event.UtilityBillCalculatedEvent event) {
+    public void handleUtilityBillCalculated(UtilityBillCalculatedEvent event) {
         log.info("Notification-Event: Đã chốt hóa đơn điện nước cho phòng: {}", event.getRoomId());
         try {
             // Find all active students in the room
@@ -411,21 +424,29 @@ public class NotificationEventListener {
      * 10. Hứng sự kiện Trả phòng (Checkout)
      */
     @Async
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleStudentCheckedOut(com.sdms.backend.modules.student.event.StudentCheckedOutEvent event) {
+    public void handleStudentCheckedOut(StudentCheckedOutEvent event) {
         log.info("Notification-Event: Sinh viên checkout thành công: {}", event.getStudentId());
         try {
             assignmentRepository.findById(event.getAssignmentId()).ifPresent(assignment -> {
                 if (assignment.getApplication() != null && assignment.getApplication().getEmail() != null) {
+                    // TỐI ƯU LOGIC: Sau khi checkout, sinh viên mất quyền truy cập app.
+                    // IN_APP sẽ không có giá trị vì họ không thể vào xem được nữa.
+                    // Chỉ gửi EMAIL để đảm bảo sinh viên nhận được xác nhận hoàn tất hợp đồng.
                     NotificationPayload payload = NotificationPayload.builder()
                             .eventId("CHECKOUT_" + getReadableStudentCode(event.getStudentId()))
                             .type(NotificationType.ROOM)
-                            .channels(Set.of(NotificationChannel.EMAIL, NotificationChannel.IN_APP))
+                            .channels(Set.of(NotificationChannel.EMAIL)) // Chỉ EMAIL - IN_APP vô dụng sau checkout
                             .studentId(event.getStudentId())
                             .email(assignment.getApplication().getEmail())
                             .recipientName(assignment.getApplication().getFullName())
                             .title("Xác nhận trả phòng KTX thành công")
-                            .inAppMessage("Bạn đã hoàn tất thủ tục trả phòng và thanh lý hợp đồng. Hẹn gặp lại!")
+                            .emailTemplateName("generic-notification")
+                            .templateData(Map.of(
+                                "studentName", assignment.getApplication().getFullName(),
+                                "message", "Bạn đã hoàn tất thủ tục trả phòng và thanh lý hợp đồng lưu trú tại SDMS. Cảm ơn bạn đã lưu trú tại Ký túc xá. Hẹn gặp lại!"
+                            ))
                             .build();
                     notificationRouter.route(payload);
                 }

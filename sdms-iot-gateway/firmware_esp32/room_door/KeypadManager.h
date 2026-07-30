@@ -6,6 +6,12 @@
 #include "NetworkManager.h"
 #include "LcdManager.h"
 
+/**
+ * MODULE: QUẢN LÝ BÀN PHÍM (KEYPAD 4x4)
+ * Chức năng: Đọc phím bấm, hiển thị dấu sao (*) che mã PIN lên màn hình LCD, 
+ * và gửi sự kiện xác thực mã PIN khi người dùng bấm phím (#).
+ */
+
 const byte ROWS = 4;
 const byte COLS = 4;
 

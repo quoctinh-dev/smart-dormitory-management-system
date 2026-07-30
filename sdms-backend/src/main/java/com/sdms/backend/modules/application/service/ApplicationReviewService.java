@@ -332,13 +332,63 @@ public class ApplicationReviewService {
         }
         invalidDocsStr.append("</ul>");
 
+        String rawTemplate = """
+            <!DOCTYPE html>
+            <html lang="vi">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body { font-family: "Inter", "Roboto", "Helvetica", "Arial", sans-serif; line-height: 1.6; color: #0f172a; margin: 0; padding: 0; }
+                    .wrapper { background-color: #f8fafc; padding: 20px 10px; }
+                    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); }
+                    .header { background-color: #f59e0b; color: #ffffff; padding: 30px 25px; text-align: center; }
+                    .header h2 { margin: 0; font-weight: 800; letter-spacing: -1px; font-size: 24px; }
+                    .content { padding: 35px 30px; }
+                    .warning-box { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; margin-top: 20px; border-radius: 12px; }
+                    .footer { background-color: #1e293b; padding: 20px; text-align: center; font-size: 13px; color: #cbd5e1; border-top: 1px solid #e2e8f0; }
+                    .footer p { margin: 0; }
+                    @media only screen and (max-width: 600px) {
+                        .wrapper { padding: 10px 5px; }
+                        .header { padding: 20px 15px; }
+                        .header h2 { font-size: 20px; }
+                        .content { padding: 20px 15px; }
+                    }
+                </style>
+            </head>
+            <body>
+            <div class="wrapper">
+                <div class="container">
+                    <div class="header">
+                        <h2>YÊU CẦU BỔ SUNG HỒ SƠ</h2>
+                    </div>
+                    <div class="content">
+                        <p style="font-size: 16px; margin-top: 0; color: #475569;">Kính gửi sinh viên <strong style="color: #0f172a;">%s</strong>,</p>
+                        <p style="color: #475569; font-size: 15px;">Hồ sơ đăng ký KTX của bạn (Mã: <strong style="color: #2563eb;">%s</strong>) cần được bổ sung/cập nhật lại các giấy tờ sau:</p>
+                        <div style="background-color: #f1f5f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            %s
+                        </div>
+                        <div class="warning-box">
+                            <strong style="color: #b45309; font-size: 15px;">Ghi chú từ Ban Quản Lý:</strong>
+                            <p style="margin: 6px 0 0 0; color: #92400e; font-size: 14px;">%s</p>
+                        </div>
+                        <p style="margin-top: 20px; color: #475569; font-size: 15px;">
+                            Vui lòng đăng nhập hệ thống và cập nhật lại tài liệu bị sai trước hạn chót: 
+                            <strong style="color: #e11d48;">%s</strong>.
+                        </p>
+                        <p style="color: #475569; font-size: 14px;"><em>* Sau thời hạn này, nếu bạn không bổ sung, hồ sơ sẽ tự động bị từ chối.</em></p>
+                    </div>
+                    <div class="footer">
+                        <p>Đây là thông báo tự động từ hệ thống SDMS. Vui lòng không trả lời thư này.</p>
+                    </div>
+                </div>
+            </div>
+            </body>
+            </html>
+            """;
+
         String emailHtml = String.format(
-                "<h3>Kính gửi sinh viên %s,</h3>" +
-                        "<p>Hồ sơ đăng ký KTX của bạn (Mã: <b>%s</b>) cần được bổ sung/cập nhật lại một số giấy tờ sau:</p>" +
-                        "%s" +
-                        "<p><b>Ghi chú từ Ban Quản Lý:</b> %s</p>" +
-                        "<p>Vui lòng đăng nhập hệ thống và cập nhật lại tài liệu bị sai trước hạn chót: <b>%s</b>.</p>" +
-                        "<p>Sau thời hạn này, nếu bạn không bổ sung, hồ sơ sẽ bị tự động từ chối.</p>",
+                rawTemplate,
                 application.getFullName(),
                 application.getApplicationCode(),
                 invalidDocsStr.toString(),

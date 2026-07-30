@@ -78,18 +78,18 @@ String HttpManager::uploadFace(camera_fb_t *fb) {
             if (success) {
                 String status = doc["data"]["status"];
                 if (status == "GRANTED") {
-                    Serial.println("[AI RESULT] ✅ FACE MATCHED! Access Granted.");
+                    Serial.println("[AI RESULT] FACE MATCHED! Access Granted.");
                     RelayController::unlock(); // Gọi Relay
                     finalResult = "GRANTED";
                 } else {
                     // Mặc dù success=true nhưng AI trả về status=DENIED 
                     // (chẳng hạn nhận dạng sai nhưng API không throw exception)
-                    Serial.println("[AI RESULT] ❌ ACCESS DENIED! " + message);
+                    Serial.println("[AI RESULT] ACCESS DENIED! " + message);
                     finalResult = "DENIED:" + message;
                 }
             } else {
                 String errorCode = doc["errorCode"];
-                Serial.println("[AI RESULT] ⚠️ SERVER ERROR: " + errorCode + " - " + message);
+                Serial.println("[AI RESULT] SERVER ERROR: " + errorCode + " - " + message);
                 finalResult = "DENIED:" + message;
             }
         } else {

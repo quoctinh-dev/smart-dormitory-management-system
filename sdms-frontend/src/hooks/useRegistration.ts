@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 
 import { applicationApi, studentRegistrationApi } from '@/api';
 import { snackbar } from '@/helpers/snackbar';
+import imageCompression from 'browser-image-compression';
 
 
 interface IApplicationCreateResponse {
@@ -368,8 +369,8 @@ export const useRegistration = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      const errorMsg = 'Kích thước file ảnh không được vượt quá 5MB.';
+    if (file.size > 10 * 1024 * 1024) {
+      const errorMsg = 'Kích thước file ảnh không được vượt quá 10MB.';
       setError(errorMsg);
       snackbar.error(errorMsg);
       return;
@@ -378,8 +379,15 @@ export const useRegistration = () => {
     setLoading(true);
     setError(null);
     try {
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+      const compressedFile = await imageCompression(file, options);
+
       const uploadData = new FormData();
-      uploadData.append('file', file);
+      uploadData.append('file', compressedFile, file.name);
       const uploadRes = (await applicationApi.uploadFileToCloud(uploadData)) as IUploadResponse;
       const fileUrl = uploadRes.url;
 
@@ -405,8 +413,8 @@ export const useRegistration = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      const errorMsg = 'Kích thước file ảnh không được vượt quá 5MB.';
+    if (file.size > 10 * 1024 * 1024) {
+      const errorMsg = 'Kích thước file ảnh không được vượt quá 10MB.';
       setError(errorMsg);
       snackbar.error(errorMsg);
       return;
@@ -415,8 +423,15 @@ export const useRegistration = () => {
     setLoading(true);
     setError(null);
     try {
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+      const compressedFile = await imageCompression(file, options);
+
       const uploadData = new FormData();
-      uploadData.append('file', file);
+      uploadData.append('file', compressedFile, file.name);
 
       const uploadRes = (await applicationApi.uploadFileToCloud(uploadData)) as IUploadResponse;
       const fileUrl = uploadRes.url;

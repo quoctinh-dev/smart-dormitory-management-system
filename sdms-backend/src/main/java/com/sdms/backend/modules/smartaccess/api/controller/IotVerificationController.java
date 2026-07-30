@@ -25,6 +25,7 @@ import java.time.LocalTime;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Optional;
+import com.sdms.backend.modules.smartaccess.api.dto.request.OfflineLogBatchRequest;
 
 @Slf4j
 @RestController
@@ -43,7 +44,7 @@ public class IotVerificationController {
     private final GateRepository gateRepository;
     
     /**
-     * Endpoint for IoT ESP32 to send RFID card verification requests.
+     * API nhận yêu cầu xác thực thẻ RFID từ thiết bị IoT ESP32.
      */
     @Operation(summary = "Xác thực thẻ RFID", description = "IoT gửi mã thẻ RFID để xác thực mở cổng")
     @PostMapping("/verify/card")
@@ -71,18 +72,7 @@ public class IotVerificationController {
         UUID gateId = gateIdStr != null ? UUID.fromString(gateIdStr.trim()) : UUID.randomUUID();
         String eventId = UUID.randomUUID().toString();
         
-        // Upload snapshot to Cloudinary and get URL, then pass it to the Event/Service
-        String snapshotUrl = null;
-        if (snapshot != null && !snapshot.isEmpty()) {
-            try {
-                snapshotUrl = cloudinaryService.uploadFile(snapshot, "smart_access_snapshots");
-                log.info("[IoT] Snapshot saved to Cloudinary: {}", snapshotUrl);
-            } catch (Exception e) {
-                log.error("[IoT] Failed to upload snapshot to Cloudinary", e);
-            }
-        }
-        
-        // --- DUAL VERIFICATION LOGIC ---
+        // --- DUAL VERIFICATION LOGIC PRE-CHECK ---
         LocalTime nowTime = LocalTime.now();
         LocalTime dualAuthStart = LocalTime.parse(systemConfigService.getConfigValue("DUAL_AUTH_START", "18:00"));
         LocalTime dualAuthEnd = LocalTime.parse(systemConfigService.getConfigValue("DUAL_AUTH_END", "06:00"));
@@ -95,30 +85,49 @@ public class IotVerificationController {
         }
 
         VerificationMethod finalMethod = VerificationMethod.RFID;
-        
         Optional<Gate> gateOpt = gateRepository.findById(gateId);
         boolean isBuildingGate = gateOpt.isPresent() && gateOpt.get().getGateType() == GateType.BUILDING_GATE;
 
-        if (isBuildingGate && isDualAuthTime) {
-            log.info("[IoT] Dual Authentication required for RFID {}", rfidCode);
-            var studentSnapshot = eligibilityOpt.get();
-            boolean isGracePeriodBypass = false;
-            
-            if (Boolean.FALSE.equals(studentSnapshot.getIsFaceRegistered())) {
-                String gracePeriodStr = systemConfigService.getConfigValue("FACE_GRACE_PERIOD_DAYS", "3");
-                try {
-                    int graceDays = Integer.parseInt(gracePeriodStr);
-                    if (studentSnapshot.getCheckInAt() != null) {
-                        java.time.LocalDateTime graceDeadline = studentSnapshot.getCheckInAt().plusDays(graceDays);
-                        if (java.time.LocalDateTime.now().isBefore(graceDeadline)) {
-                            isGracePeriodBypass = true;
-                            log.info("[IoT] Bypassing Dual Auth for student {} (Grace Period: {} days)", studentId, graceDays);
-                        }
+        // Check if grace period applies
+        var studentSnapshot = eligibilityOpt.get();
+        boolean isGracePeriodBypass = false;
+        if (isBuildingGate && isDualAuthTime && Boolean.FALSE.equals(studentSnapshot.getIsFaceRegistered())) {
+            String gracePeriodStr = systemConfigService.getConfigValue("FACE_GRACE_PERIOD_DAYS", "3");
+            try {
+                int graceDays = Integer.parseInt(gracePeriodStr);
+                if (studentSnapshot.getCheckInAt() != null) {
+                    java.time.LocalDateTime graceDeadline = studentSnapshot.getCheckInAt().plusDays(graceDays);
+                    if (java.time.LocalDateTime.now().isBefore(graceDeadline)) {
+                        isGracePeriodBypass = true;
                     }
-                } catch (Exception e) {
-                    log.error("[IoT] Invalid Grace Period config", e);
                 }
+            } catch (Exception e) {
+                log.error("[IoT] Invalid Grace Period config", e);
             }
+        }
+
+        boolean requireDualAuth = isBuildingGate && isDualAuthTime && !isGracePeriodBypass;
+
+        // Tối ưu tài nguyên Cloudinary theo yêu cầu Admin:
+        // - NẾU xác thực 1 bước (chỉ quẹt thẻ): Up ảnh lên Cloud để Admin check xem có quẹt dùm không.
+        // - NẾU xác thực 2 bước (quẹt thẻ + quét mặt): AI sẽ quét, KHÔNG CẦN LƯU LÊN CLOUD để đỡ tốn dung lượng.
+        String snapshotUrl = null;
+        if (snapshot != null && !snapshot.isEmpty()) {
+            if (!requireDualAuth) {
+                try {
+                    snapshotUrl = cloudinaryService.uploadFile(snapshot, "smart_access_snapshots");
+                    log.info("[IoT] Snapshot saved to Cloudinary (1-step Auth): {}", snapshotUrl);
+                } catch (Exception e) {
+                    log.error("[IoT] Failed to upload snapshot to Cloudinary", e);
+                }
+            } else {
+                log.info("[IoT] Skipping Cloudinary upload for Dual Auth. Image will be sent directly to AI.");
+            }
+        }
+        
+        if (requireDualAuth) {
+            log.info("[IoT] Dual Authentication required for RFID {}", rfidCode);
+
             
             if (!isGracePeriodBypass) {
                 if (snapshot == null || snapshot.isEmpty()) {
@@ -127,10 +136,18 @@ public class IotVerificationController {
                     return new ApiResponse<>(false, "Thiếu ảnh khuôn mặt cho xác thực kép", Map.of("status", "DENIED"), "DUAL_AUTH_MISSING_FACE");
                 }
                 
-                // Perform Face Verification
+                // Thực hiện xác minh khuôn mặt thông qua module Face AI
                 try {
                     var faceResult = faceVerificationService.verifyFace(gateIdStr, snapshot);
-                    if (!faceResult.isMatch() || !faceResult.matchedProfileId().equals(studentId)) {
+                    
+                    /*
+                     * RÀNG BUỘC KIỂM TRA CHÉO (DUAL-AUTH CHECK)
+                     * 1. Khuôn mặt phải đạt ngưỡng tin cậy (isMatch = true)
+                     * 2. Khuôn mặt đó phải thuộc về MỘT sinh viên (matchedStudentId != null)
+                     * 3. ID của sinh viên sở hữu khuôn mặt PHẢI TRÙNG KHỚP với ID của thẻ RFID vừa quẹt.
+                     * Nếu sai bất kỳ điều kiện nào -> Chặn cửa, báo lỗi "Râu ông nọ cắm cằm bà kia".
+                     */
+                    if (!faceResult.isMatch() || faceResult.matchedStudentId() == null || !faceResult.matchedStudentId().equals(studentId)) {
                         log.warn("[IoT] DUAL AUTH FAILED: Face does not match RFID for student {}", studentId);
                         accessEvaluationService.logFailedAccess(studentId, gateId, VerificationMethod.RFID_AND_FACE, snapshotUrl, "DUAL_AUTH_MISMATCH");
                         return new ApiResponse<>(false, "Khuôn mặt không khớp thẻ (Xác thực kép thất bại)", Map.of("status", "DENIED"), "DUAL_AUTH_MISMATCH");
@@ -159,7 +176,7 @@ public class IotVerificationController {
     }
 
     /**
-     * Endpoint for IoT ESP32 to download the RFID whitelist for offline fallback mode.
+     * API tải danh sách thẻ RFID trắng (whitelist) cho chế độ dự phòng ngoại tuyến (offline fallback).
      */
     @Operation(summary = "Lấy danh sách thẻ trắng", description = "Cung cấp danh sách thẻ RFID hợp lệ cho IoT lưu trữ Offline")
     @GetMapping("/rfid-whitelist")
@@ -181,8 +198,8 @@ public class IotVerificationController {
     }
 
     /**
-     * Endpoint for IoT ESP32 to send Face Image verification requests.
-     * Synchronous processing: Wait for AI response and access policy evaluation.
+     * API nhận ảnh khuôn mặt từ ESP32 để xác thực.
+     * Xử lý đồng bộ: Chờ phản hồi từ AI và đánh giá chính sách ra vào.
      */
     @Operation(summary = "Xác thực khuôn mặt", description = "IoT gửi ảnh khuôn mặt để AI phân tích và quyết định mở cổng")
     @PostMapping("/verify/face")
@@ -199,13 +216,13 @@ public class IotVerificationController {
             if (result.isMatch()) {
                 // 2. Face matched! Now evaluate curfew and time window policies synchronously
                 UUID gateId = gateIdStr != null ? UUID.fromString(gateIdStr.trim()) : UUID.randomUUID();
-                AccessDecision decision = accessEvaluationService.evaluateAccessSync(result.matchedProfileId(), gateId, VerificationMethod.FACE_AI);
+                AccessDecision decision = accessEvaluationService.evaluateAccessSync(result.matchedStudentId(), gateId, VerificationMethod.FACE_AI);
                 
                 // 3. Return immediate result to ESP32 to trigger Relay
                 if (decision == AccessDecision.GRANTED) {
                     return ApiResponse.success(
                         "Khuôn mặt hợp lệ và được phép ra vào",
-                        Map.of("status", "GRANTED", "profileId", result.matchedProfileId(), "confidence", result.confidenceScore())
+                        Map.of("status", "GRANTED", "studentId", result.matchedStudentId(), "confidence", result.confidenceScore())
                     );
                 } else {
                     return new ApiResponse<>(
@@ -225,7 +242,6 @@ public class IotVerificationController {
             }
         } catch (Exception e) {
             log.error("[IoT] Exception during face verification: {}", e.getMessage());
-            // Trả về ApiResponse thất bại thay vì ném ra lỗi HTTP 500
             return new ApiResponse<>(
                 false,
                 "Hệ thống AI gặp sự cố",
@@ -236,8 +252,7 @@ public class IotVerificationController {
     }
 
     /**
-     * Endpoint for IoT ESP32 DevKit V1 (Room Door) to verify PIN code.
-     * Used by keypad-based room door devices.
+     * API xác thực mã PIN cho cửa phòng (dùng cho ESP32 DevKit V1 kết nối với Keypad).
      */
     @Operation(summary = "Xác thực mã PIN", description = "IoT gửi mã PIN của cửa phòng để xác thực")
     @PostMapping("/verify/pin")
@@ -291,9 +306,8 @@ public class IotVerificationController {
     }
 
     /**
-     * Endpoint for ESP32 to report a hardware component failure.
-     * Example: Camera offline, RFID reader disconnected, etc.
-     * No authentication required (device cannot hold JWT), but uses a shared API key header.
+     * API báo cáo lỗi phần cứng từ ESP32 (VD: Camera ngắt kết nối, đầu đọc RFID hỏng).
+     * Không yêu cầu xác thực JWT (vì thiết bị không lưu JWT), thay vào đó dùng chung API Key.
      */
     @Operation(summary = "Báo lỗi phần cứng", description = "ESP32 gửi cảnh báo khi phát hiện sự cố cảm biến/đầu đọc. Tạo thông báo khẩn cho Admin.")
     @PostMapping("/report/hardware-error")
@@ -315,13 +329,12 @@ public class IotVerificationController {
     }
 
     /**
-     * Endpoint for ESP32 to sync offline access logs.
-     * Called when device reconnects to WiFi.
+     * API đồng bộ lịch sử quét thẻ ngoại tuyến từ ESP32 (được gọi khi thiết bị có mạng trở lại).
      */
     @Operation(summary = "Đồng bộ log offline", description = "ESP32 gửi danh sách lịch sử quét thẻ khi mất mạng lên server để lưu lại")
     @PostMapping("/offline-log-batch")
     public ApiResponse<Map<String, String>> syncOfflineLogs(
-            @RequestBody com.sdms.backend.modules.smartaccess.api.dto.request.OfflineLogBatchRequest request) {
+            @RequestBody OfflineLogBatchRequest request) {
 
         log.info("[IoT] Received offline log sync batch: gateId={}, logsCount={}", 
             request.gateId(), request.logs() != null ? request.logs().size() : 0);

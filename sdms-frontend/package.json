@@ -25,6 +25,7 @@
     "@types/lodash.merge": "^4.6.9",
     "@types/react-router-hash-link": "^2.4.9",
     "axios": "^1.7.9",
+    "browser-image-compression": "^2.0.2",
     "canvas-confetti": "^1.9.4",
     "date-fns": "^4.4.0",
     "echarts-for-react": "^3.0.6",

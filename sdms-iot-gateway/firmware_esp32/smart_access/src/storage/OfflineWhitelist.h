@@ -62,6 +62,7 @@ public:
 
 private:
     static unsigned long _lastSyncMs;
+    static String _cachedCsv;
 
     // NVS keys
     static const char* NVS_NAMESPACE;     // "sdms_wl"

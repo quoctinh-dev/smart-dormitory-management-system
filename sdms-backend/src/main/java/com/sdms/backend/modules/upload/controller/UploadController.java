@@ -22,8 +22,8 @@ public class UploadController {
     private final CloudinaryService cloudinaryService;
 
     @Operation(
-            summary = "Tải lên ảnh đại diện",
-            description = "Upload một tệp hình ảnh làm ảnh đại diện. Hệ thống sẽ tự động lưu vào thư mục 'avatars' trên Cloudinary."
+            summary = "Tải lên tệp tin hình ảnh",
+            description = "Upload một tệp hình ảnh. Cung cấp tham số folder để chỉ định thư mục lưu trữ (mặc định là 'sdms/general')."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Upload thành công"),
@@ -31,21 +31,23 @@ public class UploadController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "415", description = "Định dạng tệp không được hỗ trợ (chỉ chấp nhận ảnh)")
     })
     @PostMapping(
-            value = "/avatar",
+            value = "/image",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ApiResponse<UploadResponse> uploadAvatar(
+    public ApiResponse<UploadResponse> uploadImage(
             @Parameter(
                     description = "Tệp hình ảnh cần upload (jpg, png, v.v.)",
                     required = true,
                     content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE)
             )
-            @RequestParam("file") MultipartFile file
+            @RequestParam("file") MultipartFile file,
+            @Parameter(description = "Thư mục lưu trữ trên Cloudinary (vd: sdms/avatars, sdms/documents)")
+            @RequestParam(value = "folder", defaultValue = "sdms/general") String folder
     ) {
 
-        String url = cloudinaryService.uploadFile(file, "avatars");
+        String url = cloudinaryService.uploadFile(file, folder);
 
-        return ApiResponse.success("Tải ảnh đại diện lên thành công", new UploadResponse(url));
+        return ApiResponse.success("Tải ảnh lên thành công", new UploadResponse(url));
     }
 }

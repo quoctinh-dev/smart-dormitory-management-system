@@ -7,6 +7,8 @@
 class StreamServer {
 public:
     static void init();
+    static void pauseStream();
+    static void resumeStream();
 
 private:
     static httpd_handle_t stream_httpd;

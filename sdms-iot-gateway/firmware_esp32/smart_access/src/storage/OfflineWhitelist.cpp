@@ -13,6 +13,7 @@ const char* OfflineWhitelist::KEY_COUNT     = "count";
 const char* OfflineWhitelist::KEY_SYNC_TS   = "sync_ts";
 
 unsigned long OfflineWhitelist::_lastSyncMs = 0;
+String OfflineWhitelist::_cachedCsv = "";
 
 // ==============================================================================
 // begin() — Khởi tạo NVS namespace
@@ -22,6 +23,7 @@ void OfflineWhitelist::begin() {
     prefs.begin(NVS_NAMESPACE, true); // read-only để kiểm tra
     int storedCount = prefs.getInt(KEY_COUNT, 0);
     unsigned long storedTs = prefs.getULong(KEY_SYNC_TS, 0);
+    _cachedCsv = prefs.getString(KEY_UIDS, ""); // Tải toàn bộ vào RAM Cache
     prefs.end();
 
     if (storedTs > 0) {
@@ -40,13 +42,8 @@ void OfflineWhitelist::begin() {
 bool OfflineWhitelist::contains(const String& uid) {
     if (uid.isEmpty()) return false;
 
-    Preferences prefs;
-    prefs.begin(NVS_NAMESPACE, true); // read-only
-    String csv = prefs.getString(KEY_UIDS, "");
-    prefs.end();
-
-    if (csv.isEmpty()) {
-        Serial.println("[Whitelist] NVS empty — no offline access possible.");
+    if (_cachedCsv.isEmpty()) {
+        Serial.println("[Whitelist] RAM Cache empty — no offline access possible.");
         return false;
     }
 
@@ -55,7 +52,7 @@ bool OfflineWhitelist::contains(const String& uid) {
     upperUid.toUpperCase();
 
     // Thêm delimiters để tìm chính xác (tránh "A1B2" match "A1B2C3")
-    String haystack = "," + csv + ",";
+    String haystack = "," + _cachedCsv + ",";
     String needle   = "," + upperUid + ",";
 
     bool found = haystack.indexOf(needle) >= 0;
@@ -144,6 +141,8 @@ int OfflineWhitelist::saveFromJson(const String& jsonPayload) {
     prefs.putULong(KEY_SYNC_TS, _lastSyncMs);
     prefs.end();
 
+    _cachedCsv = csv; // Cập nhật RAM Cache
+
     Serial.printf("[Whitelist] ✅ Saved %d UIDs to NVS (HTTP sync).\n", savedCount);
     return savedCount;
 }
@@ -204,6 +203,8 @@ int OfflineWhitelist::saveFromMqttJson(const String& jsonPayload) {
     prefs.putULong(KEY_SYNC_TS, _lastSyncMs);
     prefs.end();
 
+    _cachedCsv = csv; // Cập nhật RAM Cache
+
     Serial.printf("[Whitelist] ✅ Saved %d UIDs to NVS (MQTT push).\n", savedCount);
     return savedCount;
 }
@@ -235,6 +236,7 @@ void OfflineWhitelist::clear() {
     prefs.clear();
     prefs.end();
     _lastSyncMs = 0;
+    _cachedCsv = ""; // Xóa RAM Cache
     Serial.println("[Whitelist] NVS cleared.");
 }
 
@@ -244,9 +246,10 @@ void OfflineWhitelist::clear() {
 void OfflineWhitelist::printAll() {
     Preferences prefs;
     prefs.begin(NVS_NAMESPACE, true);
-    String csv = prefs.getString(KEY_UIDS, "");
     int c = prefs.getInt(KEY_COUNT, 0);
     prefs.end();
+
+    String& csv = _cachedCsv;
 
     Serial.printf("[Whitelist] --- Stored UIDs (%d) ---\n", c);
     if (csv.isEmpty()) {

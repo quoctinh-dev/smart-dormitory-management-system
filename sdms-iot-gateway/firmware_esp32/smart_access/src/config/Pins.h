@@ -2,92 +2,92 @@
 #define PINS_H
 
 // ==============================================================================
-// PIN MAPPING — AI-THINKER ESP32-CAM (4MB Flash + 4MB PSRAM)
-// Hardware Validation: 2026-07-11
+// SƠ ĐỒ CHÂN (PIN MAPPING) — AI-THINKER ESP32-CAM (4MB Flash + 4MB PSRAM)
+// Đã kiểm thử phần cứng: 2026-07-11
 //
-// PERMANENTLY RESERVED — NEVER CONFIGURE AS GPIO:
+// CÁC CHÂN ĐƯỢC BẢO LƯU VĨNH VIỄN — KHÔNG BAO GIỜ DÙNG LÀM GPIO:
 //
-//   GPIO 16 — PSRAM CS (hard-wired to PSRAM chip select on PCB).
-//              Reconfiguring this pin disables PSRAM and causes
-//              assert failed: block_locate_free (TLSF heap crash).
+//   GPIO 16 — PSRAM CS (được hàn chết vào chân chọn chip PSRAM trên bo mạch).
+//              Nếu cấu hình lại chân này sẽ làm vô hiệu hóa PSRAM và gây ra lỗi
+//              assert failed: block_locate_free (sập nguồn bộ nhớ TLSF heap).
 //
-//   GPIO  0 — Strapping / Boot mode.
-//              Must be HIGH during normal boot. LOW = Flash mode.
+//   GPIO  0 — Chân Strapping / Chế độ Boot.
+//              Bắt buộc phải ở mức CAO (HIGH) khi khởi động bình thường. LOW = Chế độ nạp Flash.
 //
-//   GPIO  4 — Flash LED (shared with SD card DATA1 / HS2_DATA1).
-//              This pin drives the onboard high-power white LED through
-//              transistor Q1. When driven HIGH the LED turns on.
-//              We keep this pin LOW in firmware. Do NOT connect RC522 RST
-//              here — the LED will glow continuously at HIGH.
-//              GPIO 4 is NOT used for any external peripheral.
+//   GPIO  4 — Đèn LED Flash (dùng chung với chân SD card DATA1 / HS2_DATA1).
+//              Chân này điều khiển đèn LED trắng công suất cao thông qua transistor Q1.
+//              Khi ở mức HIGH, đèn LED sẽ sáng.
+//              Trong firmware, ta luôn giữ chân này ở mức LOW. KHÔNG ĐƯỢC nối chân RST
+//              của RC522 vào đây — nếu không đèn LED sẽ sáng chói liên tục.
+//              Tuyệt đối KHÔNG dùng GPIO 4 cho bất kỳ thiết bị ngoại vi nào.
 //
-//   GPIO 12 — Strapping pin (Flash voltage selector: 3.3V vs 1.8V).
-//              Must be LOW at power-on/reset. If pulled HIGH at boot the
-//              ESP32 selects 1.8V flash supply → "flash read err" boot fail.
-//              Safe to use AFTER boot completes provided the connected
-//              device does not pull it HIGH during power-on.
-//              Servo PWM signal is 0V at idle (LOW) — safe.
+//   GPIO 12 — Chân Strapping (Chọn điện áp Flash: 3.3V hay 1.8V).
+//              Bắt buộc phải ở mức THẤP (LOW) khi bật nguồn/reset. Nếu bị kéo lên HIGH lúc boot,
+//              ESP32 sẽ chọn nguồn 1.8V cho flash → gây lỗi boot "flash read err".
+//              Chân này an toàn để sử dụng SAU KHI khởi động xong, miễn là thiết bị gắn vào
+//              không tự ý kéo nó lên mức HIGH lúc bật điện.
+//              Tín hiệu PWM của Servo là 0V (LOW) lúc nghỉ — nên dùng chân 12 cho Servo là an toàn.
 //
-// References:
+// Tài liệu tham khảo:
 //   - AI Thinker ESP32-CAM schematic v1.0
 //   - Espressif ESP32 datasheet (Strapping Pins: GPIO0, GPIO2, GPIO5, GPIO12, GPIO15)
 //   - MFRC522 datasheet rev 3.9
 // ==============================================================================
 
 // ------------------------------------------------------------------------------
-// 1. SERVO (360-degree door latch motor)
-//    GPIO12 — strapping pin but SAFE for servo because:
-//      • Servo signal wire is 0V (LOW) at power-on (servo is detached/idle).
-//      • PWM only activates after setup() completes — after strapping is sampled.
-//      • DO NOT connect any pull-up resistor to this wire.
+// 1. SERVO (Động cơ chốt cửa quay liên tục 360 độ)
+//    Sử dụng GPIO12 — là chân strapping nhưng AN TOÀN cho servo vì:
+//      • Dây tín hiệu Servo là 0V (LOW) lúc mới bật nguồn (chưa gắn biến).
+//      • Xung PWM chỉ kích hoạt sau khi hàm setup() chạy xong — tức là sau khi
+//        chip đã đọc xong trạng thái strapping.
+//      • TUYỆT ĐỐI KHÔNG gắn thêm điện trở kéo lên (pull-up) vào dây này.
 // ------------------------------------------------------------------------------
 #define SERVO_PIN         12
 
 // ------------------------------------------------------------------------------
-// 2. RFID RC522 (HSPI bus)
-//    DO NOT insert MicroSD card — the SD slot shares GPIO12/13/14/15/2.
+// 2. RFID RC522 (Sử dụng bus HSPI)
+//    KHÔNG ĐƯỢC gắn thẻ nhớ MicroSD — khe cắm thẻ SD dùng chung các chân 12/13/14/15/2.
 //
-//    RST is connected to GPIO 2 (safe GPIO, no strapping conflict post-boot).
-//    MOSI moved to GPIO 13 to avoid GPIO2 strapping concerns at boot.
+//    Chân RST ban đầu nối vào GPIO 2 (chân an toàn, không gây xung đột sau khi boot).
+//    Chân MOSI đổi sang GPIO 13 để tránh xung đột strapping của GPIO2 lúc khởi động.
 //
-//    Final validated mapping:
-//      SDA/SS  → GPIO 14   (safe, no strapping role)
-//      SCK     → GPIO 15   (strapping: must be HIGH at boot — 10kΩ pull-up
-//                           is already on RC522 MISO line which is input here;
-//                           SCK idles LOW between transactions — SAFE)
-//      MOSI    → GPIO 13   (safe, no strapping role)
-//      MISO    → GPIO 13   CONFLICT — see below.
+//    Quyết định chốt sơ đồ chân cuối cùng:
+//      SDA/SS  → GPIO 14   (an toàn, không phải chân strapping)
+//      SCK     → GPIO 15   (strapping: phải ở mức HIGH lúc boot — nhưng trên mạch
+//                           RC522 chân MISO đã có sẵn trở kéo 10kΩ; ngoài ra
+//                           xung SCK luôn nghỉ ở mức LOW giữa các giao tiếp — RẤT AN TOÀN)
+//      MOSI    → GPIO 13   (an toàn, không phải chân strapping)
+//      MISO    → GPIO 13   XUNG ĐỘT — xem cách sửa bên dưới.
 //
-//    Corrected HSPI mapping (avoids all strapping/conflict issues):
+//    Sơ đồ HSPI Đã Sửa (tránh hoàn toàn mọi lỗi strapping/xung đột):
 //      SDA/SS  → GPIO 14
 //      SCK     → GPIO 15
-//      MOSI    → GPIO 2    (strapping: must be HIGH at boot for normal flash;
-//                           RC522 MOSI idles LOW — LOW at boot is SAFE for GPIO2
-//                           because GPIO2's strapping role is: LOW = normal boot.
-//                           SAFE.)
+//      MOSI    → GPIO 2    (strapping: bắt buộc HIGH lúc boot để nạp flash bình thường;
+//                           Chân MOSI của RC522 ở trạng thái LOW khi nghỉ — mức LOW lúc 
+//                           khởi động là AN TOÀN cho GPIO2 vì GPIO2 LOW = Boot bình thường)
 //      MISO    → GPIO 13
-//      RST     → GPIO 4  ← NOT SAFE: GPIO4 drives Flash LED via Q1 transistor.
-//                           RST must be HIGH for RC522 to operate → LED ON always.
+//      RST     → GPIO 4  ← KHÔNG AN TOÀN: GPIO4 điều khiển đèn Flash LED qua transistor Q1.
+//                           RST phải ở mức HIGH để RC522 hoạt động → làm LED sáng rực mãi mãi.
 //
-//    RST FINAL DECISION (per MFRC522 datasheet):
-//      The MFRC522 has an internal Power-On Reset (POR) circuit.
-//      RST pin tied to 3.3V is NOT recommended by datasheet for production
-//      (loses ability to do software-triggered hardware reset if SPI hangs).
-//      HOWEVER for a thesis prototype where SPI hang recovery is handled
-//      by MFRC522.PCD_Init() retries in software, tying RST to 3.3V is
-//      an ACCEPTABLE trade-off that avoids consuming GPIO4 (Flash LED).
+//    QUYẾT ĐỊNH CUỐI CÙNG CHO CHÂN RST (Dựa theo Datasheet MFRC522):
+//      MFRC522 có sẵn mạch Reset khi bật nguồn (Power-On Reset - POR).
+//      Việc nối thẳng chân RST vào 3.3V KHÔNG được nhà sản xuất khuyên dùng cho bản
+//      thương mại (vì mất khả năng dùng code để reset mạch khi giao tiếp SPI bị treo).
+//      TUY NHIÊN, đối với nguyên mẫu Luận Văn, việc mất giao tiếp SPI đã được 
+//      xử lý bằng code khởi tạo lại MFRC522.PCD_Init(), nên việc nối thẳng RST vào 
+//      nguồn 3.3V là một SỰ ĐÁNH ĐỔI CHẤP NHẬN ĐƯỢC để không bị chiếm mất chân GPIO4 (Đèn Flash).
 //
-//      RST → 3.3V rail directly (no GPIO needed).
-//      In firmware: RFID_RST_PIN = -1 (MFRC522 library accepts -1 = no RST pin).
+//      Hành động: Nối thẳng chân RST của RC522 vào nguồn 3.3V trên mạch (không dùng GPIO).
+//      Trong Code: RFID_RST_PIN = -1 (Thư viện MFRC522 hiểu -1 nghĩa là không dùng chân RST).
 // ------------------------------------------------------------------------------
 #define RFID_SS_PIN       14      // GPIO14  — SDA / Chip Select
 #define RFID_SCK_PIN      15      // GPIO15  — SPI Clock
-#define RFID_MOSI_PIN      2      // GPIO2   — MOSI (LOW at boot = safe strapping)
+#define RFID_MOSI_PIN      2      // GPIO2   — MOSI (LOW khi boot = strapping an toàn)
 #define RFID_MISO_PIN     13      // GPIO13  — MISO
-#define RFID_RST_PIN      -1      // RST wired directly to 3.3V on PCB (no GPIO)
+#define RFID_RST_PIN      -1      // RST nối trực tiếp vào 3.3V trên PCB (không dùng GPIO)
 
 // ------------------------------------------------------------------------------
-// 3. CAMERA OV2640 — fixed by AI Thinker hardware, do NOT touch
+// 3. CAMERA OV2640 — Các chân này đã bị hàn cứng trên mạch AI Thinker, KHÔNG ĐƯỢC SỬA
 // ------------------------------------------------------------------------------
 #define PWDN_GPIO_NUM     32
 #define RESET_GPIO_NUM    -1
@@ -106,4 +106,4 @@
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
 
-#endif // PINS_H
+#endif

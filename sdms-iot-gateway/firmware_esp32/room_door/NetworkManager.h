@@ -10,8 +10,19 @@
 #include "ServoManager.h"
 #include "OfflineAccessLog.h"
 
+/**
+ * MODULE: QUẢN LÝ MẠNG VÀ GIAO TIẾP MÁY CHỦ
+ * Chức năng: 
+ * 1. Duy trì kết nối WiFi và MQTT (Non-blocking reconnect).
+ * 2. Lắng nghe lệnh mở cửa từ xa (Remote Unlock) qua MQTT.
+ * 3. Gửi mã PIN lên Backend qua HTTP POST để xác thực.
+ * 4. Tự động đồng bộ Log ngoại tuyến (Offline Logs) lên Server khi có mạng.
+ */
+
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
+
+void syncOfflineLogs();
 
 unsigned long lastReconnectAttempt = 0;
 unsigned long lastMqttReconnectAttempt = 0;

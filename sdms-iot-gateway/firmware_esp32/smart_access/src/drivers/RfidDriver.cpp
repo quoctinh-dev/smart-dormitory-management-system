@@ -8,6 +8,7 @@
 #include "../storage/OfflineAccessLog.h"
 #include "../drivers/RelayController.h"
 #include "CameraDriver.h"
+#include "../network/StreamServer.h"
 #include <WiFi.h>
 
 // RC522 instance using validated HSPI pins
@@ -69,8 +70,10 @@ void RfidDriver::maintain() {
     
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println("[RFID] [ONLINE] Sending to Backend for verification...");
-        fb = CameraDriver::capture();
+        StreamServer::pauseStream(); // Tạm dừng Livestream để nhường 100% Wi-Fi
+        fb = CameraDriver::capture(true);
         onlineSuccess = HttpManager::verifyCard(uid, fb);
+        StreamServer::resumeStream(); // Mở lại Livestream
     }
     
     // Nếu rớt mạng cục bộ (mất WiFi) HOẶC đứt cáp quang (có WiFi nhưng gọi API xịt)

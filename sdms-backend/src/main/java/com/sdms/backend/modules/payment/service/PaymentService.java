@@ -12,12 +12,10 @@ import com.sdms.backend.modules.payment.repository.BillRepository;
 import com.sdms.backend.modules.payment.repository.PaymentRepository;
 import com.sdms.backend.modules.payment.event.PaymentSuccessEvent;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
-import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +38,13 @@ public class PaymentService {
     @org.springframework.beans.factory.annotation.Value("${payment.sepay.api-key:default-api-key}")
     private String sepayApiKey;
 
+    @org.springframework.beans.factory.annotation.Value("${payment.sepay.bank-account}")
+    private String sepayBankAccount;
+
+    @org.springframework.beans.factory.annotation.Value("${payment.sepay.bank-code}")
+    private String sepayBankCode;
+
     // ==================== ONLINE PAYMENT (STUDENT) ====================
-    // @PreAuthorize("hasRole('STUDENT')")
     @Transactional
     public PaymentResponse processOnlinePayment(UUID billId,
                                                 BigDecimal amount,
@@ -56,14 +59,15 @@ public class PaymentService {
         // 2. Generate deterministic transaction code for SePay matching: "SDMS" + first 8 characters of Bill ID
         String txnCode = "SDMS" + bill.getBillId().toString().substring(0, 8).toUpperCase();
 
-        // 3. Find existing PENDING payment or create a new one
+        // 3. Tìm giao dịch PENDING hiện có hoặc tạo mới để tránh tạo trùng
         Payment payment = paymentRepository.findByBill_BillIdAndStatus(bill.getBillId(), PaymentStatus.PENDING)
                 .orElseGet(() -> createPaymentRecord(bill, amount, method, txnCode, PaymentStatus.PENDING));
 
-        // 4. Generate the VietQR URL directly for the linked MBBank account
+        // 4. Tạo QR Code thanh toán qua SePay với thông tin tài khoản từ cấu hình (không hardcode)
         // Format: https://qr.sepay.vn/img?acc={account}&bank={bank}&amount={amount}&des={description}
-        String sepayCheckoutUrl = String.format("https://qr.sepay.vn/img?acc=0819281512&bank=MBBank&amount=%s&des=%s",
-                amount.toPlainString(), txnCode);
+        String sepayCheckoutUrl = String.format(
+                "https://qr.sepay.vn/img?acc=%s&bank=%s&amount=%s&des=%s",
+                sepayBankAccount, sepayBankCode, amount.toPlainString(), txnCode);
 
         // 5. Return response with paymentUrl so frontend can redirect
         return PaymentResponse.builder()
@@ -78,6 +82,10 @@ public class PaymentService {
     }
 
     // ==================== CASH PAYMENT (ADMIN) ====================
+
+    /**
+     * Admin xác nhận thu tiền mặt trực tiếp tại quầy cho một hóa đơn cụ thể (biết trước billId).
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public PaymentResponse approveCashPayment(UUID billId, BigDecimal amount) {
@@ -85,54 +93,34 @@ public class PaymentService {
         return executePayment(billId, amount, PaymentMethod.CASH, transactionCode, PaymentStatus.SUCCESS);
     }
 
-    // ==================== MOCK PAYMENT SUCCESS (FOR TESTING/DEMO) ====================
-    // This method is for testing/demo purposes only. In a real scenario, payments come from gateways.
+    /**
+     * Admin xác nhận thu tiền mặt trực tiếp qua applicationId (không cần biết billId).
+     * Đây là luồng nghiệp vụ thực: Admin vào danh sách đơn, bấm "Xác nhận thu tiền",
+     * hệ thống tự tìm hóa đơn UNPAID của đơn đó và đánh dấu PAID với phương thức CASH.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @Transactional
-    public PaymentResponse mockPaymentSuccess(UUID applicationId) {
-        log.info("[PaymentService] Mocking payment success for application={}", applicationId);
+    public PaymentResponse confirmCashPaymentByApplication(UUID applicationId) {
+        log.info("[PaymentService] Admin xác nhận thu tiền mặt cho applicationId={}", applicationId);
 
-        // Find the bill for the application that is UNPAID or PARTIALLY_PAID
-        List<Bill> bills = billRepository.findByApplicationIdAndStatusIn(applicationId, List.of(BillStatus.UNPAID, BillStatus.PARTIALLY_PAID));
+        // Tìm hóa đơn UNPAID hoặc PARTIALLY_PAID thuộc đơn đăng ký này
+        List<Bill> bills = billRepository.findByApplicationIdAndStatusIn(
+                applicationId, List.of(BillStatus.UNPAID, BillStatus.PARTIALLY_PAID));
         if (bills.isEmpty()) {
             throw new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hóa đơn chưa thanh toán cho đơn đăng ký này");
         }
-        Bill bill = bills.get(0); // Assuming one bill per application for simplicity in mock
+        Bill bill = bills.get(0);
 
-        // Calculate remaining amount
+        // Tính số tiền còn lại cần thanh toán
         BigDecimal remainingAmount = bill.getAmount().subtract(bill.getPaidAmount());
         if (remainingAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Hóa đơn đã được thanh toán toàn bộ");
         }
 
-        // Create a mock payment record
-        Payment payment = createPaymentRecord(
-                bill,
-                remainingAmount,
-                PaymentMethod.BANK_TRANSFER, // Using BANK_TRANSFER as a valid mock method
-                "MOCK-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase(),
-                PaymentStatus.SUCCESS
-        );
+        // Tạo mã giao dịch tiền mặt duy nhất
+        String transactionCode = "CASH-" + UUID.randomUUID().toString().replace("-", "").toUpperCase();
 
-        // Update bill status
-        updateBillAfterPayment(bill, remainingAmount);
-
-        // Publish event if bill is fully paid
-        if (bill.getStatus() == BillStatus.PAID) {
-            eventPublisher.publishEvent(new PaymentSuccessEvent(
-                    this,
-                    bill.getBillId(),
-                    bill.getAssignmentId(),
-                    bill.getApplicationId(),
-                    bill.getStudentId(),
-                    null,
-                    null,
-                    bill.getAmount()
-            ));
-            log.info("[PaymentService] Published PaymentSuccessEvent for mock payment: bill={}, assignment={}",
-                    bill.getBillId(), bill.getAssignmentId());
-        }
-
-        return buildPaymentResponse(bill, payment);
+        return executePayment(bill.getBillId(), remainingAmount, PaymentMethod.CASH, transactionCode, PaymentStatus.SUCCESS);
     }
 
     // ==================== PRIVATE COMMON LOGIC ====================
@@ -288,8 +276,9 @@ public class PaymentService {
         if (txnCode == null || txnCode.isBlank()) {
             txnCode = "TXN-" + UUID.randomUUID().toString().replace("-", "").toUpperCase();
         }
-        // Check for duplicate transaction code only if it's not a mock payment
-        if (method != PaymentMethod.BANK_TRANSFER && paymentRepository.findByTransactionCode(txnCode).isPresent()) { // Changed MOCK to BANK_TRANSFER
+        // BANK_TRANSFER dùng mã tất định (deterministic: "SDMS" + billId prefix) → SePay có thể gửi lại cùng mã
+        // nên bỏ qua kiểm tra trùng lặp. CASH dùng UUID ngẫu nhiên → kiểm tra trùng để đảm bảo toàn vẹn dữ liệu.
+        if (method != PaymentMethod.BANK_TRANSFER && paymentRepository.findByTransactionCode(txnCode).isPresent()) {
             log.warn("Duplicate transaction code: {}", txnCode);
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Giao dịch bị trùng lặp");
         }

@@ -121,6 +121,14 @@ public class HousingAssignmentService {
 
     public void confirmReserved(UUID assignmentId) {
         StudentHousingAssignment assignment = findAssignment(assignmentId);
+        
+        // Fix: Chỉ cho phép chuyển trạng thái nếu đang là RESERVED
+        if (assignment.getStatus() != AssignmentStatus.RESERVED) {
+            log.warn("Cannot confirm reservation for assignment {} because current status is {}. Expected: RESERVED.", 
+                     assignmentId, assignment.getStatus());
+            return; 
+        }
+        
         assignment.setStatus(AssignmentStatus.PENDING_CHECKIN);
         assignmentRepository.save(assignment);
         log.info("Assignment {} status updated to PENDING_CHECKIN upon payment success", assignmentId);

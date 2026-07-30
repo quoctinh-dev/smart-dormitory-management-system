@@ -43,27 +43,64 @@ public class StudentCreatedEventListener {
             String activationLink = "http://localhost:3000/activate-account";
             String htmlContent = """
                 <!DOCTYPE html>
-                <html>
-                <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f9f9f9;">
-                    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                        <h2 style="color: #1a73e8; text-align: center;">Chúc Mừng Bạn Đã Đăng Ký Nội Trú Thành Công!</h2>
-                        <p>Xin chào <strong>%s</strong>,</p>
-                        <p>Hệ thống Ký túc xá SDMS đã ghi nhận khoản thanh toán tiền phòng của bạn. Tài khoản định danh cư dân nội trú của bạn đã sẵn sàng:</p>
-                        <table style="margin: 20px 0; background-color: #f1f3f4; padding: 15px; border-radius: 5px; width: 100%;">
-                            <tr><td><strong>Tên đăng nhập:</strong></td><td>%s</td></tr>
-                            <tr><td><strong>Mật khẩu tạm thời:</strong></td><td>Chính là số CCCD của bạn</td></tr>
-                        </table>
-                        <p>Vui lòng bấm vào nút bên dưới để tiến hành kích hoạt tài khoản và thiết lập mật khẩu chính thức trước khi đến KTX nhận phòng:</p>
-                        <div style="text-align: center; margin: 30px 0;">
-                            <a href="%s" style="background-color: #1a73e8; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-                                Kích Hoạt Tài Khoản Ngay
-                            </a>
+                <html lang="vi">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                        body { font-family: "Inter", "Roboto", "Helvetica", "Arial", sans-serif; line-height: 1.6; color: #0f172a; margin: 0; padding: 0; }
+                        .wrapper { background-color: #f8fafc; padding: 20px 10px; }
+                        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); }
+                        .header { background-color: #2563eb; color: #ffffff; padding: 30px 25px; text-align: center; }
+                        .header h2 { margin: 0; font-weight: 800; font-size: 22px; }
+                        .content { padding: 35px 30px; }
+                        .info-table { width: 100%%; background-color: #f1f5f9; border-radius: 12px; padding: 16px; border-collapse: collapse; margin: 20px 0; }
+                        .info-table td { padding: 6px 8px; font-size: 15px; }
+                        .btn-wrapper { text-align: center; margin: 30px 0; }
+                        .btn { background-color: #2563eb; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: 700; display: inline-block; font-size: 15px; }
+                        .footer { background-color: #1e293b; padding: 20px; text-align: center; font-size: 13px; color: #cbd5e1; }
+                        .footer p { margin: 0; }
+                        @media only screen and (max-width: 600px) {
+                            .wrapper { padding: 10px 5px; }
+                            .header { padding: 20px 15px; }
+                            .header h2 { font-size: 18px; }
+                            .content { padding: 20px 15px; }
+                            .btn { padding: 10px 20px; font-size: 14px; }
+                        }
+                    </style>
+                </head>
+                <body>
+                <div class="wrapper">
+                    <div class="container">
+                        <div class="header">
+                            <h2>🎉 CHÚC MỪNG! TÀI KHOẢN CƯ DÂN ĐÃ SẴN SÀNG</h2>
                         </div>
-                        <p style="color: #5f6368; font-size: 12px; text-align: center;">Đây là email tự động từ Hệ thống Quản lý Ký túc xá SDMS, vui lòng không phản hồi email này.</p>
+                        <div class="content">
+                            <p style="font-size: 16px; margin-top: 0; color: #475569;">Xin chào <strong style="color: #0f172a;">%s</strong>,</p>
+                            <p style="color: #475569; font-size: 15px;">Hệ thống SDMS đã ghi nhận khoản thanh toán tiền phòng của bạn. Tài khoản định danh cư dân nội trú đã sẵn sàng để kích hoạt:</p>
+                            <table class="info-table">
+                                <tr>
+                                    <td><strong>Tên đăng nhập:</strong></td>
+                                    <td style="color: #2563eb;"><strong>%s</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Mật khẩu tạm thời:</strong></td>
+                                    <td>Số CCCD của bạn</td>
+                                </tr>
+                            </table>
+                            <p style="color: #475569; font-size: 15px;">Vui lòng bấm vào nút bên dưới để kích hoạt tài khoản và thiết lập mật khẩu chính thức trước khi đến KTX nhận phòng:</p>
+                            <div class="btn-wrapper">
+                                <a href="%s" class="btn">Kích Hoạt Tài Khoản Ngay →</a>
+                            </div>
+                        </div>
+                        <div class="footer">
+                            <p>Đây là email tự động từ hệ thống SDMS. Vui lòng không trả lời thư này.</p>
+                        </div>
                     </div>
+                </div>
                 </body>
                 </html>
-            """.formatted(student.getFullName(), student.getCccd(), activationLink); // 🌟 FIX ĐỒNG BỘ: Username trả về dạng CCCD phẳng khớp code login
+            """.formatted(student.getFullName(), student.getCccd(), activationLink);
 
             emailService.sendNotificationEmail(student.getEmail(), "[SDMS] Thông báo cấp tài khoản cư dân Ký túc xá", htmlContent);
             log.info("[StudentCreatedEventListener] Email kích hoạt tài khoản đã gửi thành công tới: {}", student.getEmail());

@@ -50,16 +50,14 @@ bool CameraDriver::init() {
     return true;
 }
 
-camera_fb_t* CameraDriver::capture() {
+camera_fb_t* CameraDriver::capture(bool discardDummy) {
     if (!ENABLE_CAMERA) return nullptr;
 
-    // Kỹ thuật Xả Rác (Clear Buffer):
-    // Do hệ thống chỉ dùng 1 Frame Buffer (để tiết kiệm RAM), frame đầu tiên 
-    // trong bộ nhớ có thể là ảnh cũ từ vài phút trước. 
-    // Ta lấy nó ra và hủy ngay để kích hoạt cảm biến chụp ảnh mới (real-time).
-    camera_fb_t * dummy_fb = esp_camera_fb_get();
-    if(dummy_fb) {
-        esp_camera_fb_return(dummy_fb);
+    if (discardDummy) {
+        camera_fb_t * dummy_fb = esp_camera_fb_get();
+        if(dummy_fb) {
+            esp_camera_fb_return(dummy_fb);
+        }
     }
 
     // Chụp ảnh thực tế

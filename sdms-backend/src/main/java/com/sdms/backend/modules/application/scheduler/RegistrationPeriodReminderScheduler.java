@@ -15,6 +15,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -38,8 +40,8 @@ public class RegistrationPeriodReminderScheduler {
         log.info("[BATCH JOB] Đang kiểm tra các đợt lưu trú sắp hết hạn (7 ngày)...");
         
         LocalDate targetDate = LocalDate.now().plusDays(7);
-        java.time.LocalDateTime startOfDay = targetDate.atStartOfDay();
-        java.time.LocalDateTime endOfDay = targetDate.atTime(java.time.LocalTime.MAX);
+        LocalDateTime startOfDay = targetDate.atStartOfDay();
+        LocalDateTime endOfDay = targetDate.atTime(LocalTime.MAX);
         
         List<RegistrationPeriod> expiringPeriods = periodRepository.findByStayEndDateBetween(startOfDay, endOfDay);
         

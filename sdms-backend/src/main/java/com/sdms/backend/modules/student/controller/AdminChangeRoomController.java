@@ -46,7 +46,7 @@ public class AdminChangeRoomController {
             @Valid @RequestBody AdminProcessChangeRoomDto dto) {
         
         UserAccount userAccount = (UserAccount) authentication.getPrincipal();
-        java.util.UUID adminId = userAccount.getAccountId();
+        UUID adminId = userAccount.getAccountId();
         
         ChangeRoomResponseDto response = changeRoomService.processRequest(adminId, id, dto);
         return ApiResponse.success("Xử lý yêu cầu thành công", response);
@@ -59,7 +59,7 @@ public class AdminChangeRoomController {
             @Valid @RequestBody MaintenanceRelocationDto dto) {
         
         UserAccount userAccount = (UserAccount) authentication.getPrincipal();
-        java.util.UUID adminId = userAccount.getAccountId();
+        UUID adminId = userAccount.getAccountId();
         
         changeRoomService.relocateStudentsForMaintenance(adminId, dto);
         return ApiResponse.success("Di dời sinh viên thành công");

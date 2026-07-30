@@ -37,11 +37,11 @@ public class DormitorySeeder implements CommandLineRunner {
     private final FloorRepository floorRepository;
     private final RoomRepository roomRepository;
     private final BedRepository bedRepository;
-    private final GateRepository gateRepository; // Thêm GateRepository
-    private final JdbcTemplate jdbcTemplate; // Thêm JdbcTemplate để insert ID cứng
+    private final GateRepository gateRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     // ==============================================================
-    // ID CỐ ĐỊNH ĐỂ TEST PHẦN CỨNG IOT (KHÔNG BỊ ĐỔI KHI DROP DB)
+    // ID CỐ ĐỊNH ĐỂ TEST PHẦN CỨNG IOT
     // ==============================================================
     // ID khớp với file Config.h trong cụm smart_access (Mạch 1)
     public static final UUID BUILDING_A_ID    = UUID.fromString("dd979326-9196-497f-b35e-068b99f6e3ff");
@@ -51,9 +51,12 @@ public class DormitorySeeder implements CommandLineRunner {
     // ID khớp với file Config.h trong cụm room_door (Mạch 2)
     public static final UUID ROOM_101_GATE_ID = UUID.fromString("a937509c-e2ae-4a2c-a74e-fd30d2318b2b");
     public static final UUID ROOM_101_ID      = UUID.fromString("dddddddd-4444-4444-4444-dddddddddddd");
-
-    // PIN cố định cho phòng A101 — nạp firmware ESP32 là nhập luôn: 1-2-3-4-5-6 → #
     public static final String ROOM_101_PIN = "123456";
+
+    // ID cho cụm room_door thứ hai (Phòng B101 - Mạch 3)
+    public static final UUID ROOM_B101_GATE_ID = UUID.fromString("c827509c-e2ae-4a2c-a74e-fd30d2318b2c");
+    public static final UUID ROOM_B101_ID      = UUID.fromString("eeeeeeee-5555-5555-5555-eeeeeeeeeeee");
+    public static final String ROOM_B101_PIN = "654321";
 
     @Override
     @Transactional
@@ -109,6 +112,7 @@ public class DormitorySeeder implements CommandLineRunner {
             ROOM_101_GATE_ID, "Cửa phòng A101", "ROOM_DOOR", BUILDING_A_ID, room101.getRoomId(), "AA:BB:CC:DD:EE:02", true
         );
 
+
         // 5. Khởi tạo Tòa nhà B bằng native query
         jdbcTemplate.update(
             "INSERT INTO buildings (building_id, code, name, description, status, gender, created_at, updated_at) " +
@@ -123,13 +127,22 @@ public class DormitorySeeder implements CommandLineRunner {
         floor1B.setBuilding(buildingB);
         floor1B = floorRepository.save(floor1B);
 
+        Room roomB101 = null;
         for (int i = 1; i <= 2; i++) {
-            createRoom(floor1B, 100 + i, 4, null); // Tạo 2 phòng bên Tòa B để test
+            Room room = createRoom(floor1B, 100 + i, 4, i == 1 ? ROOM_B101_ID : null); // Tạo 2 phòng bên Tòa B để test
+            if (i == 1) roomB101 = room;
         }
 
-        // 6. Set PIN cố định cho phòng A101 (ESP32 dùng ngay sau khi nạp firmware: 1-2-3-4-5-6 → #)
-        jdbcTemplate.update("UPDATE rooms SET room_pin_code = ? WHERE room_id = ?",
-                ROOM_101_PIN, ROOM_101_ID);
+        // KHỞI TẠO CỔNG SMART ACCESS B101
+        jdbcTemplate.update(
+            "INSERT INTO gates (gate_id, name, gate_type, building_id, room_id, mac_address, is_active, created_at, updated_at) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
+            ROOM_B101_GATE_ID, "Cửa phòng B101", "ROOM_DOOR", BUILDING_B_ID, roomB101.getRoomId(), "AA:BB:CC:DD:EE:03", true
+        );
+
+        // 6. Set PIN cố định cho phòng A101 và B101
+        jdbcTemplate.update("UPDATE rooms SET room_pin_code = ? WHERE room_id = ?", ROOM_101_PIN, ROOM_101_ID);
+        jdbcTemplate.update("UPDATE rooms SET room_pin_code = ? WHERE room_id = ?", ROOM_B101_PIN, ROOM_B101_ID);
 
         log.info("Dormitory Infrastructure Seeded Successfully!");
         log.info("==================================================");
@@ -139,6 +152,8 @@ public class DormitorySeeder implements CommandLineRunner {
         log.info(" MAIN_GATE_ID   : {}", MAIN_GATE_ID);
         log.info(" ROOM_101_GATE_ID: {}", ROOM_101_GATE_ID);
         log.info(" ROOM_101_PIN    : {} ← nhập trên keypad rồi nhấn #", ROOM_101_PIN);
+        log.info(" ROOM_B101_GATE_ID: {}", ROOM_B101_GATE_ID);
+        log.info(" ROOM_B101_PIN    : {} ← nhập trên keypad rồi nhấn #", ROOM_B101_PIN);
         log.info("==================================================");
     }
 

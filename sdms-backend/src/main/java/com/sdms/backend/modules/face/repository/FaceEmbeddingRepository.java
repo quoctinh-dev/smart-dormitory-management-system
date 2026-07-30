@@ -59,6 +59,7 @@ public interface FaceEmbeddingRepository extends JpaRepository<FaceEmbedding, UU
      */
     @Query(value = """
             SELECT fe.profile_id AS profileId,
+                   fp.student_id AS studentId,
                    (fe.vector <=> CAST(:queryVector AS vector)) AS distance
             FROM face_embeddings fe
             JOIN face_profiles fp ON fe.profile_id = fp.profile_id
@@ -76,7 +77,19 @@ public interface FaceEmbeddingRepository extends JpaRepository<FaceEmbedding, UU
      * <p>Service Layer đọc {@code getDistance()} và áp dụng ngưỡng riêng của nó.
      */
     interface VectorMatchResult {
+        /**
+         * @return Khóa chính của hồ sơ khuôn mặt (FaceProfile) khớp nhất.
+         */
         UUID getProfileId();
+
+        /**
+         * @return Khóa chính của sinh viên (Student) sở hữu hồ sơ khuôn mặt khớp nhất. Dùng cho luồng Dual-Auth.
+         */
+        UUID getStudentId();
+
+        /**
+         * @return Khoảng cách Cosine (Cosine Distance) trả về từ hàm pgvector. Khoảng cách càng nhỏ càng giống nhau.
+         */
         Double getDistance();
     }
 }

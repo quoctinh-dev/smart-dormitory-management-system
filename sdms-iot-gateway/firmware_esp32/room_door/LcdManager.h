@@ -5,6 +5,12 @@
 #include <LiquidCrystal_I2C.h>
 #include "Config.h"
 
+/**
+ * MODULE: QUẢN LÝ MÀN HÌNH LCD I2C
+ * Chức năng: Hiển thị thông báo trạng thái (Ready, Nhập mã, Mở cửa, Lỗi mạng).
+ * Tích hợp tính năng Non-blocking: Tự động xóa thông báo tạm thời sau N giây mà không dùng delay().
+ */
+
 // Địa chỉ I2C thông thường là 0x27 hoặc 0x3F. Kích thước 16x2.
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 

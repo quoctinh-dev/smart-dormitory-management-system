@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Profile("!prod") // Quan trọng: Chỉ chạy seeder khi không ở môi trường production
+@Profile("!prod")
 public class UserSeeder implements ApplicationRunner {
 
     private final UserAccountRepository userAccountRepository;

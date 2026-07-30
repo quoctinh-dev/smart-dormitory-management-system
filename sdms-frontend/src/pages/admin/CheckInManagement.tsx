@@ -252,7 +252,7 @@ export default function CheckInManagement() {
                                                         '&:hover': { bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1) }
                                                     }}
                                                 >
-                                                    Check-in thủ công
+                                                    Check-in
                                                 </Button>
                                             ) : (
                                                 <Typography variant="caption" color="text.disabled">

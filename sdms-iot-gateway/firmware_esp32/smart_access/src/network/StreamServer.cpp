@@ -29,14 +29,6 @@ static const char index_html[] PROGMEM = R"rawliteral(
         .camera-box img { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         .mask { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 380px; border: 3px dashed var(--primary); border-radius: 50%; box-shadow: 0 0 0 4000px rgba(15, 23, 42, 0.75); }
-        .btn-capture { margin-top: 30px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color: white; border: none; padding: 16px 40px; font-size: 18px; font-weight: 600; border-radius: 50px; cursor: pointer; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); transition: all 0.2s ease; display: flex; align-items: center; gap: 10px; }
-        .btn-capture:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(16, 185, 129, 0.4); }
-        .btn-capture:active { transform: translateY(1px); }
-        .btn-capture:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
-        .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; display: none; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        #toast { position: fixed; top: 20px; right: -100%; background: #1e293b; padding: 15px 25px; border-radius: 12px; border-left: 5px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-weight: 600; transition: 0.3s ease-in-out; z-index: 1000; }
-        #toast.show { right: 20px; }
         #toast.success { border-color: #10b981; }
         #toast.error { border-color: #ef4444; }
     </style>
@@ -56,11 +48,6 @@ static const char index_html[] PROGMEM = R"rawliteral(
         </div>
     </div>
 
-    <button class="btn-capture" id="captureBtn" onclick="capture()">
-        <span class="spinner" id="spinner"></span>
-        <span id="btnText">📸 QUÉT MỞ CỬA</span>
-    </button>
-
     <script>
         window.onload = function() {
             document.getElementById('streamImg').src = 'http://' + window.location.hostname + ':81/stream';
@@ -72,47 +59,6 @@ static const char index_html[] PROGMEM = R"rawliteral(
             toast.className = isSuccess ? 'show success' : 'show error';
             setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 4000);
         }
-
-        function capture() {
-            const btn = document.getElementById('captureBtn');
-            const spinner = document.getElementById('spinner');
-            const btnText = document.getElementById('btnText');
-            
-            btn.disabled = true;
-            spinner.style.display = 'block';
-            btnText.innerText = 'Đang phân tích...';
-
-            fetch('/capture', { method: 'POST' })
-            .then(res => res.text())
-            .then(text => {
-                btn.disabled = false;
-                spinner.style.display = 'none';
-                btnText.innerText = '📸 QUÉT MỞ CỬA';
-                
-                if (text === 'GRANTED') {
-                    showToast('✅ Xác thực thành công! Cửa đang mở...', true);
-                } else if (text.startsWith('DENIED')) {
-                    showToast('❌ ' + text.split(':')[1], false);
-                } else if (text.startsWith('API_ERROR')) {
-                    let errorMsg = text.split(':')[1];
-                    // Dịch các lỗi phổ biến sang tiếng Việt cho thân thiện UX
-                    if (errorMsg.includes("No face detected")) {
-                        errorMsg = "Không tìm thấy khuôn mặt, hãy thử Bật Đèn Flash!";
-                    } else if (errorMsg.includes("Vui lòng đợi 2 giây")) {
-                        // Lỗi rate limit đã là tiếng việt
-                    }
-                    showToast('⚠️ ' + errorMsg, false);
-                } else {
-                    showToast('⚠️ Lỗi hệ thống: ' + text, false);
-                }
-            })
-            .catch(err => {
-                btn.disabled = false;
-                spinner.style.display = 'none';
-                btnText.innerText = '📸 QUÉT MỞ CỬA';
-                showToast('❌ Lỗi kết nối đến thiết bị!', false);
-            });
-        }
     </script>
 </body>
 </html>
@@ -122,6 +68,11 @@ esp_err_t StreamServer::index_handler(httpd_req_t *req) {
     httpd_resp_set_type(req, "text/html; charset=utf-8");
     return httpd_resp_send(req, index_html, strlen(index_html));
 }
+
+static bool isUploading = false;
+
+void StreamServer::pauseStream() { isUploading = true; }
+void StreamServer::resumeStream() { isUploading = false; }
 
 esp_err_t StreamServer::stream_handler(httpd_req_t *req) {
     camera_fb_t * fb = NULL;
@@ -135,6 +86,11 @@ esp_err_t StreamServer::stream_handler(httpd_req_t *req) {
     if(res != ESP_OK) return res;
 
     while(true) {
+        if (isUploading) {
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+            continue;
+        }
+
         fb = CameraDriver::capture();
         if (!fb) {
             Serial.println("[StreamServer] Camera capture failed, retrying...");
@@ -185,12 +141,14 @@ esp_err_t StreamServer::capture_handler(httpd_req_t *req) {
     lastCaptureTime = millis();
 
     Serial.println("\n[StreamServer] Web capture button pressed! Capturing face...");
-    camera_fb_t* fb = CameraDriver::capture();
+    camera_fb_t* fb = CameraDriver::capture(true);
     String res = "CAMERA_ERROR";
     
     if (fb != nullptr) {
+        StreamServer::pauseStream();
         // Gọi thẳng HttpManager, task này sẽ block 1-2s (không sao đối với web worker)
         res = HttpManager::uploadFace(fb);
+        StreamServer::resumeStream();
         CameraDriver::release(fb);
     } else {
         Serial.println("[StreamServer] Failed to capture frame for upload!");

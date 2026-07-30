@@ -67,8 +67,6 @@ public class ApplicationReviewController {
         return ApiResponse.success("Phê duyệt đơn thành công (Chờ nộp phí)");
     }
 
-
-
     @Operation(summary = "Từ chối đơn đăng ký nội trú")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Từ chối đơn thành công")
     @PatchMapping("/{applicationId}/reject")
@@ -95,7 +93,8 @@ public class ApplicationReviewController {
         return ApiResponse.success("Đã gửi email yêu cầu nộp lại minh chứng thành công");
     }
 
-    @Operation(summary = "Xác nhận thu tiền giữ chỗ trực tiếp (Tiền mặt)")
+    @Operation(summary = "Xác nhận thu tiền giữ chỗ trực tiếp (Tiền mặt)",
+             description = "Admin xác nhận đã thu tiền mặt tại quầy. Hệ thống tự tìm hóa đơn UNPAID của đơn đăng ký và đánh dấu PAID với phương thức CASH.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Xác nhận thu tiền thành công")
     @PatchMapping("/{applicationId}/confirm-payment")
     public ApiResponse<Void> confirmPayment(
@@ -103,9 +102,8 @@ public class ApplicationReviewController {
             @RequestBody(required = false) AdminReviewRequest request,
             @AuthenticationPrincipal UserAccount userAccount
     ) {
-        UUID adminUserId = getAccountIdSafely(userAccount);
-        // We use mockPaymentSuccess as it inherently marks the application's bill as PAID
-        paymentService.mockPaymentSuccess(applicationId);
+        getAccountIdSafely(userAccount);
+        paymentService.confirmCashPaymentByApplication(applicationId);
         return ApiResponse.success("Đã xác nhận thu tiền giữ chỗ thành công");
     }
 

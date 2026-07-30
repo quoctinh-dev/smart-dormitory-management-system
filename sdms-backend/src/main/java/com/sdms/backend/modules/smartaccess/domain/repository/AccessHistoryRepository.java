@@ -27,6 +27,9 @@ public interface AccessHistoryRepository extends Repository<AccessHistory, UUID>
 
     Page<AccessHistory> findAll(Pageable pageable);
 
+    @Query("SELECT ah FROM AccessHistory ah WHERE ah.eventTimestamp < :threshold AND ah.snapshotUrl IS NOT NULL")
+    Page<AccessHistory> findOldRecordsWithSnapshots(@Param("threshold") LocalDateTime threshold, Pageable pageable);
+
     @Query(value = """
         SELECT COUNT(DISTINCT sha.student_id)
         FROM student_housing_assignments sha

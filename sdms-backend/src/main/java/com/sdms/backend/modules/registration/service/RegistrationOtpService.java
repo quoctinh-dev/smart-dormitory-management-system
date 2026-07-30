@@ -115,10 +115,10 @@ public class RegistrationOtpService {
             <html lang="vi">
             <head>
                 <meta charset="UTF-8">
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <style>
                     body { font-family: "Inter", "Roboto", "Helvetica", "Arial", sans-serif; line-height: 1.6; color: #0f172a; margin: 0; padding: 0; }
-                    .wrapper { background-color: #f8fafc; padding: 40px 20px; }
+                    .wrapper { background-color: #f8fafc; padding: 20px 10px; }
                     .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); }
                     .header { background-color: #2563eb; color: #ffffff; padding: 30px 25px; text-align: center; }
                     .header h2 { margin: 0; font-weight: 800; letter-spacing: -1px; font-size: 24px; }
@@ -128,6 +128,13 @@ public class RegistrationOtpService {
                     .warning-box { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; margin-top: 20px; border-radius: 12px; }
                     .footer { background-color: #1e293b; padding: 20px; text-align: center; font-size: 13px; color: #cbd5e1; border-top: 1px solid #e2e8f0; }
                     .footer p { margin: 0; }
+                    @media only screen and (max-width: 600px) {
+                        .wrapper { padding: 10px 5px; }
+                        .header { padding: 20px 15px; }
+                        .header h2 { font-size: 20px; }
+                        .content { padding: 20px 15px; }
+                        .otp-code { font-size: 24px; padding: 12px 24px; letter-spacing: 5px; }
+                    }
                 </style>
             </head>
             <body>

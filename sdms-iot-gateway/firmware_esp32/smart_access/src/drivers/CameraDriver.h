@@ -7,7 +7,7 @@
 class CameraDriver {
 public:
     static bool init();
-    static camera_fb_t* capture();
+    static camera_fb_t* capture(bool discardDummy = false);
     static void release(camera_fb_t* fb);
 };
 

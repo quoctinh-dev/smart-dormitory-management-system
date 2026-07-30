@@ -3,6 +3,8 @@ package com.sdms.backend.modules.smartaccess.api.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.sdms.backend.common.response.ApiResponse;
@@ -51,8 +53,9 @@ public class AccessHistoryController {
             @RequestParam(required = false) String denialReason,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            Pageable pageable) {
-        
+            @PageableDefault(sort = "eventTimestamp", direction = Sort.Direction.DESC) Pageable pageable) {
+        // Áp dụng PageableDefault để mặc định sắp xếp lịch sử theo thời gian mới nhất (eventTimestamp DESC)
+        // nếu Client không truyền tham số sort. Giúp danh sách log mới nhất luôn hiển thị lên đầu.
         Specification<AccessHistory> spec = AccessHistorySpecification.filter(studentId, gateId, decision, denialReason, startDate, endDate);
         Page<AccessHistory> page = accessHistoryRepository.findAll(spec, pageable);
         return ApiResponse.success("Lấy danh sách lịch sử thành công", PageResponse.of(page));
@@ -66,7 +69,8 @@ public class AccessHistoryController {
     @PreAuthorize(SmartAccessPermissions.VIEW_ACCESS_HISTORY)
     public ApiResponse<PageResponse<AccessHistory>> getHistoryByStudent(
             @PathVariable UUID studentId,
-            Pageable pageable) {
+            @PageableDefault(sort = "eventTimestamp", direction = Sort.Direction.DESC) Pageable pageable) {
+        // Mặc định sắp xếp log mới nhất lên trước cho lịch sử của sinh viên
         Page<AccessHistory> page = accessHistoryRepository.findByStudentId(studentId, pageable);
         return ApiResponse.success("Lấy lịch sử sinh viên thành công", PageResponse.of(page));
     }
@@ -80,7 +84,7 @@ public class AccessHistoryController {
     @PreAuthorize("hasRole('STUDENT')")
     public ApiResponse<PageResponse<AccessHistory>> getMyHistory(
             @AuthenticationPrincipal UserAccount currentUser,
-            Pageable pageable) {
+            @PageableDefault(sort = "eventTimestamp", direction = Sort.Direction.DESC) Pageable pageable) {
         if (currentUser.getStudent() == null) {
             throw new AppException(ErrorCode.FORBIDDEN, "Tài khoản chưa được liên kết với hồ sơ sinh viên.");
         }
@@ -97,7 +101,8 @@ public class AccessHistoryController {
     @PreAuthorize(SmartAccessPermissions.VIEW_ACCESS_HISTORY)
     public ApiResponse<PageResponse<AccessHistory>> getHistoryByGate(
             @PathVariable UUID gateId,
-            Pageable pageable) {
+            @PageableDefault(sort = "eventTimestamp", direction = Sort.Direction.DESC) Pageable pageable) {
+        // Mặc định hiển thị lượt qua cổng mới nhất
         Page<AccessHistory> page = accessHistoryRepository.findByGateId(gateId, pageable);
         return ApiResponse.success("Lấy lịch sử theo cổng thành công", PageResponse.of(page));
     }
@@ -110,7 +115,8 @@ public class AccessHistoryController {
     @PreAuthorize(SmartAccessPermissions.VIEW_ACCESS_HISTORY)
     public ApiResponse<PageResponse<AccessHistory>> getHistoryByBuilding(
             @PathVariable UUID buildingId,
-            Pageable pageable) {
+            @PageableDefault(sort = "eventTimestamp", direction = Sort.Direction.DESC) Pageable pageable) {
+        // Mặc định hiển thị lượt ra vào tòa nhà mới nhất lên trước
         Page<AccessHistory> page = accessHistoryRepository.findByBuildingId(buildingId, pageable);
         return ApiResponse.success("Lấy lịch sử theo tòa nhà thành công", PageResponse.of(page));
     }

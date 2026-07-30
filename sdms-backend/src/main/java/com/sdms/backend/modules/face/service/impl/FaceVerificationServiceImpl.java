@@ -6,6 +6,8 @@ import com.sdms.backend.modules.face.event.FaceMatchSuccessEvent;
 import com.sdms.backend.modules.face.repository.FaceEmbeddingRepository;
 import com.sdms.backend.modules.face.repository.FaceVerificationAttemptRepository;
 import com.sdms.backend.modules.face.service.FaceVerificationService;
+import com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse;
+import com.sdms.backend.modules.face.port.AiExtractionPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -33,7 +36,7 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
     private final FaceEmbeddingRepository faceEmbeddingRepository;
     private final FaceVerificationAttemptRepository attemptRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final com.sdms.backend.modules.face.port.AiExtractionPort aiExtractionPort;
+    private final AiExtractionPort aiExtractionPort;
 
     // Ngưỡng Cosine Similarity AI (Ràng buộc quản trị)
     // Khoảng cách = 1.0 - Độ tương đồng. Có thể cấu hình qua application.yml
@@ -41,7 +44,7 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
     private double matchDistanceThreshold;
 
     @Override
-    public com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse verifyFace(String gateDeviceId, org.springframework.web.multipart.MultipartFile faceImage) {
+    public FaceVerificationResultResponse verifyFace(String gateDeviceId, MultipartFile faceImage) {
         log.info("[IoT] Extracting vector for gate {} using Python AI Sidecar...", gateDeviceId);
         float[] vector = aiExtractionPort.extractVector(faceImage);
         
@@ -68,11 +71,12 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
         Optional<FaceEmbeddingRepository.VectorMatchResult> matchOpt = faceEmbeddingRepository.findNearestMatch(queryVectorStr);
 
         if (matchOpt.isEmpty()) {
-            return processFailedAttempt(gateDeviceId, null, FaceVerificationResult.FAIL, null);
+            return processFailedAttempt(gateDeviceId, null, null, FaceVerificationResult.FAIL, null);
         }
 
         FaceEmbeddingRepository.VectorMatchResult match = matchOpt.get();
         UUID profileId = match.getProfileId();
+        UUID studentId = match.getStudentId();
         Double distance = match.getDistance();
 
         // 3. Đánh giá ngưỡng (Threshold) tại tầng Service
@@ -84,7 +88,7 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
 
         if (!isMatch) {
             // Lưu vết thất bại phục vụ audit, giữ lại profileId bị nhận diện nhầm nếu có (pháp y)
-            return processFailedAttempt(gateDeviceId, profileId, FaceVerificationResult.FAIL, confidenceScore);
+            return processFailedAttempt(gateDeviceId, profileId, studentId, FaceVerificationResult.FAIL, confidenceScore);
         }
 
         // 4. Ghi nhận lịch sử (Append-only) làm bằng chứng không thể chối cãi
@@ -100,10 +104,10 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
         // 5. Phát sự kiện (Ủy quyền quyết định đóng/mở cổng cho module Smart Access thông qua event)
         eventPublisher.publishEvent(new FaceMatchSuccessEvent(gateDeviceId, profileId, attempt.getAttemptId()));
 
-        return new com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse(true, profileId, confidenceScore, attempt.getAttemptId());
+        return new FaceVerificationResultResponse(true, profileId, studentId, confidenceScore, attempt.getAttemptId());
     }
 
-    private com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse processFailedAttempt(String gateDeviceId, UUID profileId, FaceVerificationResult status, BigDecimal confidenceScore) {
+    private FaceVerificationResultResponse processFailedAttempt(String gateDeviceId, UUID profileId, UUID studentId, FaceVerificationResult status, BigDecimal confidenceScore) {
         FaceVerificationAttempt attempt = FaceVerificationAttempt.builder()
                 .gateDeviceId(gateDeviceId)
                 .profileId(profileId)
@@ -114,7 +118,7 @@ public class FaceVerificationServiceImpl implements FaceVerificationService {
         attempt = attemptRepository.save(attempt);
         
         // Không phát sự kiện khi THẤT BẠI, giảm thiểu lưu lượng bus nội bộ.
-        return new com.sdms.backend.modules.face.dto.response.FaceVerificationResultResponse(false, profileId, confidenceScore, attempt.getAttemptId());
+        return new FaceVerificationResultResponse(false, profileId, studentId, confidenceScore, attempt.getAttemptId());
     }
 
     @Override

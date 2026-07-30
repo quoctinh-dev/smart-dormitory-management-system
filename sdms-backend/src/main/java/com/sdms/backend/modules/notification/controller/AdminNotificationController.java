@@ -6,10 +6,9 @@ import com.sdms.backend.common.response.ApiResponse;
 import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.notification.entity.Notification;
 import com.sdms.backend.modules.notification.dto.NotificationDeliveryLog;
-import com.sdms.backend.modules.notification.enums.NotificationChannel;
-import com.sdms.backend.modules.notification.enums.NotificationStatus;
 import com.sdms.backend.modules.notification.enums.NotificationType;
 import com.sdms.backend.modules.notification.repository.NotificationRepository;
+import com.sdms.backend.modules.notification.repository.NotificationSpecification;
 import com.sdms.backend.modules.user.entity.UserAccount;
 import com.sdms.backend.modules.user.enums.Role;
 import com.sdms.backend.modules.user.repository.UserAccountRepository;
@@ -32,6 +31,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sdms.backend.modules.notification.enums.NotificationChannel.IN_APP;
+import static com.sdms.backend.modules.notification.enums.NotificationStatus.SENT;
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 @RestController
 @RequestMapping("/api/v1/admin/notifications")
 @RequiredArgsConstructor
@@ -48,19 +51,18 @@ public class AdminNotificationController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) NotificationType type,
             @RequestParam(required = false) Boolean isBroadcast,
-            @PageableDefault(size = 20, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC)
+            @PageableDefault(size = 20, sort = "createdAt", direction = DESC)
             Pageable pageable) {
         Page<Notification> page = notificationRepository.findAll(
-                com.sdms.backend.modules.notification.repository.NotificationSpecification.filter(keyword, type, isBroadcast), 
+                NotificationSpecification.filter(keyword, type, isBroadcast),
                 pageable
         );
-        // Map Notification to NotificationDeliveryLog for the DTO
         Page<NotificationDeliveryLog> dtoPage = page.map(notif -> NotificationDeliveryLog.builder()
                 .id(notif.getId())
                 .recipient(notif.getRecipient() != null ? notif.getRecipient() : (notif.getUserId() != null ? notif.getUserId().toString() : "Unknown"))
-                .channel(notif.getChannel() != null ? notif.getChannel() : com.sdms.backend.modules.notification.enums.NotificationChannel.IN_APP)
+                .channel(notif.getChannel() != null ? notif.getChannel() : IN_APP)
                 .type(notif.getType())
-                .status(notif.getStatus() != null ? notif.getStatus() : com.sdms.backend.modules.notification.enums.NotificationStatus.SENT)
+                .status(notif.getStatus() != null ? notif.getStatus() : SENT)
                 .eventId(notif.getEventId())
                 .payloadSnapshot(notif.getMessage())
                 .sentAt(notif.getCreatedAt())
@@ -97,8 +99,8 @@ public class AdminNotificationController {
                         .isRead(false)
                         .eventId(eventId)
                         .recipient(user.getEmail())
-                        .channel(com.sdms.backend.modules.notification.enums.NotificationChannel.IN_APP)
-                        .status(com.sdms.backend.modules.notification.enums.NotificationStatus.SENT)
+                        .channel(IN_APP)
+                        .status(SENT)
                         .build())
                 .toList();
 

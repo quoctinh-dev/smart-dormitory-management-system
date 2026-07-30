@@ -12,16 +12,13 @@ import com.sdms.backend.modules.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+
 
 @Slf4j
 @Service
@@ -33,7 +30,7 @@ public class SepayService {
     private final PaymentService paymentService;
     private final ObjectMapper objectMapper;
 
-    @Value("${payment.sepay.api-key:default-api-key}")
+    @Value("${payment.sepay.api-key}")
     private String sepayApiKey;
 
     public void processWebhook(String rawPayload, String authorization) {
@@ -142,13 +139,12 @@ public class SepayService {
 
 
     private String extractTransactionCode(String content) {
-        // Simple extraction: Look for words starting with SDMS
         String[] words = content.split("\\s+");
         for (String word : words) {
             if (word.startsWith("SDMS")) {
                 return word;
             }
         }
-        return null; // or null if not found
+        return null;
     }
 }

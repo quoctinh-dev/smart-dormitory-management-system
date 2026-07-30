@@ -71,9 +71,10 @@ const applicationApi = {
     return axiosClient.patch(`${ADMIN_APP_URL}/documents/${documentId}/verify`, { status, note });
   },
 
-  uploadFileToCloud(formData: FormData): Promise<{ url: string }> {
-    return axiosClient.post(`${UPLOADS_URL}/avatar`, formData, {
+  uploadFileToCloud(formData: FormData, folder: string = 'sdms/documents'): Promise<{ url: string }> {
+    return axiosClient.post(`${UPLOADS_URL}/image`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+      params: { folder },
     });
   },
 };

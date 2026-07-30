@@ -26,7 +26,6 @@ export default function AdminDashboard() {
   const { data, expiringList, loading, handleRefresh } = useAdminDashboard();
   const theme = useTheme();
 
-  // Ngăn chặn STAFF truy cập trang Dashboard
   if (user?.role?.toUpperCase() === 'STAFF') {
     return <Navigate to="/admin/applications/review" replace />;
   }

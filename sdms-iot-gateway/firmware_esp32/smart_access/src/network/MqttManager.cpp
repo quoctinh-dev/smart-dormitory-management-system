@@ -92,11 +92,8 @@ void MqttManager::callback(char* topic, byte* payload, unsigned int length) {
     Serial.print("[MQTT] Message arrived on topic: ");
     Serial.println(topic);
     
-    // Parse Payload to String
-    String message = "";
-    for (unsigned int i = 0; i < length; i++) {
-        message += (char)payload[i];
-    }
+    // Parse Payload to String (Optimized to prevent heap fragmentation)
+    String message((char*)payload, length);
     Serial.println("[MQTT] Payload: " + message);
 
     // =========================================================

@@ -3,39 +3,39 @@ package com.sdms.backend.modules.student.service;
 import com.sdms.backend.common.exception.AppException;
 import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.common.response.PageResponse;
+import com.sdms.backend.modules.payment.enums.BillStatus;
+import com.sdms.backend.modules.payment.repository.BillRepository;
 import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.room.enums.AssignmentStatus;
 import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import com.sdms.backend.modules.room.service.HousingAssignmentService;
+import com.sdms.backend.modules.student.dto.request.BulkCheckoutReviewDto;
 import com.sdms.backend.modules.student.dto.request.CheckoutRequestReviewDto;
 import com.sdms.backend.modules.student.dto.request.CheckoutRequestSubmitDto;
 import com.sdms.backend.modules.student.dto.response.CheckoutRequestResponse;
 import com.sdms.backend.modules.student.entity.CheckoutRequest;
 import com.sdms.backend.modules.student.entity.Student;
 import com.sdms.backend.modules.student.enums.CheckoutStatus;
+import com.sdms.backend.modules.student.event.StudentCheckedOutEvent;
 import com.sdms.backend.modules.student.repository.CheckoutRequestRepository;
+import com.sdms.backend.modules.system.service.SystemConfigService;
 import com.sdms.backend.modules.user.entity.UserAccount;
 import com.sdms.backend.modules.user.repository.UserAccountRepository;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import com.sdms.backend.modules.payment.repository.BillRepository;
-import com.sdms.backend.modules.payment.enums.BillStatus;
-import org.springframework.context.ApplicationEventPublisher;
-import com.sdms.backend.modules.student.event.StudentCheckedOutEvent;
-import com.sdms.backend.modules.system.service.SystemConfigService;
 
 @Service
 @RequiredArgsConstructor
@@ -86,9 +86,11 @@ public class CheckoutRequestService {
                 "Bạn đang trong tháng cuối cùng của kỳ lưu trú. Hệ thống không tiếp nhận đơn trả phòng sớm. Vui lòng dọn dẹp và chờ hệ thống tự động trả phòng vào ngày " + endDate);
         }
 
-        boolean hasDebts = billRepository.existsByStudentIdAndStatusIn(student.getStudentId(), Arrays.asList(BillStatus.UNPAID, BillStatus.OVERDUE));
+        // [SỬA LỖI] Chỉ chặn nếu có hóa đơn QUÁ HẠN (OVERDUE). 
+        // Các hóa đơn UNPAID (chưa tới hạn) có thể là hóa đơn của chu kỳ sau, hoặc Admin sẽ cấn trừ vào tiền cọc lúc duyệt.
+        boolean hasDebts = billRepository.existsByStudentIdAndStatusIn(student.getStudentId(), Arrays.asList(BillStatus.OVERDUE));
         if (hasDebts) {
-            throw new AppException(ErrorCode.VALIDATION_FAILED, "Bạn đang có hóa đơn tiền phòng hoặc điện nước chưa thanh toán. Vui lòng thanh toán toàn bộ nợ trước khi xin trả phòng.");
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Bạn đang có hóa đơn tiền phòng hoặc điện nước ĐÃ QUÁ HẠN. Vui lòng thanh toán nợ quá hạn trước khi xin trả phòng.");
         }
 
         CheckoutRequest checkoutReq = new CheckoutRequest();
@@ -131,7 +133,7 @@ public class CheckoutRequestService {
     }
 
     @Transactional
-    public int bulkReviewCheckoutRequests(com.sdms.backend.modules.student.dto.request.BulkCheckoutReviewDto request) {
+    public int bulkReviewCheckoutRequests(BulkCheckoutReviewDto request) {
         if (request.getRequestIds() == null || request.getRequestIds().isEmpty()) {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Danh sách đơn xin trả phòng trống");
         }
@@ -160,10 +162,19 @@ public class CheckoutRequestService {
                 throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ có thể duyệt đơn đang ở trạng thái PENDING");
             }
             checkoutReq.setStatus(CheckoutStatus.APPROVED);
-            // Kích hoạt logic check-out giường thực tế
+            
+            // 1. Kích hoạt logic check-out giường thực tế (Cập nhật trạng thái Giường thành AVAILABLE)
             housingAssignmentService.checkOut(checkoutReq.getAssignment().getAssignmentId());
             
-            // Phát ra sự kiện Check-out thành công để các module khác (như Smart Access) thu hồi quyền
+            /* 
+             * [KIẾN TRÚC HỆ THỐNG - EVENT-DRIVEN ARCHITECTURE (OBSERVER PATTERN)]
+             * Thay vì gọi trực tiếp các module khác (VD: smartAccessService.revoke() hay paymentService.cancelBill()), 
+             * ta dùng ApplicationEventPublisher để bắn ra một Sự kiện (Event).
+             * Ý NGHĨA KHI BẢO VỆ ĐỒ ÁN: 
+             * - Đảm bảo tính "Lỏng lẻo" (Loose Coupling): Module Student không cần biết sự tồn tại của module IoT hay Payment.
+             * - Tính mở rộng (Open-Closed Principle): Sau này nếu thêm tính năng "Tự động gửi Email khi Checkout", 
+             *   ta chỉ cần viết 1 Listener mới bắt Event này mà không cần sửa code ở hàm này.
+             */
             eventPublisher.publishEvent(new StudentCheckedOutEvent(
                     this, 
                     checkoutReq.getStudent().getStudentId(),
