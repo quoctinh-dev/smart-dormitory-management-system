@@ -144,12 +144,9 @@ public class RegistrationOtpService {
                         <h2>KÝ TÚC XÁ THÔNG MINH (SDMS)</h2>
                     </div>
                     <div class="content">
-                        <p style="font-size: 16px; margin-top: 0; color: #475569;">
-                            Xin chào,
-                        </p>
-                        <p style="color: #475569; font-size: 15px;">
-                            Để hoàn tất quá trình xác thực tài khoản trên hệ thống SDMS, vui lòng nhập mã OTP dưới đây:
-                        </p>
+                        <h3 style="color: #0f172a; margin-top: 0; font-size: 18px;">MÃ XÁC THỰC (OTP)</h3>
+                        <p style="font-size: 16px; margin-top: 0; color: #475569;">Xin chào,</p>
+                        <p style="color: #475569; font-size: 15px;">Để hoàn tất quá trình xác thực tài khoản trên hệ thống SDMS, vui lòng nhập mã OTP dưới đây:</p>
                         
                         <div class="otp-container">
                             <div class="otp-code">%s</div>

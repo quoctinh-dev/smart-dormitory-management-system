@@ -325,35 +325,60 @@ public class AuthService {
         return hexString.toString();
     }
 
-    /**
-     * Mẫu Email HTML cho chức năng Reset Password.
-     */
     private String buildResetPasswordEmail(String resetLink) {
         return """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                </head>
-                <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
-                    <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                        <h2 style="color: #333333; text-align: center;">Khôi phục mật khẩu của bạn</h2>
-                        <p style="color: #555555; font-size: 16px; line-height: 1.5;">
+            <!DOCTYPE html>
+            <html lang="vi">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body { font-family: "Inter", "Roboto", "Helvetica", "Arial", sans-serif; line-height: 1.6; color: #0f172a; margin: 0; padding: 0; }
+                    .wrapper { background-color: #f8fafc; padding: 20px 10px; }
+                    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); }
+                    .header { background-color: #2563eb; color: #ffffff; padding: 30px 25px; text-align: center; }
+                    .header h2 { margin: 0; font-weight: 800; letter-spacing: -1px; font-size: 24px; }
+                    .content { padding: 35px 30px; }
+                    .btn-wrapper { text-align: center; margin: 30px 0; }
+                    .btn { background-color: #2563eb; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: 700; display: inline-block; font-size: 15px; }
+                    .warning-box { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; margin-top: 20px; border-radius: 12px; }
+                    .footer { background-color: #1e293b; padding: 20px; text-align: center; font-size: 13px; color: #cbd5e1; border-top: 1px solid #e2e8f0; }
+                    .footer p { margin: 0; }
+                    @media only screen and (max-width: 600px) {
+                        .wrapper { padding: 10px 5px; }
+                        .header { padding: 20px 15px; }
+                        .header h2 { font-size: 20px; }
+                        .content { padding: 20px 15px; }
+                        .btn { padding: 10px 20px; font-size: 14px; }
+                    }
+                </style>
+            </head>
+            <body>
+            <div class="wrapper">
+                <div class="container">
+                    <div class="header">
+                        <h2>KÝ TÚC XÁ THÔNG MINH (SDMS)</h2>
+                    </div>
+                    <div class="content">
+                        <h3 style="color: #0f172a; margin-top: 0; font-size: 18px;">Khôi phục mật khẩu của bạn</h3>
+                        <p style="font-size: 15px; color: #475569;">
                             Chúng tôi đã nhận được yêu cầu khôi phục mật khẩu từ bạn. Vui lòng nhấn vào nút bên dưới để tiến hành đổi mật khẩu mới.
                         </p>
-                        <div style="text-align: center; margin: 30px 0;">
-                            <a href="%s" style="background-color: #007bff; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px;">
-                                Đặt lại Mật khẩu
-                            </a>
+                        <div class="btn-wrapper">
+                            <a href="%s" class="btn">Đặt lại Mật khẩu</a>
                         </div>
-                        <p style="color: #777777; font-size: 14px; text-align: center;">
-                            Đường link này sẽ tự động hết hạn sau <strong>15 phút</strong>.<br>
-                            Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này để đảm bảo an toàn.
-                        </p>
+                        <div class="warning-box">
+                            <strong style="color: #b45309; font-size: 15px;">Lưu ý:</strong>
+                            <p style="margin: 6px 0 0 0; color: #92400e; font-size: 14px;">Đường link này sẽ tự động hết hạn sau <strong>15 phút</strong>. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này để đảm bảo an toàn.</p>
+                        </div>
                     </div>
-                </body>
-                </html>
-                """.formatted(resetLink);
+                    <div class="footer">
+                        <p>Đây là thông báo tự động từ hệ thống SDMS. Vui lòng không trả lời thư này.</p>
+                    </div>
+                </div>
+            </div>
+            </body>
+            </html>
+            """.formatted(resetLink);
     }
 }

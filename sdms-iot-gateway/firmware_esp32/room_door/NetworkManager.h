@@ -41,11 +41,20 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     DeserializationError error = deserializeJson(doc, message);
 
     if (!error) {
-        String command = doc["command"];
+        String command = doc["command"] | "";
         if (command == "UNLOCK") {
             Serial.println("[MQTT] Received UNLOCK command from Admin");
             lcdPrintMessage("REMOTE UNLOCK", "DOOR OPEN");
             openDoor();
+            lcdPrintMessage("READY!", "Enter PIN...");
+        } else if (command == "GLOBAL_UNLOCK") {
+            Serial.println("[MQTT] EMERGENCY UNLOCK command received.");
+            lcdPrintMessage("EMERGENCY", "DOOR OPEN");
+            emergencyOpenDoor();
+        } else if (command == "GLOBAL_LOCKDOWN") {
+            Serial.println("[MQTT] EMERGENCY LOCK command received.");
+            lcdPrintMessage("EMERGENCY OVER", "DOOR LOCKED");
+            emergencyCloseDoor();
             lcdPrintMessage("READY!", "Enter PIN...");
         }
     }
@@ -101,9 +110,14 @@ void reconnectMQTT() {
         
         if (mqttClient.connect(clientId.c_str())) {
             Serial.println("connected");
-            String topic = "sdms/gates/" + GATE_ID + "/command";
-            mqttClient.subscribe(topic.c_str());
-            Serial.println("[MQTT] Subscribed to " + topic);
+            String gateTopic = "sdms/gates/" + GATE_ID + "/command";
+            String buildingTopic = "sdms/gates/building/" + BUILDING_ID + "/command";
+            String broadcastTopic = "sdms/gates/system/broadcast";
+            
+            mqttClient.subscribe(gateTopic.c_str());
+            mqttClient.subscribe(buildingTopic.c_str());
+            mqttClient.subscribe(broadcastTopic.c_str());
+            Serial.println("[MQTT] Subscribed to gate, building, and broadcast topics");
         } else {
             Serial.print("failed, rc=");
             Serial.println(mqttClient.state());

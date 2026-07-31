@@ -2,7 +2,7 @@ package com.sdms.backend.modules.payment.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.sdms.backend.modules.payment.entity.UtilityType;
+import com.sdms.backend.modules.payment.enums.UtilityType;
 
 import java.util.UUID;
 

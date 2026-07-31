@@ -30,12 +30,6 @@ public interface StayExtensionRepository extends JpaRepository<StayExtension, UU
 
     Optional<StayExtension> findByStudent_StudentCode(String studentCode);
 
-    /**
-     * @deprecated Không dùng method này nữa. Dùng existsByStudent_StudentIdAndRegistrationPeriod_PeriodId thay thế.
-     * Lý do: Check globally sẽ chặn oan sinh viên muốn gia hạn ở đợt mới sau khi đã gia hạn đợt cũ.
-     */
-    @Deprecated
-    boolean existsByStudent_StudentId(UUID studentId);
 
     /**
      * [BUSINESS RULE] Kiểm tra xem sinh viên đã nộp đơn gia hạn trong đợt đăng ký này chưa.

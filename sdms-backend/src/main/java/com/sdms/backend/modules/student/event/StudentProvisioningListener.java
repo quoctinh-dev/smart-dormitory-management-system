@@ -1,4 +1,3 @@
-// 📄 Đường dẫn: src/main/java/com/sdms/backend/modules/student/event/StudentProvisioningListener.java
 package com.sdms.backend.modules.student.event;
 
 import com.sdms.backend.common.exception.AppException;
@@ -19,15 +18,12 @@ import com.sdms.backend.modules.room.event.CheckInCompletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-
-import java.util.UUID;
 
 @Slf4j
 @Component
@@ -41,50 +37,37 @@ public class StudentProvisioningListener {
     private final ApplicationEventPublisher eventPublisher;
 
     /**
-     * Lắng nghe sự kiện gạch nợ hóa đơn thành công (PaymentSuccessEvent).
-     * Tiến hành sinh Hồ sơ cư dân Student và Tài khoản người dùng UserAccount ngầm.
-     */
-    /**
-     * FIX: Dùng @TransactionalEventListener(AFTER_COMMIT) thay vì @EventListener.
-     * Lý do: @EventListener chạy trong cùng Transaction của PaymentService.
-     * Khi Hibernate auto-flush DormitoryApplication (entity dirty) trước khi SELECT,
-     * nó cố UPDATE với version cũ → StaleObjectStateException (Optimistic Locking).
-     * AFTER_COMMIT đảm bảo listener chỉ chạy sau khi Payment transaction commit xong,
-     * entity đã được flush sạch → không còn xung đột version.
-     * REQUIRES_NEW: Tạo transaction mới độc lập để tránh lây nhiễm từ transaction cũ.
+     * Lắng nghe sự kiện thanh toán thành công (PaymentSuccessEvent).
+     * Thực hiện cấp phát hồ sơ sinh viên và tài khoản người dùng tương ứng.
+     * Sử dụng AFTER_COMMIT để đảm bảo tính nhất quán dữ liệu sau khi giao dịch thanh toán hoàn tất.
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handlePaymentSuccess(PaymentSuccessEvent event) {
-        log.info("[StudentProvisioningListener] Khởi động luồng sinh hồ sơ tự động cho Đơn={}", event.getApplicationId());
+        log.info("[StudentProvisioningListener] Bắt đầu cấp phát hồ sơ cho đơn đăng ký: {}", event.getApplicationId());
 
         try {
-            // 1. Cấm sinh trùng lặp nếu Đơn đăng ký này đã được cấp tài khoản (Tránh Double click)
-            boolean processed = studentRepository.existsBySourceApplication_ApplicationId(event.getApplicationId());
-            if (processed) {
-                log.warn("[StudentProvisioningListener] Hồ sơ sinh viên ứng với Đơn {} đã được xử lý. Hủy luồng cấp tài khoản.", event.getApplicationId());
+            if (event.getApplicationId() == null) {
+                log.info("[StudentProvisioningListener] PaymentSuccessEvent không có applicationId (có thể là hóa đơn gia hạn, hóa đơn điện nước). Bỏ qua cấp phát hồ sơ.");
                 return;
             }
 
-            // 2. Trích xuất thông tin Đơn đăng ký gốc
-            DormitoryApplication application = applicationRepository.findById(event.getApplicationId())
-                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đơn đăng ký gốc có ID: " + event.getApplicationId()));
-
-            // 3. TÌM KIẾM SINH VIÊN CŨ HOẶC TẠO MỚI (Xử lý case sinh viên cũ quay lại KTX)
-            Student student = studentRepository.findByStudentCode(application.getStudentCode()).orElse(null);
-            boolean isNewStudent = false;
-
-            if (student == null) {
-                log.info("[StudentProvisioningListener] Sinh viên mới tinh, tiến hành tạo Profile mới: {}", application.getStudentCode());
-                student = new Student();
-                isNewStudent = true;
-            } else {
-                log.info("[StudentProvisioningListener] Phát hiện sinh viên cũ quay lại: {}. Tái sử dụng Profile hiện tại.", application.getStudentCode());
+            // Kiểm tra tránh xử lý trùng lặp hồ sơ
+            if (studentRepository.existsBySourceApplication_ApplicationId(event.getApplicationId())) {
+                log.warn("[StudentProvisioningListener] Đơn đăng ký {} đã được xử lý. Bỏ qua cấp phát.", event.getApplicationId());
+                return;
             }
+
+            DormitoryApplication application = applicationRepository.findById(event.getApplicationId())
+                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy đơn đăng ký gốc: " + event.getApplicationId()));
+
+            // Khởi tạo hoặc cập nhật hồ sơ sinh viên
+            Student student = studentRepository.findByStudentCode(application.getStudentCode()).orElse(new Student());
+            boolean isNewStudent = (student.getStudentId() == null);
 
             student.setSourceApplication(application);
             student.setFullName(application.getFullName());
-            student.setStudentCode(application.getStudentCode()); // Lấy chính xác Mã sinh viên gốc từ Đơn đăng ký
+            student.setStudentCode(application.getStudentCode());
             student.setCccd(application.getCccd());
             student.setEmail(application.getEmail());
             student.setPhone(application.getPhone());
@@ -93,65 +76,52 @@ public class StudentProvisioningListener {
             student.setContactAddress(application.getContactAddress());
             student.setPermanentAddress(application.getPermanentAddress());
 
-            // Sao chép chi tiết thông tin nhân thân để quầy lễ tân tra cứu
             student.setFatherName(application.getFatherName());
             student.setFatherPhone(application.getFatherPhone());
             student.setMotherName(application.getMotherName());
             student.setMotherPhone(application.getMotherPhone());
 
-            // 🌟 ĐỒNG BỘ CHUẨN XÁC: Duyệt danh sách minh chứng tìm đúng file ảnh chân dung trên Cloudinary
+            // Đồng bộ ảnh chân dung từ hồ sơ
             String portraitUrl = application.getDocuments().stream()
                     .filter(doc -> doc.getDocumentType() == VerificationDocumentType.PORTRAIT_PHOTO)
                     .map(VerificationDocument::getFileUrl)
                     .findFirst()
-                    .orElse(student.getAvatarUrl() != null ? student.getAvatarUrl() : ""); // Giữ ảnh cũ nếu không có ảnh mới
+                    .orElse(student.getAvatarUrl() != null ? student.getAvatarUrl() : "");
 
-            student.setAvatarUrl(portraitUrl); // Đổ link ảnh Cloudinary vào đây để hết bị dính NULL dưới DB!
+            student.setAvatarUrl(portraitUrl);
             student.setFaceImageUrl(portraitUrl);
             student.setIsFaceRegistered(!portraitUrl.isEmpty());
-            student.setStatus(StudentStatus.PENDING_CHECKIN); // Đặt trạng thái chờ nhận phòng tại lễ tân
+            student.setStatus(StudentStatus.PENDING_CHECKIN);
 
-            // Thực hiện lưu hồ sơ Student xuống DB
             student = studentRepository.save(student);
-            log.info("[StudentProvisioningListener] Đã lưu thành công Resident Profile cho Sinh viên: {}", student.getFullName());
+            log.info("[StudentProvisioningListener] Lưu hồ sơ sinh viên thành công: {}", student.getStudentCode());
 
-            // 4. KHỞI TẠO TÀI KHOẢN ĐĂNG NHẬP (USER ACCOUNT) NẾU LÀ SINH VIÊN MỚI
+            // Cấp phát tài khoản đăng nhập cho sinh viên mới
             if (isNewStudent) {
                 UserAccount account = new UserAccount();
                 account.setStudent(student);
-                account.setUsername(application.getStudentCode()); // Tài khoản đăng nhập mặc định là Mã sinh viên
+                account.setUsername(application.getStudentCode());
                 account.setEmail(application.getEmail());
-
-                // 🌟 CHUẨN HÓA MẬT KHẨU TẠM THỜI: Mật khẩu tạm thời mặc định cũng là Mã sinh viên
-                // Đồng bộ 100% với form nhập liệu tại trang giao diện Frontend /activate-account
-                String rawTempPassword = application.getStudentCode();
-                account.setPassword(passwordEncoder.encode(rawTempPassword));
-
+                account.setPassword(passwordEncoder.encode(application.getStudentCode()));
                 account.setRole(Role.STUDENT);
-                account.setStatus(AccountStatus.PENDING_ACTIVATION); // Chờ sinh viên kích hoạt đổi pass lần đầu
-
+                account.setStatus(AccountStatus.PENDING_ACTIVATION);
+                
                 userAccountRepository.save(account);
-                log.info("[StudentProvisioningListener] Tài khoản UserAccount mới cho CCCD={} đã được tạo ở dạng PENDING_ACTIVATION.", application.getCccd());
-            } else {
-                log.info("[StudentProvisioningListener] Sinh viên cũ đã có tài khoản UserAccount, bỏ qua bước sinh tài khoản mới.");
+                log.info("[StudentProvisioningListener] Đã khởi tạo tài khoản cho sinh viên: {}", application.getStudentCode());
             }
 
-            // 5. PHÁT SỰ KIỆN LIÊN KẾT PHÒNG (Kích nổ RoomStudentLinkListener để map giường)
-            // Truyền đi thông tin ID Phân phòng (assignmentId) và ID sinh viên (mới hoặc cũ)
-            log.info("[StudentProvisioningListener] Kích nổ StudentCreatedEvent để thực hiện liên kết giường trống...");
-            eventPublisher.publishEvent(new com.sdms.backend.modules.student.event.StudentCreatedEvent(
-                    this,
-                    student.getStudentId(),
-                    event.getAssignmentId()
-            ));
+            // Phát sự kiện để thực hiện liên kết sinh viên với phòng
+            eventPublisher.publishEvent(new StudentCreatedEvent(this, student.getStudentId(), event.getAssignmentId()));
 
         } catch (Exception e) {
-            log.error("[StudentProvisioningListener] Thất bại khi sinh hồ sơ/tài khoản tự động cho Đơn={}. Lý do: {}",
-                    event.getApplicationId(), e.getMessage(), e);
-            throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR, "Lỗi hệ thống ngầm khi sinh tài khoản cư dân tự động.");
+            log.error("[StudentProvisioningListener] Lỗi cấp phát hồ sơ cho đơn {}: {}", event.getApplicationId(), e.getMessage(), e);
+            throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR, "Lỗi hệ thống khi cấp phát hồ sơ sinh viên.");
         }
     }
 
+    /**
+     * Cập nhật trạng thái sinh viên thành ACTIVE sau khi hoàn tất thủ tục nhận phòng.
+     */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleCheckInCompleted(CheckInCompletedEvent event) {
@@ -159,7 +129,7 @@ public class StudentProvisioningListener {
             studentRepository.findById(event.getStudentId()).ifPresent(student -> {
                 student.setStatus(StudentStatus.ACTIVE);
                 studentRepository.save(student);
-                log.info("[StudentProvisioningListener] Đã cập nhật trạng thái Student {} thành ACTIVE sau khi check-in", event.getStudentId());
+                log.info("[StudentProvisioningListener] Sinh viên {} đã nhận phòng, trạng thái cập nhật thành ACTIVE.", event.getStudentId());
             });
         }
     }

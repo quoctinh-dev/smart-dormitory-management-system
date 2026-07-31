@@ -5,6 +5,7 @@ import com.sdms.backend.common.exception.ErrorCode;
 import com.sdms.backend.common.response.PageResponse;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
 import com.sdms.backend.modules.application.repository.DormitoryApplicationRepository;
+import com.sdms.backend.modules.payment.dto.request.CreateManualBillRequest;
 import com.sdms.backend.modules.payment.dto.response.BillResponse;
 import com.sdms.backend.modules.payment.entity.Bill;
 import com.sdms.backend.modules.payment.enums.BillStatus;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +63,6 @@ public class BillService {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Số tiền hóa đơn không hợp lệ");
         }
 
-        int deadlineDays = Integer.parseInt(systemConfigService.getConfigValue("PAYMENT_DEADLINE_DAYS", "3"));
 
         Bill bill = new Bill();
         bill.setAssignmentId(assignmentId);
@@ -80,8 +81,7 @@ public class BillService {
      * Tạo hóa đơn thủ công (Đền bù tài sản, Phạt vi phạm, etc.)
      */
     @Transactional
-    public BillResponse createManualBill(com.sdms.backend.modules.payment.dto.request.CreateManualBillRequest request) {
-        // Validate student existence
+    public BillResponse createManualBill(CreateManualBillRequest request) {
         studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy sinh viên"));
 
@@ -136,7 +136,7 @@ public class BillService {
         for (UUID appId : applicationIds) {
             bills.addAll(billRepository.findByApplicationId(appId));
         }
-        // Thêm hóa đơn điện nước theo studentId (tránh trùng lặp)
+        // Thêm hóa đơn điện nước theo studentId
         billRepository.findByStudentId(studentId).forEach(b -> {
             if (applicationIds.isEmpty() || !applicationIds.contains(b.getApplicationId())) {
                 bills.add(b);
@@ -150,46 +150,81 @@ public class BillService {
      * Lấy danh sách tất cả hóa đơn phân trang (Admin/Staff view) kèm thông tin sinh viên.
      */
     @Transactional(readOnly = true)
-    public PageResponse<Map<String, Object>> getAllBillsPaged(Pageable pageable) {
-        Page<Bill> billPage = billRepository.findAll(pageable);
-        List<Map<String, Object>> result = new ArrayList<>();
+    public PageResponse<Map<String, Object>> getAllBillsPaged(String search, String status, String billType, Pageable pageable) {
+        List<Bill> allBills = billRepository.findAll();
+        List<Map<String, Object>> filteredResult = new ArrayList<>();
 
-        for (Bill bill : billPage.getContent()) {
+        boolean filterStatus = status != null && !status.isEmpty() && !status.equals("ALL");
+        boolean filterType = billType != null && !billType.isEmpty() && !billType.equals("ALL");
+        String searchLower = (search != null && !search.isEmpty()) ? search.toLowerCase() : null;
+
+        for (Bill bill : allBills) {
+            if (filterStatus && !bill.getStatus().name().equals(status)) continue;
+            if (filterType && !bill.getBillType().name().equals(billType)) continue;
+
             Map<String, Object> map = new HashMap<>();
             map.put("billId", bill.getBillId());
-            map.put("billCode", bill.getBillId().toString().substring(0, 8).toUpperCase());
+            String billCode = bill.getBillId().toString().substring(0, 8).toUpperCase();
+            map.put("billCode", billCode);
             map.put("amount", bill.getAmount());
             map.put("billType", bill.getBillType());
             map.put("status", bill.getStatus());
             map.put("dueDate", bill.getDueDate());
 
+            String studentName = null;
             if (bill.getApplicationId() != null) {
                 map.put("applicationId", bill.getApplicationId());
-                dormitoryApplicationRepository.findById(bill.getApplicationId())
-                        .ifPresent(app -> map.put("studentName", app.getFullName()));
+                studentName = dormitoryApplicationRepository.findById(bill.getApplicationId())
+                        .map(app -> app.getFullName()).orElse(null);
             }
+            if (studentName == null && bill.getStudentId() != null) {
+                studentName = studentRepository.findById(bill.getStudentId())
+                        .map(student -> student.getFullName()).orElse(null);
+            }
+            if (studentName == null && bill.getRoomId() != null) {
+                studentName = roomRepository.findById(bill.getRoomId())
+                        .map(room -> "Phòng trống " + room.getRoomCode()).orElse(null);
+            }
+            if (studentName == null) {
+                studentName = "Khách " + billCode;
+            }
+            map.put("studentName", studentName);
 
-            if (!map.containsKey("studentName") && bill.getStudentId() != null) {
-                studentRepository.findById(bill.getStudentId())
-                        .ifPresent(student -> map.put("studentName", student.getFullName()));
-            }
+            map.put("createdAt", bill.getCreatedAt());
 
-            if (!map.containsKey("studentName") && bill.getRoomId() != null) {
-                roomRepository.findById(bill.getRoomId())
-                        .ifPresent(room -> map.put("studentName", "Phòng trống " + room.getRoomCode()));
+            if (searchLower != null) {
+                if (!billCode.toLowerCase().contains(searchLower) && !studentName.toLowerCase().contains(searchLower)) {
+                    continue;
+                }
             }
-
-            if (!map.containsKey("studentName")) {
-                map.put("studentName", "Khách " + map.get("billCode"));
-            }
-            result.add(map);
+            filteredResult.add(map);
         }
-        return PageResponse.fromPage(billPage, result);
+
+        // Sắp xếp giảm dần theo thời gian tạo (createdAt DESC)
+        filteredResult.sort((a, b) -> {
+            LocalDateTime timeA = (LocalDateTime) a.get("createdAt");
+            LocalDateTime timeB = (LocalDateTime) b.get("createdAt");
+            if (timeA == null || timeB == null) return 0;
+            return timeB.compareTo(timeA); // DESC
+        });
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filteredResult.size());
+        List<Map<String, Object>> pagedResult = (start <= end && start <= filteredResult.size()) ? filteredResult.subList(start, end) : new ArrayList<>();
+        
+        return new PageResponse<>(
+                pagedResult,
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                filteredResult.size(),
+                (int) Math.ceil((double) filteredResult.size() / pageable.getPageSize()),
+                end >= filteredResult.size()
+        );
     }
 
     /**
      * Lấy danh sách hóa đơn phân trang của sinh viên đang đăng nhập.
-     * Hợp nhất cả hóa đơn tiền ở KTX (applicationId) và hóa đơn điện nước (studentId).
+     * Hợp nhất cả hóa đơn tiền ở KTX (applicationId) và hóa đơn điện (studentId).
      *
      * @param currentUser Tài khoản sinh viên đang đăng nhập
      * @param pageable    Thông tin phân trang

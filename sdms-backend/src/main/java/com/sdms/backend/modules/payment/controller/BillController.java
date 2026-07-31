@@ -60,8 +60,12 @@ public class BillController {
     @Operation(summary = "Lấy tất cả hóa đơn (Admin/Staff)")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @GetMapping
-    public ApiResponse<PageResponse<Map<String, Object>>> getAllBills(Pageable pageable) {
-        PageResponse<Map<String, Object>> pageResponse = billService.getAllBillsPaged(pageable);
+    public ApiResponse<PageResponse<Map<String, Object>>> getAllBills(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String billType,
+            Pageable pageable) {
+        PageResponse<Map<String, Object>> pageResponse = billService.getAllBillsPaged(search, status, billType, pageable);
         return ApiResponse.success("Lấy danh sách hóa đơn thành công", pageResponse);
     }
 

@@ -42,7 +42,7 @@ import { StudentProfileResponse } from '@/types/student';
 
 const BILL_TYPES: Record<string, string> = {
   ALL: 'Tất cả loại phí',
-  ACCOMMODATION_FEE: 'Phí phòng / Nội trú',
+  ACCOMMODATION_FEE: 'Phí phòng',
   ELECTRIC_FEE: 'Tiền điện',
   PENALTY_FEE: 'Phạt / Đền bù',
 };
@@ -58,7 +58,6 @@ const STATUS_MAP: Record<
   CANCELLED: { label: 'Đã hủy', color: 'default' },
 };
 
-// Gợi ý mốc tiền nhanh cho hóa đơn phạt/đền bù
 const QUICK_AMOUNTS = [50000, 100000, 200000, 500000, 1000000];
 
 export default function PaymentManagement() {

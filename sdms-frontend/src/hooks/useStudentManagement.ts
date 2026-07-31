@@ -55,8 +55,9 @@ export function useStudentManagement() {
       if (status !== 'ALL') params.status = status;
 
       const data = await axiosClient.get<any, any>('/v1/students', { params });
-      setStudents(data.content);
-      setTotalElements(data.totalElements);
+      setStudents(data?.content || []);
+      setTotalElements(data?.totalElements ?? data?.content?.length ?? 0);
+
     } catch (error: any) {
       console.error(error);
       enqueueSnackbar('Lỗi khi tải danh sách sinh viên', { variant: 'error' });

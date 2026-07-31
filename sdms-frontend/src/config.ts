@@ -17,5 +17,5 @@ export const initialConfig: Config = {
   sidenavCollapsed: false,
   openNavbarDrawer: false,
   drawerWidth: mainDrawerWidth.full,
-  fontFamily: fontFamilies[0],
+  fontFamily: fontFamilies[2],
 };

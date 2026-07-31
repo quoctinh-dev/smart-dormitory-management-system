@@ -226,12 +226,18 @@ public class HousingAssignmentService {
             StudentHousingAssignment activeAssignment = activeAssignmentOpt.orElse(null);
 
             if (activeAssignment == null) {
+                // Bỏ qua giường đang MAINTENANCE: Đây là trạng thái CỐ TÌNH được set
+                // khi Admin đặt phòng vào bảo trì. Không phải lỗi dữ liệu, không được reset.
+                if (bed.getStatus() == BedStatus.MAINTENANCE) {
+                    continue;
+                }
                 if (bed.getStatus() != BedStatus.AVAILABLE) {
                     log.warn("[ROOM_RECONCILIATION] [BED_STATE_FIXED] Bed code {} in room {} was {} but had no active assignment. Fixed to AVAILABLE.",
                             bed.getBedCode(), lockedRoom.getRoomCode(), bed.getStatus());
                     bed.setStatus(BedStatus.AVAILABLE);
                     bedRepository.save(bed);
                 }
+
             } else {
                 if (activeAssignment.getStatus() == AssignmentStatus.OCCUPIED) {
                     if (bed.getStatus() != BedStatus.OCCUPIED) {

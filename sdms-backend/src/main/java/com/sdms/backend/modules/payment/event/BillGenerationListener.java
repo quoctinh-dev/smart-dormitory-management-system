@@ -14,6 +14,14 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Period;
+import com.sdms.backend.modules.system.service.SystemConfigService;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import com.sdms.backend.modules.student.repository.StayExtensionRepository;
+import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
+import com.sdms.backend.modules.registration.entity.RegistrationPeriod;
+import com.sdms.backend.modules.student.entity.StayExtension;
 
 @Slf4j
 @Component
@@ -21,9 +29,9 @@ import java.math.BigDecimal;
 public class BillGenerationListener {
 
     private final BillService billService;
-    private final com.sdms.backend.modules.system.service.SystemConfigService systemConfigService;
-    private final com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository assignmentRepository;
-    private final com.sdms.backend.modules.student.repository.StayExtensionRepository stayExtensionRepository;
+    private final SystemConfigService systemConfigService;
+    private final StudentHousingAssignmentRepository assignmentRepository;
+    private final StayExtensionRepository stayExtensionRepository;
 
     /**
      * Lắng nghe sự kiện một giường đã được giữ chỗ thành công (BedReservedEvent).
@@ -40,14 +48,14 @@ public class BillGenerationListener {
         log.info("[BillGenerationListener] Handling BedReservedEvent for assignmentId={}", event.getAssignmentId());
         try {
             // Tìm Assignment và RegistrationPeriod để tự động tính số tháng
-            com.sdms.backend.modules.room.entity.StudentHousingAssignment assignment = assignmentRepository.findById(event.getAssignmentId())
+            StudentHousingAssignment assignment = assignmentRepository.findById(event.getAssignmentId())
                     .orElseThrow(() -> new RuntimeException("Assignment not found"));
-            com.sdms.backend.modules.registration.entity.RegistrationPeriod period = assignment.getApplication().getRegistrationPeriod();
+            RegistrationPeriod period = assignment.getApplication().getRegistrationPeriod();
             
             // Tính toán Pro-rata (Tháng chẵn + Ngày lẻ)
-            java.time.LocalDate start = period.getStayStartDate().toLocalDate();
-            java.time.LocalDate end = period.getStayEndDate().toLocalDate().plusDays(1); // inclusive end
-            java.time.Period stayPeriod = java.time.Period.between(start, end);
+            LocalDate start = period.getStayStartDate().toLocalDate();
+            LocalDate end = period.getStayEndDate().toLocalDate().plusDays(1); // inclusive end
+            Period stayPeriod = Period.between(start, end);
 
             int fullMonths = stayPeriod.getYears() * 12 + stayPeriod.getMonths();
             int extraDays = stayPeriod.getDays();
@@ -77,10 +85,10 @@ public class BillGenerationListener {
                 if (billAmount.compareTo(BigDecimal.ZERO) == 0) break;
 
                 // Đơn đầu tiên hoặc nếu hạn thanh toán bị lùi về quá khứ thì kẹp (clamp) về hiện tại
-                java.time.LocalDate calculatedDueDate = start.plusMonths(currentDelayMonths).plusDays(deadlineDays);
-                java.time.LocalDate minDueDate = java.time.LocalDate.now().plusDays(deadlineDays);
+                LocalDate calculatedDueDate = start.plusMonths(currentDelayMonths).plusDays(deadlineDays);
+                LocalDate minDueDate = LocalDate.now().plusDays(deadlineDays);
 
-                java.time.LocalDate dueDate;
+                LocalDate dueDate;
                 if (currentDelayMonths == 0 || calculatedDueDate.isBefore(minDueDate)) {
                     dueDate = minDueDate;
                 } else {
@@ -117,14 +125,14 @@ public class BillGenerationListener {
         log.info("[BillGenerationListener] Handling ExtensionApprovedEvent for extensionId={}", event.getExtensionId());
         try {
             // [BUG FIX] Tìm StayExtension thay vì Assignment cũ để lấy đúng RegistrationPeriod của đợt gia hạn
-            com.sdms.backend.modules.student.entity.StayExtension extension = stayExtensionRepository.findById(event.getExtensionId())
+            StayExtension extension = stayExtensionRepository.findById(event.getExtensionId())
                     .orElseThrow(() -> new RuntimeException("Extension not found"));
-            com.sdms.backend.modules.registration.entity.RegistrationPeriod period = extension.getRegistrationPeriod();
+            RegistrationPeriod period = extension.getRegistrationPeriod();
             
             // Tính toán Pro-rata (Tháng chẵn + Ngày lẻ)
-            java.time.LocalDate start = period.getStayStartDate().toLocalDate();
-            java.time.LocalDate end = period.getStayEndDate().toLocalDate().plusDays(1);
-            java.time.Period stayPeriod = java.time.Period.between(start, end);
+            LocalDate start = period.getStayStartDate().toLocalDate();
+            LocalDate end = period.getStayEndDate().toLocalDate().plusDays(1);
+            Period stayPeriod = Period.between(start, end);
 
             int fullMonths = stayPeriod.getYears() * 12 + stayPeriod.getMonths();
             int extraDays = stayPeriod.getDays();
@@ -154,10 +162,10 @@ public class BillGenerationListener {
                 if (billAmount.compareTo(BigDecimal.ZERO) == 0) break;
 
                 // Đơn đầu tiên hoặc nếu hạn thanh toán bị lùi về quá khứ thì kẹp (clamp) về hiện tại
-                java.time.LocalDate calculatedDueDate = start.plusMonths(currentDelayMonths).plusDays(deadlineDays);
-                java.time.LocalDate minDueDate = java.time.LocalDate.now().plusDays(deadlineDays);
+                LocalDate calculatedDueDate = start.plusMonths(currentDelayMonths).plusDays(deadlineDays);
+                LocalDate minDueDate = LocalDate.now().plusDays(deadlineDays);
 
-                java.time.LocalDate dueDate;
+                LocalDate dueDate;
                 if (currentDelayMonths == 0 || calculatedDueDate.isBefore(minDueDate)) {
                     dueDate = minDueDate;
                 } else {

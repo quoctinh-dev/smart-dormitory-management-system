@@ -19,13 +19,7 @@ public class FlywayConfig {
     @Bean
     public FlywayMigrationStrategy flywayMigrationStrategy() {
         return flyway -> {
-            // Tự động sửa chữa (Repair) lịch sử Flyway trước khi chạy Migration.
-            // Đồng bộ hóa lại checksum của các tệp SQL trong trường hợp có thay đổi thủ công,
-            // tránh lỗi "checksum mismatch" gây treo hệ thống ở pha khởi động.
             flyway.repair();
-
-            // Thực thi quá trình dịch chuyển (Migrate) cấu trúc cơ sở dữ liệu.
-            // Tự động chạy các kịch bản DDL/DML mới chưa được áp dụng.
             flyway.migrate();
         };
     }

@@ -317,13 +317,7 @@ export default function RoomManagementPage() {
 
             {/* ── Nội dung chính ───────────────────────────── */}
             {loading ? (
-                <Grid container spacing={3}>
-                    {[1, 2, 3, 4].map((i) => (
-                        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={i}>
-                            <CustomSkeleton type="dashboard" count={1} />
-                        </Grid>
-                    ))}
-                </Grid>
+                <CustomSkeleton type="dashboard" count={1} />
             ) : (
                 <DashboardView roomsWithBeds={roomsWithBeds} onRefresh={refresh} />
             )}

@@ -97,7 +97,7 @@ public class DashboardService {
         // Fetch Revenue stats
         long paidBillsCount = billRepository.countByStatus(BillStatus.PAID);
         long unpaidBillsCount = billRepository.countByStatus(BillStatus.UNPAID) + billRepository.countByStatus(BillStatus.PARTIALLY_PAID);
-        java.math.BigDecimal totalCollected = billRepository.sumAmountByStatus(BillStatus.PAID);
+        java.math.BigDecimal totalCollected = billRepository.sumTotalPaidAmount();
         if (totalCollected == null) {
             totalCollected = java.math.BigDecimal.ZERO;
         }

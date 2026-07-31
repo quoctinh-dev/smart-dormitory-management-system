@@ -1,40 +1,54 @@
 package com.sdms.backend.modules.notification.service.impl;
 
-import com.sdms.backend.common.exception.AppException;
-import com.sdms.backend.common.exception.ErrorCode;
-import com.sdms.backend.modules.notification.dto.NotificationResponse;
-import com.sdms.backend.modules.notification.entity.Notification;
-import com.sdms.backend.modules.notification.repository.NotificationRepository;
-import com.sdms.backend.modules.notification.service.InAppNotificationService;
-import com.sdms.backend.modules.user.entity.UserAccount;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
+
+import com.sdms.backend.common.exception.AppException;
+import com.sdms.backend.common.exception.ErrorCode;
+import com.sdms.backend.modules.notification.dto.IssueReportRequest;
+import com.sdms.backend.modules.notification.dto.NotificationResponse;
+import com.sdms.backend.modules.notification.entity.Notification;
+import com.sdms.backend.modules.notification.enums.NotificationChannel;
+import com.sdms.backend.modules.notification.enums.NotificationStatus;
+import com.sdms.backend.modules.notification.enums.NotificationType;
+import com.sdms.backend.modules.notification.repository.NotificationRepository;
+import com.sdms.backend.modules.notification.service.InAppNotificationService;
+import com.sdms.backend.modules.room.enums.AssignmentStatus;
+import com.sdms.backend.modules.room.repository.RoomRepository;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
+import com.sdms.backend.modules.user.entity.UserAccount;
+import com.sdms.backend.modules.user.enums.Role;
+import com.sdms.backend.modules.user.repository.UserAccountRepository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import com.sdms.backend.modules.notification.dto.IssueReportRequest;
-import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
-import com.sdms.backend.modules.room.enums.AssignmentStatus;
-import com.sdms.backend.modules.user.repository.UserAccountRepository;
-import com.sdms.backend.modules.user.enums.Role;
-import com.sdms.backend.modules.notification.enums.NotificationType;
-import com.sdms.backend.modules.notification.enums.NotificationChannel;
-import com.sdms.backend.modules.notification.enums.NotificationStatus;
 
+/**
+ * Service xử lý các nghiệp vụ thông báo nội bộ ứng dụng (In-App Notification).
+ * <p>
+ * Quản lý danh sách thông báo người dùng, đánh dấu đã đọc, gửi báo cáo sự cố thiết bị/sửa chữa
+ * và phát thông báo cảnh báo lỗi phần cứng IoT đến đội ngũ Quản trị viên (Admin) và Nhân viên (Staff).
+ */
 @Service
 @RequiredArgsConstructor
 public class InAppNotificationServiceImpl implements InAppNotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserAccountRepository userAccountRepository;
-    private final com.sdms.backend.modules.room.repository.RoomRepository roomRepository;
+    private final RoomRepository roomRepository;
     private final StudentHousingAssignmentRepository assignmentRepository;
 
+    /**
+     * Lấy danh sách tất cả thông báo trong ứng dụng của người dùng đang đăng nhập (Sắp xếp theo thời gian mới nhất).
+     *
+     * @return Danh sách DTO thông báo
+     */
     @Override
     @Transactional(readOnly = true)
     public List<NotificationResponse> getUserNotifications() {
@@ -45,12 +59,22 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Đếm số lượng thông báo chưa đọc của người dùng đang đăng nhập.
+     *
+     * @return Số lượng thông báo chưa đọc
+     */
     @Override
     @Transactional(readOnly = true)
     public long getUnreadCount() {
         return notificationRepository.countByUserIdAndIsReadFalse(getCurrentUserId());
     }
 
+    /**
+     * Đánh dấu một thông báo cụ thể là đã đọc.
+     *
+     * @param notificationId Mã ID thông báo
+     */
     @Override
     @Transactional
     public void markAsRead(Long notificationId) {
@@ -64,6 +88,9 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
         }
     }
 
+    /**
+     * Đánh dấu tất cả thông báo chưa đọc của người dùng hiện tại là đã đọc.
+     */
     @Override
     @Transactional
     public void markAllAsRead() {
@@ -78,6 +105,11 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
         notificationRepository.saveAll(unreadList);
     }
 
+    /**
+     * Trích xuất Mã ID tài khoản người dùng đang đăng nhập từ Security Context.
+     *
+     * @return UUID mã tài khoản người dùng
+     */
     private UUID getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -92,6 +124,9 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
         throw new AppException(ErrorCode.UNAUTHORIZED, "Vui lòng đăng nhập để thực hiện chức năng này");
     }
 
+    /**
+     * Hàm helper chuyển đổi từ Entity Notification sang DTO NotificationResponse.
+     */
     private NotificationResponse mapToResponse(Notification notification) {
         return NotificationResponse.builder()
                 .id(notification.getId())
@@ -105,14 +140,20 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
                 .build();
     }
 
+    /**
+     * Tiếp nhận báo cáo sự cố hư hỏng cơ sở vật chất từ sinh viên và tự động tạo thông báo gửi đến toàn bộ Admin và Staff.
+     *
+     * @param request Thông tin chi tiết yêu cầu báo cáo sự cố
+     */
     @Override
     @Transactional
     public void reportIssue(IssueReportRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserAccount account = (UserAccount) authentication.getPrincipal();
-        
+
         String studentName = account.getStudent() != null ? account.getStudent().getFullName() : account.getUsername();
-        
+
+        // Kiểm tra điều kiện lưu trú nếu là tài khoản Sinh viên
         if (account.getRole() == Role.STUDENT) {
             if (account.getStudent() == null) {
                 throw new AppException(ErrorCode.UNAUTHORIZED, "Tài khoản sinh viên không hợp lệ");
@@ -123,6 +164,7 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
             }
         }
 
+        // Xác định vị trí phòng/khu vực xảy ra sự cố
         String roomCode = "Khu vực chung";
         if (request.isCommonArea()) {
             roomCode = "Khu vực chung";
@@ -135,27 +177,36 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
                     .map(assignment -> assignment.getBed().getRoom().getRoomCode())
                     .orElse("Khu vực chung");
         }
-        
-        // Find all admins and staff to notify
+
+        // Lấy danh sách tất cả Admin và Staff để phát thông báo
         List<UserAccount> admins = userAccountRepository.findByRole(Role.ADMIN);
         List<UserAccount> staffs = userAccountRepository.findByRole(Role.STAFF);
-        
+
         String title = "Báo hỏng thiết bị từ sinh viên";
-        String message = String.format("Sinh viên %s báo hỏng thiết bị tại phòng %s. Mô tả: %s", 
-                studentName, roomCode, request.getDescription());
-                
-        // Create notification for each admin/staff
+        String message = String.format(
+                "Người báo: Sinh viên %s\n" +
+                        "Vị trí: Phòng %s\n" +
+                        "Mô tả chi tiết:\n" +
+                        "------------------------\n" +
+                        "%s",
+                studentName, roomCode, request.getDescription()
+        );
+
+        // Tạo bản ghi thông báo cho từng Admin và Staff
         String eventId = "issue-" + UUID.randomUUID();
         admins.forEach(admin -> createNotification(admin.getAccountId(), admin.getEmail(), title, message, null, eventId));
         staffs.forEach(staff -> createNotification(staff.getAccountId(), staff.getEmail(), title, message, null, eventId));
     }
 
+    /**
+     * Hàm helper khởi tạo và lưu bản ghi thông báo mới vào cơ sở dữ liệu.
+     */
     private void createNotification(UUID recipientId, String email, String title, String message, String imageUrl, String eventId) {
         Notification notification = Notification.builder()
                 .userId(recipientId)
                 .title(title)
                 .message(message)
-                .actionUrl(imageUrl) // using actionUrl to pass imageUrl for now
+                .actionUrl(imageUrl)
                 .type(NotificationType.MAINTENANCE)
                 .isRead(false)
                 .recipient(email)
@@ -166,14 +217,22 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
         notificationRepository.save(notification);
     }
 
+    /**
+     * Phát thông báo cảnh báo khẩn cấp khi thiết bị phần cứng IoT (Cổng kiểm soát ra vào) gặp sự cố kỹ thuật.
+     *
+     * @param gateId Mã ID thiết bị cổng
+     * @param gateName Tên cổng kiểm soát
+     * @param component Tên linh kiện/mô-đun bị lỗi
+     * @param detail Chi tiết lỗi kỹ thuật
+     */
     @Override
     @Transactional
     public void notifyHardwareError(String gateId, String gateName, String component, String detail) {
         List<UserAccount> admins = userAccountRepository.findByRole(Role.ADMIN);
-        String title = "⚠️ Sự cố thiết bị IoT: " + gateName;
+        String title = "Sự cố thiết bị IoT: " + gateName;
         String message = String.format(
-            "[Cổng: %s] Thiết bị '%s' gặp sự cố. Chi tiết: %s. Gate ID: %s",
-            gateName, component, detail, gateId
+                "[Cổng: %s] Thiết bị '%s' gặp sự cố. Chi tiết: %s. Gate ID: %s",
+                gateName, component, detail, gateId
         );
         String eventId = "hw-error-" + gateId + "-" + System.currentTimeMillis();
         String actionUrl = "/admin/smart-access";

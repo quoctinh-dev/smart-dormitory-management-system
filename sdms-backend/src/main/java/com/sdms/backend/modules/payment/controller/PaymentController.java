@@ -24,14 +24,9 @@ public class PaymentController {
 
     /**
      * STUDENT thanh toán online.
-     *
-     * Ví dụ:
-     * - VNPay
-     * - MoMo
-     * - Bank Transfer
+     * Bank Transfer
      */
-    @Operation(summary = "Sinh viên thanh toán online (VNPay, MoMo, Bank Transfer)")
-    // @PreAuthorize("hasRole('STUDENT')") // Bỏ chặn vì người dùng mới đăng ký chưa có tài khoản
+    @Operation(summary = "Sinh viên thanh toán online ( Bank Transfer)")
     @PostMapping("/online")
     public ApiResponse<PaymentResponse> processOnlinePayment(
             @Valid @RequestBody OnlinePaymentRequest request

@@ -19,9 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
  * Kiến trúc & Bảo mật:
  * - Ứng dụng ApplicationRunner để tự động thực thi chuỗi logic ngay sau khi Spring Context khởi tạo hoàn tất.
  * - Cơ chế chốt chặn (Guard Clause): Sử dụng @Profile("!prod") để ngăn chặn tuyệt đối rủi ro lộ lọt
- *   tài khoản mật khẩu mặc định trên môi trường Production, phòng chống lỗ hổng leo thang đặc quyền.
- * - Cơ chế lũy đẳng (Idempotency): Chủ động kiểm tra sự tồn tại của tài khoản trước khi ghi,
- *   đảm bảo quá trình triển khai nhiều lần không gây trùng lặp hay xung đột dữ liệu.
+ * - tài khoản mật khẩu mặc định trên môi trường Production.
+ * - Chủ động kiểm tra sự tồn tại của tài khoản trước khi ghi,
+ * - đảm bảo quá trình triển khai nhiều lần không gây trùng lặp hay xung đột dữ liệu.
  */
 @Component
 @RequiredArgsConstructor

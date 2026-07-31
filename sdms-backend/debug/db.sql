@@ -39,6 +39,7 @@ FROM checkout_requests cr
          JOIN students s ON cr.student_id = s.student_id
 WHERE s.student_code = 'DH52201789';
 
+TRUNCATE TABLE utility_usages CASCADE;
 
 
 

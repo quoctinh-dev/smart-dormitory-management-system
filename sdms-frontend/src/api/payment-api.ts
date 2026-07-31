@@ -11,8 +11,14 @@ import axiosClient from './axios-client';
 
 export const paymentApi = {
   // 1. Quản lý hóa đơn (Dùng chung hoặc Admin)
-  getAllBills: async (): Promise<PageResponse<BillAdminResponse>> => {
-    return await axiosClient.get('/v1/bills');
+  getAllBills: async (params?: {
+    page?: number;
+    size?: number;
+    search?: string;
+    status?: string;
+    billType?: string;
+  }): Promise<PageResponse<BillAdminResponse>> => {
+    return await axiosClient.get('/v1/bills', { params });
   },
 
   getBillByApplication: async (applicationId: string): Promise<BillResponse> => {

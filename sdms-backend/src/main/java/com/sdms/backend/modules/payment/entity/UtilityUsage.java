@@ -1,5 +1,7 @@
 package com.sdms.backend.modules.payment.entity;
 
+import com.sdms.backend.modules.payment.enums.UtilityType;
+
 import com.sdms.backend.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;

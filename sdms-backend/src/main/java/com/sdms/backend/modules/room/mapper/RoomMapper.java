@@ -8,6 +8,13 @@ import org.springframework.stereotype.Component;
 public class RoomMapper {
 
     public RoomResponse toResponse(Room room) {
+        String roomGender = "MIXED";
+        if (room.getFloor().getGender() != null) {
+            roomGender = room.getFloor().getGender().name();
+        } else if (room.getFloor().getBuilding().getGender() != null) {
+            roomGender = room.getFloor().getBuilding().getGender().name();
+        }
+
         return RoomResponse.builder()
                 .roomId(room.getRoomId())
                 .roomCode(room.getRoomCode())
@@ -21,6 +28,7 @@ public class RoomMapper {
                 .buildingCode(room.getFloor().getBuilding().getCode())
                 .buildingName(room.getFloor().getBuilding().getName())
                 .roomPinCode(room.getRoomPinCode())
+                .gender(roomGender)
                 .build();
     }
 }

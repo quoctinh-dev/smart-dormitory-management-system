@@ -1,4 +1,4 @@
-import { CheckCircle, Pending, Cancel, CloudUpload } from '@mui/icons-material';
+import {CheckCircle, Pending, Cancel, CloudUpload} from '@mui/icons-material';
 import {
     Box,
     Typography,
@@ -10,9 +10,10 @@ import {
     Stack,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { alpha } from '@mui/material/styles';
+import {alpha} from '@mui/material/styles';
 
 import DocumentPreview from '@/components/common/DocumentPreview';
+import { DOCUMENT_TYPE_LABELS } from '@/helpers/documentHelper';
 
 export default function ApplicationInfo({
                                             application,
@@ -35,10 +36,10 @@ export default function ApplicationInfo({
             >
                 Thông tin hồ sơ
             </Typography>
-            <Divider sx={{ mb: 3 }} />
+            <Divider sx={{mb: 3}}/>
 
             <Grid container spacing={3} mb={5}>
-                <Grid size={{ xs: 12, sm: 6 }}>
+                <Grid size={{xs: 12, sm: 6}}>
                     <Typography
                         variant="caption"
                         color="text.secondary"
@@ -65,7 +66,7 @@ export default function ApplicationInfo({
                         {application.fullName}
                     </Typography>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
+                <Grid size={{xs: 12, sm: 6}}>
                     <Typography
                         variant="caption"
                         color="text.secondary"
@@ -92,7 +93,7 @@ export default function ApplicationInfo({
                         {application.cccd}
                     </Typography>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
+                <Grid size={{xs: 12, sm: 6}}>
                     <Typography
                         variant="caption"
                         color="text.secondary"
@@ -119,7 +120,7 @@ export default function ApplicationInfo({
                         {application.phone}
                     </Typography>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
+                <Grid size={{xs: 12, sm: 6}}>
                     <Typography
                         variant="caption"
                         color="text.secondary"
@@ -183,7 +184,8 @@ export default function ApplicationInfo({
                             WebkitFontSmoothing: 'antialiased',
                         }}
                     >
-                        Vui lòng kiểm tra các giấy tờ bị đánh dấu &quot;Không hợp lệ&quot; phía dưới để tải lên lại bản chính xác trước thời hạn.
+                        Vui lòng kiểm tra các giấy tờ bị đánh dấu &quot;Không hợp lệ&quot; phía dưới để tải lên lại bản
+                        chính xác trước thời hạn.
                     </Typography>
                 </Box>
             )}
@@ -201,7 +203,7 @@ export default function ApplicationInfo({
             >
                 Hồ sơ đính kèm từ sinh viên
             </Typography>
-            <Divider sx={{ mb: 3 }} />
+            <Divider sx={{mb: 3}}/>
 
             {application.registrationFormPdfUrl || application.commitmentFormPdfUrl ? (
                 <Box mb={4}>
@@ -218,9 +220,9 @@ export default function ApplicationInfo({
                     >
                         Tài liệu hệ thống tự động khởi tạo:
                     </Typography>
-                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                    <Stack direction={{xs: 'column', sm: 'row'}} spacing={2}>
                         {application.registrationFormPdfUrl && (
-                            <Box sx={{ flex: 1 }}>
+                            <Box sx={{flex: 1}}>
                                 <DocumentPreview
                                     url={application.registrationFormPdfUrl}
                                     title="Đơn đăng ký lưu trú"
@@ -228,8 +230,8 @@ export default function ApplicationInfo({
                             </Box>
                         )}
                         {application.commitmentFormPdfUrl && (
-                            <Box sx={{ flex: 1 }}>
-                                <DocumentPreview url={application.commitmentFormPdfUrl} title="Bản cam kết lưu trú" />
+                            <Box sx={{flex: 1}}>
+                                <DocumentPreview url={application.commitmentFormPdfUrl} title="Bản cam kết lưu trú"/>
                             </Box>
                         )}
                     </Stack>
@@ -237,7 +239,7 @@ export default function ApplicationInfo({
             ) : null}
 
             {documents && documents.length > 0 ? (
-                <List sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 0 }}>
+                <List sx={{display: 'flex', flexDirection: 'column', gap: 2, p: 0}}>
                     {documents.map((doc: any, index: number) => {
                         const isInvalid = doc.status === 'INVALID';
                         const isValid = doc.status === 'VALID';
@@ -253,23 +255,23 @@ export default function ApplicationInfo({
                                     borderColor: isInvalid ? 'error.light' : 'divider',
                                     p: 3,
                                     display: 'flex',
-                                    flexDirection: { xs: 'column', sm: 'row' },
-                                    alignItems: { xs: 'stretch', sm: 'center' },
+                                    flexDirection: {xs: 'column', sm: 'row'},
+                                    alignItems: {xs: 'stretch', sm: 'center'},
                                     justifyContent: 'space-between',
                                     gap: 3,
                                 }}
                             >
-                                <Stack direction="row" spacing={2} alignItems="center" sx={{ flexGrow: 1, minWidth: 0 }}>
-                                    <Box sx={{ display: 'flex', flexShrink: 0 }}>
+                                <Stack direction="row" spacing={2} alignItems="center" sx={{flexGrow: 1, minWidth: 0}}>
+                                    <Box sx={{display: 'flex', flexShrink: 0}}>
                                         {isValid ? (
-                                            <CheckCircle color="success" />
+                                            <CheckCircle color="success"/>
                                         ) : isInvalid ? (
-                                            <Cancel color="error" />
+                                            <Cancel color="error"/>
                                         ) : (
-                                            <Pending color="warning" />
+                                            <Pending color="warning"/>
                                         )}
                                     </Box>
-                                    <Box sx={{ minWidth: 0 }}>
+                                    <Box sx={{minWidth: 0}}>
                                         <Typography
                                             sx={{
                                                 fontWeight: 700,
@@ -280,7 +282,7 @@ export default function ApplicationInfo({
                                             }}
                                             variant="body1"
                                         >
-                                            {doc.documentType}
+                                            {DOCUMENT_TYPE_LABELS[doc.documentType] || doc.documentType}
                                         </Typography>
                                         <Typography
                                             variant="body2"
@@ -316,16 +318,16 @@ export default function ApplicationInfo({
                                 </Stack>
 
                                 {isInvalid && application.status === 'REQUEST_REVISION' && (
-                                    <Box sx={{ flexShrink: 0, minWidth: { xs: '100%', sm: 180 } }}>
+                                    <Box sx={{flexShrink: 0, minWidth: {xs: '100%', sm: 180}}}>
                                         <Button
                                             variant="contained"
                                             color="error"
                                             size="medium"
                                             startIcon={
                                                 uploadingDocId === doc.documentId ? (
-                                                    <CircularProgress size={16} color="inherit" />
+                                                    <CircularProgress size={16} color="inherit"/>
                                                 ) : (
-                                                    <CloudUpload />
+                                                    <CloudUpload/>
                                                 )
                                             }
                                             component="label"
@@ -337,7 +339,7 @@ export default function ApplicationInfo({
                                                 fontFamily: 'inherit',
                                                 textRendering: 'optimizeLegibility',
                                                 WebkitFontSmoothing: 'antialiased',
-                                                '&:hover': { boxShadow: 'none' },
+                                                '&:hover': {boxShadow: 'none'},
                                             }}
                                         >
                                             {uploadingDocId === doc.documentId ? 'Đang tải...' : 'Nộp lại bản mới'}

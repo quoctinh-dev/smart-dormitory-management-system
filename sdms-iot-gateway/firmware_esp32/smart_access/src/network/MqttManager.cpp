@@ -125,10 +125,20 @@ void MqttManager::callback(char* topic, byte* payload, unsigned int length) {
 
     String command = doc["command"] | "";
     
-    // Mở cửa từ xa hoặc khẩn cấp
-    if (command == "UNLOCK" || command == "OPEN_ALL") {
+    // Mở cửa từ xa (chỉ mở rồi tự đóng sau vài giây)
+    if (command == "UNLOCK") {
         Serial.println("[MQTT] Valid UNLOCK command received. Triggering Relay...");
         RelayController::unlock();
+    }
+    // Mở khẩn cấp (Giữ cửa luôn mở)
+    else if (command == "GLOBAL_UNLOCK") {
+        Serial.println("[MQTT] EMERGENCY UNLOCK command received. Triggering Relay...");
+        RelayController::emergencyUnlock();
+    }
+    // Khóa khẩn cấp (Trả lại trạng thái bình thường hoặc cưỡng chế khóa)
+    else if (command == "GLOBAL_LOCKDOWN") {
+        Serial.println("[MQTT] EMERGENCY LOCK command received. Triggering Relay...");
+        RelayController::emergencyLock();
     }
     // Trigger HTTP pull ngay lập tức (fallback nếu MQTT push thất bại)
     else if (command == "SYNC_WHITELIST") {

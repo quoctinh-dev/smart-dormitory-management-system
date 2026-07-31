@@ -1,6 +1,12 @@
 import CircleIcon from '@mui/icons-material/Circle';
 import MarkEmailReadRoundedIcon from '@mui/icons-material/MarkEmailReadRounded';
 import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import BuildCircleRoundedIcon from '@mui/icons-material/BuildCircleRounded';
+import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
+import PaymentRoundedIcon from '@mui/icons-material/PaymentRounded';
+import ArticleRoundedIcon from '@mui/icons-material/ArticleRounded';
+import RoomPreferencesRoundedIcon from '@mui/icons-material/RoomPreferencesRounded';
 import {
   Badge,
   Box,
@@ -19,10 +25,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Avatar,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { alpha } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
 
 import { notificationApi } from '@/api/notification-api';
 import { useAuth } from '@/providers/AuthProvider';
@@ -273,6 +280,40 @@ export default function NotificationBell() {
                   );
                 }
 
+                const getNotificationIcon = (type: string) => {
+                  switch (type) {
+                    case 'MAINTENANCE':
+                      return <BuildCircleRoundedIcon sx={{ color: 'warning.main', fontSize: 24 }} />;
+                    case 'PAYMENT':
+                      return <PaymentRoundedIcon sx={{ color: 'success.main', fontSize: 24 }} />;
+                    case 'WARNING':
+                      return <WarningAmberRoundedIcon sx={{ color: 'error.main', fontSize: 24 }} />;
+                    case 'APPLICATION':
+                      return <ArticleRoundedIcon sx={{ color: 'info.main', fontSize: 24 }} />;
+                    case 'ROOM':
+                      return <RoomPreferencesRoundedIcon sx={{ color: 'secondary.main', fontSize: 24 }} />;
+                    default:
+                      return <InfoRoundedIcon sx={{ color: 'primary.main', fontSize: 24 }} />;
+                  }
+                };
+                
+                const getIconBackground = (type: string, t: any) => {
+                  switch (type) {
+                    case 'MAINTENANCE':
+                      return alpha(t.palette.warning.main, 0.1);
+                    case 'PAYMENT':
+                      return alpha(t.palette.success.main, 0.1);
+                    case 'WARNING':
+                      return alpha(t.palette.error.main, 0.1);
+                    case 'APPLICATION':
+                      return alpha(t.palette.info.main, 0.1);
+                    case 'ROOM':
+                      return alpha(t.palette.secondary.main, 0.1);
+                    default:
+                      return alpha(t.palette.primary.main, 0.1);
+                  }
+                };
+
                 return filteredNotifications.map((notification) => (
                     <MenuItem
                         key={notification.id}
@@ -281,26 +322,48 @@ export default function NotificationBell() {
                           p: 2,
                           borderBottom: '1px solid',
                           borderColor: 'divider',
-                          bgcolor: notification.isRead ? 'transparent' : 'action.hover',
+                          bgcolor: notification.isRead ? 'transparent' : (t) => alpha(t.palette.primary.main, 0.03),
                           display: 'flex',
                           alignItems: 'flex-start',
-                          gap: 1.25,
+                          gap: 1.5,
                           whiteSpace: 'normal',
+                          transition: 'all 0.2s ease',
                           '&:hover': {
-                            bgcolor: notification.isRead ? 'action.hover' : 'action.selected',
+                            bgcolor: notification.isRead ? 'action.hover' : (t) => alpha(t.palette.primary.main, 0.06),
                           },
                         }}
                     >
-                      {!notification.isRead && (
-                          <CircleIcon
-                              sx={{ fontSize: 8, color: 'primary.main', mt: 1, flexShrink: 0 }}
-                          />
-                      )}
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Box sx={{ position: 'relative' }}>
+                        <Avatar
+                          sx={{
+                            bgcolor: (t) => getIconBackground(notification.type, t),
+                            width: 40,
+                            height: 40,
+                          }}
+                        >
+                          {getNotificationIcon(notification.type)}
+                        </Avatar>
+                        {!notification.isRead && (
+                            <CircleIcon
+                                sx={{
+                                  fontSize: 12,
+                                  color: 'error.main',
+                                  position: 'absolute',
+                                  top: -2,
+                                  right: -2,
+                                  border: '2px solid',
+                                  borderColor: 'background.paper',
+                                  borderRadius: '50%',
+                                }}
+                            />
+                        )}
+                      </Box>
+                      <Box sx={{ flex: 1, minWidth: 0, pt: 0.5 }}>
                         <Typography
                             variant="subtitle2"
                             fontWeight={notification.isRead ? 500 : 700}
-                            sx={{ mb: 0.4 }}
+                            color={notification.isRead ? 'text.secondary' : 'text.primary'}
+                            sx={{ mb: 0.5, lineHeight: 1.3 }}
                         >
                           {notification.title}
                         </Typography>
@@ -308,18 +371,21 @@ export default function NotificationBell() {
                             variant="body2"
                             color="text.secondary"
                             sx={{
-                              mt: 0.3,
-                              mb: 0.6,
+                              mb: 0.75,
                               display: '-webkit-box',
                               WebkitLineClamp: 2,
                               WebkitBoxOrient: 'vertical',
                               overflow: 'hidden',
+                              lineHeight: 1.5,
                             }}
                         >
                           {notification.message}
                         </Typography>
-                        <Typography variant="caption" color="text.disabled">
-                          {new Date(notification.createdAt).toLocaleString('vi-VN')}
+                        <Typography variant="caption" color="text.disabled" sx={{ fontWeight: 500 }}>
+                          {new Date(notification.createdAt).toLocaleString('vi-VN', {
+                            hour: '2-digit', minute:'2-digit',
+                            day: '2-digit', month: '2-digit', year: 'numeric'
+                          })}
                         </Typography>
                       </Box>
                     </MenuItem>

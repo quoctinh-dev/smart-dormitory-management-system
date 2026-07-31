@@ -14,17 +14,27 @@ import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.sdms.backend.modules.application.enums.VerificationDocumentType;
+import com.sdms.backend.modules.application.entity.VerificationDocument;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.StreamUtils;
+import com.itextpdf.text.pdf.BaseFont;
 
 /**
  * [BUSINESS RULE: IMMUTABLE DOCUMENT GENERATION]
  * Service này chịu trách nhiệm sinh ra các tài liệu pháp lý (Phiếu đăng ký, Bản cam kết, Quyết định gia hạn)
  * bằng định dạng PDF và lưu trữ vĩnh viễn trên Cloud.
- * 
- * NGUYÊN TẮC BẤT BIẾN (IMMUTABILITY):
+ *
+ * NGUYÊN TẮC BẤT BIẾN:
  * 1. Khi sinh viên nộp đơn đăng ký (DormitoryApplication), hệ thống sẽ TẠO MỘT LẦN DUY NHẤT 
  *    2 file PDF (Phiếu đăng ký & Bản cam kết). 
  * 2. 2 File PDF này là "Snapshot" (Bản ghi lịch sử) ghi nhận chính xác trạng thái, thông tin 
@@ -32,7 +42,7 @@ import java.util.stream.Collectors;
  * 3. Nếu sau này sinh viên Cập nhật thông tin cá nhân (Đổi CCCD, Đổi SĐT), hệ thống CHỈ CẬP NHẬT
  *    trong Database (bảng Student), TUYỆT ĐỐI KHÔNG TẠO LẠI (Re-generate) 2 file PDF cũ. 
  *    Nhằm đảm bảo tính pháp lý và không làm sai lệch hồ sơ gốc của năm học đó.
- * 
+ *
  * 4. Luồng Gia Hạn (Stay Extension): Khi sinh viên được duyệt gia hạn, hệ thống SẼ IN LẠI 2 
  *    tài liệu (Phiếu Đăng Ký & Bản Cam Kết) mới dành riêng cho lần gia hạn đó, với thông tin 
  *    nhân trắc học mới nhất lấy từ bảng Student.
@@ -49,12 +59,18 @@ public class ApplicationPdfService {
     private final CloudinaryService cloudinaryService;
     private final UserAccountRepository userAccountRepository;
 
+    /**
+     * Sinh và tải lên Cloudinary file PDF "Phiếu đăng ký nội trú" từ mẫu Template.
+     *
+     * @param application Thực thể Hồ sơ đăng ký nội trú của sinh viên
+     * @return Đường dẫn URL file PDF đã upload thành công
+     */
     public String generateAndUploadRegistrationFormPdf(DormitoryApplication application) {
         log.info("Generating registration form PDF for application code: {}", application.getApplicationCode());
         Context context = new Context();
         context.setVariable("app", application);
-        
-        // Đảm bảo danh sách ưu tiên không bị null và chuyển sang Set<String> 
+
+        // Đảm bảo danh sách ưu tiên không bị null và chuyển sang Set<String>
         // để tối ưu tốc độ tra cứu (O(1) lookup) trong Thymeleaf template
         Set<String> priorityCategories = application.getPriorities() != null ?
                 application.getPriorities().stream()
@@ -68,7 +84,7 @@ public class ApplicationPdfService {
             int startYear = application.getRegistrationPeriod().getStayStartDate().getYear();
             academicYear = startYear + " - " + (startYear + 1);
         } else {
-            int currentYear = java.time.LocalDate.now().getYear();
+            int currentYear = LocalDate.now().getYear();
             academicYear = currentYear + " - " + (currentYear + 1);
         }
         context.setVariable("academicYear", academicYear);
@@ -77,18 +93,20 @@ public class ApplicationPdfService {
         String portraitPhotoUrl = null;
         if (application.getDocuments() != null) {
             portraitPhotoUrl = application.getDocuments().stream()
-                    .filter(doc -> doc.getDocumentType() == com.sdms.backend.modules.application.enums.VerificationDocumentType.PORTRAIT_PHOTO)
-                    .map(com.sdms.backend.modules.application.entity.VerificationDocument::getFileUrl)
+                    .filter(doc -> doc.getDocumentType() == VerificationDocumentType.PORTRAIT_PHOTO)
+                    .map(VerificationDocument::getFileUrl)
                     .findFirst()
                     .orElse(null);
         }
         context.setVariable("portraitPhotoUrl", portraitPhotoUrl);
 
+        // Lấy tên cán bộ duyệt hồ sơ (nếu có) để đưa vào file PDF
         if (application.getReviewedByUserId() != null) {
             userAccountRepository.findById(application.getReviewedByUserId())
-                .ifPresent(user -> context.setVariable("reviewerName", user.getUsername()));
+                    .ifPresent(user -> context.setVariable("reviewerName", user.getUsername()));
         }
 
+        // Render file HTML từ template Thymeleaf và tiến hành chuyển đổi sang PDF
         String htmlContent = templateEngine.process("pdf/registration_form", context);
         String fileName = "registration_form_" + application.getApplicationCode();
 
@@ -97,12 +115,18 @@ public class ApplicationPdfService {
         return fileUrl;
     }
 
+    /**
+     * Sinh và tải lên Cloudinary file PDF "Bản cam kết nội trú" từ mẫu Template.
+     *
+     * @param application Thực thể Hồ sơ đăng ký nội trú của sinh viên
+     * @return Đường dẫn URL file PDF bản cam kết
+     */
     public String generateAndUploadCommitmentFormPdf(DormitoryApplication application) {
         log.info("Generating commitment form PDF for application code: {}", application.getApplicationCode());
         Context context = new Context();
         context.setVariable("app", application);
-        
-        // Đảm bảo danh sách ưu tiên không bị null và chuyển sang Set<String> 
+
+        // Đảm bảo danh sách ưu tiên không bị null và chuyển sang Set<String>
         // để tối ưu tốc độ tra cứu (O(1) lookup) trong Thymeleaf template
         Set<String> priorityCategories = application.getPriorities() != null ?
                 application.getPriorities().stream()
@@ -110,6 +134,7 @@ public class ApplicationPdfService {
                         .collect(Collectors.toSet()) : Collections.emptySet();
         context.setVariable("priorities", priorityCategories);
 
+        // Render HTML bản cam kết từ Thymeleaf template
         String htmlContent = templateEngine.process("pdf/commitment_form", context);
         String fileName = "commitment_form_" + application.getApplicationCode();
 
@@ -137,7 +162,7 @@ public class ApplicationPdfService {
         Student student = extension.getStudent();
         DormitoryApplication srcApp = student.getSourceApplication();
 
-        // Khởi tạo đối tượng Application ảo: Dùng srcApp làm base (chứa các thông tin bất biến) 
+        // Khởi tạo đối tượng Application ảo: Dùng srcApp làm base (chứa các thông tin bất biến)
         // kết hợp với data override từ Student (đảm bảo luôn fetch thông tin mới nhất)
         DormitoryApplication virtualApp = new DormitoryApplication();
         virtualApp.setApplicationCode("EXT-" + student.getStudentCode());
@@ -177,8 +202,8 @@ public class ApplicationPdfService {
         context.setVariable("portraitPhotoUrl", student.getAvatarUrl());
         Set<String> priorityCategories = (srcApp != null && srcApp.getPriorities() != null)
                 ? srcApp.getPriorities().stream()
-                        .map(ap -> ap.getPriorityCategory().name())
-                        .collect(Collectors.toSet())
+                .map(ap -> ap.getPriorityCategory().name())
+                .collect(Collectors.toSet())
                 : Collections.emptySet();
         context.setVariable("priorities", priorityCategories);
 
@@ -218,22 +243,26 @@ public class ApplicationPdfService {
     private String regularFontPath;
     private String boldFontPath;
 
+    /**
+     * Khởi tạo và trích xuất các tệp font Tiếng Việt (Times New Roman / Times Bold)
+     * từ classpath ra thư mục tạm thời để làm nguồn nhúng font cho iTextRenderer.
+     */
     @jakarta.annotation.PostConstruct
     public void initFonts() {
         try {
-            java.io.File regFile = java.io.File.createTempFile("times", ".ttf");
+            File regFile = File.createTempFile("times", ".ttf");
             regFile.deleteOnExit();
-            try (java.io.InputStream in = new org.springframework.core.io.ClassPathResource("fonts/times.ttf").getInputStream();
-                 java.io.OutputStream out = new java.io.FileOutputStream(regFile)) {
-                org.springframework.util.StreamUtils.copy(in, out);
+            try (InputStream in = new ClassPathResource("fonts/times.ttf").getInputStream();
+                 OutputStream out = new FileOutputStream(regFile)) {
+                StreamUtils.copy(in, out);
             }
             this.regularFontPath = regFile.getAbsolutePath();
 
-            java.io.File boldFile = java.io.File.createTempFile("timesbd", ".ttf");
+            File boldFile = File.createTempFile("timesbd", ".ttf");
             boldFile.deleteOnExit();
-            try (java.io.InputStream in = new org.springframework.core.io.ClassPathResource("fonts/timesbd.ttf").getInputStream();
-                 java.io.OutputStream out = new java.io.FileOutputStream(boldFile)) {
-                org.springframework.util.StreamUtils.copy(in, out);
+            try (InputStream in = new ClassPathResource("fonts/timesbd.ttf").getInputStream();
+                 OutputStream out = new FileOutputStream(boldFile)) {
+                StreamUtils.copy(in, out);
             }
             this.boldFontPath = boldFile.getAbsolutePath();
             log.info("Successfully extracted fonts to temp directory");
@@ -242,16 +271,23 @@ public class ApplicationPdfService {
         }
     }
 
+    /**
+     * Hàm private trợ giúp biên dịch nội dung HTML thành Mảng byte PDF và tải trực tiếp lên Cloudinary.
+     *
+     * @param htmlContent Chuỗi nội dung HTML sau khi đã render qua Thymeleaf
+     * @param fileName Tên file cần lưu trên Cloudinary
+     * @return URL truy cập công khai của file PDF vừa upload
+     */
     private String generateAndUploadPdf(String htmlContent, String fileName) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ITextRenderer renderer = new ITextRenderer();
-            
+
             // Nhúng (Embed) custom fonts để hỗ trợ render Unicode Tiếng Việt chuẩn xác
             if (this.regularFontPath != null) {
-                renderer.getFontResolver().addFont(this.regularFontPath, com.itextpdf.text.pdf.BaseFont.IDENTITY_H, com.itextpdf.text.pdf.BaseFont.EMBEDDED);
+                renderer.getFontResolver().addFont(this.regularFontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             }
             if (this.boldFontPath != null) {
-                renderer.getFontResolver().addFont(this.boldFontPath, com.itextpdf.text.pdf.BaseFont.IDENTITY_H, com.itextpdf.text.pdf.BaseFont.EMBEDDED);
+                renderer.getFontResolver().addFont(this.boldFontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             }
 
             renderer.setDocumentFromString(htmlContent);

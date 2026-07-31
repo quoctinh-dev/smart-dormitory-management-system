@@ -14,6 +14,8 @@ export interface IAccessHistory {
   denialReason: string | null;
   method: string;
   snapshotUrl?: string;
+  student?: any;
+  gate?: any;
 }
 
 export interface ICurfewRequest {

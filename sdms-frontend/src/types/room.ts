@@ -43,6 +43,7 @@ export interface RoomResponse {
   buildingCode: string;
   buildingName: string;
   roomPinCode?: string;
+  gender?: string;
 }
 
 // ─── BED ───

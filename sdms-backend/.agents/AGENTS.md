@@ -137,3 +137,7 @@ Mọi tác vụ backend BẮT BUỘC tuân thủ các quy tắc sau. Trước kh
 ### 5. SEEDER DEVELOPMENT RULE (LUẬT PHÁT TRIỂN SEEDER)
 - **Nguyên tắc Đơn nhiệm (Single Responsibility):** Mỗi module lớn (User, Room, Payment...) PHẢI có một file Seeder riêng biệt (VD: `UserSeeder`, `DormitorySeeder`, `PaymentSeeder`). Tuyệt đối KHÔNG dồn tất cả logic khởi tạo vào một file `DataSeeder` khổng lồ duy nhất để tránh xung đột dữ liệu và logic skip.
 - **Tính tự động hóa:** Sau khi hoàn thành code xong một Module hoặc một Feature mới có tác động đến Database, Agent BẮT BUỘC phải viết bổ sung/cập nhật Seeder tương ứng để Developer khác clone code về chạy lên là có data dùng thử ngay lập tức (không phải nhập tay).
+
+### 17. CLEAN CODE & IMPORT RULES
+- The agent MUST ALWAYS use explicit imports at the top of the file (e.g., `import java.time.LocalDateTime;`) instead of using inline fully qualified package names (e.g., `java.time.LocalDateTime`) inside the method logic.
+- This rule applies strictly to all Java files to maintain clean code readability and comply with project conventions.

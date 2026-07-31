@@ -17,7 +17,8 @@ export interface EmergencyRelocationRoom {
   roomId: string;
   roomCode: string;
   buildingName: string;
-  vacantBeds: number;
+  availableBeds: number;
+  gender: string;
 }
 
 export interface RevenueAtRiskItem {

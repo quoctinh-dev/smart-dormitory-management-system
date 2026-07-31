@@ -18,8 +18,8 @@ public class RoomUtilityResponse {
     private Integer newReading;
     
     @com.fasterxml.jackson.annotation.JsonProperty("isSettled")
-    private boolean isSettled;
+    private Boolean isSettled;
     
     @com.fasterxml.jackson.annotation.JsonProperty("isFirstRecord")
-    private boolean isFirstRecord;
+    private Boolean isFirstRecord;
 }

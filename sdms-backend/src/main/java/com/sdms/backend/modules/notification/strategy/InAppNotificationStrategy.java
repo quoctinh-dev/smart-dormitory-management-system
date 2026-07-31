@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class InAppNotificationStrategy implements NotificationStrategy {
 
     private final NotificationRepository notificationRepository;
+    private final com.sdms.backend.modules.user.repository.UserAccountRepository userAccountRepository;
 
     @Override
     public NotificationChannel getChannel() {
@@ -29,6 +30,17 @@ public class InAppNotificationStrategy implements NotificationStrategy {
         }
 
         try {
+            // Cố gắng tìm email hoặc tên người nhận thay vì hiển thị UUID
+            String displayRecipient = payload.getEmail();
+            if (displayRecipient == null && payload.getRecipientName() != null) {
+                displayRecipient = payload.getRecipientName();
+            }
+            if (displayRecipient == null) {
+                displayRecipient = userAccountRepository.findById(payload.getStudentId())
+                        .map(com.sdms.backend.modules.user.entity.UserAccount::getEmail)
+                        .orElse(payload.getStudentId().toString());
+            }
+
             Notification notification = Notification.builder()
                     .userId(payload.getStudentId())
                     .title(payload.getTitle())
@@ -36,7 +48,7 @@ public class InAppNotificationStrategy implements NotificationStrategy {
                     .actionUrl(payload.getActionUrl())
                     .type(payload.getType())
                     .isRead(false)
-                    .recipient(payload.getStudentId().toString())
+                    .recipient(displayRecipient)
                     .channel(NotificationChannel.IN_APP)
                     .status(NotificationStatus.SENT)
                     .eventId(payload.getEventId())

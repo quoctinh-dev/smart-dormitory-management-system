@@ -237,7 +237,8 @@ export default function UtilityReadingPage() {
                     </TableRow>
                 ) : (
                     rooms.map((room) => {
-                      const actualOldReading = room.isFirstRecord
+                      const isFirstRecord = room.isFirstRecord ?? (room as any).firstRecord;
+                      const actualOldReading = isFirstRecord
                           ? oldReadings[room.roomId] !== undefined && oldReadings[room.roomId] !== ''
                               ? Number(oldReadings[room.roomId])
                               : 0
@@ -249,7 +250,7 @@ export default function UtilityReadingPage() {
                           newReading !== undefined &&
                           newReading !== '' &&
                           Number(newReading) >= actualOldReading &&
-                          (!room.isFirstRecord || (oldReadings[room.roomId] !== undefined && oldReadings[room.roomId] !== ''));
+                          (!isFirstRecord || (oldReadings[room.roomId] !== undefined && oldReadings[room.roomId] !== ''));
 
                       return (
                           <TableRow key={room.roomId} hover>
@@ -258,14 +259,14 @@ export default function UtilityReadingPage() {
                                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
                                   {room.roomCode}
                                 </Typography>
-                                {room.isFirstRecord && (
+                                {isFirstRecord && (
                                     <Chip label="Ghi lần đầu" size="small" color="info" variant="outlined" sx={{ width: 'fit-content', height: 20, fontSize: '0.65rem' }} />
                                 )}
                               </Stack>
                             </TableCell>
 
                             <TableCell>
-                              {room.isFirstRecord ? (
+                              {isFirstRecord ? (
                                   <TextField
                                       type="number"
                                       size="small"

@@ -16,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.sdms.backend.modules.student.dto.request.AdminUpdateStudentProfileRequest;
+import java.util.UUID;
 
 /**
  * Mục tiêu/Nghiệp vụ: Quản lý thông tin hồ sơ cá nhân (Profile) của cư dân (Sinh viên) đã được duyệt và cấp tài khoản, phục vụ cho quá trình sinh hoạt nội trú tại KTX.
@@ -72,26 +74,26 @@ public class StudentService {
         if (request.getPermanentAddress() != null) student.setPermanentAddress(request.getPermanentAddress());
         if (request.getAvatarUrl() != null) student.setAvatarUrl(request.getAvatarUrl());
 
-        // Save vào DB
+        // Lưu vào DB
         Student updatedStudent = studentRepository.save(student);
 
-        // Map sang DTO và return
+        // Chuyển đổi sang DTO và trả về
         return StudentProfileResponse.fromEntity(updatedStudent);
     }
 
     @Transactional(readOnly = true)
-    public StudentProfileResponse getStudentProfileById(java.util.UUID studentId) {
+    public StudentProfileResponse getStudentProfileById(UUID studentId) {
         Student student = studentRepository.findById(studentId)
             .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy sinh viên"));
         return StudentProfileResponse.fromEntity(student);
     }
 
     @Transactional
-    public StudentProfileResponse updateStudentProfile(java.util.UUID studentId, com.sdms.backend.modules.student.dto.request.AdminUpdateStudentProfileRequest request) {
+    public StudentProfileResponse updateStudentProfile(UUID studentId, AdminUpdateStudentProfileRequest request) {
         Student student = studentRepository.findById(studentId)
             .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hồ sơ sinh viên"));
 
-        // Update fields if provided
+        // Cập nhật các trường thông tin nếu có dữ liệu truyền vào
         if (request.getFullName() != null) student.setFullName(request.getFullName());
         if (request.getCccd() != null) student.setCccd(request.getCccd());
         if (request.getEmail() != null) student.setEmail(request.getEmail());
@@ -111,7 +113,7 @@ public class StudentService {
     }
 
     @Transactional
-    public void assignRfidCode(java.util.UUID studentId, String rfidCode) {
+    public void assignRfidCode(UUID studentId, String rfidCode) {
         Student student = studentRepository.findById(studentId)
             .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy sinh viên"));
         

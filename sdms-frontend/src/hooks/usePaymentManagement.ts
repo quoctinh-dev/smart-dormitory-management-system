@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { paymentApi } from '@/api';
 import { snackbar } from '@/helpers/snackbar';
@@ -8,10 +8,24 @@ export const usePaymentManagement = () => {
   const [bills, setBills] = useState<BillAdminResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Trạng thái phân trang
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalElements, setTotalElements] = useState(0);
+
   // Trạng thái bộ lọc dữ liệu trên giao diện
   const [currentTab, setCurrentTab] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [billTypeFilter, setBillTypeFilter] = useState('ALL');
+
+  // Tối ưu hóa tìm kiếm (Debounce) để không gọi API liên tục
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   // Trạng thái điều khiển Dialogs
   const [confirmDialog, setConfirmDialog] = useState(false);
@@ -21,17 +35,24 @@ export const usePaymentManagement = () => {
   const fetchBills = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await paymentApi.getAllBills();
-      // axiosClient unwraps ApiResponse.data -> which is PageResponse<BillAdminResponse>
+      const res = await paymentApi.getAllBills({
+        page,
+        size: rowsPerPage,
+        search: debouncedSearch,
+        status: currentTab === 'ALL' ? undefined : currentTab,
+        billType: billTypeFilter === 'ALL' ? undefined : billTypeFilter,
+      });
       const data = res?.content || (res as any)?.data?.content || [];
+      const total = res?.totalElements ?? (res as any)?.data?.totalElements ?? 0;
       setBills(data);
+      setTotalElements(total);
     } catch (err: any) {
       console.error('Failed to fetch bills:', err);
       snackbar.error(err.message || 'Không thể tải danh sách hóa đơn từ máy chủ.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, rowsPerPage, debouncedSearch, currentTab, billTypeFilter]);
 
   useEffect(() => {
     fetchBills();
@@ -45,10 +66,8 @@ export const usePaymentManagement = () => {
         amount: selectedBill.amount,
       });
 
-      // Cập nhật State cục bộ để UI nhảy sang trạng thái ĐÃ ĐÓNG ngay lập tức
-      setBills((prev) =>
-        prev.map((b) => (b.billId === selectedBill.billId ? { ...b, status: 'PAID' } : b))
-      );
+      // Fetch lại để đồng bộ thay vì sửa tay
+      fetchBills();
       setConfirmDialog(false);
 
       snackbar.success(`Đã gạch nợ tiền mặt thành công cho hóa đơn ${selectedBill.billCode}!`);
@@ -71,30 +90,6 @@ export const usePaymentManagement = () => {
     }
   };
 
-  // 🌟 KHỚP LOGIC MULTI-FILTER TRÁNH TRỐNG UI
-  const filteredBills = useMemo(() => {
-    return bills.filter((bill) => {
-      // 1. Lọc theo trạng thái Tab
-      if (currentTab === 'UNPAID' && bill.status !== 'UNPAID' && bill.status !== 'OVERDUE')
-        return false;
-      if (currentTab === 'PAID' && bill.status !== 'PAID') return false;
-      if (currentTab === 'CANCELLED' && bill.status !== 'CANCELLED') return false;
-
-      // 2. Lọc theo danh mục loại phí (Khớp Enum ACCOMMODATION_FEE từ Backend)
-      if (billTypeFilter !== 'ALL' && bill.billType !== billTypeFilter) return false;
-
-      // 3. Tìm kiếm theo tên hoặc mã rút gọn
-      if (searchQuery.trim() !== '') {
-        const query = searchQuery.toLowerCase();
-        const matchesName = bill.studentName?.toLowerCase().includes(query);
-        const matchesCode = bill.billCode?.toLowerCase().includes(query);
-        return matchesName || matchesCode;
-      }
-
-      return true;
-    });
-  }, [bills, currentTab, billTypeFilter, searchQuery]);
-
   const openDetails = useCallback((bill: BillAdminResponse) => {
     setSelectedBill(bill);
     setDetailsDialog(true);
@@ -106,8 +101,13 @@ export const usePaymentManagement = () => {
   }, []);
 
   return {
-    bills: filteredBills,
+    bills, // Đã lọc từ Backend, không cần filteredBills nữa
     loading,
+    page,
+    setPage,
+    rowsPerPage,
+    setRowsPerPage,
+    totalElements,
     confirmDialog,
     detailsDialog,
     selectedBill,

@@ -3,7 +3,7 @@ package com.sdms.backend.modules.payment.controller;
 import com.sdms.backend.common.response.ApiResponse;
 import com.sdms.backend.modules.payment.dto.request.RecordUtilityRequest;
 import com.sdms.backend.modules.payment.dto.response.RoomUtilityResponse;
-import com.sdms.backend.modules.payment.entity.UtilityType;
+import com.sdms.backend.modules.payment.enums.UtilityType;
 import com.sdms.backend.modules.payment.service.UtilityUsageManagementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

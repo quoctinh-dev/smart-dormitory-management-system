@@ -11,12 +11,8 @@
 // [MẠCH 1] - PHÒNG A101 (Tòa A)
 static const String DEVICE_ID = "ESP32_ROOM_101";
 static const String GATE_ID = "a937509c-e2ae-4a2c-a74e-fd30d2318b2b"; 
+static const String BUILDING_ID = "dd979326-9196-497f-b35e-068b99f6e3ff"; // Tòa nhà A
 static const String FIRMWARE_VERSION = "1.0.0-RoomA";
-
-// [MẠCH 2] - PHÒNG B101 (Tòa B - Dùng test rào cản truy cập chéo)
-// static const String DEVICE_ID = "ESP32_ROOM_B101";
-// static const String GATE_ID = "c827509c-e2ae-4a2c-a74e-fd30d2318b2c"; 
-// static const String FIRMWARE_VERSION = "1.0.0-RoomB";
 
 // ====================================================================== ========
 // ==============================================================================

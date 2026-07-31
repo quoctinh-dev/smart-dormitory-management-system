@@ -438,3 +438,7 @@ If any answer is NO, the agent MUST refactor the code to comply with this Archit
 Before implementing any feature, ALWAYS inspect: `AppException`, `ErrorCode`, `GlobalExceptionHandler`, `ApiResponse`, `PageResponse`.
 These five classes define the global response architecture. The agent MUST NOT bypass them.
 If any existing code violates this architecture, the agent SHOULD refactor that code first before adding new functionality. All new Controllers, Services and APIs MUST follow this contract. No alternative response structure is allowed.
+
+### 17. CLEAN CODE & IMPORT RULES
+- The agent MUST ALWAYS use explicit imports at the top of the file (e.g., `import java.time.LocalDateTime;`) instead of using inline fully qualified package names (e.g., `java.time.LocalDateTime`) inside the method logic.
+- This rule applies strictly to all Java files to maintain clean code readability and comply with project conventions.

@@ -26,13 +26,10 @@ public class StudentCheckoutEventListener {
                 .orElse(null);
 
         if (student != null) {
-            // Cập nhật trạng thái thành INACTIVE
+
             student.setStatus(StudentStatus.INACTIVE);
-            
-            // Xóa quyền Smart Access (Vô hiệu hóa khuôn mặt)
             student.setIsFaceRegistered(false);
             student.setFaceImageUrl(null);
-            
             studentRepository.save(student);
             
             log.info("Đã cập nhật trạng thái INACTIVE và vô hiệu hóa Smart Access cho sinh viên Code: {}", event.getStudentCode());

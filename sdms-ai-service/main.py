@@ -28,7 +28,7 @@ logger.info(f"Khởi tạo AI Model trên thiết bị: {device}")
 
 try:
     # MTCNN để phát hiện khuôn mặt và cắt (Face Detection & Alignment)
-    # Tối ưu cho ESP32-CAM: margin=20, min_face_size=30 (nhận mặt xa hơn), thresholds nới lỏng (nhận mặt hơi mờ/ngược sáng)
+    # Tối ưu cho ESP32-CAM: margin=20, min_face_size=30 (nhận mặt xa hơn)
     mtcnn = MTCNN(
         image_size=160, margin=20, keep_all=False, 
         min_face_size=30, thresholds=[0.4, 0.5, 0.5], device=device

@@ -1,6 +1,6 @@
-export type BillStatus = 'UNPAID' | 'PARTIAL' | 'PAID' | 'OVERDUE' | 'CANCELLED';
+export type BillStatus = 'UNPAID' | 'PARTIALLY_PAID' | 'PAID' | 'OVERDUE' | 'CANCELLED';
 export type BillType =
-  'ACCOMMODATION_FEE' | 'UTILITY_WATER' | 'UTILITY_ELECTRICITY' | 'DAMAGE_FEE' | 'OTHER';
+  'ACCOMMODATION_FEE' | 'UTILITY_ELECTRICITY' | 'DAMAGE_FEE' | 'OTHER';
 
 export interface BillResponse {
   billId: string;

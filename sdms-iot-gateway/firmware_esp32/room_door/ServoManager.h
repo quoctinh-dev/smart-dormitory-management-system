@@ -6,6 +6,7 @@
 
 Servo doorServo;
 bool isDoorOpen = false;
+bool emergencyMode = false;
 
 void initServo() {
     ESP32PWM::allocateTimer(0);
@@ -50,8 +51,23 @@ void closeDoor() {
     isDoorOpen = false;
 }
 
+void emergencyOpenDoor() {
+    emergencyMode = true;
+    openDoor();
+    Serial.println("[Servo] 🚨 EMERGENCY MODE ACTIVATED: Door stays UNLOCKED");
+}
+
+void emergencyCloseDoor() {
+    emergencyMode = false;
+    closeDoor();
+    Serial.println("[Servo] 🚨 EMERGENCY MODE DEACTIVATED: Door is LOCKED");
+}
+
 void maintainServo() {
-    if (isDoorOpen && (millis() - servoOpenTime >= RELAY_OPEN_DURATION)) {
+    if (!isDoorOpen) return;
+    if (emergencyMode) return; // Không tự động đóng cửa nếu đang bật khẩn cấp
+    
+    if (millis() - servoOpenTime >= RELAY_OPEN_DURATION) {
         closeDoor();
     }
 }

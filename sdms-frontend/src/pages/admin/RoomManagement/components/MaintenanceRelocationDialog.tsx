@@ -209,9 +209,11 @@ export default function MaintenanceRelocationDialog({
                                 sx={{ borderRadius: 1.5 }}
                             >
                               <MenuItem value="">-- Chọn phòng --</MenuItem>
-                              {emergencyRooms.map((r) => (
+                              {emergencyRooms
+                                  .filter(r => !room?.gender || r.gender === 'MIXED' || r.gender === room.gender)
+                                  .map((r) => (
                                   <MenuItem key={r.roomId} value={r.roomId}>
-                                    [{r.buildingName}] Phòng {r.roomCode} (Trống {r.vacantBeds})
+                                    Phòng {r.roomCode} - {r.buildingName} (Trống {r.availableBeds})
                                   </MenuItem>
                               ))}
                             </Select>

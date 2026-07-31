@@ -43,6 +43,11 @@ public class PaymentIntegrationListener {
                 event.getApplicationId(), event.getAssignmentId());
 
         try {
+            if (event.getApplicationId() == null) {
+                log.info("[PaymentIntegrationListener] No applicationId attached (e.g. Utility/Extension bill), skipping application status update.");
+                return;
+            }
+
             DormitoryApplication application = applicationRepository.findById(event.getApplicationId())
                     .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND,
                             "Không tìm thấy đơn đăng ký với ID: " + event.getApplicationId()));

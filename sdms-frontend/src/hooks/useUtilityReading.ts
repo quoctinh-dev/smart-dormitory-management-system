@@ -78,11 +78,13 @@ export const useUtilityReading = () => {
 
       const initialReadings: Record<string, number | string> = {};
       const initialOldReadings: Record<string, number | string> = {};
-      res.forEach((room: RoomUtilityResponse) => {
+      res.forEach((room: any) => {
         if (room.newReading !== null && room.newReading !== undefined) {
           initialReadings[room.roomId] = room.newReading;
         }
-        if (room.isFirstRecord) {
+        
+        const isFirst = room.isFirstRecord ?? room.firstRecord;
+        if (isFirst) {
           initialOldReadings[room.roomId] = ''; // Start empty
         }
       });
@@ -115,14 +117,15 @@ export const useUtilityReading = () => {
 
   const handleSave = async (room: RoomUtilityResponse) => {
     const newReading = readings[room.roomId];
-    const actualOldReading = room.isFirstRecord ? oldReadings[room.roomId] : room.oldReading;
+    const isFirst = room.isFirstRecord ?? (room as any).firstRecord;
+    const actualOldReading = isFirst ? oldReadings[room.roomId] : room.oldReading;
 
     if (newReading === undefined || newReading === null || newReading === '') {
       enqueueSnackbar('Vui lòng nhập chỉ số mới', { variant: 'warning' });
       return;
     }
 
-    if (room.isFirstRecord && (actualOldReading === undefined || actualOldReading === null || actualOldReading === '')) {
+    if (isFirst && (actualOldReading === undefined || actualOldReading === null || actualOldReading === '')) {
       enqueueSnackbar('Vui lòng nhập chỉ số cũ cho phòng này (lần đầu ghi)', {
         variant: 'warning',
       });

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -14,7 +15,7 @@ public class EmergencyOverrideService {
 
     private final ApplicationEventPublisher eventPublisher;
 
-    // Security Boundaries: @PreAuthorize("hasAuthority('EMERGENCY_OVERRIDE')") enforced at the Controller layer.
+    @Transactional
     public void executeEmergencyOverride(String actionType, UUID operatorId, String reason, UUID buildingId) {
         log.warn("Executing Emergency Override: ACTION={}, OPERATOR={}, REASON={}, BUILDING={}", 
             actionType, operatorId, reason, buildingId);

@@ -342,7 +342,7 @@ public class ApplicationReviewService {
                     body { font-family: "Inter", "Roboto", "Helvetica", "Arial", sans-serif; line-height: 1.6; color: #0f172a; margin: 0; padding: 0; }
                     .wrapper { background-color: #f8fafc; padding: 20px 10px; }
                     .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); }
-                    .header { background-color: #f59e0b; color: #ffffff; padding: 30px 25px; text-align: center; }
+                    .header { background-color: #2563eb; color: #ffffff; padding: 30px 25px; text-align: center; }
                     .header h2 { margin: 0; font-weight: 800; letter-spacing: -1px; font-size: 24px; }
                     .content { padding: 35px 30px; }
                     .warning-box { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; margin-top: 20px; border-radius: 12px; }
@@ -360,9 +360,10 @@ public class ApplicationReviewService {
             <div class="wrapper">
                 <div class="container">
                     <div class="header">
-                        <h2>YÊU CẦU BỔ SUNG HỒ SƠ</h2>
+                        <h2>KÝ TÚC XÁ THÔNG MINH (SDMS)</h2>
                     </div>
                     <div class="content">
+                        <h3 style="color: #0f172a; margin-top: 0; font-size: 18px;">YÊU CẦU BỔ SUNG HỒ SƠ</h3>
                         <p style="font-size: 16px; margin-top: 0; color: #475569;">Kính gửi sinh viên <strong style="color: #0f172a;">%s</strong>,</p>
                         <p style="color: #475569; font-size: 15px;">Hồ sơ đăng ký KTX của bạn (Mã: <strong style="color: #2563eb;">%s</strong>) cần được bổ sung/cập nhật lại các giấy tờ sau:</p>
                         <div style="background-color: #f1f5f9; padding: 15px; border-radius: 8px; margin: 20px 0;">

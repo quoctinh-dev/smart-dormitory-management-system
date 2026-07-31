@@ -134,7 +134,6 @@ export default function StatusPage() {
                     </Box>
 
                     <Box sx={{ p: { xs: 3, md: 5 } }}>
-                        {/* Đã sửa alignment sang flex-end hoặc center để nút bấm cân đối với khung input */}
                         <Stack
                             direction={{ xs: 'column', sm: 'row' }}
                             spacing={2}
@@ -181,7 +180,6 @@ export default function StatusPage() {
                                     textTransform: 'none',
                                     fontSize: '0.95rem',
                                     flexShrink: 0,
-                                    // Bù khoảng trống của helperText bên cạnh để nút thẳng hàng tuyệt đối với phần input
                                     mb: { sm: '22px' },
                                 }}
                             >

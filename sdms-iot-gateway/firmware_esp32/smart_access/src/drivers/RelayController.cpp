@@ -6,6 +6,7 @@
 static Servo chotCua;
 unsigned long RelayController::unlockStartTime = 0;
 bool RelayController::isUnlocked = false;
+bool RelayController::emergencyMode = false;
 
 void RelayController::init() {
     if (!ENABLE_SERVO) {
@@ -47,7 +48,20 @@ void RelayController::lock() {
 
 void RelayController::maintain() {
     if (!isUnlocked) return;
+    if (emergencyMode) return; // Không tự động đóng cửa nếu đang bật khẩn cấp
     if (millis() - unlockStartTime >= RELAY_OPEN_DURATION) {
         lock();
     }
+}
+
+void RelayController::emergencyUnlock() {
+    emergencyMode = true;
+    unlock(); // Mở cửa
+    Serial.println("[Servo] 🚨 EMERGENCY MODE ACTIVATED: Door stays UNLOCKED");
+}
+
+void RelayController::emergencyLock() {
+    emergencyMode = false;
+    lock(); // Đóng cửa
+    Serial.println("[Servo] 🚨 EMERGENCY MODE DEACTIVATED: Door is LOCKED");
 }

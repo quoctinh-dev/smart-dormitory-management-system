@@ -10,9 +10,13 @@ public:
     static void lock();
     static void maintain(); // Call this in loop() for non-blocking lock
 
+    static void emergencyUnlock();
+    static void emergencyLock();
+
 private:
     static unsigned long unlockStartTime;
     static bool isUnlocked;
+    static bool emergencyMode;
 };
 
 #endif // RELAY_CONTROLLER_H

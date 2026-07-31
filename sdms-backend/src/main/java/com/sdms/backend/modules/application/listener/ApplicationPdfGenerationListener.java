@@ -26,7 +26,6 @@ public class ApplicationPdfGenerationListener {
         log.info("[Async PDF Generation] Bắt đầu sinh PDF và tải lên Cloudinary cho Application ID: {}", event.getApplicationId());
         
         try {
-            // Sử dụng repository để lấy ra, tránh vòng lặp DI với ApplicationService
             DormitoryApplication application = applicationRepository.findById(event.getApplicationId())
                     .orElse(null);
                     
@@ -35,12 +34,9 @@ public class ApplicationPdfGenerationListener {
                 return;
             }
 
-            // Sinh PDF và upload (mất khoảng 3-5 giây gọi Network)
             String registrationPdf = pdfService.generateAndUploadRegistrationFormPdf(application);
             String commitmentPdf = pdfService.generateAndUploadCommitmentFormPdf(application);
-            
-            // Cập nhật URL vào DB bằng custom query để tránh OptimisticLockingFailureException
-            // do có thể RoomAllocationListener cũng đang update Entity này ở Thread khác
+
             applicationRepository.updatePdfUrls(event.getApplicationId(), registrationPdf, commitmentPdf);
             
             log.info("[Async PDF Generation] Đã hoàn thành sinh PDF cho Application ID: {}", event.getApplicationId());

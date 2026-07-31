@@ -38,6 +38,7 @@ import {
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { useEffect, useState, useCallback } from 'react';
+import { debounce } from 'lodash';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { useSmartAccess } from '@/hooks/useSmartAccess';
@@ -46,8 +47,10 @@ import gateApi from '@/api/gate-api';
 import studentApi from '@/api/student-api';
 import { GateResponse } from '@/types/gate';
 import { StudentProfileResponse } from '@/types/student';
-import { debounce } from 'lodash';
 
+// ==========================================
+// 1. ÁNH XẠ LÝ DO TỪ CHỐI RA/VÀO (ENGLISH -> VIETNAMESE)
+// ==========================================
 const DENIAL_REASONS_MAP: Record<string, string> = {
   CURFEW_VIOLATION: 'Vi phạm giờ giới nghiêm',
   OUTSIDE_TIME_WINDOW: 'Khung giờ không hợp lệ',
@@ -55,16 +58,18 @@ const DENIAL_REASONS_MAP: Record<string, string> = {
   UNREGISTERED_OR_INACTIVE_GATE: 'Cổng không khả dụng',
   NOT_ASSIGNED_TO_ROOM: 'Chưa phân phòng hoặc không có quyền',
   NOT_ASSIGNED_TO_BUILDING: 'Không thuộc tòa nhà này',
-  OFFLINE_SYNC_VIOLATION: 'Vượt rào cúp điện',
+  OFFLINE_SYNC_VIOLATION: 'Ra vào khi cúp điện',
   OFFLINE_MASTER_PIN_GRANT: 'Mở bằng mã khẩn cấp',
   FACE_VERIFICATION_ERROR: 'Lỗi xác thực khuôn mặt',
   DUAL_AUTH_MISMATCH: 'Khuôn mặt không khớp thẻ',
 };
 
 export default function SmartAccessManagement() {
+  // --- Phân quyền người dùng ---
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
 
+  // --- Custom Hook Quản lý Smart Access ---
   const {
     history,
     totalElements,
@@ -85,8 +90,188 @@ export default function SmartAccessManagement() {
     fetchBuildings,
   } = useSmartAccess();
 
+  // ==========================================
+  // 2. PHÂN TRANG & ĐIỀU HƯỚNG TABS
+  // ==========================================
+  const [activeTab, setActiveTab] = useState(0); // 0: Nhật ký, 1: Vào trễ, 2: Vắng mặt
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  // ==========================================
+  // 3. STATE BỘ LỌC TÌM KIẾM (TAB 0 - NHẬT KÝ RA VÀO)
+  // ==========================================
+  const [searchStudentId, setSearchStudentId] = useState('');
+  const [filterGateId, setFilterGateId] = useState('');
+  const [filterDecision, setFilterDecision] = useState('');
+  const [filterReason, setFilterReason] = useState('');
+  const [filterBuildingId, setFilterBuildingId] = useState('');
+  const [filterSelectedGate, setFilterSelectedGate] = useState<GateResponse | null>(null);
+  const [filterSelectedStudent, setFilterSelectedStudent] = useState<StudentProfileResponse | null>(null);
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
+
+  // ==========================================
+  // 4. STATE BỘ LỌC DÀNH CHO TAB 1 & TAB 2
+  // ==========================================
+  const [curfewFilterStatus, setCurfewFilterStatus] = useState('PENDING'); // Tab 1: Yêu cầu trễ
+  const [filterOutsideBuildingName, setFilterOutsideBuildingName] = useState<string>(''); // Tab 2: Vắng mặt
+
+  // Select box hàng loạt cho Tab 1 (Duyệt đơn vào trễ)
   const [selectedCurfewRequestIds, setSelectedCurfewRequestIds] = useState<string[]>([]);
 
+  // ==========================================
+  // 5. STATE CHO CÁC DIALOG THAO TÁC
+  // ==========================================
+  // Dialog 1: Mở cổng từ xa
+  const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
+  const [gateId, setGateId] = useState('');
+  const [targetStudentId, setTargetStudentId] = useState('');
+  const [buildingId, setBuildingId] = useState('');
+  const [selectedGate, setSelectedGate] = useState<GateResponse | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<StudentProfileResponse | null>(null);
+
+  // Dialog 2: Lệnh khẩn cấp (Global Lockdown / Unlock)
+  const [emergencyDialogOpen, setEmergencyDialogOpen] = useState(false);
+  const [actionType, setActionType] = useState('GLOBAL_LOCKDOWN');
+  const [reason, setReason] = useState('');
+  const [confirmEmergency, setConfirmEmergency] = useState(false);
+  const [targetBuilding, setTargetBuilding] = useState('ALL');
+
+  // Dialog 3: Đồng bộ trạng thái thủ công (Sync State IN/OUT)
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
+  const [syncStudentId, setSyncStudentId] = useState('');
+  const [syncDirection, setSyncDirection] = useState<'IN' | 'OUT'>('IN');
+  const [syncReason, setSyncReason] = useState('');
+  const [syncStudent, setSyncStudent] = useState<StudentProfileResponse | null>(null);
+  const [syncStudentQuery, setSyncStudentQuery] = useState('');
+  const [syncStudentLoading, setSyncStudentLoading] = useState(false);
+  const [syncStudentOptions, setSyncStudentOptions] = useState<StudentProfileResponse[]>([]);
+
+  // Dialog 4: Xem ảnh chụp Camera (Snapshot)
+  const [snapshotViewerOpen, setSnapshotViewerOpen] = useState(false);
+  const [currentSnapshot, setCurrentSnapshot] = useState('');
+
+  // Master Data State
+  const [allGates, setAllGates] = useState<GateResponse[]>([]);
+  const [filteredGates, setFilteredGates] = useState<GateResponse[]>([]);
+  const [studentOptions, setStudentOptions] = useState<StudentProfileResponse[]>([]);
+  const [studentSearchLoading, setStudentSearchLoading] = useState(false);
+
+  // Danh sách cổng lọc theo Tòa nhà đang chọn
+  const filterGatesList = allGates.filter(g => !filterBuildingId || g.buildingId === filterBuildingId);
+
+  // Cảnh báo sự cố phần cứng IoT
+  const [iotHardwareAlert, setIotHardwareAlert] = useState<{ title: string; message: string; id: number } | null>(null);
+
+  // ==========================================
+  // 6. CALL API & XỬ LÝ DỮ LIỆU
+  // ==========================================
+
+  // Lấy toàn bộ danh sách cổng khi mount
+  useEffect(() => {
+    gateApi.getAllGates().then((res: any) => {
+      setAllGates(res?.data || res || []);
+    }).catch(err => console.error(err));
+  }, []);
+
+  // Lấy danh sách tòa nhà
+  useEffect(() => {
+    fetchBuildings();
+  }, [fetchBuildings]);
+
+  // Lọc cổng theo tòa nhà được chọn trong Dialog Mở Cổng
+  useEffect(() => {
+    if (buildingId) {
+      setFilteredGates(allGates.filter(g => g.buildingId === buildingId));
+    } else {
+      setFilteredGates([]);
+    }
+    if (selectedGate && selectedGate.buildingId !== buildingId) {
+      setSelectedGate(null);
+      setGateId('');
+    }
+  }, [buildingId, allGates, selectedGate]);
+
+  // Kiểm tra cảnh báo sự cố phần cứng định kỳ (30s/lần)
+  useEffect(() => {
+    const checkHardwareAlerts = async () => {
+      try {
+        const { notificationApi } = await import('@/api/notification-api');
+        const notifications = await notificationApi.getNotifications();
+        const hwAlert = (notifications as any[]).find(
+            (n: any) => n.type === 'IOT_HARDWARE_ERROR' && !n.isRead && !n.read
+        );
+        if (hwAlert) {
+          setIotHardwareAlert({ title: hwAlert.title, message: hwAlert.message, id: hwAlert.id });
+        }
+      } catch {
+        // Bỏ qua lỗi kết nối ngầm
+      }
+    };
+    checkHardwareAlerts();
+    const interval = setInterval(checkHardwareAlerts, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Tự động tải lại dữ liệu khi chuyển Tab hoặc đổi trang
+  useEffect(() => {
+    if (activeTab === 0) {
+      fetchHistory(page, rowsPerPage, searchStudentId, {
+        gateId: filterGateId,
+        decision: filterDecision,
+        denialReason: filterReason,
+        startDate: filterStartDate ? new Date(filterStartDate).toISOString() : undefined,
+        endDate: filterEndDate ? new Date(filterEndDate).toISOString() : undefined,
+      });
+    } else if (activeTab === 1) {
+      fetchCurfewRequests(page, rowsPerPage, curfewFilterStatus === 'ALL' ? undefined : curfewFilterStatus);
+      setSelectedCurfewRequestIds([]);
+    } else if (activeTab === 2) {
+      fetchOutsideStudents();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, page, rowsPerPage, curfewFilterStatus]);
+
+  // --- Hàm Tìm kiếm Sinh viên có Debounce (Chờ gõ xong 500ms mới gọi API) ---
+  const fetchStudents = useCallback(
+      debounce(async (query: string) => {
+        if (!query.trim()) {
+          setStudentOptions([]);
+          return;
+        }
+        setStudentSearchLoading(true);
+        try {
+          const res: any = await studentApi.getAllStudents({ page: 0, size: 20, search: query });
+          setStudentOptions(res?.data?.content || res?.content || []);
+        } catch (err) {
+          console.error('Không thể tải danh sách sinh viên', err);
+        } finally {
+          setStudentSearchLoading(false);
+        }
+      }, 500),
+      []
+  );
+
+  // Tìm kiếm sinh viên cho Dialog Sync State
+  const fetchSyncStudents = useCallback(
+      debounce(async (query: string) => {
+        if (!query.trim()) { setSyncStudentOptions([]); return; }
+        setSyncStudentLoading(true);
+        try {
+          const res: any = await studentApi.getAllStudents({ page: 0, size: 20, search: query });
+          setSyncStudentOptions(res?.data?.content || res?.content || []);
+        } catch {} finally {
+          setSyncStudentLoading(false);
+        }
+      }, 400),
+      []
+  );
+
+  // ==========================================
+  // 7. XỬ LÝ THAO TÁC NGƯỜI DÙNG (EVENT HANDLERS)
+  // ==========================================
+
+  // Thao tác Chọn/Bỏ chọn tất cả đơn vào trễ
   const handleSelectAllCurfewRequests = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelecteds = curfewRequests
@@ -98,6 +283,7 @@ export default function SmartAccessManagement() {
     setSelectedCurfewRequestIds([]);
   };
 
+  // Chọn từng đơn vào trễ lẻ
   const handleSelectCurfewRequest = (event: React.ChangeEvent<HTMLInputElement>, id: string) => {
     const selectedIndex = selectedCurfewRequestIds.indexOf(id);
     let newSelected: string[] = [];
@@ -118,167 +304,7 @@ export default function SmartAccessManagement() {
     setSelectedCurfewRequestIds(newSelected);
   };
 
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  // Dialog State
-  const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
-  const [emergencyDialogOpen, setEmergencyDialogOpen] = useState(false);
-
-  // Unlock Form
-  const [gateId, setGateId] = useState('');
-  const [targetStudentId, setTargetStudentId] = useState('');
-  const [buildingId, setBuildingId] = useState('');
-
-  // Dropdown Data State for Unlock Form
-  const [allGates, setAllGates] = useState<GateResponse[]>([]);
-  const [filteredGates, setFilteredGates] = useState<GateResponse[]>([]);
-  const [studentOptions, setStudentOptions] = useState<StudentProfileResponse[]>([]);
-  const [studentSearchLoading, setStudentSearchLoading] = useState(false);
-  const [selectedGate, setSelectedGate] = useState<GateResponse | null>(null);
-  const [selectedStudent, setSelectedStudent] = useState<StudentProfileResponse | null>(null);
-
-  // Fetch Gates on mount
-  useEffect(() => {
-    gateApi.getAllGates().then((res: any) => {
-      setAllGates(res?.data || res || []);
-    }).catch(err => console.error(err));
-  }, []);
-
-  // Filter gates by buildingId
-  useEffect(() => {
-    if (buildingId) {
-      setFilteredGates(allGates.filter(g => g.buildingId === buildingId));
-    } else {
-      setFilteredGates([]);
-    }
-    if (selectedGate && selectedGate.buildingId !== buildingId) {
-      setSelectedGate(null);
-      setGateId('');
-    }
-  }, [buildingId, allGates, selectedGate]);
-
-  // Handle student search with debounce
-  const fetchStudents = useCallback(
-      debounce(async (query: string) => {
-        if (!query.trim()) {
-          setStudentOptions([]);
-          return;
-        }
-        setStudentSearchLoading(true);
-        try {
-          const res: any = await studentApi.getAllStudents({ page: 0, size: 20, search: query });
-          setStudentOptions(res?.data?.content || res?.content || []);
-        } catch (err) {
-          console.error('Không thể tải danh sách sinh viên', err);
-        } finally {
-          setStudentSearchLoading(false);
-        }
-      }, 500),
-      []
-  );
-
-  // Snapshot Viewer
-  const [snapshotViewerOpen, setSnapshotViewerOpen] = useState(false);
-  const [currentSnapshot, setCurrentSnapshot] = useState('');
-
-  // Emergency Form
-  const [actionType, setActionType] = useState('GLOBAL_LOCKDOWN');
-  const [reason, setReason] = useState('');
-  const [confirmEmergency, setConfirmEmergency] = useState(false);
-  const [targetBuilding, setTargetBuilding] = useState('ALL');
-
-  // Fetch Buildings for Scoped Actions
-  useEffect(() => {
-    fetchBuildings();
-  }, [fetchBuildings]);
-
-  // Tabs State
-  const [activeTab, setActiveTab] = useState(0);
-
-  // Search State
-  const [searchStudentId, setSearchStudentId] = useState('');
-  const [filterGateId, setFilterGateId] = useState('');
-  const [filterDecision, setFilterDecision] = useState('');
-  const [filterReason, setFilterReason] = useState('');
-  const [filterBuildingId, setFilterBuildingId] = useState('');
-  const [filterSelectedGate, setFilterSelectedGate] = useState<GateResponse | null>(null);
-  const [filterSelectedStudent, setFilterSelectedStudent] = useState<StudentProfileResponse | null>(null);
-
-  const filterGatesList = allGates.filter(g => !filterBuildingId || g.buildingId === filterBuildingId);
-
-  // Local filter state for outside students
-  const [filterOutsideBuildingName, setFilterOutsideBuildingName] = useState<string>('');
-  const [filterStartDate, setFilterStartDate] = useState('');
-  const [filterEndDate, setFilterEndDate] = useState('');
-
-  // IoT Hardware Alert
-  const [iotHardwareAlert, setIotHardwareAlert] = useState<{ title: string; message: string; id: number } | null>(null);
-
-  useEffect(() => {
-    const checkHardwareAlerts = async () => {
-      try {
-        const { notificationApi } = await import('@/api/notification-api');
-        const notifications = await notificationApi.getNotifications();
-        const hwAlert = (notifications as any[]).find(
-            (n: any) => n.type === 'IOT_HARDWARE_ERROR' && !n.isRead && !n.read
-        );
-        if (hwAlert) {
-          setIotHardwareAlert({ title: hwAlert.title, message: hwAlert.message, id: hwAlert.id });
-        }
-      } catch {
-        // Bỏ qua lỗi kết nối thông báo ngầm
-      }
-    };
-    checkHardwareAlerts();
-    const interval = setInterval(checkHardwareAlerts, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Sync State Dialog
-  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
-  const [syncStudentId, setSyncStudentId] = useState('');
-  const [syncDirection, setSyncDirection] = useState<'IN' | 'OUT'>('IN');
-  const [syncReason, setSyncReason] = useState('');
-  const [syncStudent, setSyncStudent] = useState<StudentProfileResponse | null>(null);
-  const [syncStudentQuery, setSyncStudentQuery] = useState('');
-  const [syncStudentLoading, setSyncStudentLoading] = useState(false);
-  const [syncStudentOptions, setSyncStudentOptions] = useState<StudentProfileResponse[]>([]);
-
-  const fetchSyncStudents = useCallback(
-      debounce(async (query: string) => {
-        if (!query.trim()) { setSyncStudentOptions([]); return; }
-        setSyncStudentLoading(true);
-        try {
-          const res: any = await studentApi.getAllStudents({ page: 0, size: 20, search: query });
-          setSyncStudentOptions(res?.data?.content || res?.content || []);
-        } catch {} finally {
-          setSyncStudentLoading(false);
-        }
-      }, 400),
-      []
-  );
-
-  const [curfewFilterStatus, setCurfewFilterStatus] = useState('PENDING');
-
-  useEffect(() => {
-    if (activeTab === 0) {
-      fetchHistory(page, rowsPerPage, searchStudentId, {
-        gateId: filterGateId,
-        decision: filterDecision,
-        denialReason: filterReason,
-        startDate: filterStartDate ? new Date(filterStartDate).toISOString() : undefined,
-        endDate: filterEndDate ? new Date(filterEndDate).toISOString() : undefined,
-      });
-    } else if (activeTab === 1) {
-      fetchCurfewRequests(page, rowsPerPage, curfewFilterStatus === 'ALL' ? undefined : curfewFilterStatus);
-      setSelectedCurfewRequestIds([]);
-    } else if (activeTab === 2) {
-      fetchOutsideStudents();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, page, rowsPerPage, curfewFilterStatus]);
-
+  // Nút Tìm kiếm dữ liệu lịch sử
   const handleSearchClick = () => {
     setPage(0);
     fetchHistory(0, rowsPerPage, searchStudentId, {
@@ -290,6 +316,7 @@ export default function SmartAccessManagement() {
     });
   };
 
+  // Nút Đặt lại bộ lọc
   const handleClearSearch = () => {
     setSearchStudentId('');
     setFilterGateId('');
@@ -304,6 +331,7 @@ export default function SmartAccessManagement() {
     fetchHistory(0, rowsPerPage, '', {});
   };
 
+  // Submit Mở cổng từ xa
   const onRemoteUnlockSubmit = async () => {
     if (!gateId) return;
     await handleRemoteUnlock(gateId, buildingId, targetStudentId || undefined);
@@ -312,6 +340,7 @@ export default function SmartAccessManagement() {
     setTargetStudentId('');
   };
 
+  // Submit Lệnh khẩn cấp
   const onEmergencySubmit = async () => {
     if (!reason || !targetBuilding) return;
     await handleEmergencyOverride(actionType, reason, targetBuilding === 'ALL' ? undefined : targetBuilding);
@@ -320,6 +349,7 @@ export default function SmartAccessManagement() {
     setConfirmEmergency(false);
   };
 
+  // Mở Dialog Mở Cổng
   const handleOpenUnlockDialog = () => {
     setUnlockDialogOpen(true);
     setGateId('');
@@ -336,7 +366,7 @@ export default function SmartAccessManagement() {
 
   return (
       <Box sx={{ p: { xs: 2, md: 3 } }}>
-        {/* Header chính */}
+        {/* ================= HEADER TRANG ================= */}
         <Box
             sx={{
               display: 'flex',
@@ -356,6 +386,7 @@ export default function SmartAccessManagement() {
             </Typography>
           </Box>
 
+          {/* Các nút lệnh hành động nhanh */}
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ width: { xs: '100%', sm: 'auto' } }}>
             <Button
                 variant="contained"
@@ -405,7 +436,7 @@ export default function SmartAccessManagement() {
           </Stack>
         </Box>
 
-        {/* Cảnh báo sự cố từ hệ thống */}
+        {/* ================= CẢNH BÁO LỖI PHẦN CỨNG IOT ================= */}
         {iotHardwareAlert && (
             <Alert
                 severity="error"
@@ -421,7 +452,7 @@ export default function SmartAccessManagement() {
             </Alert>
         )}
 
-        {/* Các Tab điều hướng */}
+        {/* ================= ĐIỀU HƯỚNG TABS ================= */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
           <Tabs
               value={activeTab}
@@ -438,9 +469,10 @@ export default function SmartAccessManagement() {
           </Tabs>
         </Box>
 
-        {/* TAB 0: Lịch sử ra vào */}
+        {/* ================= TAB 0: LỊCH SỬ RA VÀO ================= */}
         {activeTab === 0 && (
             <>
+              {/* Form tra cứu dữ liệu */}
               <Paper variant="outlined" sx={{ p: 2.5, mb: 3, borderRadius: 2 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
                   Tra cứu dữ liệu
@@ -599,6 +631,7 @@ export default function SmartAccessManagement() {
                 </Box>
               </Paper>
 
+              {/* Bảng dữ liệu Lịch sử ra vào */}
               <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
                 {loading ? (
                     <Box p={3}>
@@ -722,9 +755,10 @@ export default function SmartAccessManagement() {
             </>
         )}
 
-        {/* TAB 1: Yêu cầu vào trễ */}
+        {/* ================= TAB 1: YÊU CẦU VÀO TRỄ (CHỈ ADMIN) ================= */}
         {activeTab === 1 && isAdmin && (
             <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
+              {/* Lọc theo Trạng thái Đơn */}
               <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end', borderBottom: 1, borderColor: 'divider' }}>
                 <FormControl size="small" sx={{ minWidth: 180 }}>
                   <InputLabel>Trạng thái yêu cầu</InputLabel>
@@ -750,6 +784,7 @@ export default function SmartAccessManagement() {
                   </Box>
               ) : (
                   <>
+                    {/* Thanh thao tác hàng loạt khi tick chọn nhiều đơn */}
                     {selectedCurfewRequestIds.length > 0 && (
                         <Box sx={{ p: 2, bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05), display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                           <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
@@ -923,7 +958,7 @@ export default function SmartAccessManagement() {
             </Paper>
         )}
 
-        {/* TAB 2: Danh sách vắng mặt */}
+        {/* ================= TAB 2: DANH SÁCH SINH VIÊN VẮNG MẶT ================= */}
         {activeTab === 2 && (
             <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
               {loadingOutside ? (
@@ -932,6 +967,7 @@ export default function SmartAccessManagement() {
                   </Box>
               ) : (
                   <Box>
+                    {/* Nút xuất CSV & Lọc theo Tòa nhà */}
                     <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: 1, borderColor: 'divider' }}>
                       <Button
                           variant="outlined"
@@ -1034,7 +1070,7 @@ export default function SmartAccessManagement() {
             </Paper>
         )}
 
-        {/* DIALOG: Mở cổng từ xa */}
+        {/* ================= DIALOG 1: MỞ CỔNG TỪ XA ================= */}
         <Dialog
             open={unlockDialogOpen}
             onClose={() => setUnlockDialogOpen(false)}
@@ -1130,7 +1166,7 @@ export default function SmartAccessManagement() {
           </DialogActions>
         </Dialog>
 
-        {/* DIALOG: Xem ảnh xác thực */}
+        {/* ================= DIALOG 2: XEM ẢNH XÁC THỰC CAMERA ================= */}
         <Dialog
             open={snapshotViewerOpen}
             onClose={() => setSnapshotViewerOpen(false)}
@@ -1164,7 +1200,7 @@ export default function SmartAccessManagement() {
           </DialogActions>
         </Dialog>
 
-        {/* DIALOG: Lệnh khẩn cấp */}
+        {/* ================= DIALOG 3: PHÁT LỆNH KHẨN CẤP ================= */}
         <Dialog
             open={emergencyDialogOpen}
             onClose={() => setEmergencyDialogOpen(false)}
@@ -1258,7 +1294,7 @@ export default function SmartAccessManagement() {
           </DialogActions>
         </Dialog>
 
-        {/* DIALOG: Đồng bộ trạng thái IN/OUT */}
+        {/* ================= DIALOG 4: CẬP NHẬT TRẠNG THÁI RA/VÀO (SYNC STATE) ================= */}
         <Dialog
             open={syncDialogOpen}
             onClose={() => setSyncDialogOpen(false)}

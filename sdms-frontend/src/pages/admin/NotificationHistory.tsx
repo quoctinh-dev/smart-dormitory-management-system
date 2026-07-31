@@ -111,7 +111,7 @@ export default function NotificationHistory() {
                     disableElevation
                     sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
                 >
-                    Gửi thông báo đồng loạt
+                    Gửi thông báo (broadcast)
                 </Button>
             </Box>
 
@@ -255,7 +255,7 @@ export default function NotificationHistory() {
                             sx={{ borderRadius: 1.5 }}
                         >
                             <MenuItem value="">Tất cả nguồn</MenuItem>
-                            <MenuItem value="BROADCAST">Gửi đồng loạt (Broadcast)</MenuItem>
+                            <MenuItem value="BROADCAST">Gửi thông báo (Broadcast)</MenuItem>
                             <MenuItem value="SYSTEM">Hệ thống tự động</MenuItem>
                         </Select>
                     </FormControl>
@@ -403,7 +403,7 @@ export default function NotificationHistory() {
                 PaperProps={{ sx: { borderRadius: 2 } }}
             >
                 <DialogTitle sx={{ fontWeight: 600, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
-                    Gửi thông báo đồng loạt (Broadcast)
+                    Gửi thông báo (Broadcast)
                 </DialogTitle>
                 <DialogContent dividers sx={{ py: 2.5 }}>
                     <Stack direction="column" spacing={2.5} sx={{ width: '100%', mt: 1 }}>
