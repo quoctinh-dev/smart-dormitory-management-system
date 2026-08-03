@@ -193,7 +193,9 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
         );
 
         // Tạo bản ghi thông báo cho từng Admin và Staff
-        String eventId = "issue-" + UUID.randomUUID();
+        String studentCode = account.getStudent() != null && account.getStudent().getStudentCode() != null 
+                ? account.getStudent().getStudentCode() : "KH";
+        String eventId = "ISSUE-" + roomCode.replace(" ", "") + "-" + studentCode + "-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
         admins.forEach(admin -> createNotification(admin.getAccountId(), admin.getEmail(), title, message, null, eventId));
         staffs.forEach(staff -> createNotification(staff.getAccountId(), staff.getEmail(), title, message, null, eventId));
     }

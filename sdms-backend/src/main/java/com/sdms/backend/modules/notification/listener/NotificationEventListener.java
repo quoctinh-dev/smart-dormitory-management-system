@@ -11,6 +11,7 @@ import com.sdms.backend.modules.notification.core.payload.NotificationPayload;
 import com.sdms.backend.modules.notification.enums.NotificationChannel;
 import com.sdms.backend.modules.notification.enums.NotificationType;
 import com.sdms.backend.modules.notification.service.NotificationService;
+import com.sdms.backend.modules.payment.event.BillReminderEvent;
 import com.sdms.backend.modules.payment.event.PaymentSuccessEvent;
 import com.sdms.backend.modules.payment.event.ReservationPaymentExpiredEvent;
 import com.sdms.backend.modules.payment.event.UtilityBillCalculatedEvent;
@@ -23,6 +24,7 @@ import com.sdms.backend.modules.smartaccess.event.RoomPinChangedEvent;
 import com.sdms.backend.modules.student.event.ExtensionApprovedEvent;
 import com.sdms.backend.modules.student.event.StudentCheckedOutEvent;
 import com.sdms.backend.modules.student.repository.StudentRepository;
+import com.sdms.backend.modules.maintenance.event.MaintenanceStatusChangedEvent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -175,7 +177,7 @@ public class NotificationEventListener {
             variables.put("amount", event.getAmount());
 
             NotificationPayload.NotificationPayloadBuilder builder = NotificationPayload.builder()
-                    .eventId("PAYMENT_" + event.getBillId())
+                    .eventId("PAYMENT_" + event.getBillId().toString().substring(0,8))
                     .type(NotificationType.PAYMENT)
                     .channels(channels)
                     .studentId(event.getStudentId())
@@ -245,7 +247,7 @@ public class NotificationEventListener {
             variables.put("roomName", event.getRoomCode());
 
             NotificationPayload payload = NotificationPayload.builder()
-                    .eventId("CHECKIN_" + event.getAssignmentId())
+                    .eventId("CHECKIN_" + getReadableStudentCode(event.getStudentId()))
                     .type(NotificationType.ROOM)
                     .channels(Set.of(NotificationChannel.IN_APP)) // Sinh viên đã vô app -> Chỉ In-App
                     .studentId(event.getStudentId())
@@ -362,7 +364,39 @@ public class NotificationEventListener {
         }
     }
     /**
-     * 8. Hứng sự kiện Mã PIN phòng bị thay đổi
+     * 10. Hứng sự kiện Hóa đơn thủ công (Manual Bill) được tạo
+     */
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleManualBillCreated(com.sdms.backend.modules.payment.event.ManualBillCreatedEvent event) {
+        log.info("Notification-Event: Đã tạo hóa đơn thủ công (ID: {}) cho sinh viên: {}", event.getBillId(), event.getStudentId());
+        try {
+            String billTypeStr = event.getBillType() != null ? event.getBillType().name() : "Khác";
+            
+            NotificationType notifType = NotificationType.PAYMENT;
+            if (event.getBillType() != null) {
+                if (event.getBillType().name().equals("ACCOMMODATION_FEE")) notifType = NotificationType.ACCOMMODATION_FEE;
+                else if (event.getBillType().name().equals("PENALTY_FEE")) notifType = NotificationType.PENALTY_FEE;
+            }
+
+            NotificationPayload payload = NotificationPayload.builder()
+                    .eventId("MANUAL_BILL_" + event.getBillId())
+                    .type(notifType)
+                    .channels(Set.of(NotificationChannel.IN_APP))
+                    .studentId(event.getStudentId())
+                    .title("Hóa đơn mới được tạo")
+                    .inAppMessage(String.format("Bạn có một hóa đơn mới (%s) cần thanh toán. Số tiền: %s VNĐ. Ghi chú: %s",
+                            billTypeStr, event.getAmount().toString(), event.getDescription() != null ? event.getDescription() : ""))
+                    .actionUrl("/student/payment")
+                    .build();
+            notificationRouter.route(payload);
+        } catch (Exception e) {
+            log.error("Lỗi gửi thông báo hóa đơn thủ công: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 11. Hứng sự kiện Mã PIN phòng bị thay đổi
      */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -395,25 +429,33 @@ public class NotificationEventListener {
      */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleUtilityBillCalculated(UtilityBillCalculatedEvent event) {
-        log.info("Notification-Event: Đã chốt hóa đơn điện nước cho phòng: {}", event.getRoomId());
+    public void handleUtilityBillCreated(com.sdms.backend.modules.payment.event.UtilityBillCreatedEvent event) {
+        log.info("Notification-Event: Đã tạo hóa đơn điện nước (ID: {}) cho sinh viên: {}", event.getBillId(), event.getStudentId());
         try {
-            // Find all active students in the room
-            List<StudentHousingAssignment> assignments = assignmentRepository.findByBed_Room_RoomIdAndStatus(event.getRoomId(), AssignmentStatus.OCCUPIED);
-            for (StudentHousingAssignment assignment : assignments) {
-                if (assignment.getStudent() != null) {
-                    NotificationPayload payload = NotificationPayload.builder()
-                            .eventId("UTILITY_BILL_" + event.getUsageId() + "_" + getReadableStudentCode(assignment.getStudent().getStudentId()))
-                            .type(NotificationType.PAYMENT)
-                            .channels(Set.of(NotificationChannel.IN_APP))
-                            .studentId(assignment.getStudent().getStudentId())
-                            .recipientName(assignment.getApplication() != null ? assignment.getApplication().getFullName() : null)
-                            .title("Thông báo thanh toán điện nước")
-                            .inAppMessage(String.format("Hóa đơn điện nước tháng %d/%d của phòng bạn đã được chốt. Vui lòng kiểm tra và thanh toán sớm.", event.getMonth(), event.getYear()))
-                            .actionUrl("/student/payment")
-                            .build();
-                    notificationRouter.route(payload);
+            if (event.getStudentId() != null) {
+                // Get student name if possible
+                String studentName = null;
+                java.util.Optional<com.sdms.backend.modules.student.entity.Student> studentOpt = studentRepository.findById(event.getStudentId());
+                if (studentOpt.isPresent()) {
+                    studentName = studentOpt.get().getFullName();
                 }
+
+                String billTypeStr = event.getUtilityName() != null ? event.getUtilityName() : "điện";
+
+                NotificationType notifType = NotificationType.ELECTRIC_FEE;
+
+                NotificationPayload payload = NotificationPayload.builder()
+                        .eventId("UTILITY_BILL_" + event.getBillId())
+                        .type(notifType)
+                        .channels(Set.of(NotificationChannel.IN_APP))
+                        .studentId(event.getStudentId())
+                        .recipientName(studentName)
+                        .title("Hóa đơn " + billTypeStr + " mới được tạo")
+                        .inAppMessage(String.format("Bạn có một hóa đơn tiền %s tháng %d/%d cần thanh toán. Số tiền: %s VNĐ.",
+                                billTypeStr, event.getMonth(), event.getYear(), event.getAmount().toString()))
+                        .actionUrl("/student/payment")
+                        .build();
+                notificationRouter.route(payload);
             }
         } catch (Exception e) {
             log.error("Lỗi gửi thông báo hóa đơn điện nước: {}", e.getMessage());
@@ -456,5 +498,108 @@ public class NotificationEventListener {
         }
     }
 
+    /**
+     * 12. Hứng sự kiện nhắc nợ hóa đơn (Từ cron job)
+     */
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void handleBillReminderEvent(BillReminderEvent event) {
+        log.info("Notification-Event: Nhận sự kiện nhắc nợ hóa đơn {} (Type: {})", event.getBillId(), event.getReminderType());
+        try {
+            String title = "Nhắc nhở thanh toán hóa đơn";
+            String message = "";
+            
+            String billTypeStr = "hóa đơn";
+            if (event.getBillType() != null) {
+                switch (event.getBillType()) {
+                    case ACCOMMODATION_FEE: billTypeStr = "tiền phòng"; break;
+                    case ELECTRIC_FEE: billTypeStr = "điện nước"; break;
+                    case PENALTY_FEE: billTypeStr = "tiền phạt"; break;
+                }
+            }
+
+            if ("OVERDUE".equals(event.getReminderType())) {
+                title = "CẢNH BÁO: Hóa đơn quá hạn thanh toán";
+                message = String.format("Hóa đơn %s (%s) của bạn đã QUÁ HẠN thanh toán. Số tiền: %s VNĐ. Vui lòng thanh toán ngay để tránh bị phạt hoặc gián đoạn dịch vụ.",
+                        billTypeStr, event.getBillCode(), event.getAmount());
+            } else if ("DUE_SOON_1_DAY".equals(event.getReminderType())) {
+                title = "Hóa đơn sắp đến hạn (Còn 1 ngày)";
+                message = String.format("Hóa đơn %s (%s) của bạn sẽ đến hạn thanh toán vào ngày mai. Số tiền: %s VNĐ. Vui lòng thanh toán sớm.",
+                        billTypeStr, event.getBillCode(), event.getAmount());
+            } else {
+                title = "Hóa đơn sắp đến hạn";
+                message = String.format("Hóa đơn %s (%s) của bạn sẽ đến hạn thanh toán vào ngày %s. Số tiền: %s VNĐ.",
+                        billTypeStr, event.getBillCode(), event.getDueDate(), event.getAmount());
+            }
+
+            NotificationType notifType = NotificationType.PAYMENT;
+            if (event.getBillType() != null) {
+                try {
+                    notifType = NotificationType.valueOf(event.getBillType().name());
+                } catch (IllegalArgumentException e) {
+                    notifType = NotificationType.PAYMENT;
+                }
+            }
+
+            NotificationPayload payload = NotificationPayload.builder()
+                    .eventId("REMINDER_" + event.getReminderType() + "_" + event.getBillId())
+                    .type(notifType)
+                    .channels(Set.of(NotificationChannel.IN_APP))
+                    .studentId(event.getStudentId())
+                    .title(title)
+                    .inAppMessage(message)
+                    .actionUrl("/student/bills/" + event.getBillId())
+                    .build();
+            
+            notificationRouter.route(payload);
+        } catch (Exception e) {
+            log.error("Lỗi gửi thông báo nhắc nợ hóa đơn: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 13. Hứng sự kiện Cập nhật trạng thái bảo trì/sửa chữa
+     */
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleMaintenanceStatusChanged(MaintenanceStatusChangedEvent event) {
+        log.info("Notification-Event: Trạng thái sự cố bảo trì {} đã thay đổi thành {}", event.getRequestId(), event.getNewStatus());
+        try {
+            String title = "Cập nhật trạng thái sửa chữa";
+            String message = "";
+            String statusName = "";
+
+            switch (event.getNewStatus()) {
+                case IN_PROGRESS:
+                    statusName = "Đang sửa chữa";
+                    message = String.format("Yêu cầu sửa chữa '%s' của bạn đã được tiếp nhận và Đang được xử lý.", event.getDescription());
+                    break;
+                case DONE:
+                    statusName = "Hoàn thành";
+                    message = String.format("Tuyệt vời! Yêu cầu sửa chữa '%s' của bạn đã được Hoàn thành. Cảm ơn bạn đã phản ánh.", event.getDescription());
+                    break;
+                case REJECTED:
+                    statusName = "Từ chối";
+                    message = String.format("Yêu cầu sửa chữa '%s' của bạn đã bị Từ chối. Vui lòng liên hệ BQL để biết thêm chi tiết.", event.getDescription());
+                    break;
+                default:
+                    return; // Không gửi thông báo nếu chuyển về PENDING
+            }
+
+            NotificationPayload payload = NotificationPayload.builder()
+                    .eventId("MAINTENANCE_" + event.getNewStatus().name() + "_" + event.getRequestId())
+                    .type(NotificationType.MAINTENANCE)
+                    .channels(Set.of(NotificationChannel.IN_APP))
+                    .studentId(event.getStudentId())
+                    .title(title)
+                    .inAppMessage(message)
+                    .actionUrl("/student/maintenance")
+                    .build();
+            
+            notificationRouter.route(payload);
+        } catch (Exception e) {
+            log.error("Lỗi gửi thông báo trạng thái bảo trì: {}", e.getMessage(), e);
+        }
+    }
 
 }

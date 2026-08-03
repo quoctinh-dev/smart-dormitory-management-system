@@ -51,5 +51,4 @@ public class AdminAccountController {
         return ApiResponse.success("Tạo tài khoản Staff thành công");
     }
 
-    // Xóa các API thừa không được sử dụng ở frontend (GET /student-profile, PATCH /student-profile/academic)
 }

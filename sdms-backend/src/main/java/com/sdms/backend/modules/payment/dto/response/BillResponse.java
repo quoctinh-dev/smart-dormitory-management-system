@@ -13,6 +13,8 @@ import java.util.UUID;
 public class BillResponse {
 
     private UUID billId;
+    
+    private String billCode;
 
     private BillType billType;
 

@@ -4,6 +4,7 @@ export type BillType =
 
 export interface BillResponse {
   billId: string;
+  billCode: string;
   billType: BillType;
   amount: number;
   paidAmount: number;

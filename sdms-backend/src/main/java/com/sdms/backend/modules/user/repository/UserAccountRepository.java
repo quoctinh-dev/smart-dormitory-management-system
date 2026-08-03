@@ -25,6 +25,9 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, UUID> 
     @EntityGraph(attributePaths = {"student"})
     Optional<UserAccount> findByEmail(String email);
 
+    @EntityGraph(attributePaths = {"student"})
+    Optional<UserAccount> findByStudent_StudentId(UUID studentId);
+
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
 

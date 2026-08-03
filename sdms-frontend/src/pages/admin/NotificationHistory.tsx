@@ -274,10 +274,13 @@ export default function NotificationHistory() {
                             <MenuItem value="">Tất cả loại</MenuItem>
                             <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
                             <MenuItem value="SYSTEM">Hệ thống</MenuItem>
-                            <MenuItem value="WARNING">Cảnh báo</MenuItem>
+                            <MenuItem value="IOT_HARDWARE_ERROR">Lỗi IoT</MenuItem>
                             <MenuItem value="APPLICATION">Đơn đăng ký</MenuItem>
                             <MenuItem value="MAINTENANCE">Báo hỏng</MenuItem>
                             <MenuItem value="PAYMENT">Thanh toán</MenuItem>
+                            <MenuItem value="ELECTRIC_FEE">Tiền điện</MenuItem>
+                            <MenuItem value="ACCOMMODATION_FEE">Tiền phòng</MenuItem>
+                            <MenuItem value="PENALTY_FEE">Tiền phạt</MenuItem>
                             <MenuItem value="ROOM">Phòng ở</MenuItem>
                         </Select>
                     </FormControl>
@@ -419,20 +422,7 @@ export default function NotificationHistory() {
                             sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                         />
 
-                        <FormControl fullWidth size="small">
-                            <InputLabel>Loại thông báo</InputLabel>
-                            <Select
-                                label="Loại thông báo"
-                                value={broadcastForm.type}
-                                onChange={(event) =>
-                                    setBroadcastForm((prev) => ({ ...prev, type: event.target.value }))
-                                }
-                                sx={{ borderRadius: 1.5 }}
-                            >
-                                <MenuItem value="ANNOUNCEMENT">Thông báo chung</MenuItem>
-                                <MenuItem value="WARNING">Cảnh báo an ninh / nội quy</MenuItem>
-                            </Select>
-                        </FormControl>
+
 
                         <FormControl fullWidth size="small">
                             <InputLabel>Đối tượng nhận</InputLabel>

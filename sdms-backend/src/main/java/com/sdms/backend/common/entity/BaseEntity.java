@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 /**
  * Lớp thực thể cơ sở (Base Entity) cung cấp các thuộc tính chung cho toàn bộ thực thể trong hệ thống.
  * Tự động hóa quá trình ghi nhận lịch sử thay đổi (Audit) bao gồm thời gian tạo và thời gian cập nhật.
- * Được thiết kế sẵn (Prepared) làm nền tảng để triển khai cơ chế Xóa mềm (Soft Delete) trong tương lai nhằm mục đích bảo toàn dữ liệu và tối ưu hóa hệ thống.
  */
 @MappedSuperclass
 @Getter

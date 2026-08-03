@@ -1,0 +1,1 @@
+ALTER TABLE bills ADD COLUMN extension_count INT NOT NULL DEFAULT 0;

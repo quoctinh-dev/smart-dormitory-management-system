@@ -7,12 +7,12 @@ const COST_ITEMS = [
     {
         icon: <PaymentsOutlined sx={{ fontSize: 24 }} />,
         title: 'Lệ phí phòng: ~ 350.000 VNĐ/tháng',
-        desc: 'Thu theo đợt (thường vài tháng/lần tùy thông báo). Mức giá có thể điều chỉnh nhẹ theo năm học.',
+        desc: 'Đóng theo 2 học kỳ chính (mỗi kỳ 3 tháng). Có hỗ trợ đăng ký lưu trú riêng vào dịp Hè.',
     },
     {
         icon: <BoltOutlined sx={{ fontSize: 24 }} />,
-        title: 'Tiền điện sinh hoạt',
-        desc: 'Chưa bao gồm trong giá phòng. Sinh viên tự thanh toán hàng tháng dựa trên chỉ số đồng hồ điện riêng.',
+        title: 'Chi phí Điện & Nước',
+        desc: 'Miễn phí hoàn toàn tiền nước sinh hoạt. Tiền điện được tính riêng và thanh toán hàng tháng theo chỉ số đồng hồ.',
     },
     {
         icon: <ReceiptLongOutlined sx={{ fontSize: 24 }} />,

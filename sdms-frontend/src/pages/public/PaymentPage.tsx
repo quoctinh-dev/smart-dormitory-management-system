@@ -61,8 +61,8 @@ export default function PaymentPage() {
     if (loading) return <CustomSkeleton type="dashboard" count={1}/>;
 
     const transferContent =
-        typeof (paymentInstructions as any)?.contentPrefix === 'string' && typeof bill?.billId === 'string'
-            ? `${(paymentInstructions as any).contentPrefix}${bill.billId.split('-')[0].toUpperCase()}`
+        typeof (paymentInstructions as any)?.contentPrefix === 'string' && typeof bill?.billCode === 'string'
+            ? `${(paymentInstructions as any).contentPrefix}${bill.billCode}`
             : '';
 
     return (
@@ -197,7 +197,7 @@ export default function PaymentPage() {
                                         Mã hóa đơn
                                     </Typography>
                                     <Typography variant="body2" sx={{fontWeight: 600}}>
-                                        {bill?.billId}
+                                        {bill?.billCode || bill?.billId}
                                     </Typography>
                                 </Box>
                                 <Box>

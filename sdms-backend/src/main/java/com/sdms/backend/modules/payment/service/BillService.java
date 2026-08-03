@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
+import com.sdms.backend.modules.payment.event.ManualBillCreatedEvent;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +40,7 @@ public class BillService {
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final StudentRepository studentRepository;
     private final RoomRepository roomRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Tạo bill tiền ở KTX
@@ -73,8 +76,19 @@ public class BillService {
         bill.setPaidAmount(BigDecimal.ZERO);
         bill.setStatus(BillStatus.UNPAID);
         bill.setDueDate(dueDate);
-        bill.setDescription("Accommodation fee");
-        return billRepository.save(bill);
+        bill.setDescription("Thanh toán tiền phòng (Bắt buộc)");
+        bill.setBillCode(generateBillCode(BillType.ACCOMMODATION_FEE));
+        Bill savedBill = billRepository.save(bill);
+        
+        eventPublisher.publishEvent(new ManualBillCreatedEvent(
+                savedBill.getBillCode(),
+                savedBill.getStudentId(),
+                savedBill.getBillType(),
+                savedBill.getAmount(),
+                savedBill.getDescription()
+        ));
+        
+        return savedBill;
     }
 
     /**
@@ -99,8 +113,16 @@ public class BillService {
         bill.setStatus(BillStatus.UNPAID);
         bill.setDueDate(request.getDueDate());
         bill.setDescription(request.getDescription());
+        bill.setBillCode(generateBillCode(request.getBillType()));
         
         Bill savedBill = billRepository.save(bill);
+        eventPublisher.publishEvent(new ManualBillCreatedEvent(
+                savedBill.getBillCode(),
+                savedBill.getStudentId(),
+                savedBill.getBillType(),
+                savedBill.getAmount(),
+                savedBill.getDescription()
+        ));
         return toBillResponse(savedBill);
     }
 
@@ -164,7 +186,7 @@ public class BillService {
 
             Map<String, Object> map = new HashMap<>();
             map.put("billId", bill.getBillId());
-            String billCode = bill.getBillId().toString().substring(0, 8).toUpperCase();
+            String billCode = bill.getBillCode() != null ? bill.getBillCode() : bill.getBillId().toString().substring(0, 8).toUpperCase();
             map.put("billCode", billCode);
             map.put("amount", bill.getAmount());
             map.put("billType", bill.getBillType());
@@ -261,6 +283,96 @@ public class BillService {
     }
 
     /**
+     * Dời ngày đến hạn của hóa đơn (Admin).
+     * Yêu cầu: Hóa đơn phải chưa thanh toán, chưa hết hạn, và ngày mới phải xa hơn.
+     */
+    @Transactional
+    public BillResponse extendDueDate(UUID billId, LocalDate newDueDate) {
+        Bill bill = billRepository.findById(billId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hóa đơn"));
+
+        if (bill.getStatus() != BillStatus.UNPAID) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ có thể gia hạn hóa đơn chưa thanh toán");
+        }
+        
+        if (bill.getDueDate() != null && !newDueDate.isAfter(bill.getDueDate())) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Ngày đến hạn mới phải sau ngày đến hạn hiện tại");
+        }
+
+        if (bill.getExtensionCount() != null && bill.getExtensionCount() >= 1) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Mỗi hóa đơn chỉ được gia hạn tối đa 1 lần");
+        }
+
+        bill.setExtensionCount((bill.getExtensionCount() == null ? 0 : bill.getExtensionCount()) + 1);
+        bill.setDueDate(newDueDate);
+        Bill savedBill = billRepository.save(bill);
+        
+        return toBillResponse(savedBill);
+    }
+
+    /**
+     * Tách nợ hóa đơn tiền điện (F04: SPLIT UTILITY BILL).
+     * Trưởng phòng báo cáo thành viên không đóng tiền.
+     */
+    @Transactional
+    public BillResponse splitUtilityBill(UUID billId, com.sdms.backend.modules.payment.dto.request.SplitBillRequest request, UUID requesterId) {
+        Bill originalBill = billRepository.findByIdForUpdate(billId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy hóa đơn"));
+
+        // Xác thực logic
+        if (originalBill.getBillType() != BillType.ELECTRIC_FEE) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ được tách nợ đối với hóa đơn tiền điện");
+        }
+        if (originalBill.getStatus() != BillStatus.UNPAID && originalBill.getStatus() != BillStatus.PARTIALLY_PAID) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Chỉ có thể tách nợ khi hóa đơn chưa thanh toán xong");
+        }
+        if (!originalBill.getStudentId().equals(requesterId)) {
+            // Wait, since admin or room leader can do this. For now, we skip requester validation or assume it's checked in Controller.
+            // Actually, let's keep it robust. If requesterId is not null, it must match.
+            if (requesterId != null && !originalBill.getStudentId().equals(requesterId)) {
+                throw new AppException(ErrorCode.FORBIDDEN, "Chỉ người đại diện hóa đơn mới được phép báo cáo tách nợ");
+            }
+        }
+
+        BigDecimal totalDeduction = request.getAmountPerStudent().multiply(new BigDecimal(request.getNonPayingStudentIds().size()));
+        
+        if (originalBill.getAmount().compareTo(totalDeduction) <= 0) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Tổng số tiền tách nợ không được lớn hơn hoặc bằng tổng hóa đơn");
+        }
+
+        // Trừ tiền hóa đơn gốc
+        originalBill.setAmount(originalBill.getAmount().subtract(totalDeduction));
+        Bill savedOriginalBill = billRepository.save(originalBill);
+
+        // Tạo các hóa đơn phạt (PENALTY_FEE) cho người vi phạm
+        for (UUID nonPayingStudentId : request.getNonPayingStudentIds()) {
+            Bill penaltyBill = new Bill();
+            penaltyBill.setStudentId(nonPayingStudentId);
+            penaltyBill.setRoomId(originalBill.getRoomId());
+            penaltyBill.setBillType(BillType.PENALTY_FEE);
+            penaltyBill.setAmount(request.getAmountPerStudent());
+            penaltyBill.setPaidAmount(BigDecimal.ZERO);
+            penaltyBill.setStatus(BillStatus.UNPAID);
+            penaltyBill.setDueDate(originalBill.getDueDate());
+            penaltyBill.setDescription("Nợ tiền điện chung phòng. Chuyển từ hóa đơn: " + originalBill.getBillCode());
+            penaltyBill.setBillCode(generateBillCode(BillType.PENALTY_FEE));
+            
+            Bill savedPenaltyBill = billRepository.save(penaltyBill);
+            
+            // Thông báo (tùy chọn)
+            eventPublisher.publishEvent(new ManualBillCreatedEvent(
+                    savedPenaltyBill.getBillCode(),
+                    savedPenaltyBill.getStudentId(),
+                    savedPenaltyBill.getBillType(),
+                    savedPenaltyBill.getAmount(),
+                    savedPenaltyBill.getDescription()
+            ));
+        }
+
+        return toBillResponse(savedOriginalBill);
+    }
+
+    /**
      * Chuyển đổi Bill entity sang BillResponse DTO.
      */
     private BillResponse toBillResponse(Bill bill) {
@@ -269,6 +381,7 @@ public class BillService {
         );
         return BillResponse.builder()
                 .billId(bill.getBillId())
+                .billCode(bill.getBillCode())
                 .billType(bill.getBillType())
                 .amount(bill.getAmount())
                 .paidAmount(bill.getPaidAmount())
@@ -278,5 +391,15 @@ public class BillService {
                 .description(bill.getDescription())
                 .assignmentId(bill.getAssignmentId())
                 .build();
+    }
+    
+    public static String generateBillCode(BillType type) {
+        String prefix = switch (type) {
+            case ACCOMMODATION_FEE -> "HDP-"; // Hóa Đơn Phòng
+            case ELECTRIC_FEE -> "HDD-";      // Hóa Đơn Điện
+            case PENALTY_FEE -> "HDF-";       // Hóa Đơn Phạt
+            default -> "HD-";
+        };
+        return prefix + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 }

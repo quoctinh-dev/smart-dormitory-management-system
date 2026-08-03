@@ -68,7 +68,6 @@ export default function DashboardView({ roomsWithBeds, onRefresh }: DashboardVie
         if (status === 'MAINTENANCE') {
             const room = roomsWithBeds.find((r) => r.roomId === roomId);
             if (room) {
-                // Check for ANY active assignment (RESERVED or OCCUPIED) to match backend validation
                 const hasActiveBeds = room.beds.some(b => b.status === 'OCCUPIED' || b.status === 'RESERVED');
 
                 if (hasActiveBeds) {

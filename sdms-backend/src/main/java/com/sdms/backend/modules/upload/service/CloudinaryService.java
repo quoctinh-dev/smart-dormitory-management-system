@@ -19,13 +19,20 @@ public class CloudinaryService {
 
     private final Cloudinary cloudinary;
 
+    /**
+     * Tải tệp hình ảnh lên Cloudinary
+     *
+     * @param file   Tệp tin đa phương tiện gửi từ request
+     * @param folder Thư mục lưu trữ trên Cloudinary
+     * @return URL truy cập an toàn (secure_url) của hình ảnh
+     */
     public String uploadFile(MultipartFile file, String folder) {
-        // 1. Kiểm tra file có rỗng không
+        // Kiểm tra tệp tin hợp lệ
         if (file == null || file.isEmpty()) {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Tệp tin tải lên bị rỗng hoặc không hợp lệ");
         }
 
-        // 2. Kiểm tra định dạng (chỉ cho phép ảnh)
+        // Kiểm tra định dạng tệp (chỉ hỗ trợ hình ảnh)
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Định dạng tệp không được hỗ trợ (chỉ chấp nhận tệp hình ảnh)");
@@ -45,14 +52,23 @@ public class CloudinaryService {
         }
     }
 
+    /**
+     * Tải tệp tài liệu PDF dạng byte array lên Cloudinary
+     *
+     * @param pdfBytes Mảng byte chứa dữ liệu PDF
+     * @param folder   Thư mục lưu trữ trên Cloudinary
+     * @param fileName Tên tệp tin muốn lưu
+     * @return URL truy cập an toàn (secure_url) của tệp PDF
+     */
     public String uploadPdfBytes(byte[] pdfBytes, String folder, String fileName) {
         if (pdfBytes == null || pdfBytes.length == 0) {
             throw new AppException(ErrorCode.VALIDATION_FAILED, "Dữ liệu tệp PDF bị rỗng");
         }
 
         try {
+            // Đảm bảo tên tệp luôn có phần mở rộng .pdf
             String publicId = fileName.endsWith(".pdf") ? fileName : fileName + ".pdf";
-            
+
             Map uploadResult = cloudinary.uploader().upload(
                     pdfBytes,
                     ObjectUtils.asMap(
@@ -67,31 +83,35 @@ public class CloudinaryService {
         }
     }
 
+    /**
+     * Xóa tệp tin trên Cloudinary dựa theo URL công khai
+     *
+     * @param fileUrl URL tuyệt đối của tệp tin cần xóa
+     */
     public void deleteFileByUrl(String fileUrl) {
         if (fileUrl == null || fileUrl.isEmpty()) {
             return;
         }
         try {
-            // URL format: https://res.cloudinary.com/<cloud_name>/<resource_type>/upload/v<version>/<folder>/<filename>.<ext>
-            // We need to extract <folder>/<filename> as public_id
             int uploadIndex = fileUrl.indexOf("/upload/");
             if (uploadIndex != -1) {
+                // Tách lấy đường dẫn tài nguyên sau chuỗi '/upload/'
                 String pathAfterUpload = fileUrl.substring(uploadIndex + 8);
-                // Remove version tag (v1234567890/) if present
+
+                // Loại bỏ phần thông tin phiên bản (VD: 'v123456789/') nếu có
                 if (pathAfterUpload.matches("^v\\d+/.*")) {
                     pathAfterUpload = pathAfterUpload.replaceFirst("^v\\d+/", "");
                 }
-                // Xử lý tách publicId tùy thuộc vào loại tài nguyên (raw, image, video)
+
                 boolean isRaw = fileUrl.contains("/raw/");
                 String publicId = pathAfterUpload;
-                
+
+                // Loại bỏ phần mở rộng đuôi tệp đối với các tài nguyên không phải dạng raw
                 if (!isRaw) {
-                    // Đối với image/video, Cloudinary yêu cầu publicId không bao gồm phần mở rộng file
                     int lastDotIndex = pathAfterUpload.lastIndexOf('.');
                     publicId = (lastDotIndex != -1) ? pathAfterUpload.substring(0, lastDotIndex) : pathAfterUpload;
                 }
-                
-                // Khi xóa tài liệu dạng raw, cần phải chỉ định tham số resource_type tương ứng
+
                 Map<String, Object> options = isRaw ? ObjectUtils.asMap("resource_type", "raw") : ObjectUtils.emptyMap();
                 cloudinary.uploader().destroy(publicId, options);
                 log.info("Đã xóa file trên Cloudinary: {}", publicId);
@@ -100,4 +120,4 @@ public class CloudinaryService {
             log.warn("Không thể xóa file rác trên Cloudinary: {}. Lỗi: {}", fileUrl, e.getMessage());
         }
     }
-}
+}

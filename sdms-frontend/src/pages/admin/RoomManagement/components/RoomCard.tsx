@@ -38,7 +38,7 @@ const STATUS_COLOR: Record<string, 'success' | 'warning' | 'error' | 'default'> 
 
 const STATUS_LABEL: Record<string, string> = {
   AVAILABLE: 'Còn chỗ',
-  FULL: 'Đã đầy',
+  FULL: 'Hết chỗ',
   MAINTENANCE: 'Bảo trì',
   CLOSED: 'Đã đóng',
 };
@@ -56,6 +56,12 @@ export default function RoomCard({
       room.capacity > 0 ? Math.round((room.occupiedBeds / room.capacity) * 100) : 0;
   const isFull = occupancyPercent >= 100;
   const hasSeats = occupancyPercent < 100;
+
+  // Tự động tính toán trạng thái hiển thị thực tế dựa trên số giường
+  let displayStatus = room.status;
+  if (room.status === 'AVAILABLE' && isFull) {
+    displayStatus = 'FULL';
+  }
 
   return (
       <Card
@@ -101,8 +107,8 @@ export default function RoomCard({
             </Box>
             <Stack direction="row" alignItems="center" spacing={0.5}>
               <Chip
-                  label={STATUS_LABEL[room.status] ?? room.status}
-                  color={STATUS_COLOR[room.status] ?? 'default'}
+                  label={STATUS_LABEL[displayStatus] ?? displayStatus}
+                  color={STATUS_COLOR[displayStatus] ?? 'default'}
                   size="small"
                   sx={{ fontWeight: 600, borderRadius: 1 }}
               />

@@ -2,12 +2,14 @@ package com.sdms.backend.modules.student.entity;
 
 import com.sdms.backend.common.entity.BaseEntity;
 import com.sdms.backend.modules.application.entity.DormitoryApplication;
+import com.sdms.backend.modules.room.entity.StudentHousingAssignment;
 import com.sdms.backend.modules.student.enums.StudentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 import java.util.UUID;
-import com.sdms.backend.common.enums.Gender;
 
 /**
  * DOMAIN ROLE: Hồ sơ cư dân chính thức của KTX (Resident Profile).
@@ -96,5 +98,5 @@ public class Student extends BaseEntity {
     private StudentStatus status = StudentStatus.PENDING_CHECKIN;
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
-    private java.util.List<com.sdms.backend.modules.room.entity.StudentHousingAssignment> assignments;
+    private List<StudentHousingAssignment> assignments;
 }

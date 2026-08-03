@@ -53,5 +53,7 @@ Tài liệu này được làm lại để bạn **vừa đọc vừa thao tác 
   - Vẽ Diagram hàm `execute()` để xem cách hệ thống tự động reset giường lỗi ảo (Có báo có người nhưng không có hợp đồng).
 - **Hủy đơn quá hạn:** 
   - Mở `ReservationExpiryJob.java`. 3 ngày không đóng tiền -> Hủy đơn.
+- **Nhắc nợ hóa đơn tự động:**
+  - Mở `BillReminderScheduler.java`. Tự động quét hóa đơn đến hạn/quá hạn vào buổi sáng và bắn sự kiện nhắc nhở về App sinh viên.
 
 **💡 BÀI TẬP THỰC HÀNH:** Hãy dành 15 phút mỗi ngày, dùng chức năng Sequence Diagram vẽ ra cả 4 luồng này trên IDE, bạn sẽ hiểu dự án sâu sắc như chính tay bạn code từ đầu đến cuối!

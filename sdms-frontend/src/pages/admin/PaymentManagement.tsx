@@ -1,6 +1,7 @@
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import EventIcon from '@mui/icons-material/Event';
 import {
   Box,
   Typography,
@@ -75,14 +76,20 @@ export default function PaymentManagement() {
     setBillTypeFilter,
     setConfirmDialog,
     setDetailsDialog,
+    setExtendDialog,
+    extendDialog,
     handleConfirmCashPayment,
     handleCreateManualBill,
+    handleExtendDueDate,
     openDetails,
     openConfirm,
+    openExtend,
   } = usePaymentManagement();
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  
+  const [newDueDate, setNewDueDate] = useState('');
 
   const [manualBillDialog, setManualBillDialog] = useState(false);
   const [manualBillData, setManualBillData] = useState({
@@ -330,6 +337,17 @@ export default function PaymentManagement() {
                                       Thu tiền mặt
                                     </Button>
                                 )}
+
+                                {(bill.status === 'UNPAID' || bill.status === 'OVERDUE') && (
+                                    <IconButton
+                                        color="warning"
+                                        size="small"
+                                        title="Gia hạn (lùi ngày)"
+                                        onClick={() => openExtend(bill)}
+                                    >
+                                      <EventIcon fontSize="small" />
+                                    </IconButton>
+                                )}
                               </Stack>
                             </TableCell>
                           </TableRow>
@@ -474,6 +492,51 @@ export default function PaymentManagement() {
                   Thu tiền mặt
                 </Button>
             )}
+          </DialogActions>
+        </Dialog>
+
+        {/* Dialog gia hạn thời hạn thanh toán */}
+        <Dialog open={extendDialog} onClose={() => setExtendDialog(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 2 } }}>
+          <DialogTitle sx={{ fontWeight: 600, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>Gia hạn hóa đơn</DialogTitle>
+          <DialogContent sx={{ py: 2.5 }}>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              Bạn đang gia hạn cho hóa đơn <strong>{selectedBill?.billCode}</strong> của sinh viên <strong>{selectedBill?.studentName}</strong>.
+            </Typography>
+            <Typography variant="body2" color="error.main" sx={{ mb: 3, fontWeight: 600, fontStyle: 'italic' }}>
+              Lưu ý: Mỗi hóa đơn chỉ được gia hạn tối đa 1 lần theo quy định.
+            </Typography>
+            <TextField
+              label="Hạn thanh toán mới"
+              type="date"
+              fullWidth
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              value={newDueDate}
+              onChange={(e) => setNewDueDate(e.target.value)}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+            />
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2 }}>
+            <Button onClick={() => setExtendDialog(false)} color="inherit" sx={{ borderRadius: 1.5, textTransform: 'none', color: 'text.secondary' }}>
+              Hủy bỏ
+            </Button>
+            <Button
+              variant="contained"
+              color="warning"
+              disableElevation
+              onClick={() => {
+                if (!newDueDate) {
+                  alert('Vui lòng chọn ngày đến hạn mới!');
+                  return;
+                }
+                if (selectedBill) {
+                  handleExtendDueDate(selectedBill.billId, newDueDate);
+                }
+              }}
+              sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
+            >
+              Xác nhận gia hạn
+            </Button>
           </DialogActions>
         </Dialog>
 

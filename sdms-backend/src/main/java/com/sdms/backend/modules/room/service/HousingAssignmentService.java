@@ -13,6 +13,9 @@ import com.sdms.backend.modules.room.event.HousingReservationExpiredEvent;
 import com.sdms.backend.modules.room.event.AssignmentCancelledEvent;
 import com.sdms.backend.modules.room.event.BedReleasedEvent;
 import com.sdms.backend.modules.student.entity.Student;
+import com.sdms.backend.modules.payment.repository.UtilityUsageRepository;
+import com.sdms.backend.modules.payment.entity.UtilityUsage;
+import com.sdms.backend.modules.payment.enums.UtilityType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -39,6 +42,7 @@ public class HousingAssignmentService {
     private final AssignmentValidator assignmentValidator;
     private final ApplicationEventPublisher eventPublisher;
     private final EntityManager entityManager;
+    private final UtilityUsageRepository utilityUsageRepository;
 
     private void validateApplicationCanAssign(UUID applicationId) {
         boolean exists = assignmentRepository.existsByApplication_ApplicationIdAndStatusIn(
@@ -100,11 +104,18 @@ public class HousingAssignmentService {
         StudentHousingAssignment assignment = findAssignment(assignmentId);
         assignmentValidator.validateCheckIn(assignment);
 
+        Bed bed = assignment.getBed();
+        Room room = bed.getRoom();
+
+        // F05: Chốt số điện nước nếu là người ĐẦU TIÊN check-in vào phòng
+        long occupiedCount = assignmentRepository.countByBed_Room_RoomIdAndStatus(room.getRoomId(), AssignmentStatus.OCCUPIED);
+        if (occupiedCount == 0) {
+            recordInitialUtilityReading(room.getRoomId(), UtilityType.ELECTRICITY);
+        }
+
         assignment.setStatus(AssignmentStatus.OCCUPIED);
         assignment.setCheckInAt(LocalDateTime.now());
         assignmentRepository.save(assignment);
-
-        Bed bed = assignment.getBed();
         bed.setStatus(BedStatus.OCCUPIED);
         bedRepository.save(bed);
 
@@ -269,5 +280,40 @@ public class HousingAssignmentService {
 
         recalculateRoomStatus(lockedRoom);
         roomRepository.save(lockedRoom);
+    }
+
+    private void recordInitialUtilityReading(UUID roomId, UtilityType type) {
+        LocalDateTime now = LocalDateTime.now();
+        int currentMonth = now.getMonthValue();
+        int currentYear = now.getYear();
+
+        // Kiểm tra xem tháng này đã có chốt số chưa (để tránh tạo trùng)
+        Optional<UtilityUsage> existing = utilityUsageRepository.findByRoomIdAndUtilityTypeAndMonthAndYear(
+                roomId, type, currentMonth, currentYear);
+        if (existing.isPresent()) {
+            return;
+        }
+
+        // Lấy số liệu mới nhất của các tháng trước
+        Optional<UtilityUsage> lastUsageOpt = utilityUsageRepository.findTopByRoomIdAndUtilityTypeOrderByYearDescMonthDesc(roomId, type);
+        int startReading = 0;
+        if (lastUsageOpt.isPresent() && lastUsageOpt.get().getNewReading() != null) {
+            startReading = lastUsageOpt.get().getNewReading();
+        }
+
+        // Tạo bản ghi mới làm mốc CYCLE_START cho tháng hiện tại
+        UtilityUsage newUsage = new UtilityUsage();
+        newUsage.setRoomId(roomId);
+        newUsage.setUtilityType(type);
+        newUsage.setMonth(currentMonth);
+        newUsage.setYear(currentYear);
+        newUsage.setOldReading(startReading);
+        newUsage.setNewReading(startReading);
+        newUsage.setTotalUsage(0);
+        newUsage.setIsSettled(false);
+
+        utilityUsageRepository.save(newUsage);
+        log.info("[UTILITY_CYCLE_START] Đã chốt số {} đầu kỳ cho phòng {}: {} vào tháng {}/{}",
+                type, roomId, startReading, currentMonth, currentYear);
     }
 }

@@ -35,10 +35,6 @@ public class StayExtension extends BaseEntity {
     @Column(nullable = false, length = 20)
     private ExtensionStatus status = ExtensionStatus.PENDING;
 
-    /**
-     * [BUSINESS RULE] Mỗi sinh viên chỉ được nộp 1 đơn gia hạn trong 1 đợt đăng ký.
-     * Dùng trường này để check uniqueness theo đợt, không check globally.
-     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "registration_period_id", nullable = false)
     private RegistrationPeriod registrationPeriod;

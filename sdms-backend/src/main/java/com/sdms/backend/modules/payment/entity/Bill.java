@@ -28,6 +28,9 @@ public class Bill extends BaseEntity {
     @Column(name = "bill_id")
     private UUID billId;
 
+    @Column(name = "bill_code", nullable = false, unique = true, length = 50)
+    private String billCode;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "bill_type", nullable = false)
     private BillType billType;
@@ -59,6 +62,9 @@ public class Bill extends BaseEntity {
 
     @Column(name = "student_id")
     private UUID studentId;
+
+    @Column(name = "extension_count", nullable = false)
+    private Integer extensionCount = 0;
 
     @Version
     private Long version;

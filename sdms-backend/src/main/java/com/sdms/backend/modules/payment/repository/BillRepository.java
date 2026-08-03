@@ -31,6 +31,8 @@ public interface BillRepository extends JpaRepository<Bill, UUID> {
 
     List<Bill> findByStatusAndDueDateBefore(BillStatus status, LocalDate date);
 
+    List<Bill> findByStatusAndDueDate(BillStatus status, LocalDate date);
+
     // --- KHÓA BẢN GHI (PESSIMISTIC LOCKING) ---
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT b FROM Bill b WHERE b.billId = :id")

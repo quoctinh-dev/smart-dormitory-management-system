@@ -10,11 +10,18 @@ export interface BedIconProps {
     onClick?: (bed: BedResponse) => void;
 }
 
-const BED_COLORS: Record<BedStatus, string> = {
-    AVAILABLE: '#059669', // Xanh lá — Trống
-    RESERVED: '#d97706', // Vàng cam — Đã giữ chỗ (chưa check-in)
-    OCCUPIED: '#d32f2f', // Đỏ — Đang ở
-    MAINTENANCE: '#6b7280', // Xám — Bảo trì
+const BED_BG: Record<BedStatus, string> = {
+    AVAILABLE: 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)', // Premium Emerald
+    RESERVED: 'linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%)',  // Premium Pink (Hồng)
+    OCCUPIED: 'linear-gradient(135deg, #ff7675 0%, #d63031 100%)',  // Premium Soft Red
+    MAINTENANCE: 'linear-gradient(135deg, #f1c40f 0%, #f39c12 100%)',// Premium Yellow (Vàng)
+};
+
+const BED_SHADOW: Record<BedStatus, string> = {
+    AVAILABLE: 'rgba(46, 204, 113, 0.4)',
+    RESERVED: 'rgba(255, 117, 140, 0.4)', // Pink shadow
+    OCCUPIED: 'rgba(214, 48, 49, 0.4)',
+    MAINTENANCE: 'rgba(241, 196, 15, 0.4)', // Yellow shadow
 };
 
 const BED_LABELS: Record<BedStatus, string> = {
@@ -25,7 +32,8 @@ const BED_LABELS: Record<BedStatus, string> = {
 };
 
 export default function BedIcon({ bed, onClick }: BedIconProps) {
-    const color = BED_COLORS[bed.status] ?? '#94a3b8';
+    const bgGradient = BED_BG[bed.status] ?? '#94a3b8';
+    const shadowColor = BED_SHADOW[bed.status] ?? 'rgba(0,0,0,0.1)';
     const label = BED_LABELS[bed.status] ?? bed.status;
 
     return (
@@ -34,16 +42,23 @@ export default function BedIcon({ bed, onClick }: BedIconProps) {
                 onClick={() => onClick?.(bed)}
                 sx={{
                     p: 1.2,
-                    borderRadius: 1.5,
-                    bgcolor: color,
+                    borderRadius: 2, // Bo góc mềm mại hơn
+                    background: bgGradient,
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    transition: 'all 0.18s ease',
-                    '&:hover': { opacity: 0.82, transform: 'scale(1.08)' },
-                    boxShadow: `0 2px 6px ${color}55`,
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow: `0 4px 10px ${shadowColor}`,
+                    border: '1px solid rgba(255,255,255,0.2)', // Hiệu ứng kính (glassmorphism) nhẹ
+                    '&:hover': { 
+                        transform: 'translateY(-3px) scale(1.05)',
+                        boxShadow: `0 8px 16px ${shadowColor}`
+                    },
+                    '&:active': {
+                        transform: 'translateY(0) scale(0.95)'
+                    }
                 }}
             >
                 <HotelIcon fontSize="small" />

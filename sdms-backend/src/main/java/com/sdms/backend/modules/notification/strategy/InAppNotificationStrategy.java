@@ -30,19 +30,38 @@ public class InAppNotificationStrategy implements NotificationStrategy {
         }
 
         try {
-            // Cố gắng tìm email hoặc tên người nhận thay vì hiển thị UUID
+            // Fix UUID mismatch: Notification.userId must be UserAccount.accountId, not Student.studentId
+            java.util.UUID finalUserId = payload.getStudentId();
             String displayRecipient = payload.getEmail();
+            
             if (displayRecipient == null && payload.getRecipientName() != null) {
                 displayRecipient = payload.getRecipientName();
             }
+
+            // Attempt to resolve UserAccount from StudentId
+            var userAccountOpt = userAccountRepository.findByStudent_StudentId(payload.getStudentId());
+            if (userAccountOpt.isPresent()) {
+                finalUserId = userAccountOpt.get().getAccountId();
+                if (displayRecipient == null) {
+                    displayRecipient = userAccountOpt.get().getEmail();
+                }
+            } else {
+                // If not found by studentId, maybe it's already an accountId? Try finding it directly
+                var directAccountOpt = userAccountRepository.findById(payload.getStudentId());
+                if (directAccountOpt.isPresent()) {
+                    finalUserId = directAccountOpt.get().getAccountId();
+                    if (displayRecipient == null) {
+                        displayRecipient = directAccountOpt.get().getEmail();
+                    }
+                }
+            }
+            
             if (displayRecipient == null) {
-                displayRecipient = userAccountRepository.findById(payload.getStudentId())
-                        .map(com.sdms.backend.modules.user.entity.UserAccount::getEmail)
-                        .orElse(payload.getStudentId().toString());
+                displayRecipient = finalUserId.toString();
             }
 
             Notification notification = Notification.builder()
-                    .userId(payload.getStudentId())
+                    .userId(finalUserId)
                     .title(payload.getTitle())
                     .message(payload.getInAppMessage())
                     .actionUrl(payload.getActionUrl())
@@ -56,7 +75,6 @@ public class InAppNotificationStrategy implements NotificationStrategy {
                     .build();
 
             notificationRepository.save(notification);
-            
             
             log.info("InAppNotificationStrategy: Saved in-app notification for user {}", payload.getStudentId());
         } catch (Exception e) {

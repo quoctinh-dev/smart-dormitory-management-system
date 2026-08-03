@@ -20,6 +20,7 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import LockClockIcon from '@mui/icons-material/LockClock';
+import BuildIcon from '@mui/icons-material/Build';
 import {
   Box,
   Drawer,
@@ -79,6 +80,7 @@ const MENU_GROUPS: MenuGroup[] = [
     items: [
       { text: 'Quản lý thanh toán', path: '/admin/payments', icon: <PaymentIcon fontSize="medium" />, roles: ['ADMIN'] },
       { text: 'Chốt chỉ số Tiện ích', path: '/admin/electricity', icon: <ReceiptLongIcon fontSize="medium" />, roles: ['ADMIN', 'STAFF'] },
+      { text: 'Báo cáo sự cố', path: '/admin/maintenance', icon: <BuildIcon fontSize="medium" />, roles: ['ADMIN', 'STAFF'] },
     ],
   },
   {

@@ -30,6 +30,7 @@ export const usePaymentManagement = () => {
   // Trạng thái điều khiển Dialogs
   const [confirmDialog, setConfirmDialog] = useState(false);
   const [detailsDialog, setDetailsDialog] = useState(false);
+  const [extendDialog, setExtendDialog] = useState(false);
   const [selectedBill, setSelectedBill] = useState<BillAdminResponse | null>(null);
 
   const fetchBills = useCallback(async () => {
@@ -90,6 +91,20 @@ export const usePaymentManagement = () => {
     }
   };
 
+  const handleExtendDueDate = async (billId: string, newDueDate: string) => {
+    try {
+      await paymentApi.extendDueDate(billId, { newDueDate });
+      snackbar.success('Đã gia hạn hóa đơn thành công!');
+      fetchBills();
+      setExtendDialog(false);
+      return true;
+    } catch (error: any) {
+      console.error('Failed to extend due date:', error);
+      snackbar.error(error.message || 'Lỗi hệ thống khi gia hạn hóa đơn.');
+      return false;
+    }
+  };
+
   const openDetails = useCallback((bill: BillAdminResponse) => {
     setSelectedBill(bill);
     setDetailsDialog(true);
@@ -98,6 +113,11 @@ export const usePaymentManagement = () => {
   const openConfirm = useCallback((bill: BillAdminResponse) => {
     setSelectedBill(bill);
     setConfirmDialog(true);
+  }, []);
+
+  const openExtend = useCallback((bill: BillAdminResponse) => {
+    setSelectedBill(bill);
+    setExtendDialog(true);
   }, []);
 
   return {
@@ -110,6 +130,7 @@ export const usePaymentManagement = () => {
     totalElements,
     confirmDialog,
     detailsDialog,
+    extendDialog,
     selectedBill,
     currentTab,
     searchQuery,
@@ -119,9 +140,12 @@ export const usePaymentManagement = () => {
     setBillTypeFilter,
     setConfirmDialog,
     setDetailsDialog,
+    setExtendDialog,
     handleConfirmCashPayment,
     handleCreateManualBill,
+    handleExtendDueDate,
     openDetails,
     openConfirm,
+    openExtend,
   };
 };

@@ -36,6 +36,12 @@ export const paymentApi = {
     return await axiosClient.post('/v1/bills/manual', data);
   },
 
+  extendDueDate: async (billId: string, data: {
+    newDueDate: string;
+  }): Promise<BillResponse> => {
+    return await axiosClient.put(`/v1/bills/${billId}/extend-due-date`, data);
+  },
+
   // 2. Xử lý thanh toán
   processOnlinePayment: async (data: OnlinePaymentRequest): Promise<PaymentActionResponse> => {
     return await axiosClient.post('/v1/payments/online', data);

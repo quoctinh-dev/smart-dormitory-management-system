@@ -6,6 +6,8 @@ import com.sdms.backend.modules.payment.dto.response.BillResponse;
 import com.sdms.backend.modules.payment.entity.Bill;
 import com.sdms.backend.modules.payment.service.BillService;
 import com.sdms.backend.modules.payment.dto.request.CreateManualBillRequest;
+import com.sdms.backend.modules.payment.dto.request.ExtendDueDateRequest;
+import com.sdms.backend.modules.payment.dto.request.SplitBillRequest;
 import com.sdms.backend.modules.user.entity.UserAccount;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -75,5 +77,31 @@ public class BillController {
     public ApiResponse<BillResponse> createManualBill(@Valid @RequestBody CreateManualBillRequest request) {
         BillResponse response = billService.createManualBill(request);
         return ApiResponse.success("Tạo hóa đơn thủ công thành công", response);
+    }
+
+    @Operation(summary = "Gia hạn hóa đơn (Lùi ngày đến hạn)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PutMapping("/{billId}/extend-due-date")
+    public ApiResponse<BillResponse> extendDueDate(
+            @PathVariable UUID billId,
+            @Valid @RequestBody ExtendDueDateRequest request) {
+        BillResponse response = billService.extendDueDate(billId, request.getNewDueDate());
+        return ApiResponse.success("Gia hạn hóa đơn thành công", response);
+    }
+
+    @Operation(summary = "Tách nợ hóa đơn tiền điện (Báo cáo thành viên chây ì)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'STUDENT')")
+    @PostMapping("/{billId}/split")
+    public ApiResponse<BillResponse> splitUtilityBill(
+            @PathVariable UUID billId,
+            @Valid @RequestBody SplitBillRequest request,
+            @AuthenticationPrincipal UserAccount currentUser) {
+        // Lấy studentId nếu là sinh viên, ngược lại nếu là admin/staff có thể truyền null
+        UUID requesterId = null;
+        if (currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT"))) {
+            requesterId = currentUser.getStudent() != null ? currentUser.getStudent().getStudentId() : null;
+        }
+        BillResponse response = billService.splitUtilityBill(billId, request, requesterId);
+        return ApiResponse.success("Tách nợ và báo cáo thành công", response);
     }
 }

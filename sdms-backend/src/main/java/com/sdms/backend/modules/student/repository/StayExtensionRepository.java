@@ -28,12 +28,8 @@ public interface StayExtensionRepository extends JpaRepository<StayExtension, UU
             Pageable pageable
     );
 
-    Optional<StayExtension> findByStudent_StudentCode(String studentCode);
-
-
     /**
      * [BUSINESS RULE] Kiểm tra xem sinh viên đã nộp đơn gia hạn trong đợt đăng ký này chưa.
-     * Cho phép sinh viên gia hạn nhiều lần ở các ĐỢT KHÁC NHAU (các kỳ học khác nhau).
      */
     boolean existsByStudent_StudentIdAndRegistrationPeriod_PeriodId(UUID studentId, UUID periodId);
 

@@ -36,6 +36,7 @@ const ExtensionManagementPage = lazy(() => import('@/pages/admin/StayExtensionMa
 const CheckoutManagementPage = lazy(() => import('@/pages/admin/CheckoutManagement'));
 const ChangeRoomManagementPage = lazy(() => import('@/pages/admin/ChangeRoomManagement'));
 const UtilityReadingPage = lazy(() => import('@/pages/admin/UtilityReadingPage'));
+const MaintenanceManagementPage = lazy(() => import('@/pages/admin/MaintenanceManagementPage'));
 
 // --- Nhóm trang Kiểm soát Ra/Vào (Smart Access) ---
 const SmartAccessManagement = lazy(() => import('@/pages/admin/SmartAccessManagement'));
@@ -65,6 +66,7 @@ const GateManagementLazy = wrap(GateManagement, { skeletonType: 'table', skeleto
 const AccountManagementLazy = wrap(AccountManagementPage, { skeletonType: 'table', skeletonCount: 5 });
 const StudentManagementLazy = wrap(StudentManagementPage, { skeletonType: 'table', skeletonCount: 5 });
 const UtilityReadingPageLazy = wrap(UtilityReadingPage, { skeletonType: 'table', skeletonCount: 5 });
+const MaintenanceManagementLazy = wrap(MaintenanceManagementPage, { skeletonType: 'table', skeletonCount: 5 });
 const SmartAccessPolicyLazy = wrap(SmartAccessPolicyPage, { skeletonType: 'table', skeletonCount: 5 });
 
 // Dạng danh sách/Form
@@ -118,6 +120,7 @@ export const adminRoutes: RouteObject[] = [
           // Quản lý Tài chính & Điện nước
           { path: 'admin/payments', element: <PaymentManagementLazy /> },
           { path: 'admin/electricity', element: <UtilityReadingPageLazy /> },
+          { path: 'admin/maintenance', element: <MaintenanceManagementLazy /> },
 
           // Quản lý Cổng ra vào & Thiết bị thông minh
           { path: 'admin/smart-access', element: <SmartAccessManagementLazy /> },

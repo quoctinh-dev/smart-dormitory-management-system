@@ -231,7 +231,7 @@ export default function NotificationBell() {
                   { label: 'Báo hỏng', value: 'MAINTENANCE' },
                   { label: 'Đăng ký', value: 'APPLICATION' },
                   { label: 'Thanh toán', value: 'PAYMENT' },
-                  { label: 'Cảnh báo', value: 'WARNING' },
+                  { label: 'Cảnh báo IoT', value: 'IOT_HARDWARE_ERROR' },
                   { label: 'Hệ thống', value: 'SYSTEM' },
                   { label: 'Phòng ở', value: 'ROOM' },
                 ].map((tab) => {
@@ -286,8 +286,12 @@ export default function NotificationBell() {
                       return <BuildCircleRoundedIcon sx={{ color: 'warning.main', fontSize: 24 }} />;
                     case 'PAYMENT':
                       return <PaymentRoundedIcon sx={{ color: 'success.main', fontSize: 24 }} />;
-                    case 'WARNING':
+                    case 'IOT_HARDWARE_ERROR':
                       return <WarningAmberRoundedIcon sx={{ color: 'error.main', fontSize: 24 }} />;
+                    case 'ELECTRIC_FEE':
+                    case 'ACCOMMODATION_FEE':
+                    case 'PENALTY_FEE':
+                      return <PaymentRoundedIcon sx={{ color: 'error.main', fontSize: 24 }} />;
                     case 'APPLICATION':
                       return <ArticleRoundedIcon sx={{ color: 'info.main', fontSize: 24 }} />;
                     case 'ROOM':
@@ -303,7 +307,10 @@ export default function NotificationBell() {
                       return alpha(t.palette.warning.main, 0.1);
                     case 'PAYMENT':
                       return alpha(t.palette.success.main, 0.1);
-                    case 'WARNING':
+                    case 'IOT_HARDWARE_ERROR':
+                    case 'ELECTRIC_FEE':
+                    case 'ACCOMMODATION_FEE':
+                    case 'PENALTY_FEE':
                       return alpha(t.palette.error.main, 0.1);
                     case 'APPLICATION':
                       return alpha(t.palette.info.main, 0.1);

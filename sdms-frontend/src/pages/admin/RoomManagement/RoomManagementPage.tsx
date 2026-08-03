@@ -236,7 +236,7 @@ export default function RoomManagementPage() {
                                 {floors.map((f) => (
                                     <MenuItem key={f.floorId} value={f.floorId}>
                                         Tầng {f.floorNumber}
-                                        {f.gender ? ` (${f.gender})` : ''}
+                                        {f.gender ? ` (${f.gender === 'MALE' ? 'NAM' : 'NỮ'})` : ''}
                                     </MenuItem>
                                 ))}
                             </Select>

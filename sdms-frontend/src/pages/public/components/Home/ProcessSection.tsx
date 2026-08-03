@@ -13,7 +13,7 @@ const REGISTRATION_STEPS = [
     {
         label: 'Nộp hồ sơ & lưu tệp PDF',
         description:
-            'Điền thông tin và tải lên minh chứng (CCCD, Ảnh 3x4). Hệ thống sẽ tự động sinh "Phiếu Đăng Ký" và "Bản Cam Kết". Bạn có thể tải ngay 2 tệp PDF này ở mục tra cứu để lưu trữ.',
+            'Điền thông tin và tải lên minh chứng (CCCD, Ảnh 3x4, Giấy xác nhận ưu tiên nếu có). Hệ thống sẽ tự động sinh "Phiếu Đăng Ký" và "Bản Cam Kết". Bạn có thể tải ngay 2 tệp PDF này ở mục tra cứu để lưu trữ.',
     },
     {
         label: 'Chờ Ban quản lý xét duyệt',
@@ -23,12 +23,12 @@ const REGISTRATION_STEPS = [
     {
         label: 'Thanh toán & Kích hoạt tài khoản',
         description:
-            'Sinh viên có thể đóng phí trực tuyến (Online) hoặc bằng tiền mặt. Sau khi thanh toán thành công, hồ sơ chính thức ĐƯỢC DUYỆT. Lúc này, bạn đã có thể kích hoạt tài khoản sinh viên nội trú để đăng nhập hệ thống (lưu ý: chưa nhận phòng nên sẽ chưa thấy thông tin phòng).',
+            'Sinh viên có thể đóng phí trực tuyến hoặc bằng tiền mặt. Sau khi thanh toán thành công, hồ sơ chính thức ĐƯỢC DUYỆT. Lúc này, bạn đã có thể kích hoạt tài khoản sinh viên nội trú để đăng nhập hệ thống (lưu ý: chưa nhận phòng nên sẽ chưa thấy thông tin phòng).',
     },
     {
         label: 'Nhận phòng tại Ký túc xá',
         description:
-            'Đến ngày hẹn, sinh viên tới làm thủ tục nhận phòng (check-in) trực tiếp với Ban quản lý. Sau khi hoàn tất, thông tin phòng ở sẽ được cập nhật đầy đủ trên ứng dụng để bạn bắt đầu sử dụng các tiện ích nội bộ!',
+            'Đến ngày hẹn, sinh viên tới làm thủ tục nhận phòng trực tiếp với Ban quản lý. Sau khi hoàn tất, thông tin phòng ở sẽ được cập nhật đầy đủ trên ứng dụng để bạn bắt đầu sử dụng các tiện ích nội bộ!',
     },
 ];
 
