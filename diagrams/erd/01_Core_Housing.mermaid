@@ -1,0 +1,19 @@
+erDiagram
+    %% MODULE 1: CORE & HOUSING (QUẢN LÝ LÕI VÀ LƯU TRÚ)
+    
+    UserAccount ||--o| Student : "Sở hữu (1-1)"
+    Building ||--o{ Floor : "Gồm (1-N)"
+    Floor ||--o{ Room : "Gồm (1-N)"
+    Room ||--o{ Bed : "Chứa (1-N)"
+    
+    RegistrationPeriod ||--o{ RegistrationEligibility : "Quy định (1-N)"
+    RegistrationPeriod ||--o{ DormitoryApplication : "Tiếp nhận (1-N)"
+    Student ||--o{ DormitoryApplication : "Nộp đơn (1-N)"
+    
+    DormitoryApplication ||--o{ ApplicationPriority : "Kèm ưu tiên (1-N)"
+    DormitoryApplication ||--o{ VerificationDocument : "Cung cấp (1-N)"
+    DormitoryApplication ||--o{ AppStatusHistory : "Ghi nhận (1-N)"
+    DormitoryApplication ||--o| StudentHousingAssignment : "Tạo ra (1-1)"
+    Bed ||--o| StudentHousingAssignment : "Gắn với (1-1)"
+    
+    SystemConfig

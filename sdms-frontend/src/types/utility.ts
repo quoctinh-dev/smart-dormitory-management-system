@@ -15,3 +15,16 @@ export interface RecordUtilityRequest {
   newReading: number;
   oldReading?: number;
 }
+
+export interface StudentUtilityResponse {
+  utilityUsageId: string;
+  roomId: string;
+  utilityType: string;
+  month: number;
+  year: number;
+  oldReading: number;
+  newReading: number;
+  totalUsage: number;
+  isSettled: boolean;
+  readingDate: string | null;
+}

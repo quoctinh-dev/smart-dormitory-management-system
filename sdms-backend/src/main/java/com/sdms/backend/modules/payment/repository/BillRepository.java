@@ -47,16 +47,17 @@ public interface BillRepository extends JpaRepository<Bill, UUID> {
 
     List<Bill> findByRoomIdAndBillType(UUID roomId, BillType billType);
 
+    @Query("SELECT b.studentId FROM Bill b WHERE b.parentBillId = :parentBillId")
+    List<UUID> findStudentIdsByParentBillId(@Param("parentBillId") UUID parentBillId);
+
     List<Bill> findByStudentId(UUID studentId);
 
     boolean existsByStudentIdAndStatusIn(UUID studentId, List<BillStatus> statuses);
 
-    // --- CẬP NHẬT TRẠNG THÁI HÓA ĐƠN QUÁ HẠN ---
-    @Modifying
-    @Query("UPDATE Bill b SET b.status = :newStatus WHERE b.status IN :oldStatuses AND b.dueDate < :currentDate")
-    int updateOverdueBills(
-            @Param("oldStatuses") List<BillStatus> oldStatuses,
-            @Param("newStatus") BillStatus newStatus,
+    // --- TÌM HÓA ĐƠN ĐỂ ĐÁNH DẤU QUÁ HẠN ---
+    @Query("SELECT b FROM Bill b WHERE b.status IN :statuses AND b.dueDate < :currentDate")
+    List<Bill> findBillsToMarkOverdue(
+            @Param("statuses") List<BillStatus> statuses,
             @Param("currentDate") LocalDate currentDate
     );
 

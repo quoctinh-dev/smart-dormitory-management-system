@@ -32,4 +32,10 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     );
 
     Optional<Payment> findByGatewayTransactionId(String gatewayTransactionId);
+
+    List<Payment> findByBill_BillId(UUID billId);
+
+    @Modifying
+    @Query("DELETE FROM Payment p WHERE p.bill.billId IN :billIds")
+    void deleteAllByBillIds(@Param("billIds") List<UUID> billIds);
 }

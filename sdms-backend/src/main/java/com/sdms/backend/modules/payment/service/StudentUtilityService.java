@@ -37,7 +37,7 @@ public class StudentUtilityService {
 
         UUID roomId = assignment.getBed().getRoom().getRoomId();
 
-        List<UtilityUsage> usages = utilityUsageRepository.findByRoomIdOrderByYearDescMonthDesc(roomId);
+        List<UtilityUsage> usages = utilityUsageRepository.findTop24ByRoomIdOrderByYearDescMonthDesc(roomId);
         
         return usages.stream()
                 .map(u -> StudentUtilityResponse.builder()
@@ -50,6 +50,7 @@ public class StudentUtilityService {
                         .newReading(u.getNewReading())
                         .totalUsage(u.getTotalUsage())
                         .isSettled(u.getIsSettled())
+                        .readingDate(u.getCreatedAt() != null ? u.getCreatedAt().toLocalDate() : null)
                         .build())
                 .collect(Collectors.toList());
     }

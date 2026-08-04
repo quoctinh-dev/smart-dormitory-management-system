@@ -19,7 +19,7 @@ import java.util.UUID;
 public class BedValidator {
 
     private final StudentHousingAssignmentRepository assignmentRepository;
-    private final List<AssignmentStatus> activeStatuses = List.of(AssignmentStatus.RESERVED, AssignmentStatus.OCCUPIED);
+    private final List<AssignmentStatus> activeStatuses = List.of(AssignmentStatus.RESERVED, AssignmentStatus.PENDING_CHECKIN, AssignmentStatus.OCCUPIED);
 
     /**
      * RÀNG BUỘC: Không được đưa giường đi bảo trì (MAINTENANCE) nếu giường đó đã được khóa

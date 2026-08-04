@@ -2,6 +2,7 @@ import {
     Visibility,
     Search as SearchIcon,
     Warning as WarningIcon,
+    Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import {
     Box,
@@ -22,9 +23,10 @@ import {
     Tab,
     TablePagination,
     Tooltip,
+    IconButton,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import CustomSkeleton from '@/components/common/CustomSkeleton';
@@ -51,7 +53,7 @@ export default function ApplicationReviewQueue() {
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
 
-    const { applications, totalElements, loading, error, refreshQueue } = useApplicationQueue(
+    const { applications, totalElements, loading, refreshQueue } = useApplicationQueue(
         page,
         rowsPerPage,
         statusFilter === 'ALL' ? null : statusFilter,
@@ -77,53 +79,77 @@ export default function ApplicationReviewQueue() {
 
     return (
         <Box sx={{ p: { xs: 2, md: 3 } }}>
-            {/* HEADER */}
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
-                    Duyệt hồ sơ lưu trú
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Quản lý, theo dõi và xét duyệt các đơn đăng ký nội trú của sinh viên.
-                </Typography>
-            </Box>
-
-            {/* TABS FILTER */}
-            <Tabs
-                value={statusFilter}
-                onChange={(_, newValue) => {
-                    setStatusFilter(newValue);
-                    setPage(0);
-                }}
-                variant="scrollable"
-                scrollButtons="auto"
+            {/* Header trang */}
+            <Box
                 sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    justifyContent: 'space-between',
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    gap: 2,
                     mb: 3,
-                    borderBottom: 1,
-                    borderColor: 'divider',
-                    minHeight: 44,
-                    '& .MuiTab-root': {
-                        textTransform: 'none',
-                        fontWeight: 500,
-                        minHeight: 44,
-                        fontSize: '0.95rem'
-                    },
-                    '& .Mui-selected': {
-                        fontWeight: 600
-                    }
                 }}
             >
-                <Tab label="Tất cả hồ sơ" value="ALL" />
-                {Object.entries(STATUS_MAPPING).map(([key, value]) => (
-                    <Tab key={key} label={value.label} value={key} />
-                ))}
-            </Tabs>
+                <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
+                        Duyệt hồ sơ lưu trú
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Quản lý, theo dõi và xét duyệt các đơn đăng ký nội trú KTX của sinh viên.
+                    </Typography>
+                </Box>
 
-            {/* SEARCH BAR */}
+                <Button
+                    variant="outlined"
+                    color="inherit"
+                    startIcon={<RefreshIcon />}
+                    onClick={refreshQueue}
+                    disabled={loading}
+                    sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
+                >
+                    Làm mới dữ liệu
+                </Button>
+            </Box>
+
+            {/* Tabs lọc trạng thái */}
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                <Tabs
+                    value={statusFilter}
+                    onChange={(_, newValue) => {
+                        setStatusFilter(newValue);
+                        setPage(0);
+                    }}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    textColor="primary"
+                    indicatorColor="primary"
+                    sx={{
+                        minHeight: 44,
+                        '& .MuiTab-root': {
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            minHeight: 44,
+                            fontSize: '0.9rem',
+                        },
+                        '& .Mui-selected': {
+                            fontWeight: 600,
+                        },
+                    }}
+                >
+                    <Tab label="Tất cả hồ sơ" value="ALL" />
+                    {Object.entries(STATUS_MAPPING).map(([key, value]) => (
+                        <Tab key={key} label={value.label} value={key} />
+                    ))}
+                </Tabs>
+            </Box>
+
+            {/* Thanh tìm kiếm */}
             <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2 }}>
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
                     <TextField
                         fullWidth
-                        placeholder="Tìm kiếm theo Tên, MSSV, CCCD, Mã Đơn..."
+                        size="small"
+                        placeholder="Tìm kiếm theo Tên, MSSV, CCCD, Mã đơn... (Bấm Enter để tìm)"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyDown={handleSearchKeyPress}
@@ -131,13 +157,11 @@ export default function ApplicationReviewQueue() {
                             input: {
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <SearchIcon fontSize="small" />
+                                        <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
                                     </InputAdornment>
                                 ),
                             },
                         }}
-                        size="small"
-                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                     />
                     <Button
                         variant="contained"
@@ -151,9 +175,9 @@ export default function ApplicationReviewQueue() {
                             borderRadius: 1.5,
                             textTransform: 'none',
                             fontWeight: 600,
-                            minWidth: 120,
+                            minWidth: 110,
                             height: 40,
-                            width: { xs: '100%', md: 'auto' }
+                            width: { xs: '100%', sm: 'auto' },
                         }}
                     >
                         Tìm kiếm
@@ -161,16 +185,16 @@ export default function ApplicationReviewQueue() {
                 </Stack>
             </Paper>
 
-            {/* TABLE DATA */}
+            {/* Bảng danh sách hồ sơ */}
             <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
                 <TableContainer>
-                    <Table sx={{ minWidth: 900 }}>
-                        <TableHead>
-                            <TableRow sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
+                    <Table sx={{ minWidth: 850 }}>
+                        <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
+                            <TableRow>
                                 <TableCell sx={{ fontWeight: 600 }}>Mã đơn</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Họ và tên</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>MSSV</TableCell>
-                                <TableCell sx={{ fontWeight: 600 }}>CCCD </TableCell>
+                                <TableCell sx={{ fontWeight: 600 }}>CCCD</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Ngày nộp</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
                                 <TableCell align="center" sx={{ fontWeight: 600 }}>
@@ -187,12 +211,8 @@ export default function ApplicationReviewQueue() {
                                 </TableRow>
                             ) : applications.length === 0 ? (
                                 <TableRow>
-                                    <TableCell
-                                        colSpan={7}
-                                        align="center"
-                                        sx={{ py: 6 }}
-                                    >
-                                        <Typography color="text.secondary" variant="body2" sx={{ fontStyle: 'italic' }}>
+                                    <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
+                                        <Typography color="text.secondary" variant="body2">
                                             Không tìm thấy hồ sơ đăng ký nào phù hợp.
                                         </Typography>
                                     </TableCell>
@@ -205,13 +225,12 @@ export default function ApplicationReviewQueue() {
                                     };
 
                                     return (
-                                        <TableRow
-                                            key={app.applicationId}
-                                            hover
-                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                        >
+                                        <TableRow key={app.applicationId} hover>
                                             <TableCell>
-                                                <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main', fontFamily: 'monospace' }}>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{ fontWeight: 600, color: 'primary.main', fontFamily: 'monospace' }}
+                                                >
                                                     {app.applicationCode || '---'}
                                                 </Typography>
                                             </TableCell>
@@ -223,20 +242,22 @@ export default function ApplicationReviewQueue() {
                                             </TableCell>
 
                                             <TableCell>
-                                                <Typography variant="body2" sx={{ color: 'text.secondary', fontFamily: 'monospace' }}>
+                                                <Typography variant="body2" color="text.secondary" fontFamily="monospace">
                                                     {app.studentCode || '-'}
                                                 </Typography>
                                             </TableCell>
 
                                             <TableCell>
-                                                <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                                                <Typography variant="body2" fontFamily="monospace">
                                                     {app.cccd}
                                                 </Typography>
                                             </TableCell>
 
                                             <TableCell>
-                                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                                    {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString('vi-VN') : '---'}
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {app.submittedAt
+                                                        ? new Date(app.submittedAt).toLocaleDateString('vi-VN')
+                                                        : '---'}
                                                 </Typography>
                                             </TableCell>
 
@@ -246,28 +267,39 @@ export default function ApplicationReviewQueue() {
                                                         label={statusConfig.label}
                                                         color={statusConfig.color}
                                                         size="small"
-                                                        sx={{ fontWeight: 600, borderRadius: 1 }}
+                                                        sx={{ fontWeight: 600, borderRadius: 1.5 }}
                                                     />
                                                     {app.status === 'REQUEST_REVISION' && app.revisionDeadline && (
-                                                        <Tooltip title={`Hạn chót bổ sung: ${new Date(app.revisionDeadline).toLocaleString('vi-VN')}`}>
+                                                        <Tooltip
+                                                            title={`Hạn chót bổ sung: ${new Date(app.revisionDeadline).toLocaleString('vi-VN')}`}
+                                                            arrow
+                                                            placement="top"
+                                                        >
                                                             <WarningIcon color="error" fontSize="small" sx={{ ml: 0.5 }} />
                                                         </Tooltip>
                                                     )}
                                                 </Stack>
                                             </TableCell>
 
+                                            {/* Cột thao tác dạng Icon Button tinh gọn */}
                                             <TableCell align="center">
-                                                <Button
-                                                    variant="contained"
-                                                    disableElevation
-                                                    size="small"
-                                                    color="primary"
-                                                    startIcon={<Visibility fontSize="small" />}
-                                                    onClick={handleViewDetails(app.applicationId)}
-                                                    sx={{ borderRadius: 1.5, px: 2, textTransform: 'none', fontWeight: 600 }}
-                                                >
-                                                    Kiểm duyệt
-                                                </Button>
+                                                <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center">
+                                                    <Tooltip title="Xem & Kiểm duyệt hồ sơ" arrow placement="top">
+                                                        <IconButton
+                                                            color="primary"
+                                                            size="small"
+                                                            onClick={handleViewDetails(app.applicationId)}
+                                                            sx={{
+                                                                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                                                                '&:hover': {
+                                                                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.2),
+                                                                },
+                                                            }}
+                                                        >
+                                                            <Visibility fontSize="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Stack>
                                             </TableCell>
                                         </TableRow>
                                     );
@@ -277,7 +309,7 @@ export default function ApplicationReviewQueue() {
                     </Table>
                 </TableContainer>
 
-                {/* PAGINATION */}
+                {/* Phân trang đồng bộ */}
                 {!loading && (
                     <TablePagination
                         component="div"
@@ -291,7 +323,6 @@ export default function ApplicationReviewQueue() {
                         }}
                         rowsPerPageOptions={[10, 25, 50, 100]}
                         labelRowsPerPage="Số dòng mỗi trang:"
-                        sx={{ borderTop: '1px solid', borderColor: 'divider' }}
                     />
                 )}
             </Paper>

@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Services_Security_ERD" id="Services_Security_ERD">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ent_0" value="Student (Ref)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontFamily=Times New Roman;fontSize=12;fontStyle=2;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="100" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_1" value="Room (Ref)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontFamily=Times New Roman;fontSize=12;fontStyle=2;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="100" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_2" value="StayExtension" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="500" y="100" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_3" value="CheckoutRequest" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="700" y="100" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_4" value="ChangeRoomRequest" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="200" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_5" value="CurfewRequest" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="200" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_6" value="MaintenanceRequest" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="500" y="200" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_7" value="UtilityUsage" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="700" y="200" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_8" value="Bill" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="300" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_9" value="Payment" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="300" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_10" value="Notification" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6c8ebf;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="500" y="300" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_11" value="Gate" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="700" y="300" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_12" value="CurfewPolicy" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="400" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_13" value="TimeWindowPolicy" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="400" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_14" value="AccessHistory" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="500" y="400" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_15" value="FaceProfile" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="700" y="400" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_16" value="FaceEmbedding" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="500" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_17" value="FaceVerificationAttempt" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="500" width="160" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

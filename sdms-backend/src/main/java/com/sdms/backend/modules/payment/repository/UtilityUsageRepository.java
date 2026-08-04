@@ -22,6 +22,6 @@ public interface UtilityUsageRepository extends JpaRepository<UtilityUsage, UUID
             Integer year
     );
 
-    // Lấy toàn bộ lịch sử ghi điện nước của 1 phòng, xếp mới nhất lên đầu
-    java.util.List<UtilityUsage> findByRoomIdOrderByYearDescMonthDesc(UUID roomId);
+    // Lấy tối đa 24 tháng lịch sử ghi điện nước gần nhất của 1 phòng, xếp mới nhất lên đầu
+    java.util.List<UtilityUsage> findTop24ByRoomIdOrderByYearDescMonthDesc(UUID roomId);
 }

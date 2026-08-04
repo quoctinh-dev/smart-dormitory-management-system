@@ -219,13 +219,35 @@ export default function PaymentPage() {
                                     </Typography>
                                 </Box>
                                 <Divider sx={{my: 1}}/>
-                                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                    <Typography variant="body2" sx={{fontWeight: 600}}>
-                                        Tổng tiền
-                                    </Typography>
-                                    <Typography variant="h6" sx={{fontWeight: 800, color: 'primary.main'}}>
-                                        {bill?.amount ? bill.amount.toLocaleString('vi-VN') : 0} VNĐ
-                                    </Typography>
+                                <Stack spacing={1}>
+                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                        <Typography variant="body2" sx={{fontWeight: 600}}>
+                                            Tổng hóa đơn
+                                        </Typography>
+                                        <Typography variant="body2" sx={{fontWeight: 600}}>
+                                            {bill?.amount ? bill.amount.toLocaleString('vi-VN') : 0} đ
+                                        </Typography>
+                                    </Stack>
+
+                                    {bill?.status === 'PARTIALLY_PAID' && (
+                                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                            <Typography variant="body2" sx={{fontWeight: 600, color: 'success.main'}}>
+                                                Đã chuyển
+                                            </Typography>
+                                            <Typography variant="body2" sx={{fontWeight: 600, color: 'success.main'}}>
+                                                {bill?.paidAmount ? bill.paidAmount.toLocaleString('vi-VN') : 0} đ
+                                            </Typography>
+                                        </Stack>
+                                    )}
+
+                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                        <Typography variant="body2" sx={{fontWeight: 600, color: bill?.status === 'PARTIALLY_PAID' ? 'warning.main' : 'inherit'}}>
+                                            Cần thanh toán
+                                        </Typography>
+                                        <Typography variant="h6" sx={{fontWeight: 800, color: bill?.status === 'PARTIALLY_PAID' ? 'warning.main' : 'primary.main'}}>
+                                            {(bill?.remainingAmount ?? bill?.amount ?? 0).toLocaleString('vi-VN')} đ
+                                        </Typography>
+                                    </Stack>
                                 </Stack>
                             </Stack>
                         </Box>
@@ -233,7 +255,14 @@ export default function PaymentPage() {
                 </Grid>
 
                 {/* --- PAYMENT INSTRUCTIONS --- */}
-                {paymentInstructions && (
+                {bill?.status === 'PAID' ? (
+                    <Alert severity="success" sx={{ mb: {xs: 4, md: 5}, borderRadius: 2 }}>
+                        Hóa đơn này đã được thanh toán hoàn tất. Cảm ơn bạn!
+                        {(bill as any).requiresRefund && " (Lưu ý: Bạn đã chuyển dư một khoản tiền so với quy định, bộ phận kế toán sẽ tiến hành hoàn trả hoặc cấn trừ qua học kỳ sau. Vui lòng liên hệ Văn phòng KTX để biết thêm chi tiết.)"}
+                    </Alert>
+                ) : (
+                    <>
+                        {paymentInstructions && (
                     <Box
                         sx={{
                             p: {xs: 2, md: 3},
@@ -288,6 +317,27 @@ export default function PaymentPage() {
                                 <Typography variant="body2" sx={{fontWeight: 600}}>
                                     TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN
                                 </Typography>
+                            </Stack>
+                            <Stack direction={{xs: 'column', sm: 'row'}} spacing={{xs: 1, sm: 2}}
+                                   alignItems={{xs: 'flex-start', sm: 'center'}}>
+                                <Typography variant="body2" color="text.secondary"
+                                            sx={{fontWeight: 600, minWidth: {sm: 140}, flexShrink: 0}}>
+                                    Số tiền cần đóng:
+                                </Typography>
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                    <Typography variant="body2" sx={{fontWeight: 700, color: 'error.main'}}>
+                                        {paymentInstructions.amount ? paymentInstructions.amount.toLocaleString('vi-VN') : (bill?.remainingAmount ?? bill?.amount ?? 0).toLocaleString('vi-VN')} đ
+                                    </Typography>
+                                    <Tooltip title="Sao chép">
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => handleCopy(paymentInstructions.amount?.toString() || (bill?.remainingAmount ?? bill?.amount ?? 0).toString(), 'Số tiền')}
+                                            sx={{ml: 0.5}}
+                                        >
+                                            <ContentCopyIcon fontSize="small"/>
+                                        </IconButton>
+                                    </Tooltip>
+                                </Stack>
                             </Stack>
                             <Stack direction={{xs: 'column', sm: 'row'}} spacing={{xs: 1, sm: 2}}
                                    alignItems={{xs: 'flex-start', sm: 'center'}}>
@@ -431,6 +481,8 @@ export default function PaymentPage() {
                 >
                     {paying ? 'Đang khởi tạo...' : 'Tạo mã QR trực tuyến'}
                 </Button>
+                </>
+                )}
             </Paper>
 
             {/* --- PAYMENT MODAL DIALOG --- */}

@@ -97,11 +97,12 @@ public class PaymentService {
         }
 
         payment.setStatus(PaymentStatus.SUCCESS);
+        payment.setAmount(finalAmount); // Đảm bảo đồng bộ số tiền thực tế
         payment.setPaidAt(LocalDateTime.now());
         paymentRepository.save(payment);
 
         Bill bill = payment.getBill();
-        updateBillAfterPayment(bill, payment.getAmount());
+        updateBillAfterPayment(bill, finalAmount); // Dùng finalAmount để xử lý dư/thiếu tiền
 
         if (bill.getStatus() == BillStatus.PAID) {
             publishPaymentSuccessEvent(bill);
@@ -262,10 +263,18 @@ public class PaymentService {
         BigDecimal newPaidAmount = bill.getPaidAmount().add(amount);
         bill.setPaidAmount(newPaidAmount);
 
-        if (newPaidAmount.compareTo(bill.getAmount()) >= 0) {
+        if (newPaidAmount.compareTo(bill.getAmount()) > 0) {
             bill.setStatus(BillStatus.PAID);
+            bill.setRequiresRefund(true);
+            log.warn("[PaymentService] ALERT ADMIN: Hóa đơn {} đã được thanh toán DƯ {}đ. Vui lòng kiểm tra và hoàn trả cho sinh viên.", 
+                     bill.getBillCode(), newPaidAmount.subtract(bill.getAmount()));
+            // Tại đây có thể emit thêm RefundNeededEvent để tạo Notification cho Admin
+        } else if (newPaidAmount.compareTo(bill.getAmount()) == 0) {
+            bill.setStatus(BillStatus.PAID);
+            bill.setRequiresRefund(false);
         } else {
             bill.setStatus(BillStatus.PARTIALLY_PAID);
+            bill.setRequiresRefund(false);
         }
 
         billRepository.save(bill);

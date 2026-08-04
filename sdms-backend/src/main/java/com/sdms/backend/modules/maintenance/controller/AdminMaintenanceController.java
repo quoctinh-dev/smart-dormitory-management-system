@@ -24,10 +24,13 @@ public class AdminMaintenanceController {
 
     private final MaintenanceService maintenanceService;
 
-    @Operation(summary = "Lấy toàn bộ danh sách yêu cầu sửa chữa")
+    @Operation(summary = "Lấy toàn bộ danh sách yêu cầu sửa chữa (Có lọc)")
     @GetMapping
-    public ApiResponse<PageResponse<MaintenanceResponse>> getAllRequests(Pageable pageable) {
-        PageResponse<MaintenanceResponse> response = maintenanceService.getAllRequests(pageable);
+    public ApiResponse<PageResponse<MaintenanceResponse>> getAllRequests(
+            @RequestParam(required = false) com.sdms.backend.modules.maintenance.enums.MaintenanceStatus status,
+            @RequestParam(required = false) String roomId,
+            Pageable pageable) {
+        PageResponse<MaintenanceResponse> response = maintenanceService.getAllRequests(status, roomId, pageable);
         return ApiResponse.success("Lấy danh sách yêu cầu thành công", response);
     }
 

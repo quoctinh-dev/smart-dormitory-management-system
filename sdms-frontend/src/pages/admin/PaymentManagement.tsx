@@ -2,6 +2,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EventIcon from '@mui/icons-material/Event';
+import AddIcon from '@mui/icons-material/Add';
 import {
   Box,
   Typography,
@@ -32,6 +33,7 @@ import {
   Autocomplete,
   CircularProgress,
   Divider,
+  Tooltip,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import React, { useState } from 'react';
@@ -71,9 +73,11 @@ export default function PaymentManagement() {
     currentTab,
     searchQuery,
     billTypeFilter,
+    refundStatusFilter,
     setCurrentTab,
     setSearchQuery,
     setBillTypeFilter,
+    setRefundStatusFilter,
     setConfirmDialog,
     setDetailsDialog,
     setExtendDialog,
@@ -88,14 +92,14 @@ export default function PaymentManagement() {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  
+
   const [newDueDate, setNewDueDate] = useState('');
 
   const [manualBillDialog, setManualBillDialog] = useState(false);
   const [manualBillData, setManualBillData] = useState({
     studentId: '',
     roomId: '',
-    amount: '', // Lưu giá trị chuỗi nguyên bản (VD: "150000")
+    amount: '',
     description: '',
     billType: 'PENALTY_FEE',
     dueDate: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
@@ -128,16 +132,16 @@ export default function PaymentManagement() {
     };
   }, [manualBillDialog]);
 
-  // Hàm định dạng số tiền hiển thị có dấu phân cách
+  // Định dạng số tiền hiển thị có dấu phân cách
   const formatAmountDisplay = (val: string) => {
     if (!val) return '';
     const numericValue = val.replace(/\D/g, '');
     return numericValue ? Number(numericValue).toLocaleString('vi-VN') : '';
   };
 
-  // Hàm xử lý khi người dùng gõ số tiền
+  // Xử lý khi nhập số tiền
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, ''); // Lấy nguyên số
+    const rawValue = e.target.value.replace(/\D/g, '');
     setManualBillData({ ...manualBillData, amount: rawValue });
   };
 
@@ -153,7 +157,17 @@ export default function PaymentManagement() {
 
   return (
       <Box sx={{ p: { xs: 2, md: 3 } }}>
-        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+        {/* Header trang */}
+        <Box
+            sx={{
+              mb: 3,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: { xs: 'flex-start', md: 'center' },
+              flexDirection: { xs: 'column', md: 'row' },
+              gap: 2,
+            }}
+        >
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
               Quản lý thanh toán và hóa đơn
@@ -166,13 +180,15 @@ export default function PaymentManagement() {
               variant="contained"
               color="error"
               disableElevation
+              startIcon={<AddIcon />}
               onClick={() => setManualBillDialog(true)}
               sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600, px: 2.5 }}
           >
-            + Hóa đơn đền bù / phạt
+            Tạo hóa đơn phạt / đền bù
           </Button>
         </Box>
 
+        {/* Bộ lọc & Tabs */}
         <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2 }}>
           <Stack spacing={2}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -186,7 +202,12 @@ export default function PaymentManagement() {
                   indicatorColor="primary"
                   sx={{
                     minHeight: 40,
-                    '& .MuiTab-root': { textTransform: 'none', fontWeight: 500, minHeight: 40, fontSize: '0.95rem' },
+                    '& .MuiTab-root': {
+                      textTransform: 'none',
+                      fontWeight: 500,
+                      minHeight: 40,
+                      fontSize: '0.9rem',
+                    },
                     '& .Mui-selected': { fontWeight: 600 },
                   }}
               >
@@ -206,13 +227,15 @@ export default function PaymentManagement() {
                     setSearchQuery(e.target.value);
                     setPage(0);
                   }}
-                  sx={{ minWidth: { xs: '100%', sm: 300 }, '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
-                  InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-                        </InputAdornment>
-                    ),
+                  sx={{ minWidth: { xs: '100%', sm: 300 } }}
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                          </InputAdornment>
+                      ),
+                    },
                   }}
               />
 
@@ -225,7 +248,6 @@ export default function PaymentManagement() {
                       setBillTypeFilter(e.target.value);
                       setPage(0);
                     }}
-                    sx={{ borderRadius: 1.5 }}
                 >
                   {Object.entries(BILL_TYPES).map(([key, val]) => (
                       <MenuItem key={key} value={key}>
@@ -234,13 +256,29 @@ export default function PaymentManagement() {
                   ))}
                 </Select>
               </FormControl>
+
+              <FormControl size="small" sx={{ minWidth: 200, width: { xs: '100%', sm: 'auto' } }}>
+                <InputLabel>Trạng thái hoàn tiền</InputLabel>
+                <Select
+                    value={refundStatusFilter}
+                    label="Trạng thái hoàn tiền"
+                    onChange={(e) => {
+                      setRefundStatusFilter(e.target.value);
+                      setPage(0);
+                    }}
+                >
+                  <MenuItem value="ALL">Tất cả</MenuItem>
+                  <MenuItem value="REFUND_NEEDED">Cần hoàn tiền (Chuyển dư)</MenuItem>
+                </Select>
+              </FormControl>
             </Stack>
           </Stack>
         </Paper>
 
+        {/* Bảng danh sách hóa đơn */}
         <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
           <TableContainer>
-            <Table sx={{ minWidth: 700 }}>
+            <Table sx={{ minWidth: 800 }}>
               <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 600 }}>Mã hóa đơn</TableCell>
@@ -256,7 +294,7 @@ export default function PaymentManagement() {
                 {bills.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
-                        <Typography color="text.secondary" variant="body2" sx={{ fontStyle: 'italic' }}>
+                        <Typography color="text.secondary" variant="body2">
                           Không tìm thấy dữ liệu hóa đơn phù hợp.
                         </Typography>
                       </TableCell>
@@ -270,7 +308,10 @@ export default function PaymentManagement() {
                       return (
                           <TableRow key={bill.billId} hover>
                             <TableCell>
-                              <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600, color: 'primary.main' }}>
+                              <Typography
+                                  variant="body2"
+                                  sx={{ fontFamily: 'monospace', fontWeight: 600, color: 'primary.main' }}
+                              >
                                 {bill.billCode}
                               </Typography>
                             </TableCell>
@@ -286,7 +327,7 @@ export default function PaymentManagement() {
                                   label={BILL_TYPES[bill.billType] || bill.billType || 'Phí hệ thống'}
                                   size="small"
                                   variant="outlined"
-                                  sx={{ fontWeight: 600, borderRadius: 1 }}
+                                  sx={{ fontWeight: 600, borderRadius: 1.5 }}
                               />
                             </TableCell>
 
@@ -305,48 +346,78 @@ export default function PaymentManagement() {
                             </TableCell>
 
                             <TableCell>
-                              <Chip
-                                  label={statusStyle.label}
-                                  color={statusStyle.color}
-                                  size="small"
-                                  sx={{ fontWeight: 600, borderRadius: 1 }}
-                              />
+                              <Stack direction="row" spacing={0.5} alignItems="center">
+                                <Chip
+                                    label={statusStyle.label}
+                                    color={statusStyle.color}
+                                    size="small"
+                                    sx={{ fontWeight: 600, borderRadius: 1.5 }}
+                                />
+                                {bill.requiresRefund && (
+                                    <Chip
+                                        label="Cần hoàn tiền"
+                                        color="error"
+                                        size="small"
+                                        variant="outlined"
+                                        sx={{ fontWeight: 600, borderRadius: 1.5 }}
+                                    />
+                                )}
+                              </Stack>
                             </TableCell>
 
+                            {/* Cột thao tác tinh gọn dạng Icon Buttons */}
                             <TableCell align="center">
-                              <Stack direction="row" spacing={1} justifyContent="center">
-                                <IconButton
-                                    color="primary"
-                                    size="small"
-                                    title="Xem chi tiết"
-                                    onClick={() => openDetails(bill)}
-                                >
-                                  <VisibilityIcon fontSize="small" />
-                                </IconButton>
+                              <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center">
+                                <Tooltip title="Xem chi tiết hóa đơn" arrow placement="top">
+                                  <IconButton
+                                      color="primary"
+                                      size="small"
+                                      onClick={() => openDetails(bill)}
+                                      sx={{
+                                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                                        '&:hover': {
+                                          bgcolor: (theme) => alpha(theme.palette.primary.main, 0.2),
+                                        },
+                                      }}
+                                  >
+                                    <VisibilityIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
 
                                 {(bill.status === 'UNPAID' || bill.status === 'OVERDUE') && (
-                                    <Button
-                                        variant="contained"
-                                        size="small"
-                                        color="success"
-                                        disableElevation
-                                        startIcon={<CheckCircleIcon fontSize="small" />}
-                                        onClick={() => openConfirm(bill)}
-                                        sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
-                                    >
-                                      Thu tiền mặt
-                                    </Button>
+                                    <Tooltip title="Thu tiền mặt trực tiếp" arrow placement="top">
+                                      <IconButton
+                                          color="success"
+                                          size="small"
+                                          onClick={() => openConfirm(bill)}
+                                          sx={{
+                                            bgcolor: (theme) => alpha(theme.palette.success.main, 0.1),
+                                            '&:hover': {
+                                              bgcolor: (theme) => alpha(theme.palette.success.main, 0.2),
+                                            },
+                                          }}
+                                      >
+                                        <CheckCircleIcon fontSize="small" />
+                                      </IconButton>
+                                    </Tooltip>
                                 )}
 
                                 {(bill.status === 'UNPAID' || bill.status === 'OVERDUE') && (
-                                    <IconButton
-                                        color="warning"
-                                        size="small"
-                                        title="Gia hạn (lùi ngày)"
-                                        onClick={() => openExtend(bill)}
-                                    >
-                                      <EventIcon fontSize="small" />
-                                    </IconButton>
+                                    <Tooltip title="Gia hạn thời gian đóng" arrow placement="top">
+                                      <IconButton
+                                          color="warning"
+                                          size="small"
+                                          onClick={() => openExtend(bill)}
+                                          sx={{
+                                            bgcolor: (theme) => alpha(theme.palette.warning.main, 0.1),
+                                            '&:hover': {
+                                              bgcolor: (theme) => alpha(theme.palette.warning.main, 0.2),
+                                            },
+                                          }}
+                                      >
+                                        <EventIcon fontSize="small" />
+                                      </IconButton>
+                                    </Tooltip>
                                 )}
                               </Stack>
                             </TableCell>
@@ -370,14 +441,19 @@ export default function PaymentManagement() {
                 setPage(0);
               }}
               labelRowsPerPage="Số dòng mỗi trang:"
-              sx={{ borderTop: '1px solid', borderColor: 'divider' }}
           />
         </Paper>
 
         {/* Dialog xác nhận thu tiền mặt */}
-        <Dialog open={confirmDialog} onClose={() => setConfirmDialog(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 2 } }}>
+        <Dialog
+            open={confirmDialog}
+            onClose={() => setConfirmDialog(false)}
+            maxWidth="xs"
+            fullWidth
+            PaperProps={{ sx: { borderRadius: 2 } }}
+        >
           <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>Xác nhận thu tiền mặt</DialogTitle>
-          <DialogContent dividers sx={{ py: 2 }}>
+          <DialogContent dividers sx={{ py: 2.5 }}>
             <Typography variant="body2">
               Xác nhận đã nhận đủ số tiền{' '}
               <strong style={{ color: '#2e7d32' }}>
@@ -388,7 +464,11 @@ export default function PaymentManagement() {
             </Typography>
           </DialogContent>
           <DialogActions sx={{ px: 3, py: 2 }}>
-            <Button onClick={() => setConfirmDialog(false)} color="inherit" sx={{ borderRadius: 1.5, textTransform: 'none', color: 'text.secondary' }}>
+            <Button
+                onClick={() => setConfirmDialog(false)}
+                color="inherit"
+                sx={{ borderRadius: 1.5, textTransform: 'none' }}
+            >
               Hủy bỏ
             </Button>
             <Button
@@ -411,22 +491,25 @@ export default function PaymentManagement() {
             fullWidth
             PaperProps={{ sx: { borderRadius: 2 } }}
         >
-          <DialogTitle sx={{ fontWeight: 600, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>
             Chi tiết hóa đơn
           </DialogTitle>
           <DialogContent dividers sx={{ py: 2.5 }}>
             {selectedBill && (() => {
-              const statusStyle = STATUS_MAP[selectedBill.status] || { label: selectedBill.status, color: 'default' };
+              const statusStyle = STATUS_MAP[selectedBill.status] || {
+                label: selectedBill.status,
+                color: 'default',
+              };
 
               return (
-                  <Stack direction="column" spacing={2.5} sx={{ width: '100%' }}>
+                  <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary">Trạng thái</Typography>
                       <Chip
                           label={statusStyle.label}
                           color={statusStyle.color}
                           size="small"
-                          sx={{ fontWeight: 600, borderRadius: 1 }}
+                          sx={{ fontWeight: 600, borderRadius: 1.5 }}
                       />
                     </Box>
 
@@ -434,7 +517,10 @@ export default function PaymentManagement() {
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary">Mã hóa đơn</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main', fontFamily: 'monospace' }}>
+                      <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 600, color: 'primary.main', fontFamily: 'monospace' }}
+                      >
                         {selectedBill.billCode}
                       </Typography>
                     </Box>
@@ -456,7 +542,9 @@ export default function PaymentManagement() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary">Hạn thanh toán</Typography>
                       <Typography variant="body2">
-                        {selectedBill.dueDate ? new Date(selectedBill.dueDate).toLocaleDateString('vi-VN') : 'Không thời hạn'}
+                        {selectedBill.dueDate
+                            ? new Date(selectedBill.dueDate).toLocaleDateString('vi-VN')
+                            : 'Không thời hạn'}
                       </Typography>
                     </Box>
 
@@ -473,7 +561,11 @@ export default function PaymentManagement() {
             })()}
           </DialogContent>
           <DialogActions sx={{ px: 3, py: 2 }}>
-            <Button onClick={() => setDetailsDialog(false)} color="inherit" sx={{ textTransform: 'none', borderRadius: 1.5, color: 'text.secondary', fontWeight: 600 }}>
+            <Button
+                onClick={() => setDetailsDialog(false)}
+                color="inherit"
+                sx={{ textTransform: 'none', borderRadius: 1.5 }}
+            >
               Đóng
             </Button>
 
@@ -496,44 +588,60 @@ export default function PaymentManagement() {
         </Dialog>
 
         {/* Dialog gia hạn thời hạn thanh toán */}
-        <Dialog open={extendDialog} onClose={() => setExtendDialog(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 2 } }}>
-          <DialogTitle sx={{ fontWeight: 600, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>Gia hạn hóa đơn</DialogTitle>
-          <DialogContent sx={{ py: 2.5 }}>
-            <Typography variant="body2" sx={{ mb: 2 }}>
-              Bạn đang gia hạn cho hóa đơn <strong>{selectedBill?.billCode}</strong> của sinh viên <strong>{selectedBill?.studentName}</strong>.
+        <Dialog
+            open={extendDialog}
+            onClose={() => setExtendDialog(false)}
+            maxWidth="xs"
+            fullWidth
+            PaperProps={{ sx: { borderRadius: 2 } }}
+        >
+          <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>
+            Gia hạn hóa đơn
+          </DialogTitle>
+          <DialogContent dividers sx={{ py: 2.5 }}>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Bạn đang gia hạn cho hóa đơn <strong>{selectedBill?.billCode}</strong> của sinh viên{' '}
+              <strong>{selectedBill?.studentName}</strong>.
             </Typography>
-            <Typography variant="body2" color="error.main" sx={{ mb: 3, fontWeight: 600, fontStyle: 'italic' }}>
-              Lưu ý: Mỗi hóa đơn chỉ được gia hạn tối đa 1 lần theo quy định.
+            <Typography
+                variant="caption"
+                color="error.main"
+                sx={{ mb: 2.5, display: 'block', fontWeight: 600 }}
+            >
+              * Lưu ý: Mỗi hóa đơn chỉ được gia hạn tối đa 1 lần theo quy định.
             </Typography>
             <TextField
-              label="Hạn thanh toán mới"
-              type="date"
-              fullWidth
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              value={newDueDate}
-              onChange={(e) => setNewDueDate(e.target.value)}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                label="Hạn thanh toán mới"
+                type="date"
+                fullWidth
+                size="small"
+                slotProps={{ inputLabel: { shrink: true } }}
+                value={newDueDate}
+                onChange={(e) => setNewDueDate(e.target.value)}
             />
           </DialogContent>
           <DialogActions sx={{ px: 3, py: 2 }}>
-            <Button onClick={() => setExtendDialog(false)} color="inherit" sx={{ borderRadius: 1.5, textTransform: 'none', color: 'text.secondary' }}>
+            <Button
+                onClick={() => setExtendDialog(false)}
+                color="inherit"
+                sx={{ borderRadius: 1.5, textTransform: 'none' }}
+            >
               Hủy bỏ
             </Button>
             <Button
-              variant="contained"
-              color="warning"
-              disableElevation
-              onClick={() => {
-                if (!newDueDate) {
-                  alert('Vui lòng chọn ngày đến hạn mới!');
-                  return;
-                }
-                if (selectedBill) {
-                  handleExtendDueDate(selectedBill.billId, newDueDate);
-                }
-              }}
-              sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
+                variant="contained"
+                color="warning"
+                disableElevation
+                onClick={() => {
+                  if (!newDueDate) {
+                    alert('Vui lòng chọn ngày đến hạn mới!');
+                    return;
+                  }
+                  if (selectedBill) {
+                    handleExtendDueDate(selectedBill.billId, newDueDate);
+                  }
+                }}
+                sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
             >
               Xác nhận gia hạn
             </Button>
@@ -548,18 +656,23 @@ export default function PaymentManagement() {
             fullWidth
             PaperProps={{ sx: { borderRadius: 2 } }}
         >
-          <DialogTitle sx={{ fontWeight: 600, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>
             Tạo hóa đơn đền bù / vi phạm
           </DialogTitle>
           <DialogContent dividers sx={{ py: 2.5, overflow: 'visible' }}>
             <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
               <Autocomplete
                   options={studentOptions}
-                  getOptionLabel={(option) => `${option.fullName} - ${option.studentCode || option.cccd}`}
+                  getOptionLabel={(option) =>
+                      `${option.fullName} - ${option.studentCode || option.cccd}`
+                  }
                   value={selectedStudent}
                   onChange={(_, newValue) => {
                     setSelectedStudent(newValue);
-                    setManualBillData({ ...manualBillData, studentId: newValue ? newValue.studentId : '' });
+                    setManualBillData({
+                      ...manualBillData,
+                      studentId: newValue ? newValue.studentId : '',
+                    });
                   }}
                   loading={studentSearchLoading}
                   renderInput={(params) => (
@@ -567,15 +680,18 @@ export default function PaymentManagement() {
                           {...params}
                           label="Chọn Sinh viên (Bắt buộc)"
                           size="small"
-                          sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
-                          InputProps={{
-                            ...params.InputProps,
-                            endAdornment: (
-                                <React.Fragment>
-                                  {studentSearchLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                                  {params.InputProps.endAdornment}
-                                </React.Fragment>
-                            ),
+                          slotProps={{
+                            input: {
+                              ...params.InputProps,
+                              endAdornment: (
+                                  <React.Fragment>
+                                    {studentSearchLoading ? (
+                                        <CircularProgress color="inherit" size={20} />
+                                    ) : null}
+                                    {params.InputProps.endAdornment}
+                                  </React.Fragment>
+                              ),
+                            },
                           }}
                       />
                   )}
@@ -588,7 +704,6 @@ export default function PaymentManagement() {
                   value={manualBillData.roomId}
                   onChange={(e) => setManualBillData({ ...manualBillData, roomId: e.target.value })}
                   placeholder="Nhập UUID của phòng nếu có"
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
               />
 
               <FormControl fullWidth size="small">
@@ -596,8 +711,9 @@ export default function PaymentManagement() {
                 <Select
                     value={manualBillData.billType}
                     label="Loại hóa đơn"
-                    onChange={(e) => setManualBillData({ ...manualBillData, billType: e.target.value })}
-                    sx={{ borderRadius: 1.5 }}
+                    onChange={(e) =>
+                        setManualBillData({ ...manualBillData, billType: e.target.value })
+                    }
                 >
                   <MenuItem value="PENALTY_FEE">Đền bù tài sản / Phạt vi phạm</MenuItem>
                   <MenuItem value="ACCOMMODATION_FEE">Thu bù tiền phòng</MenuItem>
@@ -605,7 +721,6 @@ export default function PaymentManagement() {
                 </Select>
               </FormControl>
 
-              {/* KHỐI NHẬP SỐ TIỀN ĐÃ TỐI ƯU UI/UX */}
               <Box>
                 <TextField
                     label="Số tiền thanh toán"
@@ -615,17 +730,33 @@ export default function PaymentManagement() {
                     onChange={handleAmountChange}
                     placeholder="0"
                     sx={{
-                      '& .MuiOutlinedInput-root': { borderRadius: 1.5 },
-                      '& input': { textAlign: 'right', fontWeight: 700, fontSize: '1.05rem', color: 'error.main' }
+                      '& input': {
+                        textAlign: 'right',
+                        fontWeight: 700,
+                        fontSize: '1.05rem',
+                        color: 'error.main',
+                      },
                     }}
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end" sx={{ '& p': { fontWeight: 700, color: 'text.primary' } }}>VNĐ</InputAdornment>,
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                            <InputAdornment
+                                position="end"
+                                sx={{ '& p': { fontWeight: 700, color: 'text.primary' } }}
+                            >
+                              VNĐ
+                            </InputAdornment>
+                        ),
+                      },
                     }}
                 />
 
-                {/* Các nút bấm chọn nhanh mốc tiền */}
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'center', mr: 0.5 }}>
+                  <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ alignSelf: 'center', mr: 0.5 }}
+                  >
                     Gợi ý nhanh:
                   </Typography>
                   {QUICK_AMOUNTS.map((amt) => (
@@ -636,8 +767,10 @@ export default function PaymentManagement() {
                           clickable
                           variant={Number(manualBillData.amount) === amt ? 'filled' : 'outlined'}
                           color={Number(manualBillData.amount) === amt ? 'error' : 'default'}
-                          onClick={() => setManualBillData({ ...manualBillData, amount: String(amt) })}
-                          sx={{ borderRadius: 1, fontSize: '0.75rem', fontWeight: 600 }}
+                          onClick={() =>
+                              setManualBillData({ ...manualBillData, amount: String(amt) })
+                          }
+                          sx={{ borderRadius: 1.5, fontSize: '0.75rem', fontWeight: 600 }}
                       />
                   ))}
                 </Stack>
@@ -650,8 +783,9 @@ export default function PaymentManagement() {
                   multiline
                   rows={2}
                   value={manualBillData.description}
-                  onChange={(e) => setManualBillData({ ...manualBillData, description: e.target.value })}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+                  onChange={(e) =>
+                      setManualBillData({ ...manualBillData, description: e.target.value })
+                  }
               />
 
               <TextField
@@ -659,15 +793,18 @@ export default function PaymentManagement() {
                   type="date"
                   fullWidth
                   size="small"
-                  InputLabelProps={{ shrink: true }}
+                  slotProps={{ inputLabel: { shrink: true } }}
                   value={manualBillData.dueDate}
                   onChange={(e) => setManualBillData({ ...manualBillData, dueDate: e.target.value })}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
               />
             </Stack>
           </DialogContent>
           <DialogActions sx={{ px: 3, py: 2 }}>
-            <Button onClick={() => setManualBillDialog(false)} color="inherit" sx={{ textTransform: 'none', borderRadius: 1.5, color: 'text.secondary' }}>
+            <Button
+                onClick={() => setManualBillDialog(false)}
+                color="inherit"
+                sx={{ textTransform: 'none', borderRadius: 1.5 }}
+            >
               Hủy bỏ
             </Button>
             <Button
@@ -676,7 +813,11 @@ export default function PaymentManagement() {
                 color="error"
                 sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5, px: 3 }}
                 onClick={async () => {
-                  if (!manualBillData.studentId || !manualBillData.amount || !manualBillData.description) {
+                  if (
+                      !manualBillData.studentId ||
+                      !manualBillData.amount ||
+                      !manualBillData.description
+                  ) {
                     alert('Vui lòng nhập đầy đủ Sinh viên, Số tiền và Lý do!');
                     return;
                   }

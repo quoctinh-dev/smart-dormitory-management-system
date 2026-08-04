@@ -23,15 +23,19 @@ export const usePayment = (applicationId: string) => {
         return;
       }
       try {
-        const [appRes, billRes, instructionsRes] = await Promise.all([
+        const [appRes, billRes] = await Promise.all([
           applicationApi.getById(applicationId),
-          paymentApi.getBillByApplication(applicationId),
-          paymentApi.getPaymentInstructions(),
+          paymentApi.getBillByApplication(applicationId)
         ]);
+
+        const billData = (billRes as any).data || billRes;
+        
+        // Chỉ khi có bill thì mới lấy instruction chính xác cho bill đó
+        const instructionsRes = await paymentApi.getPaymentInstructions(billData.billId);
 
         if (isMounted) {
           setApplication((appRes as any).data || appRes);
-          setBill((billRes as any).data || billRes);
+          setBill(billData);
           setPaymentInstructions((instructionsRes as any).data || instructionsRes);
           setLoading(false);
         }

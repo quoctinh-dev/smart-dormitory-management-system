@@ -86,15 +86,9 @@ public class SepayService {
             return;
         }
 
-        // 7. Kiểm tra số tiền chuyển khoản
-        if (payload.getTransferAmount().compareTo(payment.getAmount()) < 0) {
-            log.warn("[SepayService] Transfer amount {} is less than required {}", payload.getTransferAmount(), payment.getAmount());
-            paymentService.markPaymentFailed(payment.getPaymentId(), "Insufficient transfer amount from gateway");
-            return;
-        }
-
-        // 8. Cập nhật mã giao dịch cổng thanh toán và hoàn tất đơn hàng
+        // 7. Cập nhật mã giao dịch cổng thanh toán và số tiền thực tế
         payment.setGatewayTransactionId(payload.getId());
+        payment.setAmount(payload.getTransferAmount());
         paymentRepository.save(payment); // Lưu ID SePay trước để tránh race condition
 
         paymentService.completeOnlinePayment(payment.getPaymentId(), payload.getTransferAmount());

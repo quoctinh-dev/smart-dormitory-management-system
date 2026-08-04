@@ -19,7 +19,10 @@ import {
     DialogContent,
     DialogActions,
     Button,
-    Stack
+    Stack,
+    FormControl,
+    InputLabel,
+    Select
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import BuildCircleIcon from '@mui/icons-material/BuildCircle';
@@ -45,7 +48,9 @@ export default function MaintenanceManagementPage() {
         rowsPerPage,
         setRowsPerPage,
         totalElements,
-        updateStatus
+        updateStatus,
+        statusFilter,
+        setStatusFilter
     } = useMaintenanceAdmin();
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -71,20 +76,50 @@ export default function MaintenanceManagementPage() {
 
     return (
         <Box sx={{ p: { xs: 2, md: 3 } }}>
-            {/* Header */}
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
-                    Quản lý báo cáo sự cố (Bảo trì)
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    Tiếp nhận và cập nhật trạng thái sửa chữa các thiết bị hư hỏng do sinh viên báo cáo.
-                </Typography>
+            {/* HEADER TRANG */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, flexDirection: { xs: 'column', md: 'row' }, gap: 2, mb: 3 }}>
+                <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
+                        Quản lý báo cáo sự cố (Bảo trì)
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Tiếp nhận và cập nhật trạng thái sửa chữa các thiết bị hư hỏng do sinh viên báo cáo.
+                    </Typography>
+                </Box>
             </Box>
 
-            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+            {/* THANH CÔNG CỤ LỌC */}
+            <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                <FormControl size="small" sx={{ minWidth: 200 }}>
+                    <InputLabel id="status-filter-label">Lọc theo trạng thái</InputLabel>
+                    <Select
+                        labelId="status-filter-label"
+                        value={statusFilter}
+                        label="Lọc theo trạng thái"
+                        onChange={(e) => {
+                            setStatusFilter(e.target.value as MaintenanceStatus | '');
+                            setPage(0); // Reset page on filter change
+                        }}
+                    >
+                        <MenuItem value="">Tất cả trạng thái</MenuItem>
+                        <MenuItem value="PENDING">Chờ xử lý</MenuItem>
+                        <MenuItem value="IN_PROGRESS">Đang sửa</MenuItem>
+                        <MenuItem value="DONE">Hoàn thành</MenuItem>
+                        <MenuItem value="REJECTED">Từ chối</MenuItem>
+                    </Select>
+                </FormControl>
+            </Paper>
+
+            <Paper variant="outlined" sx={{ borderRadius: 2, mb: 4, overflow: 'hidden' }}>
+                <Typography
+                    variant="subtitle1"
+                    sx={{ p: 2.5, fontWeight: 600, borderBottom: '1px solid', borderColor: 'divider' }}
+                >
+                    Danh sách yêu cầu bảo trì
+                </Typography>
                 <TableContainer>
                     <Table sx={{ minWidth: 650 }}>
-                        <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05) }}>
+                        <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
                             <TableRow>
                                 <TableCell sx={{ fontWeight: 600 }}>Ngày báo</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Phòng</TableCell>
@@ -169,8 +204,9 @@ export default function MaintenanceManagementPage() {
                         setRowsPerPage(parseInt(e.target.value, 10));
                         setPage(0);
                     }}
-                    labelRowsPerPage="Số dòng / trang:"
+                    labelRowsPerPage="Số dòng mỗi trang:"
                     labelDisplayedRows={({ from, to, count }) => `${from}–${to} trên ${count}`}
+                    sx={{ borderTop: '1px solid', borderColor: 'divider' }}
                 />
             </Paper>
 

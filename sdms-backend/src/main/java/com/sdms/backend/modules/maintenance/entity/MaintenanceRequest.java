@@ -17,6 +17,9 @@ public class MaintenanceRequest extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Version
+    private Long version;
+
     @Column(name = "room_id", nullable = false)
     private UUID roomId;
 

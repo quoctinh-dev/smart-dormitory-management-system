@@ -25,4 +25,8 @@ export const utilityApi = {
       params: { type, roomId, month, year },
     });
   },
+
+  getRoomUtilityHistory: (roomId: string): Promise<import('../types/utility').StudentUtilityResponse[]> => {
+    return axiosClient.get(`/v1/admin/utilities/room/${roomId}/history`);
+  },
 };

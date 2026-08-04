@@ -59,4 +59,11 @@ public class UtilityUsageController {
         utilityUsageManagementService.cancelUtilityRecord(roomId, month, year, type);
         return ApiResponse.success("Hủy chốt và xóa hóa đơn liên quan thành công");
     }
+
+    @Operation(summary = "Lấy lịch sử điện nước của 1 phòng (Admin)")
+    @GetMapping("/room/{roomId}/history")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ApiResponse<List<com.sdms.backend.modules.payment.dto.response.StudentUtilityResponse>> getRoomUtilityHistory(@PathVariable UUID roomId) {
+        return ApiResponse.success("Lấy lịch sử thành công", utilityUsageManagementService.getRoomUtilityHistory(roomId));
+    }
 }

@@ -244,7 +244,7 @@ export default function StatusPage() {
                                         handleResubmit={handleResubmit}
                                     />
 
-                                    {application.status === 'WAITING_PAYMENT' && application.bill && (
+                                    {(application.status === 'WAITING_PAYMENT' || application.bill?.status === 'PARTIALLY_PAID') && application.bill && (
                                         <Box
                                             sx={{
                                                 mt: 4,
@@ -253,9 +253,19 @@ export default function StatusPage() {
                                                 border: '1px solid',
                                                 borderColor: 'divider',
                                                 textAlign: 'center',
-                                                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.02)
+                                                bgcolor: (theme) => (application.bill?.paidAmount ?? 0) > 0 
+                                                    ? alpha(theme.palette.warning.main, 0.05) 
+                                                    : alpha(theme.palette.primary.main, 0.02)
                                             }}
                                         >
+                                            {(application.bill.paidAmount ?? 0) > 0 && (
+                                                <Typography variant="body1" sx={{ color: 'warning.dark', mb: 2, fontWeight: 500 }}>
+                                                    Bạn chưa hoàn tất thanh toán. <br/>
+                                                    Tổng hóa đơn: {application.bill.amount.toLocaleString('vi-VN')}đ | 
+                                                    Đã chuyển: {(application.bill.paidAmount ?? 0).toLocaleString('vi-VN')}đ | 
+                                                    <strong> Cần thanh toán thêm: {((application.bill.remainingAmount ?? application.bill.amount) - (application.bill.paidAmount ?? 0)).toLocaleString('vi-VN')}đ</strong>
+                                                </Typography>
+                                            )}
                                             <Button
                                                 variant="contained"
                                                 color="primary"
@@ -277,10 +287,31 @@ export default function StatusPage() {
                                             >
                                                 {paymentLoading
                                                     ? 'Đang tạo dữ liệu...'
-                                                    : `Xuất mã QR thanh toán - ${application.bill.amount.toLocaleString('vi-VN')}đ`}
+                                                    : `Xuất mã QR thanh toán - ${(application.bill.amount - application.bill.paidAmount).toLocaleString('vi-VN')}đ`}
                                             </Button>
                                             <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
                                                 Hệ thống tự động liên kết tạo cổng thanh toán trực tuyến bảo mật.
+                                            </Typography>
+                                        </Box>
+                                    )}
+
+                                    {application.bill && application.bill.paidAmount > application.bill.amount && (
+                                        <Box
+                                            sx={{
+                                                mt: 4,
+                                                p: 3,
+                                                borderRadius: 2,
+                                                border: '1px solid',
+                                                borderColor: 'success.main',
+                                                textAlign: 'center',
+                                                bgcolor: (theme) => alpha(theme.palette.success.main, 0.05)
+                                            }}
+                                        >
+                                            <Typography variant="subtitle1" sx={{ color: 'success.dark', fontWeight: 700, mb: 1 }}>
+                                                Hoàn tất thanh toán. Bạn đã chuyển dư: {(application.bill.paidAmount - application.bill.amount).toLocaleString('vi-VN')}đ.
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Số tiền chuyển dư sẽ được lưu vào ví tài khoản của bạn để cấn trừ tự động vào hóa đơn tiền điện/nước tháng sau hoặc được Ban quản lý hoàn trả trực tiếp.
                                             </Typography>
                                         </Box>
                                     )}

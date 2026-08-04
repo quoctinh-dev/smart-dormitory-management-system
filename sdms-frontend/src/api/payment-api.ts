@@ -17,6 +17,7 @@ export const paymentApi = {
     search?: string;
     status?: string;
     billType?: string;
+    requiresRefund?: boolean;
   }): Promise<PageResponse<BillAdminResponse>> => {
     return await axiosClient.get('/v1/bills', { params });
   },
@@ -55,8 +56,10 @@ export const paymentApi = {
   },
 
   // 3. Lấy hướng dẫn thanh toán
-  getPaymentInstructions: async (): Promise<PaymentInstruction> => {
-    return await axiosClient.get('/v1/public/payment-instructions');
+  getPaymentInstructions: async (billId?: string): Promise<PaymentInstruction> => {
+    return await axiosClient.get('/v1/public/payment-instructions', {
+      params: billId ? { billId } : undefined
+    });
   },
 
 };

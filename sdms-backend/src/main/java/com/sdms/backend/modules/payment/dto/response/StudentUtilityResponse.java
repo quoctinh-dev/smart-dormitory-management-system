@@ -18,4 +18,5 @@ public class StudentUtilityResponse {
     private Integer newReading;
     private Integer totalUsage;
     private Boolean isSettled;
+    private java.time.LocalDate readingDate;
 }

@@ -62,14 +62,30 @@ public class MaintenanceService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<MaintenanceResponse> getAllRequests(Pageable pageable) {
-        Page<MaintenanceRequest> page = maintenanceRepository.findAllByOrderByCreatedAtDesc(pageable);
+    public PageResponse<MaintenanceResponse> getAllRequests(MaintenanceStatus status, String roomId, Pageable pageable) {
+        org.springframework.data.jpa.domain.Specification<MaintenanceRequest> spec = 
+            com.sdms.backend.modules.maintenance.repository.MaintenanceSpecification.filterRequests(status, roomId);
+        
+        Page<MaintenanceRequest> page = maintenanceRepository.findAll(spec, pageable);
         return PageResponse.of(page.map(this::mapToResponse));
     }
 
     public MaintenanceResponse updateStatus(UUID id, UpdateMaintenanceStatusRequest request) {
         MaintenanceRequest maintenance = maintenanceRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy yêu cầu bảo trì"));
+
+        // RÀNG BUỘC STATE MACHINE: Không cho phép đổi trạng thái nếu đã đóng (DONE/REJECTED)
+        if (maintenance.getStatus() == MaintenanceStatus.DONE || maintenance.getStatus() == MaintenanceStatus.REJECTED) {
+            if (request.getStatus() != maintenance.getStatus()) {
+                throw new AppException(ErrorCode.VALIDATION_FAILED, 
+                    "Không thể thay đổi trạng thái của yêu cầu bảo trì đã hoàn tất hoặc bị hủy. Vui lòng tạo yêu cầu mới nếu cần thiết.");
+            }
+        }
+        
+        // RÀNG BUỘC: Không thể nhảy cóc từ PENDING thẳng sang DONE mà không qua IN_PROGRESS
+        if (maintenance.getStatus() == MaintenanceStatus.PENDING && request.getStatus() == MaintenanceStatus.DONE) {
+            throw new AppException(ErrorCode.VALIDATION_FAILED, "Phải tiếp nhận xử lý (IN_PROGRESS) trước khi đánh dấu Hoàn tất (DONE)");
+        }
 
         maintenance.setStatus(request.getStatus());
         maintenance = maintenanceRepository.save(maintenance);

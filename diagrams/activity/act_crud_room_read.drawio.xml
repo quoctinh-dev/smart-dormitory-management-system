@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Activity - Xem danh sách" id="diagram_act_crud_room_read.drawio.xml">
+    <mxGraphModel dx="1200" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="start" value="S" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=none;strokeWidth=1;fontStyle=1" vertex="1" parent="1"><mxGeometry x="394" y="40" width="40" height="40" as="geometry" /></mxCell>
+        <mxCell id="n1" value="1. Mở trang Danh sách Phòng" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="110" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n2" value="2. Chọn Bộ lọc (Tòa nhà)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="190" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n3" value="3. BgetRooms(filter)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="270" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n4" value="4. CgetRooms(filter)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="350" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n5" value="5. findAll()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="430" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n6" value="6. Hiển thị danh sách" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="510" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="end" value="" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="394" y="590" width="40" height="40" as="geometry" /></mxCell>
+
+        <mxCell id="e_start_n1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="start" target="n1">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n1_n2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n1" target="n2">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n2_n3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n2" target="n3">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n3_n4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n3" target="n4">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n4_n5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n4" target="n5">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n5_n6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n5" target="n6">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n6_end" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n6" target="end">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

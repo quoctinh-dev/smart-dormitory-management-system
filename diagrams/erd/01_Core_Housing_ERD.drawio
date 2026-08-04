@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Core_Housing_ERD" id="Core_Housing_ERD">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ent_0" value="SystemConfig" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6c8ebf;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="100" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_1" value="UserAccount" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6c8ebf;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="100" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_2" value="Student" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="500" y="100" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_3" value="Building" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="700" y="100" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_4" value="Floor" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="200" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_5" value="Room" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="200" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_6" value="Bed" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="500" y="200" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_7" value="RegistrationPeriod" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="700" y="200" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_8" value="RegistrationEligibility" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="300" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_9" value="DormitoryApplication" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="300" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_10" value="ApplicationPriority" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="500" y="300" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_11" value="VerificationDocument" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="700" y="300" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_12" value="AppStatusHistory" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="400" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_13" value="StudentHousingAssignment" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="400" width="160" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

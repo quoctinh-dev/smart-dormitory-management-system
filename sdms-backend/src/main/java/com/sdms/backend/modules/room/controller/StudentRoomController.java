@@ -41,4 +41,17 @@
             CurrentRoomResponse response = studentRoomService.getCurrentRoom();
             return ApiResponse.success("Lấy thông tin phòng hiện tại thành công", response);
         }
+
+        /**
+         * Lấy danh sách thành viên cùng phòng.
+         */
+        @GetMapping("/roommates")
+        @Operation(
+                summary = "Lấy danh sách bạn cùng phòng",
+                description = "Lấy danh sách tất cả các sinh viên đang ở chung phòng với sinh viên hiện tại."
+        )
+        public ApiResponse<java.util.List<com.sdms.backend.modules.room.dto.response.RoommateResponse>> getRoommates() {
+            java.util.List<com.sdms.backend.modules.room.dto.response.RoommateResponse> response = studentRoomService.getRoommates();
+            return ApiResponse.success("Lấy danh sách thành viên cùng phòng thành công", response);
+        }
     }

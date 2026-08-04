@@ -62,6 +62,37 @@ public class StudentRoomService {
     }
 
     /**
+     * Lấy danh sách thành viên trong cùng phòng (Roommates).
+     * Dùng cho tính năng Trưởng phòng xem danh sách để tách nợ tiền điện.
+     */
+    public java.util.List<com.sdms.backend.modules.room.dto.response.RoommateResponse> getRoommates() {
+        UserAccount currentUser = getCurrentUserAccount();
+        UUID studentId = currentUser.getStudent().getStudentId();
+
+        // 1. Tìm phòng hiện tại của mình
+        StudentHousingAssignment myAssignment = assignmentRepository
+                .findByStudent_StudentIdAndStatus(studentId, AssignmentStatus.OCCUPIED)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Không tìm thấy phòng lưu trú hiện tại"));
+
+        UUID roomId = myAssignment.getBed().getRoom().getRoomId();
+
+        // 2. Tìm tất cả các thành viên đang ở (OCCUPIED) trong cùng phòng đó
+        java.util.List<StudentHousingAssignment> roommates = assignmentRepository
+                .findByBed_Room_RoomIdAndStatus(roomId, AssignmentStatus.OCCUPIED);
+
+        return roommates.stream()
+                // .filter(assignment -> !assignment.getStudent().getStudentId().equals(studentId)) // Tùy chọn: có loại bỏ chính mình không. Cứ trả về hết cho dễ nhìn.
+                .map(assignment -> com.sdms.backend.modules.room.dto.response.RoommateResponse.builder()
+                        .studentId(assignment.getStudent().getStudentId())
+                        .studentCode(assignment.getStudent().getStudentCode())
+                        .fullName(assignment.getStudent().getFullName())
+                        .bedCode(assignment.getBed().getBedCode())
+                        .roomRole(assignment.getRoomRole())
+                        .build())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
      * Helper lấy thông tin UserAccount từ SecurityContext.
      */
     private UserAccount getCurrentUserAccount() {

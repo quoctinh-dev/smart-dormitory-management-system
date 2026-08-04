@@ -1,8 +1,13 @@
+import React, { useState } from 'react';
 import BoltIcon from '@mui/icons-material/Bolt';
 import CancelIcon from '@mui/icons-material/Cancel';
-import SaveIcon from '@mui/icons-material/Save';
 import LockIcon from '@mui/icons-material/Lock';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import HistoryIcon from '@mui/icons-material/History';
+import CheckIcon from '@mui/icons-material/Check';
+import UndoIcon from '@mui/icons-material/Undo';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import {
   Box,
   Typography,
@@ -27,9 +32,14 @@ import {
   InputAdornment,
   Chip,
   Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  TablePagination,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
-import React from 'react';
 
 import { useUtilityReading } from '@/hooks/useUtilityReading';
 
@@ -57,19 +67,32 @@ export default function UtilityReadingPage() {
     handleCancel,
     fetchRooms,
     currentDate,
+    historyModalOpen,
+    historyRoomCode,
+    roomHistory,
+    historyLoading,
+    openHistoryModal,
+    closeHistoryModal,
   } = useUtilityReading();
+
+  // Quản lý phân trang
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const unitLabel = utilityType === 'ELECTRICITY' ? 'kWh' : 'm³';
 
+  // Lấy danh sách phòng hiển thị theo trang
+  const displayedRooms = rooms.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
   return (
       <Box sx={{ p: { xs: 2, md: 3 } }}>
-        {/* Dynamic Header */}
+        {/* Header trang */}
         <Box
             sx={{
               display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' },
+              flexDirection: { xs: 'column', sm: 'row' },
               justifyContent: 'space-between',
-              alignItems: { xs: 'flex-start', md: 'center' },
+              alignItems: { xs: 'flex-start', sm: 'center' },
               gap: 2,
               mb: 3,
             }}
@@ -95,7 +118,7 @@ export default function UtilityReadingPage() {
           </Button>
         </Box>
 
-        {/* Navigation Tabs */}
+        {/* Điều hướng loại chỉ số */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
           <Tabs
               value={utilityType}
@@ -113,19 +136,19 @@ export default function UtilityReadingPage() {
           </Tabs>
         </Box>
 
-        {/* Filter Section */}
-        <Paper variant="outlined" sx={{ p: 2.5, mb: 3, borderRadius: 2 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
-            Bộ lọc khu vực và thời gian
-          </Typography>
-          <Grid container spacing={2}>
+        {/* Thanh bộ lọc */}
+        <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+          <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={6} md={3}>
               <FormControl fullWidth size="small">
                 <InputLabel>Tòa nhà</InputLabel>
                 <Select
                     value={selectedBuildingId}
                     label="Tòa nhà"
-                    onChange={(e) => setSelectedBuildingId(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedBuildingId(e.target.value);
+                      setPage(0);
+                    }}
                 >
                   <MenuItem value="">
                     <em>Tất cả tòa nhà</em>
@@ -145,7 +168,10 @@ export default function UtilityReadingPage() {
                 <Select
                     value={selectedFloorId}
                     label="Tầng"
-                    onChange={(e) => setSelectedFloorId(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedFloorId(e.target.value);
+                      setPage(0);
+                    }}
                     disabled={!selectedBuildingId}
                 >
                   <MenuItem value="">
@@ -166,7 +192,10 @@ export default function UtilityReadingPage() {
                 <Select
                     value={month}
                     label="Tháng"
-                    onChange={(e) => setMonth(Number(e.target.value))}
+                    onChange={(e) => {
+                      setMonth(Number(e.target.value));
+                      setPage(0);
+                    }}
                 >
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                       <MenuItem key={m} value={m}>
@@ -183,7 +212,10 @@ export default function UtilityReadingPage() {
                 <Select
                     value={year}
                     label="Năm"
-                    onChange={(e) => setYear(Number(e.target.value))}
+                    onChange={(e) => {
+                      setYear(Number(e.target.value));
+                      setPage(0);
+                    }}
                 >
                   {[
                     currentDate.getFullYear() - 1,
@@ -200,7 +232,7 @@ export default function UtilityReadingPage() {
           </Grid>
         </Paper>
 
-        {/* Main Table */}
+        {/* Bảng danh sách phòng & ghi chỉ số */}
         <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
           <TableContainer>
             <Table sx={{ minWidth: 700 }}>
@@ -236,7 +268,7 @@ export default function UtilityReadingPage() {
                       </TableCell>
                     </TableRow>
                 ) : (
-                    rooms.map((room) => {
+                    displayedRooms.map((room) => {
                       const isFirstRecord = room.isFirstRecord ?? (room as any).firstRecord;
                       const actualOldReading = isFirstRecord
                           ? oldReadings[room.roomId] !== undefined && oldReadings[room.roomId] !== ''
@@ -260,7 +292,13 @@ export default function UtilityReadingPage() {
                                   {room.roomCode}
                                 </Typography>
                                 {isFirstRecord && (
-                                    <Chip label="Ghi lần đầu" size="small" color="info" variant="outlined" sx={{ width: 'fit-content', height: 20, fontSize: '0.65rem' }} />
+                                    <Chip
+                                        label="Ghi lần đầu"
+                                        size="small"
+                                        color="info"
+                                        variant="outlined"
+                                        sx={{ width: 'fit-content', height: 20, fontSize: '0.65rem' }}
+                                    />
                                 )}
                               </Stack>
                             </TableCell>
@@ -281,7 +319,7 @@ export default function UtilityReadingPage() {
                                       }}
                                   />
                               ) : (
-                                  <Tooltip title="Chỉ số này tự động kế thừa từ số cuối kỳ tháng trước" placement="top">
+                                  <Tooltip title="Tự động kế thừa từ số cuối kỳ tháng trước" placement="top" arrow>
                                     <TextField
                                         size="small"
                                         fullWidth
@@ -310,7 +348,7 @@ export default function UtilityReadingPage() {
                                   onChange={(e) => handleReadingChange(room.roomId, e.target.value)}
                                   disabled={room.isSettled}
                                   error={isError || newReading === ''}
-                                  helperText={isError ? `Phải lớn hơn hoặc bằng ${actualOldReading}` : ''}
+                                  helperText={isError ? `Phải ≥ ${actualOldReading}` : ''}
                                   InputProps={{
                                     endAdornment: <InputAdornment position="end">{unitLabel}</InputAdornment>,
                                   }}
@@ -330,37 +368,65 @@ export default function UtilityReadingPage() {
                             <TableCell>
                               <Chip
                                   label={room.isSettled ? 'Đã chốt' : 'Chưa chốt'}
-                                  color={room.isSettled ? 'success' : 'warning'}
+                                  color={room.isSettled ? 'success' : 'default'}
                                   size="small"
                                   sx={{ fontWeight: 600 }}
                               />
                             </TableCell>
 
                             <TableCell align="center">
-                              {room.isSettled ? (
-                                  <Button
-                                      variant="outlined"
-                                      color="error"
+                              <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center">
+                                {room.isSettled ? (
+                                    <Tooltip title="Hủy chốt số điện" arrow placement="top">
+                                      <IconButton
+                                          color="error"
+                                          size="small"
+                                          onClick={() => handleCancel(room)}
+                                          sx={{
+                                            bgcolor: (theme) => alpha(theme.palette.error.main, 0.1),
+                                            '&:hover': { bgcolor: (theme) => alpha(theme.palette.error.main, 0.2) },
+                                          }}
+                                      >
+                                        <UndoIcon fontSize="small" />
+                                      </IconButton>
+                                    </Tooltip>
+                                ) : (
+                                    <Tooltip title={isValid ? 'Lưu lại chỉ số' : 'Vui lòng nhập chỉ số hợp lệ'} arrow placement="top">
+                              <span>
+                                <IconButton
+                                    color="primary"
+                                    size="small"
+                                    disabled={!isValid}
+                                    onClick={() => handleSave(room)}
+                                    sx={{
+                                      bgcolor: isValid
+                                          ? (theme) => alpha(theme.palette.primary.main, 0.1)
+                                          : 'action.disabledBackground',
+                                      '&:hover': {
+                                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.2),
+                                      },
+                                    }}
+                                >
+                                  <CheckIcon fontSize="small" />
+                                </IconButton>
+                              </span>
+                                    </Tooltip>
+                                )}
+
+                                <Tooltip title="Lịch sử 24 tháng gần nhất" arrow placement="top">
+                                  <IconButton
+                                      color="info"
                                       size="small"
-                                      startIcon={<CancelIcon />}
-                                      onClick={() => handleCancel(room)}
-                                      sx={{ borderRadius: 1.5, textTransform: 'none' }}
+                                      onClick={() => openHistoryModal(room.roomId, room.roomCode)}
+                                      sx={{
+                                        bgcolor: (theme) => alpha(theme.palette.info.main, 0.1),
+                                        '&:hover': { bgcolor: (theme) => alpha(theme.palette.info.main, 0.2) },
+                                      }}
                                   >
-                                    Hủy chốt
-                                  </Button>
-                              ) : (
-                                  <Button
-                                      variant="contained"
-                                      size="small"
-                                      startIcon={<SaveIcon />}
-                                      disabled={!isValid}
-                                      onClick={() => handleSave(room)}
-                                      disableElevation
-                                      sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
-                                  >
-                                    Lưu lại
-                                  </Button>
-                              )}
+                                    <HistoryIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              </Stack>
                             </TableCell>
                           </TableRow>
                       );
@@ -369,7 +435,75 @@ export default function UtilityReadingPage() {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {/* Thêm Phân trang đồng bộ */}
+          <TablePagination
+              rowsPerPageOptions={[5, 10, 25, 50]}
+              component="div"
+              count={rooms.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              onRowsPerPageChange={(event) => {
+                setRowsPerPage(parseInt(event.target.value, 10));
+                setPage(0);
+              }}
+              labelRowsPerPage="Số dòng mỗi trang:"
+          />
         </Paper>
+
+        {/* Dialog Lịch sử ghi chỉ số */}
+        <Dialog open={historyModalOpen} onClose={closeHistoryModal} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 2 } }}>
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Lịch sử {utilityType === 'ELECTRICITY' ? 'điện' : 'nước'} - Phòng {historyRoomCode}
+            </Typography>
+            <IconButton onClick={closeHistoryModal} size="small"><CancelIcon /></IconButton>
+          </DialogTitle>
+          <DialogContent dividers sx={{ py: 2 }}>
+            {historyLoading ? (
+                <Box display="flex" justifyContent="center" p={4}>
+                  <CircularProgress size={28} />
+                </Box>
+            ) : roomHistory.length === 0 ? (
+                <Typography align="center" color="text.secondary" p={4} variant="body2">
+                  Chưa có lịch sử ghi chép nào.
+                </Typography>
+            ) : (
+                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 1.5 }}>
+                  <Table size="small">
+                    <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 600 }}>Tháng/Năm</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Ngày ghi</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Số đầu kỳ</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Số cuối kỳ</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Tiêu thụ</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {roomHistory.map((item) => (
+                          <TableRow key={item.utilityUsageId} hover>
+                            <TableCell>{item.month}/{item.year}</TableCell>
+                            <TableCell>{item.readingDate || 'N/A'}</TableCell>
+                            <TableCell>{item.oldReading} {unitLabel}</TableCell>
+                            <TableCell>{item.newReading} {unitLabel}</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: 'primary.main' }}>
+                              {item.totalUsage} {unitLabel}
+                            </TableCell>
+                          </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+            )}
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2 }}>
+            <Button onClick={closeHistoryModal} color="inherit" sx={{ borderRadius: 1.5, textTransform: 'none' }}>
+              Đóng
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
   );
 }

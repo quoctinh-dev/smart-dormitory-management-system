@@ -1,0 +1,45 @@
+erDiagram
+    %% MODULE 2: SERVICES & SECURITY (DỊCH VỤ VÀ AN NINH IoT)
+    
+    %% THỰC THỂ THAM CHIẾU (REFERENCE ENTITIES) TỪ MODULE CORE
+    Student {
+        string ref_id PK "Reference"
+    }
+    Room {
+        string ref_id PK "Reference"
+    }
+    Building {
+        string ref_id PK "Reference"
+    }
+    StudentHousingAssignment {
+        string ref_id PK "Reference"
+    }
+    UserAccount {
+        string ref_id PK "Reference"
+    }
+
+    %% QUAN HỆ DỊCH VỤ & HÓA ĐƠN
+    StudentHousingAssignment ||--o{ StayExtension : "Gia hạn (1-N)"
+    StudentHousingAssignment ||--o| CheckoutRequest : "Trả phòng (1-1)"
+    StudentHousingAssignment ||--o{ ChangeRoomRequest : "Chuyển phòng (1-N)"
+    StudentHousingAssignment ||--o{ Bill : "Phát sinh (1-N)"
+    Bill ||--o| Payment : "Thanh toán (1-1)"
+    
+    Student ||--o{ CurfewRequest : "Xin về trễ (1-N)"
+    Student ||--o{ MaintenanceRequest : "Yêu cầu bảo trì (1-N)"
+    Room ||--o{ MaintenanceRequest : "Thuộc phòng (1-N)"
+    Room ||--o{ UtilityUsage : "Đo điện nước (1-N)"
+    UserAccount ||--o{ Notification : "Nhận (1-N)"
+
+    %% QUAN HỆ AN NINH & IoT
+    Building ||--o{ Gate : "Lắp đặt (1-N)"
+    Building ||--o{ CurfewPolicy : "Áp dụng (1-N)"
+    CurfewPolicy ||--o{ TimeWindowPolicy : "Chi tiết (1-N)"
+    
+    Gate ||--o{ AccessHistory : "Ghi nhận (1-N)"
+    Student ||--o{ AccessHistory : "Ra vào (1-N)"
+    
+    Student ||--o| FaceProfile : "Đăng ký (1-1)"
+    FaceProfile ||--o{ FaceEmbedding : "Lưu vector (1-N)"
+    FaceProfile ||--o{ FaceVerificationAttempt : "Khớp với (1-N)"
+    Gate ||--o{ FaceVerificationAttempt : "Gửi ảnh XN (1-N)"

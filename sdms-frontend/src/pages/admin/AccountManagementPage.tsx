@@ -2,7 +2,6 @@ import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SearchIcon from '@mui/icons-material/Search';
-
 import {
   Box,
   Typography,
@@ -28,12 +27,13 @@ import {
   DialogContent,
   DialogActions,
   Stack,
+  Tooltip,
+  InputAdornment,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import React, { useState, useEffect } from 'react';
 
 import axiosClient from '@/api/axios-client';
-
 import CustomSkeleton from '@/components/common/CustomSkeleton';
 import { snackbar } from '@/helpers/snackbar';
 import { validatePassword } from '@/helpers/validate';
@@ -104,6 +104,12 @@ export default function AccountManagementPage() {
     fetchAccounts(0, rowsPerPage, keyword, role, status);
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearchClick();
+    }
+  };
+
   const handleClearSearch = () => {
     setKeyword('');
     setRole('');
@@ -151,156 +157,174 @@ export default function AccountManagementPage() {
 
   return (
       <Box sx={{ p: { xs: 2, md: 3 } }}>
-        {/* HEADER TRANG */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, flexDirection: { xs: 'column', md: 'row' }, gap: 2, mb: 3 }}>
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
-              Quản lý tài khoản (Identity Management)
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Quản lý quyền truy cập, danh tính và tài khoản hệ thống.
-            </Typography>
-          </Box>
-          <Stack direction="row" spacing={2}>
-            <Button
-                variant="contained"
-                color="primary"
-                startIcon={<PersonAddIcon fontSize="small" />}
-                onClick={() => setOpenCreateModal(true)}
-                disableElevation
-                sx={{
-                  borderRadius: 1.5,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  px: 2.5,
-                }}
-            >
-              Thêm nhân viên mới
-            </Button>
-          </Stack>
-        </Box>
-
-        {/* TẦNG SEARCH & LỌC */}
-        <Paper
-            variant="outlined"
+        {/* Header trang */}
+        <Box
             sx={{
-              p: 2,
-              mb: 3,
-              borderRadius: 2,
               display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: { xs: 'flex-start', md: 'center' },
+              flexDirection: { xs: 'column', md: 'row' },
               gap: 2,
-              alignItems: 'center',
-              flexWrap: 'wrap',
+              mb: 3,
             }}
         >
-          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
-            Tra cứu:
-          </Typography>
-          <TextField
-              size="small"
-              placeholder="Tên đăng nhập hoặc Email..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              sx={{ width: { xs: '100%', sm: 260 }, '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
-          />
-          <FormControl size="small" sx={{ minWidth: 150, width: { xs: '100%', sm: 'auto' } }}>
-            <InputLabel>Vai trò</InputLabel>
-            <Select
-                value={role}
-                label="Vai trò"
-                onChange={(e) => setRole(e.target.value)}
-                sx={{ borderRadius: 1.5 }}
-            >
-              <MenuItem value="">Tất cả</MenuItem>
-              <MenuItem value="ADMIN">ADMIN</MenuItem>
-              <MenuItem value="STAFF">STAFF</MenuItem>
-              <MenuItem value="STUDENT">STUDENT</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl size="small" sx={{ minWidth: 150, width: { xs: '100%', sm: 'auto' } }}>
-            <InputLabel>Trạng thái</InputLabel>
-            <Select
-                value={status}
-                label="Trạng thái"
-                onChange={(e) => setStatus(e.target.value)}
-                sx={{ borderRadius: 1.5 }}
-            >
-              <MenuItem value="">Tất cả</MenuItem>
-              <MenuItem value="ACTIVE">Hoạt động</MenuItem>
-              <MenuItem value="LOCKED">Đã Khóa</MenuItem>
-              <MenuItem value="PENDING_ACTIVATION">Chờ kích hoạt</MenuItem>
-            </Select>
-          </FormControl>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
+              Quản lý tài khoản
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Quản lý quyền truy cập, danh tính và phân quyền tài khoản trên hệ thống.
+            </Typography>
+          </Box>
+
           <Button
               variant="contained"
+              color="primary"
+              startIcon={<PersonAddIcon fontSize="small" />}
+              onClick={() => setOpenCreateModal(true)}
               disableElevation
-              startIcon={<SearchIcon fontSize="small" />}
-              onClick={handleSearchClick}
-              disabled={loading}
-              sx={{ fontWeight: 600, textTransform: 'none', borderRadius: 1.5 }}
+              sx={{
+                borderRadius: 1.5,
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 2.5,
+              }}
           >
-            Tìm kiếm
+            Thêm nhân viên mới
           </Button>
-          {(keyword || role || status) && (
-              <Button
-                  variant="outlined"
-                  color="inherit"
-                  onClick={handleClearSearch}
-                  disabled={loading}
-                  sx={{ fontWeight: 500, textTransform: 'none', borderRadius: 1.5, color: 'text.secondary' }}
+        </Box>
+
+        {/* Thanh bộ lọc & Tìm kiếm */}
+        <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" flexWrap="wrap">
+            <TextField
+                size="small"
+                placeholder="Tên đăng nhập hoặc Email..."
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={handleKeyPress}
+                sx={{ minWidth: { xs: '100%', sm: 260 } }}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                    ),
+                  },
+                }}
+            />
+
+            <FormControl size="small" sx={{ minWidth: 160, width: { xs: '100%', sm: 'auto' } }}>
+              <InputLabel>Vai trò</InputLabel>
+              <Select
+                  value={role}
+                  label="Vai trò"
+                  onChange={(e) => setRole(e.target.value)}
               >
-                Xóa lọc
-              </Button>
-          )}
+                <MenuItem value="">Tất cả vai trò</MenuItem>
+                <MenuItem value="ADMIN">ADMIN</MenuItem>
+                <MenuItem value="STAFF">STAFF</MenuItem>
+                <MenuItem value="STUDENT">STUDENT</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 160, width: { xs: '100%', sm: 'auto' } }}>
+              <InputLabel>Trạng thái</InputLabel>
+              <Select
+                  value={status}
+                  label="Trạng thái"
+                  onChange={(e) => setStatus(e.target.value)}
+              >
+                <MenuItem value="">Tất cả trạng thái</MenuItem>
+                <MenuItem value="ACTIVE">Hoạt động</MenuItem>
+                <MenuItem value="LOCKED">Đã Khóa</MenuItem>
+                <MenuItem value="PENDING_ACTIVATION">Chờ kích hoạt</MenuItem>
+              </Select>
+            </FormControl>
+
+            <Button
+                variant="contained"
+                disableElevation
+                onClick={handleSearchClick}
+                disabled={loading}
+                sx={{
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  borderRadius: 1.5,
+                  height: 40,
+                  px: 3,
+                  width: { xs: '100%', sm: 'auto' },
+                }}
+            >
+              Tìm kiếm
+            </Button>
+
+            {(keyword || role || status) && (
+                <Button
+                    variant="outlined"
+                    color="inherit"
+                    onClick={handleClearSearch}
+                    disabled={loading}
+                    sx={{
+                      fontWeight: 500,
+                      textTransform: 'none',
+                      borderRadius: 1.5,
+                      height: 40,
+                      color: 'text.secondary',
+                      width: { xs: '100%', sm: 'auto' },
+                    }}
+                >
+                  Xóa lọc
+                </Button>
+            )}
+          </Stack>
         </Paper>
 
-        {/* TABLE DANH SÁCH TÀI KHOẢN */}
-        <Paper variant="outlined" sx={{ borderRadius: 2, mb: 4, overflow: 'hidden' }}>
-          <Typography
-              variant="subtitle1"
-              sx={{ p: 2.5, fontWeight: 600, borderBottom: '1px solid', borderColor: 'divider' }}
-          >
-            Danh sách tài khoản hệ thống
-          </Typography>
-
-          {loading ? (
-              <Box sx={{ p: 3 }}>
-                <CustomSkeleton type="table" count={5} />
-              </Box>
-          ) : accounts.length === 0 ? (
-              <Box sx={{ p: 6, textAlign: 'center' }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
-                  Không tìm thấy tài khoản nào phù hợp.
-                </Typography>
-              </Box>
-          ) : (
-              <TableContainer>
-                <Table sx={{ minWidth: 800 }}>
-                  <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
+        {/* Bảng danh sách tài khoản */}
+        <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
+          <TableContainer>
+            <Table sx={{ minWidth: 800 }}>
+              <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05) }}>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 600 }}>Tên đăng nhập</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Vai trò</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Đăng nhập lần cuối</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 600 }}>Thao tác</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {loading ? (
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>Tên đăng nhập</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Vai trò</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Đăng nhập lần cuối</TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 600 }}>
-                        Thao tác
+                      <TableCell colSpan={6} sx={{ p: 4 }}>
+                        <CustomSkeleton type="table" count={5} />
                       </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {accounts.map((account) => (
+                ) : accounts.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                        <Typography color="text.secondary" variant="body2">
+                          Không tìm thấy tài khoản nào phù hợp.
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                ) : (
+                    accounts.map((account) => (
                         <TableRow key={account.accountId} hover>
                           <TableCell>
                             <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
                               {account.username}
                             </Typography>
                           </TableCell>
+
                           <TableCell>
-                            <Typography variant="body2" sx={{ fontFamily: 'monospace', color: 'text.secondary' }}>
+                            <Typography variant="body2" color="text.secondary" fontFamily="monospace">
                               {account.email}
                             </Typography>
                           </TableCell>
+
                           <TableCell>
                             <Chip
                                 label={account.role}
@@ -313,16 +337,17 @@ export default function AccountManagementPage() {
                                 }
                                 size="small"
                                 variant="outlined"
-                                sx={{ fontWeight: 600, borderRadius: 1 }}
+                                sx={{ fontWeight: 600, borderRadius: 1.5 }}
                             />
                           </TableCell>
+
                           <TableCell>
                             <Chip
                                 label={
                                   account.status === 'ACTIVE'
                                       ? 'Hoạt động'
                                       : account.status === 'LOCKED'
-                                          ? 'Đã Khóa'
+                                          ? 'Đã khóa'
                                           : 'Chờ kích hoạt'
                                 }
                                 color={
@@ -333,37 +358,63 @@ export default function AccountManagementPage() {
                                           : 'default'
                                 }
                                 size="small"
-                                variant={account.status === 'ACTIVE' ? 'filled' : 'outlined'}
-                                sx={{ fontWeight: 600, borderRadius: 1 }}
+                                sx={{ fontWeight: 600, borderRadius: 1.5 }}
                             />
                           </TableCell>
+
                           <TableCell>
-                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            <Typography variant="body2" color="text.secondary">
                               {account.lastLogin
                                   ? new Date(account.lastLogin).toLocaleString('vi-VN')
                                   : 'Chưa đăng nhập'}
                             </Typography>
                           </TableCell>
+
+                          {/* Cột thao tác dạng Icon Button tinh gọn */}
                           <TableCell align="center">
-                            <Stack direction="row" spacing={1} justifyContent="center">
-                              <Button
-                                  variant="outlined"
-                                  size="small"
-                                  color={account.status === 'ACTIVE' ? 'error' : 'success'}
-                                  startIcon={account.status === 'ACTIVE' ? <LockIcon fontSize="small" /> : <LockOpenIcon fontSize="small" />}
-                                  onClick={() => handleToggleLock(account.accountId)}
-                                  sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5, minWidth: 100 }}
-                              >
-                                {account.status === 'ACTIVE' ? 'Khóa TK' : 'Mở khóa'}
-                              </Button>
+                            <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center">
+                              {account.status === 'ACTIVE' ? (
+                                  <Tooltip title="Khóa tài khoản" arrow placement="top">
+                                    <IconButton
+                                        color="error"
+                                        size="small"
+                                        onClick={() => handleToggleLock(account.accountId)}
+                                        sx={{
+                                          bgcolor: (theme) => alpha(theme.palette.error.main, 0.1),
+                                          '&:hover': {
+                                            bgcolor: (theme) => alpha(theme.palette.error.main, 0.2),
+                                          },
+                                        }}
+                                    >
+                                      <LockIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                              ) : (
+                                  <Tooltip title="Mở khóa tài khoản" arrow placement="top">
+                                    <IconButton
+                                        color="success"
+                                        size="small"
+                                        onClick={() => handleToggleLock(account.accountId)}
+                                        sx={{
+                                          bgcolor: (theme) => alpha(theme.palette.success.main, 0.1),
+                                          '&:hover': {
+                                            bgcolor: (theme) => alpha(theme.palette.success.main, 0.2),
+                                          },
+                                        }}
+                                    >
+                                      <LockOpenIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                              )}
                             </Stack>
                           </TableCell>
                         </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-          )}
+                    ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
           <TablePagination
               component="div"
               count={totalElements}
@@ -375,11 +426,10 @@ export default function AccountManagementPage() {
                 setPage(0);
               }}
               labelRowsPerPage="Số dòng mỗi trang:"
-              sx={{ borderTop: '1px solid', borderColor: 'divider' }}
           />
         </Paper>
 
-        {/* MODAL THÊM STAFF */}
+        {/* Modal tạo tài khoản nhân viên */}
         <Dialog
             open={openCreateModal}
             onClose={() => setOpenCreateModal(false)}
@@ -387,13 +437,14 @@ export default function AccountManagementPage() {
             fullWidth
             PaperProps={{ sx: { borderRadius: 2 } }}
         >
-          <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>Tạo tài khoản nhân viên (Staff)</DialogTitle>
-          <DialogContent dividers sx={{ py: 2 }}>
-            <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
-              Tài khoản mới sẽ có quyền STAFF, cho phép quản lý nội dung ký túc xá nhưng không có
-              quyền cấu hình hệ thống.
+          <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>
+            Tạo tài khoản nhân viên (Staff)
+          </DialogTitle>
+          <DialogContent dividers sx={{ py: 2.5 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Tài khoản mới sẽ có quyền STAFF, cho phép quản lý các tác vụ vận hành KTX.
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <Stack spacing={2} pt={0.5}>
               <TextField
                   label="Tên đăng nhập (Username)"
                   fullWidth
@@ -401,7 +452,6 @@ export default function AccountManagementPage() {
                   value={newStaff.username}
                   onChange={(e) => setNewStaff({ ...newStaff, username: e.target.value })}
                   autoFocus
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
               />
               <TextField
                   label="Địa chỉ email"
@@ -410,7 +460,6 @@ export default function AccountManagementPage() {
                   size="small"
                   value={newStaff.email}
                   onChange={(e) => setNewStaff({ ...newStaff, email: e.target.value })}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
               />
               <TextField
                   label="Mật khẩu khởi tạo"
@@ -419,15 +468,14 @@ export default function AccountManagementPage() {
                   size="small"
                   value={newStaff.password}
                   onChange={(e) => setNewStaff({ ...newStaff, password: e.target.value })}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
               />
-            </Box>
+            </Stack>
           </DialogContent>
           <DialogActions sx={{ px: 3, py: 2 }}>
             <Button
                 onClick={() => setOpenCreateModal(false)}
                 color="inherit"
-                sx={{ fontWeight: 500, textTransform: 'none', borderRadius: 1.5, color: 'text.secondary' }}
+                sx={{ fontWeight: 500, textTransform: 'none', borderRadius: 1.5 }}
             >
               Hủy bỏ
             </Button>

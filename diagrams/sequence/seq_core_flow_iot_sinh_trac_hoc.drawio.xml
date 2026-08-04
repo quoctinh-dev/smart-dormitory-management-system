@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="IoT Xác thực Sinh trắc học" id="iot_flow_1">
+    <mxGraphModel dx="1200" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- ACTORS -->
+        <mxCell id="actor_esp32" value="&amp;lt;&amp;lt;IoT Device&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;ESP32 Camera&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="50" y="50" width="120" height="1150" as="geometry" /></mxCell>
+        
+        <!-- LIFELINES -->
+        <mxCell id="CTRL" value="&lt;b&gt;&amp;lt;&amp;lt;Controller&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;IotVerificationController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="250" y="50" width="160" height="1150" as="geometry" /></mxCell>
+        <mxCell id="SVC_FACE" value="&lt;b&gt;&amp;lt;&amp;lt;Service&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;FaceVerificationService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="470" y="50" width="160" height="1150" as="geometry" /></mxCell>
+        <mxCell id="SVC_ACCESS" value="&lt;b&gt;&amp;lt;&amp;lt;Service&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;AccessEvaluationService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="690" y="50" width="160" height="1150" as="geometry" /></mxCell>
+        <mxCell id="STRATEGY" value="&lt;b&gt;&amp;lt;&amp;lt;Strategy&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;CurfewResolutionStrategy" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="910" y="50" width="160" height="1150" as="geometry" /></mxCell>
+        <mxCell id="REPO" value="&lt;b&gt;&amp;lt;&amp;lt;Repository&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;AccessHistoryRepo" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="1130" y="50" width="140" height="1150" as="geometry" /></mxCell>
+
+        <!-- P1: CHỤP ẢNH & KIỂM TRA KHUÔN MẶT -->
+        <mxCell id="t1" value="PHẦN 1: XÁC THỰC KHUÔN MẶT (AI MODULE)" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;autosize=1;fontStyle=1;fontSize=14;" vertex="1" parent="1"><mxGeometry x="50" y="110" width="400" height="30" as="geometry" /></mxCell>
+        
+        <mxCell id="e_ui1" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="325" y="150" width="10" height="850" as="geometry" /></mxCell>
+        <mxCell id="e_ct1" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="545" y="180" width="10" height="120" as="geometry" /></mxCell>
+
+        <mxCell id="m1" value="1. POST /verify/face (Kèm Ảnh, gateId)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="110" y="150" as="sourcePoint" /><mxPoint x="325" y="150" as="targetPoint" /></mxGeometry></mxCell>
+        
+        <mxCell id="m2" value="2. verifyFace(gateId, file)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="335" y="180" as="sourcePoint" /><mxPoint x="545" y="180" as="targetPoint" /></mxGeometry></mxCell>
+        
+        <mxCell id="m3" value="3. Trích xuất Vector AI &amp; Khớp Database" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;endSize=12;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="555" y="210" as="sourcePoint" /><mxPoint x="555" y="250" as="targetPoint" /><Array as="points"><mxPoint x="595" y="210" /><mxPoint x="595" y="250" /></Array></mxGeometry></mxCell>
+
+        <mxCell id="m4" value="4. Return MatchResult (isMatch = true, profileId)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="545" y="290" as="sourcePoint" /><mxPoint x="335" y="290" as="targetPoint" /></mxGeometry></mxCell>
+
+        <!-- P2: KIỂM TRA CHÍNH SÁCH RA VÀO -->
+        <mxCell id="t2" value="PHẦN 2: KIỂM TRA CHÍNH SÁCH BẢO VỆ KTX (GIỜ GIỚI NGHIÊM, TÒA NHÀ)" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;autosize=1;fontStyle=1;fontSize=14;" vertex="1" parent="1"><mxGeometry x="50" y="340" width="550" height="30" as="geometry" /></mxCell>
+
+        <mxCell id="e_sv_acc" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="765" y="380" width="10" height="420" as="geometry" /></mxCell>
+
+        <mxCell id="m5" value="5. evaluateAccessSync(profileId, gateId)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="335" y="380" as="sourcePoint" /><mxPoint x="765" y="380" as="targetPoint" /></mxGeometry></mxCell>
+        
+        <mxCell id="m6" value="6. Kiểm tra Trạng thái Nội trú &amp; Quyền (Eligibility)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;endSize=12;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="775" y="410" as="sourcePoint" /><mxPoint x="775" y="450" as="targetPoint" /><Array as="points"><mxPoint x="815" y="410" /><mxPoint x="815" y="450" /></Array></mxGeometry></mxCell>
+
+        <!-- KIỂM TRA GIỚI NGHIÊM -->
+        <mxCell id="e_str" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="985" y="480" width="10" height="80" as="geometry" /></mxCell>
+
+        <mxCell id="m7" value="7. isAllowed(buildingId, currentTime)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="775" y="480" as="sourcePoint" /><mxPoint x="985" y="480" as="targetPoint" /></mxGeometry></mxCell>
+        
+        <mxCell id="m8" value="8. Đánh giá giờ cấm túc &amp; đơn xin về muộn" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;endSize=12;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="995" y="500" as="sourcePoint" /><mxPoint x="995" y="540" as="targetPoint" /><Array as="points"><mxPoint x="1035" y="500" /><mxPoint x="1035" y="540" /></Array></mxGeometry></mxCell>
+
+        <mxCell id="m9" value="9. Return true/false (Hợp lệ)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="985" y="560" as="sourcePoint" /><mxPoint x="775" y="560" as="targetPoint" /></mxGeometry></mxCell>
+
+        <!-- LƯU LỊCH SỬ & RESPONSE -->
+        <mxCell id="t3" value="PHẦN 3: LƯU LỊCH SỬ VÀ TRẢ LỆNH MỞ CỬA" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;autosize=1;fontStyle=1;fontSize=14;" vertex="1" parent="1"><mxGeometry x="50" y="620" width="450" height="30" as="geometry" /></mxCell>
+        
+        <mxCell id="e_rp" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="1195" y="670" width="10" height="20" as="geometry" /></mxCell>
+        <mxCell id="m10" value="10. recordAccess(studentId, GRANTED)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="775" y="670" as="sourcePoint" /><mxPoint x="1195" y="670" as="targetPoint" /></mxGeometry></mxCell>
+        
+        <mxCell id="m11" value="11. Trả về AccessDecision.GRANTED" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="765" y="770" as="sourcePoint" /><mxPoint x="335" y="770" as="targetPoint" /></mxGeometry></mxCell>
+
+        <mxCell id="m12" value="12. Trả JSON {&quot;status&quot;: &quot;GRANTED&quot;}" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeWidth=2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="325" y="860" as="sourcePoint" /><mxPoint x="110" y="860" as="targetPoint" /></mxGeometry></mxCell>
+        
+        <mxCell id="m13" value="13. ESP32 nhận phản hồi &amp; Kích hoạt Relay mở cửa" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;endSize=12;strokeWidth=2;strokeColor=#006600;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="110" y="900" as="sourcePoint" /><mxPoint x="110" y="950" as="targetPoint" /><Array as="points"><mxPoint x="70" y="900" /><mxPoint x="70" y="950" /></Array></mxGeometry></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

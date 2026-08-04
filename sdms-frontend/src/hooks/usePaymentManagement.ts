@@ -17,6 +17,7 @@ export const usePaymentManagement = () => {
   const [currentTab, setCurrentTab] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [billTypeFilter, setBillTypeFilter] = useState('ALL');
+  const [refundStatusFilter, setRefundStatusFilter] = useState('ALL');
 
   // Tối ưu hóa tìm kiếm (Debounce) để không gọi API liên tục
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -42,6 +43,7 @@ export const usePaymentManagement = () => {
         search: debouncedSearch,
         status: currentTab === 'ALL' ? undefined : currentTab,
         billType: billTypeFilter === 'ALL' ? undefined : billTypeFilter,
+        requiresRefund: refundStatusFilter === 'REFUND_NEEDED' ? true : undefined,
       });
       const data = res?.content || (res as any)?.data?.content || [];
       const total = res?.totalElements ?? (res as any)?.data?.totalElements ?? 0;
@@ -53,7 +55,7 @@ export const usePaymentManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, rowsPerPage, debouncedSearch, currentTab, billTypeFilter]);
+  }, [page, rowsPerPage, debouncedSearch, currentTab, billTypeFilter, refundStatusFilter]);
 
   useEffect(() => {
     fetchBills();
@@ -135,9 +137,11 @@ export const usePaymentManagement = () => {
     currentTab,
     searchQuery,
     billTypeFilter,
+    refundStatusFilter,
     setCurrentTab,
     setSearchQuery,
     setBillTypeFilter,
+    setRefundStatusFilter,
     setConfirmDialog,
     setDetailsDialog,
     setExtendDialog,

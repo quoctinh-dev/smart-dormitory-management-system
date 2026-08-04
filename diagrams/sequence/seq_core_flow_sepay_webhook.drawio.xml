@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Thanh toán qua Webhook SePay" id="sepay_flow_1">
+    <mxGraphModel dx="1200" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- ACTORS -->
+        <mxCell id="actor_sepay" value="&amp;lt;&amp;lt;External System&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;SePay Webhook&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="50" y="50" width="120" height="1150" as="geometry" /></mxCell>
+        
+        <!-- LIFELINES -->
+        <mxCell id="CTRL" value="&lt;b&gt;&amp;lt;&amp;lt;Controller&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;SepayWebhookController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="250" y="50" width="160" height="1150" as="geometry" /></mxCell>
+        <mxCell id="SVC_SEPAY" value="&lt;b&gt;&amp;lt;&amp;lt;Service&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;SepayService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="460" y="50" width="120" height="1150" as="geometry" /></mxCell>
+        <mxCell id="REPO_PAYMENT" value="&lt;b&gt;&amp;lt;&amp;lt;Repository&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;PaymentRepository" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="630" y="50" width="140" height="1150" as="geometry" /></mxCell>
+        <mxCell id="SVC_PAYMENT" value="&lt;b&gt;&amp;lt;&amp;lt;Service&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;PaymentService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="820" y="50" width="120" height="1150" as="geometry" /></mxCell>
+        <mxCell id="REPO_BILL" value="&lt;b&gt;&amp;lt;&amp;lt;Repository&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;BillRepository" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="1000" y="50" width="120" height="1150" as="geometry" /></mxCell>
+
+        <!-- P1: NHẬN WEBHOOK & VALIDATE -->
+        <mxCell id="t1" value="PHẦN 1: NHẬN WEBHOOK &amp; XÁC THỰC DỮ LIỆU" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;autosize=1;fontStyle=1;fontSize=14;" vertex="1" parent="1"><mxGeometry x="50" y="110" width="400" height="30" as="geometry" /></mxCell>
+        
+        <mxCell id="e_ui1" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="325" y="150" width="10" height="850" as="geometry" /></mxCell>
+        <mxCell id="e_ct1" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="515" y="180" width="10" height="790" as="geometry" /></mxCell>
+
+        <mxCell id="m1" value="1. POST /api/v1/payment/sepay/webhook" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="110" y="150" as="sourcePoint" /><mxPoint x="325" y="150" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="m2" value="2. processWebhook(payload)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="335" y="180" as="sourcePoint" /><mxPoint x="515" y="180" as="targetPoint" /></mxGeometry></mxCell>
+        
+        <mxCell id="m3" value="3. Validate API Key &amp; Transfer Type" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;endSize=12;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="200" as="sourcePoint" /><mxPoint x="525" y="230" as="targetPoint" /><Array as="points"><mxPoint x="565" y="200" /><mxPoint x="565" y="230" /></Array></mxGeometry></mxCell>
+        
+        <mxCell id="m4" value="4. Kiểm tra chống trùng lặp (gatewayTransactionId)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="260" as="sourcePoint" /><mxPoint x="695" y="260" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="e_rp1" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="695" y="260" width="10" height="20" as="geometry" /></mxCell>
+        <mxCell id="m5" value="5. Trả về kết quả (Not Duplicate)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="695" y="290" as="sourcePoint" /><mxPoint x="525" y="290" as="targetPoint" /></mxGeometry></mxCell>
+
+        <!-- P2: MAPPING TRANSACTION & PAYMENT -->
+        <mxCell id="t2" value="PHẦN 2: TÌM HÓA ĐƠN &amp; HOÀN TẤT THANH TOÁN" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;autosize=1;fontStyle=1;fontSize=14;" vertex="1" parent="1"><mxGeometry x="50" y="340" width="450" height="30" as="geometry" /></mxCell>
+
+        <mxCell id="m6" value="6. Trích xuất transactionCode từ Nội dung CK (Ví dụ: SDMS-123)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;endSize=12;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="380" as="sourcePoint" /><mxPoint x="525" y="410" as="targetPoint" /><Array as="points"><mxPoint x="565" y="380" /><mxPoint x="565" y="410" /></Array></mxGeometry></mxCell>
+
+        <mxCell id="m7" value="7. findByTransactionCode(transactionCode)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="440" as="sourcePoint" /><mxPoint x="695" y="440" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="e_rp2" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="695" y="440" width="10" height="20" as="geometry" /></mxCell>
+        <mxCell id="m8" value="8. Trả về Payment (PENDING)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="695" y="470" as="sourcePoint" /><mxPoint x="525" y="470" as="targetPoint" /></mxGeometry></mxCell>
+
+        <!-- AUTO CREATE PAYMENT FALLBACK -->
+        <mxCell id="note1" value="[Fallback] Nếu không tìm thấy Payment, hệ thống tự động dò Bill và tạo Payment ảo" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="720" y="490" width="200" height="50" as="geometry" /></mxCell>
+
+        <mxCell id="m9" value="9. Validate Amount (Số tiền CK &gt;= Số tiền Hóa đơn)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;endSize=12;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="560" as="sourcePoint" /><mxPoint x="525" y="590" as="targetPoint" /><Array as="points"><mxPoint x="565" y="560" /><mxPoint x="565" y="590" /></Array></mxGeometry></mxCell>
+
+        <mxCell id="m10" value="10. Cập nhật Gateway ID &amp; Lưu Payment" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="620" as="sourcePoint" /><mxPoint x="695" y="620" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="e_rp3" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="695" y="620" width="10" height="20" as="geometry" /></mxCell>
+        
+        <mxCell id="m11" value="11. completeOnlinePayment(paymentId)" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="670" as="sourcePoint" /><mxPoint x="875" y="670" as="targetPoint" /></mxGeometry></mxCell>
+        
+        <mxCell id="e_sv_pay" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="875" y="670" width="10" height="230" as="geometry" /></mxCell>
+
+        <mxCell id="m12" value="12. Đổi trạng thái Payment = SUCCESS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;endSize=12;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="885" y="690" as="sourcePoint" /><mxPoint x="885" y="720" as="targetPoint" /><Array as="points"><mxPoint x="925" y="690" /><mxPoint x="925" y="720" /></Array></mxGeometry></mxCell>
+
+        <mxCell id="m13" value="13. updateBillAfterPayment() -&gt; Bill = PAID" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="885" y="750" as="sourcePoint" /><mxPoint x="1055" y="750" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="e_rp4" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};labelBackgroundColor=none;" vertex="1" parent="1"><mxGeometry x="1055" y="750" width="10" height="20" as="geometry" /></mxCell>
+        
+        <mxCell id="m14" value="14. Bắn Event: PaymentSuccessEvent" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;dashed=1;strokeWidth=2;strokeColor=#FF3333;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="885" y="810" as="sourcePoint" /><mxPoint x="1100" y="810" as="targetPoint" /></mxGeometry></mxCell>
+
+        <mxCell id="m15" value="15. Trả về thành công" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="875" y="870" as="sourcePoint" /><mxPoint x="525" y="870" as="targetPoint" /></mxGeometry></mxCell>
+        
+        <mxCell id="m16" value="16. Trả về thành công" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="515" y="910" as="sourcePoint" /><mxPoint x="335" y="910" as="targetPoint" /></mxGeometry></mxCell>
+        
+        <mxCell id="m17" value="17. HTTP 200 OK" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeWidth=2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="325" y="950" as="sourcePoint" /><mxPoint x="110" y="950" as="targetPoint" /></mxGeometry></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

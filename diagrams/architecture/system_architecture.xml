@@ -1,0 +1,205 @@
+<mxfile host="Electron" modified="2026-07-23T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.2" type="device">
+  <diagram id="sys_arch_sdms" name="So do Kien truc He thong SDMS">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1050" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ======= TITLE ======= -->
+        <mxCell id="TITLE" value="SƠ ĐỒ KIẾN TRÚC HỆ THỐNG SDMS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontFamily=Times New Roman;fontSize=20;fontStyle=1;fontColor=#1A237E;" vertex="1" parent="1">
+          <mxGeometry x="40" y="10" width="1540" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="SUBTITLE" value="(System Architecture Diagram)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontFamily=Times New Roman;fontSize=12;fontStyle=2;fontColor=#5C6BC0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="45" width="1540" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ======= LAYER BACKGROUND BOXES ======= -->
+
+        <mxCell id="BG_Client" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;dashed=0;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1120" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="LBL_Client" value="TẦNG GIAO DIỆN (CLIENT TIER)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=Times New Roman;fontSize=13;fontStyle=1;fontColor=#0D47A1;" vertex="1" parent="1">
+          <mxGeometry x="55" y="85" width="360" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="BG_Logic" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;dashed=0;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="250" width="1120" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="LBL_Logic" value="TẦNG XỬ LÝ NGHIỆP VỤ (BUSINESS LOGIC TIER)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=Times New Roman;fontSize=13;fontStyle=1;fontColor=#1B5E20;" vertex="1" parent="1">
+          <mxGeometry x="55" y="255" width="460" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="BG_Data" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;dashed=0;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="440" width="540" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="LBL_Data" value="TẦNG LƯU TRỮ (DATA TIER)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=Times New Roman;fontSize=13;fontStyle=1;fontColor=#E65100;" vertex="1" parent="1">
+          <mxGeometry x="55" y="445" width="300" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="BG_IoT" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;dashed=0;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="620" y="440" width="540" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="LBL_IoT" value="TẦNG THIẾT BỊ IOT (IOT DEVICE TIER)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=Times New Roman;fontSize=13;fontStyle=1;fontColor=#4A148C;" vertex="1" parent="1">
+          <mxGeometry x="635" y="445" width="340" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="BG_Ext" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;strokeWidth=2;dashed=0;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="80" width="360" height="500" as="geometry" />
+        </mxCell>
+        <mxCell id="LBL_Ext" value="HỆ THỐNG NGOÀI (EXTERNAL SYSTEMS)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=Times New Roman;fontSize=13;fontStyle=1;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="1235" y="85" width="330" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ======= CLIENT COMPONENTS ======= -->
+        <mxCell id="C1" value="&lt;b&gt;Web Admin&lt;/b&gt;&lt;br&gt;React 18 và Vite&lt;br&gt;Material UI | Cổng: 5173" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1565C0;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="115" width="230" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="C2" value="&lt;b&gt;Web Public&lt;/b&gt;&lt;br&gt;React 18 và Vite&lt;br&gt;Material UI | Cổng: 5173" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1565C0;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="115" width="230" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="C3" value="&lt;b&gt;App Student&lt;/b&gt;&lt;br&gt;Kotlin &amp;amp; Jetpack Compose&lt;br&gt;Nền tảng Android" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1565C0;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="590" y="115" width="260" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="C4" value="&lt;b&gt;App Admin&lt;/b&gt;&lt;br&gt;Kotlin &amp;amp; Jetpack Compose&lt;br&gt;Nền tảng Android" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1565C0;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="880" y="115" width="250" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- ======= BUSINESS LOGIC COMPONENTS ======= -->
+        <mxCell id="B1" value="&lt;b&gt;SDMS Backend&lt;/b&gt;&lt;br&gt;Java 17 và Spring Boot 3&lt;br&gt;Spring Security, JWT | Cổng: 8080" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;strokeWidth=2.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="285" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="B2" value="&lt;b&gt;AI Face Service&lt;/b&gt;&lt;br&gt;Python 3.11 và FastAPI&lt;br&gt;MTCNN, FaceNet | Cổng: 8000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="285" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="B3" value="&lt;b&gt;MQTT Broker&lt;/b&gt;&lt;br&gt;Eclipse Mosquitto 2.0&lt;br&gt;TCP: 1883 | WebSocket: 9001" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="840" y="285" width="290" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- ======= DATA COMPONENTS ======= -->
+        <mxCell id="D1" value="&lt;b&gt;PostgreSQL 16&lt;/b&gt;&lt;br&gt;Hệ quản trị CSDL quan hệ&lt;br&gt;Cổng: 5432" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#EF6C00;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;boundedLbl=1;" vertex="1" parent="1">
+          <mxGeometry x="65" y="475" width="200" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="D2" value="&lt;b&gt;Redis 7&lt;/b&gt;&lt;br&gt;Lưu trữ Cache và Session&lt;br&gt;Cổng: 6379" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#EF6C00;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;boundedLbl=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="475" width="220" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- ======= IoT COMPONENTS ======= -->
+        <mxCell id="I1" value="&lt;b&gt;Smart Access Gate&lt;/b&gt;&lt;br&gt;ESP32-CAM, RFID RC522, Relay&lt;br&gt;(Cổng ra vào KTX)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6A1B9A;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="645" y="475" width="235" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="I2" value="&lt;b&gt;Room Door Controller&lt;/b&gt;&lt;br&gt;ESP32, Keypad, LCD, Relay&lt;br&gt;(Cửa phòng ở)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6A1B9A;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="905" y="475" width="235" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- ======= EXTERNAL COMPONENTS ======= -->
+        <mxCell id="E1" value="&lt;b&gt;SePay&lt;/b&gt;&lt;br&gt;Payment Webhook (Bên thứ ba)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1255" y="120" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="E2" value="&lt;b&gt;Cloudinary CDN&lt;/b&gt;&lt;br&gt;Lưu trữ hình ảnh (Bên thứ ba)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1255" y="230" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="E3" value="&lt;b&gt;Brevo&lt;/b&gt;&lt;br&gt;Dịch vụ gửi thư điện tử (Bên thứ ba)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1255" y="340" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="E4" value="&lt;b&gt;Ngân hàng&lt;/b&gt;&lt;br&gt;Hệ thống ngân hàng (Bên thứ ba)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1255" y="450" width="290" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ======= EDGES (routed through clear channels so lines never cross box labels) ======= -->
+
+        <!-- Clients -> Backend : all exit bottom / enter top, routed through the empty gap (y 190-250) -->
+        <mxCell id="ED_C1_B1" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.15;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C1" target="B1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_C2_B1" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.4;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C2" target="B1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_C3_B1" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.6;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C3" target="B1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_C4_B1" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.85;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C4" target="B1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Backend -> AI Service (adjacent, straight through the empty gap between them) -->
+        <mxCell id="ED_B1_B2" value="HTTP :8000" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="B1" target="B2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Backend <-> MQTT Broker : routed OVER the top of AI Service, not through it -->
+        <mxCell id="ED_B1_B3" value="MQTT Pub/Sub" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;startArrow=block;startFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0.7;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B1" target="B3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Backend -> PostgreSQL -->
+        <mxCell id="ED_B1_D1" value="JDBC :5432" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B1" target="D1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Backend -> Redis -->
+        <mxCell id="ED_B1_D2" value="Cache :6379" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B1" target="D2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- MQTT <-> Smart Gate -->
+        <mxCell id="ED_B3_I1" value="MQTT" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;startArrow=block;startFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0.3;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B3" target="I1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- MQTT <-> Room Door -->
+        <mxCell id="ED_B3_I2" value="MQTT" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;startArrow=block;startFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0.7;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B3" target="I2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Smart Gate -> Backend : routed through the clear band between Logic tier and Data/IoT tier (y ~410) -->
+        <mxCell id="ED_I1_B1" value="HTTP" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;dashed=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.95;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="I1" target="B1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- SePay -> Backend : routed via the vertical spine at x=1170 (gap between the tiers and External box), then along y=410 -->
+        <mxCell id="ED_E1_B1" value="Webhook" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.15;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="E1" target="B1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1170" y="150" />
+              <mxPoint x="1170" y="410" />
+              <mxPoint x="109" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Backend -> Cloudinary : same spine, different height -->
+        <mxCell id="ED_B1_E2" value="API" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="B1" target="E2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="174" y="410" />
+              <mxPoint x="1170" y="410" />
+              <mxPoint x="1170" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Backend -> Brevo : same spine, different height -->
+        <mxCell id="ED_B1_E3" value="Email API" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0.6;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="B1" target="E3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="226" y="410" />
+              <mxPoint x="1170" y="410" />
+              <mxPoint x="1170" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Bank -> SePay : routed just outside the External box (x=1200) so it doesn't cross Cloudinary/Brevo -->
+        <mxCell id="ED_E4_E1" value="Notification" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#37474F;strokeWidth=1.2;fontFamily=Times New Roman;fontSize=10;fontColor=#37474F;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="E4" target="E1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1200" y="480" />
+              <mxPoint x="1200" y="150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

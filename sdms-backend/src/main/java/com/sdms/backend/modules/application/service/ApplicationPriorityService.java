@@ -13,7 +13,6 @@ import com.sdms.backend.modules.application.repository.DormitoryApplicationRepos
 import com.sdms.backend.modules.application.repository.VerificationDocumentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

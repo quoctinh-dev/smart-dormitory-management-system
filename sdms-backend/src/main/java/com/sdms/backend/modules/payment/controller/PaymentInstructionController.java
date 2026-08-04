@@ -21,7 +21,12 @@ public class PaymentInstructionController {
 
     @Operation(summary = "Lấy hướng dẫn thanh toán")
     @GetMapping
-    public ApiResponse<PaymentInstructionResponse> getPaymentInstructions() {
+    public ApiResponse<PaymentInstructionResponse> getPaymentInstructions(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) java.util.UUID billId
+    ) {
+        if (billId != null) {
+            return ApiResponse.success("Thành công", paymentInstructionService.getPaymentInstructionsForBill(billId));
+        }
         return ApiResponse.success("Thành công", paymentInstructionService.getPaymentInstructions());
     }
 }

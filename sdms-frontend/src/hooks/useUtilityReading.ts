@@ -97,6 +97,37 @@ export const useUtilityReading = () => {
     }
   };
 
+  // History Modal State
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [historyRoomId, setHistoryRoomId] = useState<string>('');
+  const [historyRoomCode, setHistoryRoomCode] = useState<string>('');
+  const [roomHistory, setRoomHistory] = useState<import('../types/utility').StudentUtilityResponse[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const openHistoryModal = (roomId: string, roomCode: string) => {
+    setHistoryRoomId(roomId);
+    setHistoryRoomCode(roomCode);
+    setHistoryModalOpen(true);
+    fetchRoomHistory(roomId);
+  };
+
+  const closeHistoryModal = () => {
+    setHistoryModalOpen(false);
+    setRoomHistory([]);
+  };
+
+  const fetchRoomHistory = async (roomId: string) => {
+    try {
+      setHistoryLoading(true);
+      const res = await utilityApi.getRoomUtilityHistory(roomId);
+      setRoomHistory(res);
+    } catch {
+      enqueueSnackbar('Lỗi tải lịch sử điện nước', { variant: 'error' });
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
   const handleTabChange = (event: SyntheticEvent, newValue: 'ELECTRICITY' | 'WATER') => {
     setUtilityType(newValue);
   };
@@ -206,5 +237,11 @@ export const useUtilityReading = () => {
     handleCancel,
     fetchRooms,
     currentDate,
+    historyModalOpen,
+    historyRoomCode,
+    roomHistory,
+    historyLoading,
+    openHistoryModal,
+    closeHistoryModal,
   };
 };

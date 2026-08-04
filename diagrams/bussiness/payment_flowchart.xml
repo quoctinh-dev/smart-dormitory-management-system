@@ -1,0 +1,105 @@
+<mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <mxCell id="start" value="Bắt đầu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="364" y="40" width="100" height="40" as="geometry" />
+    </mxCell>
+
+    <mxCell id="step1" value="Hệ thống tạo &amp; phân loại hóa đơn&#10;(Phí lưu trú, Điện, Nước, Phạt)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="314" y="120" width="200" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge1" parent="1" source="start" target="step1" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="step2" value="Sinh viên truy cập Ứng dụng&#10;xem Tổng dư nợ cần thanh toán" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="220" width="180" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge2" parent="1" source="step1" target="step2" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="step3" value="Hệ thống tự động khởi tạo mã&#10;Smart QR theo dư nợ thực tế" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="320" width="180" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge3" parent="1" source="step2" target="step3" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="step4" value="Sinh viên dùng Ứng dụng Ngân&#10;hàng quét mã QR để chuyển khoản" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="420" width="180" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge4" parent="1" source="step3" target="step4" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="step5" value="Hệ thống tự động tiếp nhận&#10;và đối soát giao dịch ngân hàng" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="520" width="180" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge5" parent="1" source="step4" target="step5" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="cond1_label" value="Giao dịch hợp lệ&#10;và đủ số dư?" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="344" y="620" width="140" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="edge6" parent="1" source="step5" target="cond1_label" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="cond1_rhombus" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="394" y="660" width="40" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_cond1_link" style="endArrow=none;html=1;strokeColor=#000000;" parent="1" source="cond1_label" target="cond1_rhombus" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="step_fail" value="Cảnh báo lỗi giao dịch&#10;(Ghi nhận thanh toán thất bại)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="560" y="650" width="180" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_cond1_no" parent="1" source="cond1_rhombus" target="step_fail" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+      <mxCell value="Không đạt" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Times New Roman;" vertex="1" connectable="0" parent="edge_cond1_no">
+        <mxGeometry x="-0.2" relative="1" as="geometry">
+          <mxPoint as="offset" />
+        </mxGeometry>
+      </mxCell>
+    </mxCell>
+
+    <mxCell id="step_success" value="Ghi nhận thanh toán thành công&#10;Cập nhật trạng thái Hóa đơn" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="750" width="180" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_cond1_yes" parent="1" source="cond1_rhombus" target="step_success" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+      <mxCell value="Hợp lệ" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Times New Roman;" vertex="1" connectable="0" parent="edge_cond1_yes">
+        <mxGeometry x="-0.2" relative="1" as="geometry">
+          <mxPoint as="offset" />
+        </mxGeometry>
+      </mxCell>
+    </mxCell>
+
+    <mxCell id="step_activate" value="Kích hoạt quyết định xếp phòng&#10;(Nếu thanh toán phí nhập học)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;" vertex="1" parent="1">
+      <mxGeometry x="324" y="850" width="180" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_activate" parent="1" source="step_success" target="step_activate" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="end" value="Kết thúc" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="364" y="950" width="100" height="40" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="edge_end1" parent="1" source="step_activate" target="end" edge="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_end2" parent="1" source="step_fail" target="end" edge="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="650" y="970" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+  </root>
+</mxGraphModel>

@@ -1,0 +1,7673 @@
+TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN
+KHOA CÔNG NGHỆ THÔNG TIN
+-----oOo-----
+LUẬN VĂN TỐT NGHIỆP
+Tên đề tài
+: 
+X
+ÂY DỰNG
+ 
+ỨNG DỤNG
+ QUẢN LÝ 
+K
+Ý
+ TÚC XÁ
+ THÔNG MINH
+                               
+Người hướng dẫn:
+ 
+ThS.
+ 
+NGUYỄN THỊ QUỲNH DƯ
+                               
+Sinh viên thực hiện:
+           
+1. 
+NGUYỄN QUỐC TỊNH 
+           
+2. 
+NGUYỄN CHÂU TRIỆU VỸ
+   
+TP
+. HỒ CHÍ MINH  - NĂM 20
+26
+881380
+902970
+0
+LỜI CẢM ƠN
+T
+rước hết, chúng em xin bày tỏ lòng biết ơn sâu sắc đến Ban Giám hiệu cùng toàn thể quý Thầy, Cô Khoa Công nghệ Thông tin – Trường Đại học Công nghệ Sài Gòn đã tận tình giảng dạy, truyền đạt kiến thức và tạo mọi điều kiện thuận lợi để chúng em hoàn thành chương trình học cũng như thực hiện luận văn tốt nghiệp.
+Đặc biệt, chúng em xin gửi lời cảm ơn chân thành và sâu sắc đến 
+ThS. Nguyễn Thị Quỳnh Dư
+, giảng viên hướng dẫn, người đã luôn tận tình chỉ bảo, định hướng và đồng hành cùng chúng em trong suốt quá trình nghiên cứu và thực hiện đề tài. Những ý kiến góp ý, kinh nghiệm chuyên môn cùng sự tận tâm của Cô đã giúp chúng em từng bước hoàn thiện hệ thống cũng như hoàn thành luận văn này.
+Bên cạnh đó, chúng em cũng xin cảm ơn gia đình, bạn bè đã luôn động viên, khích lệ và hỗ trợ chúng em trong suốt quá trình học tập và thực hiện đề tài.
+Mặc dù đã nỗ lực hết sức trong quá trình nghiên cứu và triển khai hệ thống, luận văn khó tránh khỏi những thiếu sót. Chúng em rất mong nhận được những ý kiến đóng góp quý báu từ Hội đồng bảo vệ cùng quý Thầy, Cô để luận văn được hoàn thiện hơn, đồng thời giúp chúng em tích lũy thêm kiến thức và kinh nghiệm cho quá trình học tập, nghiên cứu cũng như công việc sau này.
+Cuối cùng, chúng em xin kính chúc quý Thầy, Cô luôn dồi dào sức khỏe, hạnh phúc và thành công trong sự nghiệp giáo dục.
+Chúng em xin chân thành cảm ơn!
+MỤC LỤC
+ TOC \o "1-4" \h \z \u 
+Chương 1.
+ GIỚI THIỆU
+ PAGEREF _Toc236053300 \h 
+1
+1.1
+ ĐẶT VẤN ĐỀ, MỤC TIÊU LUẬN VĂN
+ PAGEREF _Toc236053301 \h 
+1
+1.1.1
+ Đặt vấn đề
+ PAGEREF _Toc236053302 \h 
+1
+1.1.2
+ Mục tiêu
+ PAGEREF _Toc236053303 \h 
+1
+1.2
+ NHỮNG THÁCH THỨC CẦN GIẢI QUYẾT
+ PAGEREF _Toc236053304 \h 
+2
+1.3
+ NỘI DUNG PHẠM VI THỰC HIỆN
+ PAGEREF _Toc236053305 \h 
+3
+1.3.1
+ Nội dung thực hiện
+ PAGEREF _Toc236053306 \h 
+3
+1.3.2
+ Phạm vi hệ thống
+ PAGEREF _Toc236053307 \h 
+3
+1.3.3
+ Giới hạn đề tài
+ PAGEREF _Toc236053308 \h 
+4
+1.4
+ KẾT QUẢ CẦN ĐẠT ĐƯỢC
+ PAGEREF _Toc236053309 \h 
+4
+Chương 2.
+ PHƯƠNG PHÁP THỰC HIỆN
+ PAGEREF _Toc236053310 \h 
+6
+2.1
+ CÁC HỆ THỐNG TƯỢNG TỰ
+ PAGEREF _Toc236053311 \h 
+6
+2.1.1
+ Hệ thống quản lý ký túc xá Trường Đại học Kinh tế Thành phố Hồ Chí Minh (UEH)
+ PAGEREF _Toc236053312 \h 
+6
+2.1.2
+ Hệ thống quản lý ký túc xá Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH)
+ PAGEREF _Toc236053313 \h 
+7
+2.1.3
+ Bài học kinh nghiệm
+ PAGEREF _Toc236053314 \h 
+7
+2.2
+ CÔNG NGHỆ SỬ DỤNG
+ PAGEREF _Toc236053315 \h 
+8
+2.2.1
+ Công nghệ phần mềm.
+ PAGEREF _Toc236053316 \h 
+8
+2.2.2
+ Nền tảng phần cứng.
+ PAGEREF _Toc236053317 \h 
+8
+2.2.3
+ Công nghệ triển khai.
+ PAGEREF _Toc236053318 \h 
+9
+2.3
+ PHÂN TÍCH YÊU CẦU
+ PAGEREF _Toc236053319 \h 
+9
+2.3.1
+ Các quy trình, nghiệp vụ
+ PAGEREF _Toc236053320 \h 
+9
+2.3.2
+ Khảo sát hiện trạng và đề xuất quy trình nghiệp vụ
+ PAGEREF _Toc236053321 \h 
+9
+2.3.2.1 Khảo sát hiện trạng
+ PAGEREF _Toc236053322 \h 
+9
+2.3.2.2 Đề xuất các quy trình nghiệp vụ
+ PAGEREF _Toc236053323 \h 
+10
+2.3.3
+ Sơ đồ chức năng
+ PAGEREF _Toc236053324 \h 
+20
+2.3.4
+ Sơ đồ Use case tổng quát
+ PAGEREF _Toc236053325 \h 
+20
+2.3.4.1 Mô tả các tác nhân
+ PAGEREF _Toc236053326 \h 
+20
+2.3.4.2 Mô tả các Use Case
+ PAGEREF _Toc236053327 \h 
+20
+Chương 3.
+ THIẾT KẾ
+ PAGEREF _Toc236053328 \h 
+23
+3.1
+ THIẾT KẾ KIẾN TRÚC VÀ PHẦN CỨNG
+ PAGEREF _Toc236053329 \h 
+23
+3.1.1
+ Kiến trúc tổng thể
+ PAGEREF _Toc236053330 \h 
+23
+3.1.2
+ Thiết kế phần cứng IoT
+ PAGEREF _Toc236053331 \h 
+23
+3.1.2.1 Cụm thiết bị cổng ra vào
+ PAGEREF _Toc236053332 \h 
+23
+3.1.2.2 Cụm thiết bị cửa phòng
+ PAGEREF _Toc236053333 \h 
+24
+3.2
+ MÔ HÌNH DỮ LIỆU
+ PAGEREF _Toc236053334 \h 
+25
+3.2.1
+ Mức ý niệm
+ PAGEREF _Toc236053335 \h 
+25
+3.2.2
+ Mức luận lý
+ PAGEREF _Toc236053336 \h 
+26
+3.2.2.1 Sơ đồ logic dữ liệu (mô hình
+ PAGEREF _Toc236053337 \h 
+26
+3.2.2.2 Mô tả các ràng buộc dữ liệu
+ PAGEREF _Toc236053338 \h 
+41
+3.3
+ MỨC VẬT LÝ
+ PAGEREF _Toc236053339 \h 
+42
+3.3.1.1 Mô hình dữ liệu mức vật lý
+ PAGEREF _Toc236053340 \h 
+42
+3.3.1.2 Mã định nghĩa cơ sở dữ liệu
+ PAGEREF _Toc236053341 \h 
+43
+3.4
+ MÔ HÌNH XỬ LÝ
+ PAGEREF _Toc236053342 \h 
+43
+3.4.1
+ Use case chi tiết
+ PAGEREF _Toc236053343 \h 
+43
+3.4.1.1 Quản lý tài khoản
+ PAGEREF _Toc236053344 \h 
+43
+3.4.1.2 Quản lý người dùng
+ PAGEREF _Toc236053345 \h 
+46
+3.4.1.3 Quản lý cơ sở vật chất
+ PAGEREF _Toc236053346 \h 
+49
+3.4.1.4 Quản lý đợt đăng ký
+ PAGEREF _Toc236053347 \h 
+52
+3.4.1.5 Quản lý hồ sơ đăng ký
+ PAGEREF _Toc236053348 \h 
+55
+3.4.1.6 Quản lý lưu trú
+ PAGEREF _Toc236053349 \h 
+58
+3.4.1.7 Quản lý điện
+ PAGEREF _Toc236053350 \h 
+61
+3.4.1.8 Quản lý hóa đơn và thanh toán
+ PAGEREF _Toc236053351 \h 
+63
+3.4.1.9 Quản lý an ninh
+ PAGEREF _Toc236053352 \h 
+65
+3.4.2
+ Sơ đồ tuần tự
+ PAGEREF _Toc236053353 \h 
+70
+3.4.2.1 Sơ đồ tuần tự quy trình  sinh viên nộp hồ sơ đăng ký lưu trú
+ PAGEREF _Toc236053354 \h 
+70
+3.4.2.2 Sơ đồ tuần tự quy trình xét duyệt hồ sơ đăng ký
+ PAGEREF _Toc236053355 \h 
+71
+3.4.2.3 Sơ đồ tuần tự quy trình thanh toán phí giữ chỗ
+ PAGEREF _Toc236053356 \h 
+72
+3.4.2.4 Sơ đồ tuần tự quy trình kích hoạt tài khoản cư dân
+ PAGEREF _Toc236053357 \h 
+73
+3.4.2.5 Sơ đồ tuần tự quy trình nhận phòng và đồng bộ quyền truy cập
+ PAGEREF _Toc236053358 \h 
+74
+3.4.2.6 Sơ đồ tuần tự quy trình xác thực ra vào bằng công nghệ sinh trắc học
+ PAGEREF _Toc236053359 \h 
+75
+3.4.2.7 Sơ đồ tuần tự quy trình ghi chỉ số điện và phát hành hóa đơn
+ PAGEREF _Toc236053360 \h 
+76
+3.4.2.8 Sơ đồ tuần tự quy trình thanh toán hóa đơn trong thời gian lưu trú
+ PAGEREF _Toc236053361 \h 
+77
+3.4.2.9 Sơ đồ tuần tự quy trình trả phòng
+ PAGEREF _Toc236053362 \h 
+78
+3.4.3
+ Sơ đồ hoạt động
+ PAGEREF _Toc236053363 \h 
+79
+3.4.3.1 Sơ đồ hoạt động quy trình sinh viên nộp hồ sơ đăng ký lưu trú
+ PAGEREF _Toc236053364 \h 
+79
+3.4.3.2 Sơ đồ hoạt động quy trình xét duyệt hồ sơ đăng ký
+ PAGEREF _Toc236053365 \h 
+80
+3.4.3.3 Sơ đồ hoạt động quy trình thanh toán phí giữ chỗ
+ PAGEREF _Toc236053366 \h 
+81
+3.4.3.4 Sơ đồ hoạt động quy trình kích hoạt tài khoản cư dân
+ PAGEREF _Toc236053367 \h 
+82
+3.4.3.5 Sơ đồ hoạt động quy trình nhận phòng và đồng bộ quyền truy cập
+ PAGEREF _Toc236053368 \h 
+83
+3.4.3.6 Sơ đồ hoạt động quy trình xác thực ra vào bằng công nghệ sinh trắc học
+ PAGEREF _Toc236053369 \h 
+84
+3.4.3.7 Sơ đồ hoạt động quy trình ghi chỉ số điện và phát hành hóa đơn
+ PAGEREF _Toc236053370 \h 
+85
+3.4.3.8 Sơ đồ hoạt động quy trình thanh toán hóa đơn trong thời gian lưu trú
+ PAGEREF _Toc236053371 \h 
+86
+3.4.3.9 Sơ đồ hoạt động quy trình trả phòng
+ PAGEREF _Toc236053372 \h 
+87
+3.5
+ HỆ THỐNG MÀN HÌNH
+ PAGEREF _Toc236053373 \h 
+88
+3.5.1
+ Web Admin
+ PAGEREF _Toc236053374 \h 
+88
+3.5.1.1 Giao diện Đăng nhập (Login)
+ PAGEREF _Toc236053375 \h 
+88
+3.5.1.2 Giao diện Bảng điều khiển (Dashboard)
+ PAGEREF _Toc236053376 \h 
+89
+3.5.1.3 Giao diện Quản lý sinh viên (Student Management)
+ PAGEREF _Toc236053377 \h 
+90
+3.5.1.4 Giao diện Quản lý cổng kiểm soát (IoT Management)
+ PAGEREF _Toc236053378 \h 
+90
+3.5.2
+ Web Public
+ PAGEREF _Toc236053379 \h 
+91
+3.5.2.1 Giao diện Trang chủ (Landing Page)
+ PAGEREF _Toc236053380 \h 
+91
+3.5.3
+ App Student
+ PAGEREF _Toc236053381 \h 
+92
+3.5.3.1 Giao diện Trang chủ (Home Screen)
+ PAGEREF _Toc236053382 \h 
+92
+3.5.3.2 Giao diện Định danh khuôn mặt (Face Recognition)
+ PAGEREF _Toc236053383 \h 
+93
+3.5.3.3 Giao diện Thanh toán hóa đơn (Payment)
+ PAGEREF _Toc236053384 \h 
+94
+3.5.4
+ App Admin
+ PAGEREF _Toc236053385 \h 
+95
+3.5.4.1 Giao diện Bảng điều khiển (Mobile Dashboard)
+ PAGEREF _Toc236053386 \h 
+95
+3.6
+ HỆ THỐNG BÁO BIỂU
+ PAGEREF _Toc236053387 \h 
+95
+3.6.1
+ Báo cáo công tác lưu trú và đăng ký
+ PAGEREF _Toc236053388 \h 
+95
+3.6.2
+ Báo cáo tài chính
+ PAGEREF _Toc236053389 \h 
+96
+3.6.3
+ Báo cáo an ninh
+ PAGEREF _Toc236053390 \h 
+96
+3.6.4
+ Báo cáo vận hành
+ PAGEREF _Toc236053391 \h 
+96
+3.6.5
+ Cơ chế tổng hợp dữ liệu
+ PAGEREF _Toc236053392 \h 
+97
+Chương 4.
+ THỬ NGHIỆM
+ PAGEREF _Toc236053393 \h 
+98
+4.1
+ CÁC KỊCH BẢN THỬ NGHIỆM
+ PAGEREF _Toc236053394 \h 
+98
+4.2
+ KẾT QUẢ THỬ NGHIỆM CÁC KỊCH BẢN
+ PAGEREF _Toc236053395 \h 
+98
+4.3
+ XỬ LÝ CÁC TRƯỜNG HỢP NGOẠI LỆ
+ PAGEREF _Toc236053396 \h 
+101
+4.4
+ THỬ NGHIỆM PHÂN HỆ SMART ACCESS VÀ IOT GATEWAY
+ PAGEREF _Toc236053397 \h 
+102
+4.4.1
+ Kịch bản 1 – Xác thực trong giờ hành chính
+ PAGEREF _Toc236053398 \h 
+102
+4.4.2
+ Kịch bản 2 – Xác thực hai bước (Thẻ từ và Khuôn mặt)
+ PAGEREF _Toc236053399 \h 
+103
+4.4.3
+ Kịch bản 3 – Kiểm tra chính sách giới nghiêm
+ PAGEREF _Toc236053400 \h 
+104
+4.4.4
+ Kịch bản 4 – Chế độ Offline
+ PAGEREF _Toc236053401 \h 
+104
+4.4.5
+ Kết quả thử nghiệm
+ PAGEREF _Toc236053402 \h 
+105
+Chương 5.
+ KẾT LUẬN
+ PAGEREF _Toc236053403 \h 
+106
+5.1
+ KẾT QUẢ ĐỐI CHIẾU VỚI MỤC TIÊU
+ PAGEREF _Toc236053404 \h 
+106
+5.2
+ CÁC VẤN ĐỀ CÒN TỒN ĐỌNG
+ PAGEREF _Toc236053405 \h 
+106
+5.3
+ MỞ RỘNG
+ PAGEREF _Toc236053406 \h 
+107
+PHỤ LỤC
+ PAGEREF _Toc236053407 \h 
+109
+PHỤ LỤC A: HƯỚNG DẪN SỬ DỤNG
+ PAGEREF _Toc236053408 \h 
+109
+PHỤ LỤC B: TÀI LIỆU KHẢO SÁT HIỆN TRẠNG VÀ QUY CHẾ VẬN HÀNH KÝ TÚC XÁ TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN (STU)
+ PAGEREF _Toc236053409 \h 
+114
+PHỤ LỤC C: MÃ ĐỊNH NGHĨA CƠ SỞ DỮ LIỆU (SQL DDL)
+ PAGEREF _Toc236053410 \h 
+120
+PHỤ LỤC D: THÔNG SỐ KỸ THUẬT CÁC LINH KIỆN PHẦN CỨNG
+ PAGEREF _Toc236053411 \h 
+131
+TÀI LIỆU THAM KHẢO
+ PAGEREF _Toc236053412 \h 
+143
+MỤC LỤC HÌNH ẢNH
+ TOC \h \z \c "Hình" 
+Hình 2
+1: Giao diện cổng thông tin ký túc xá Trường Đại học Kinh tế Thành phố Hồ Chí Minh (UEH).
+ PAGEREF _Toc236053234 \h 
+6
+Hình 2
+2: Giao diện cổng thông tin ký túc xá Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH).
+ PAGEREF _Toc236053235 \h 
+7
+Hình 2
+3: Quy trình đăng ký và xét duyệt lưu trú
+ PAGEREF _Toc236053236 \h 
+11
+Hình 2
+4: Quy trình thanh toán phí lưu trú lần đầu.
+ PAGEREF _Toc236053237 \h 
+12
+Hình 2
+5: Quy trình thanh toán phí lưu trú khi đang lưu trú.
+ PAGEREF _Toc236053238 \h 
+12
+Hình 2
+6: Quy trình nhận phòng.
+ PAGEREF _Toc236053239 \h 
+13
+Hình 2
+7: Quy trình gia hạn lưu trú
+ PAGEREF _Toc236053240 \h 
+14
+Hình 2
+8: Quy trình chuyển phòng.
+ PAGEREF _Toc236053241 \h 
+15
+Hình 2
+9: Quy trình quản lý tiền điện
+ PAGEREF _Toc236053242 \h 
+16
+Hình 2
+10: Quy trình trả phòng.
+ PAGEREF _Toc236053243 \h 
+17
+Hình 2
+11:
+ 
+Quy trình ra vào cổng.
+ PAGEREF _Toc236053244 \h 
+18
+Hình 2
+12:
+ 
+Quy trình ra vào phòng.
+ PAGEREF _Toc236053245 \h 
+19
+Hình 2
+13: Sơ đồ chức năng của hệ thống
+ PAGEREF _Toc236053246 \h 
+20
+Hình 2
+14: Use case tổng quát của hệ thống quản lý kí túc xá thông minh
+ PAGEREF _Toc236053247 \h 
+22
+Hình 3
+1: Sơ đồ thực thể – mối liên kết mức ý niệm của hệ thống.
+ PAGEREF _Toc236053248 \h 
+25
+Hình 3
+2: Sơ đồ Use Case chi tiết của Quản lý tài khoản
+ PAGEREF _Toc236053249 \h 
+43
+Hình 3
+3: Sơ đồ Use Case chi tiết của Quản lý người dùng
+ PAGEREF _Toc236053250 \h 
+46
+Hình 3
+4: Sơ đồ Use Case chi tiết của Quản lý cơ sở vật chất
+ PAGEREF _Toc236053251 \h 
+49
+Hình 3
+5: Sơ đồ Use Case chi tiết của Quản lý đợt đăng ký
+ PAGEREF _Toc236053252 \h 
+52
+Hình 3
+6: Sơ đồ Use Case chi tiết của Quản lý hồ sơ đăng ký
+ PAGEREF _Toc236053253 \h 
+55
+Hình 3
+7: Sơ đồ Use Case chi tiết của Quản lý lưu trú
+ PAGEREF _Toc236053254 \h 
+59
+Hình 3
+8: Sơ đồ Use Case chi tiết của Quản lý điện
+ PAGEREF _Toc236053255 \h 
+61
+Hình 3
+9: Sơ đồ Use Case chi tiết của Quản lý hóa đơn và thanh toán
+ PAGEREF _Toc236053256 \h 
+63
+Hình 3
+10: Sơ đồ Use Case chi tiết của Quản lý an ninh
+ PAGEREF _Toc236053257 \h 
+66
+Hình 3
+11: Sơ đồ tuần tự của quy trinh sinh viên nộp hồ sơ đăng ký lưu trú
+ PAGEREF _Toc236053258 \h 
+70
+Hình 3
+12: Sơ đồ tuần tự của quy trình xét duyệt hồ sơ đăng ký
+ PAGEREF _Toc236053259 \h 
+71
+Hình 3
+13: Sơ đồ tuần tự của quy trình thanh toán phí giữ chỗ
+ PAGEREF _Toc236053260 \h 
+72
+Hình 3
+14: Sơ đồ tuần tự của quy trình kích hoạt tài khoản cư dân
+ PAGEREF _Toc236053261 \h 
+73
+Hình 3
+15: Sơ đồ tuần tự của quy trình nhận phòng và đồng bộ quyền truy cập
+ PAGEREF _Toc236053262 \h 
+74
+Hình 3
+16: Sơ đồ tuần tự quy trình xác thực ra vào bằng công nghệ sinh trắc học
+ PAGEREF _Toc236053263 \h 
+75
+Hình 3
+17: Sơ đồ tuần tự của quy trình ghi chỉ số điện và phát hành hóa đơn
+ PAGEREF _Toc236053264 \h 
+76
+Hình 3
+18: Sơ đồ tuần tự quy trình thanh toán hóa đơn trong thời gian lưu trú
+ PAGEREF _Toc236053265 \h 
+77
+Hình 3
+19: Sơ đồ tuần tự quy trình trả phòng
+ PAGEREF _Toc236053266 \h 
+78
+Hình 3
+20: Sơ đồ hoạt động quy trình sinh viên nộp hồ sơ đăng ký lưu trú.
+ PAGEREF _Toc236053267 \h 
+79
+Hình 3
+21: Sơ đồ hoạt động quy trình xét duyệt hồ sơ đăng ký
+ PAGEREF _Toc236053268 \h 
+80
+Hình 3
+22: Sơ đồ hoạt động quy trình thanh toán phí giữ chỗ
+ PAGEREF _Toc236053269 \h 
+81
+Hình 3
+23: Sơ đồ hoạt động quy trình kích hoạt tài khoản cư dân
+ PAGEREF _Toc236053270 \h 
+82
+Hình 3
+24: Sơ đồ hoạt động quy trình nhận phòng và đồng bộ quyền truy cập
+ PAGEREF _Toc236053271 \h 
+83
+Hình 3
+25: Sơ đồ hoạt động quy trình xác thực ra vào bằng công nghệ sinh trắc học
+ PAGEREF _Toc236053272 \h 
+84
+Hình 3
+26: Sơ đồ hoạt động quy trình ghi chỉ số điện và phát hành hóa đơn
+ PAGEREF _Toc236053273 \h 
+85
+Hình 3
+27: Sơ đồ hoạt động quy trình thanh toán hóa đơn trong thời gian lưu trú
+ PAGEREF _Toc236053274 \h 
+86
+Hình 3
+28: Sơ đồ hoạt động quy trình trả phòng.
+ PAGEREF _Toc236053275 \h 
+87
+Hình 3
+29: Giao diện Đăng nhập hệ thống Admin
+ PAGEREF _Toc236053276 \h 
+88
+Hình 3
+30: Giao diện Bảng điều khiển Admin
+ PAGEREF _Toc236053277 \h 
+89
+Hình 3
+31: Giao diện Quản lý sinh viên
+ PAGEREF _Toc236053278 \h 
+90
+Hình 3
+32: Giao diện Quản lý cổng kiểm soát
+ PAGEREF _Toc236053279 \h 
+90
+Hình 3
+33: Giao diện trang chủ Web Public
+ PAGEREF _Toc236053280 \h 
+91
+Hình 3
+34: Giao diện Trang chủ ứng dụng Sinh viên
+ PAGEREF _Toc236053281 \h 
+92
+Hình 3
+35: Giao diện Quản lý khuôn mặt
+ PAGEREF _Toc236053282 \h 
+93
+Hình 3
+36: Giao diện Thanh toán hóa đơn
+ PAGEREF _Toc236053283 \h 
+94
+Hình 3
+37: Giao diện Bảng điều khiển ứng dụng Quản trị viên
+ PAGEREF _Toc236053284 \h 
+95
+Hình 4
+1:
+ Kết quả thực hiện kịch bản TC-REG-01 – Đăng ký hồ sơ hợp lệ.
+ PAGEREF _Toc236053285 \h 
+99
+Hình 4
+2: 
+Kết quả thực hiện kịch bản TC-REG-02 – Thiếu thông tin bắt buộc.
+ PAGEREF _Toc236053286 \h 
+100
+Hình 4
+3: Kết quả thực hiện kịch bản TC-REG-03 – Sai định dạng Email.
+ PAGEREF _Toc236053287 \h 
+100
+Hình 4
+4: Kết quả thực hiện kịch bản TC-REG-04 – Trùng dữ liệu định danh.
+ PAGEREF _Toc236053288 \h 
+100
+Hình 4
+5: Kết quả thực hiện trường hợp ngoại lệ - Ngoại lệ dữ liệu trùng lặp
+ PAGEREF _Toc236053289 \h 
+101
+Hình 4
+6: Kết quả thực hiện trường hợp ngoại lệ - Ngoại lệ dữ liệu không hợp lệ
+ PAGEREF _Toc236053290 \h 
+101
+Hình 4
+7: Hình ảnh thực nghiệm thực tế Kịch bản 1
+ PAGEREF _Toc236053291 \h 
+103
+Hình 4
+8: Hình ảnh thực nghiệm thực tế Kịch bản 2
+ PAGEREF _Toc236053292 \h 
+104
+ Hình D
+1: Hình ảnh của ESP32-CAM.
+ PAGEREF _Toc236053293 \h 
+133
+Hình D
+2: Hình ảnh của ESP32 DevKit V1 (DOIT).
+ PAGEREF _Toc236053294 \h 
+135
+Hình D
+3: Hình ảnh của RFID MFRC522 (RC522).
+ PAGEREF _Toc236053295 \h 
+137
+Hình D
+4: Hình ảnh của thẽ RFID của sinh viên.
+ PAGEREF _Toc236053296 \h 
+137
+Hình D
+5: Hình ảnh của Bàn phím ma trận Matrix Keypad 4x4.
+ PAGEREF _Toc236053297 \h 
+138
+Hình D
+6: Hình ảnh của Động cơ servo – SG90 Micro Servo.
+ PAGEREF _Toc236053298 \h 
+140
+Hình D
+7: Hình ảnh của màn hình -  LCD 16×2.
+ PAGEREF _Toc236053299 \h 
+141
+MỤC LỤC BẢNG
+ TOC \h \z \c "Bảng" 
+Bảng 1
+1: Kết quả cần đạt và tiêu chí đánh giá hệ thống.
+ PAGEREF _Toc236041682 \h 
+5
+Bảng 2
+1: Các công nghệ phần mềm được sử dụng.
+ PAGEREF _Toc236041683 \h 
+8
+Bảng 2
+2: Các nền tảng phần cứng và thiết bị IoT.
+ PAGEREF _Toc236041684 \h 
+9
+Bảng 2
+3: Các công nghệ triển khai hệ thống.
+ PAGEREF _Toc236041685 \h 
+9
+Bảng 3
+1: Thành phần công nghệ của hệ thống
+ PAGEREF _Toc236041686 \h 
+23
+Bảng 3
+2: Sơ đồ đấu nối cụm cổng ra vào.
+ PAGEREF _Toc236041687 \h 
+24
+Bảng 3
+3: Sơ đồ đấu nối cụm cửa phòng
+ PAGEREF _Toc236041688 \h 
+25
+Bảng 3
+4: Bảng system_configs
+ PAGEREF _Toc236041689 \h 
+30
+Bảng 3
+5: Bảng User Account
+ PAGEREF _Toc236041690 \h 
+31
+Bảng 3
+6: Bảng Students.
+ PAGEREF _Toc236041691 \h 
+32
+Bảng 3
+7: Bảng buildings.
+ PAGEREF _Toc236041692 \h 
+33
+Bảng 3
+8: Bảng floors
+ PAGEREF _Toc236041693 \h 
+33
+Bảng 3
+9: Bảng rooms
+ PAGEREF _Toc236041694 \h 
+34
+Bảng 3
+10: Bảng beds.
+ PAGEREF _Toc236041695 \h 
+34
+Bảng 3
+11: Bảng registration_periods.
+ PAGEREF _Toc236041696 \h 
+35
+Bảng 3
+12: Bảng registration_eligibilities.
+ PAGEREF _Toc236041697 \h 
+35
+Bảng 3
+13: Bảng dormitory_applications.
+ PAGEREF _Toc236041698 \h 
+36
+Bảng 3
+14: Bảng student_housing_assignments.
+ PAGEREF _Toc236041699 \h 
+37
+Bảng 3
+15: Bảng stay_extensions.
+ PAGEREF _Toc236041700 \h 
+38
+Bảng 3
+16: Bảng checkout_requests.
+ PAGEREF _Toc236041701 \h 
+39
+Bảng 3
+17: Bảng change_room_requests.
+ PAGEREF _Toc236041702 \h 
+40
+Bảng 3
+18: Bảng gates.
+ PAGEREF _Toc236041703 \h 
+41
+Bảng 3
+19: Bảng curfew_policies.
+ PAGEREF _Toc236041704 \h 
+42
+Bảng 3
+20: Bảng curfew_requests.
+ PAGEREF _Toc236041705 \h 
+43
+Bảng 3
+21: Bảng utility_usages.
+ PAGEREF _Toc236041706 \h 
+44
+Bảng 3
+22: Bảng bills.
+ PAGEREF _Toc236041707 \h 
+45
+Bảng 3
+23: Bảng payments.
+ PAGEREF _Toc236041708 \h 
+46
+Bảng 3
+24: Bảng time_window_policies.
+ PAGEREF _Toc236041709 \h 
+47
+Bảng 3
+25: Bảng access_history.
+ PAGEREF _Toc236041710 \h 
+48
+Bảng 3
+26: Bảng face_profiles.
+ PAGEREF _Toc236041711 \h 
+49
+Bảng 3
+27: Bảng face_embeddings.
+ PAGEREF _Toc236041712 \h 
+49
+Bảng 3
+28: Bảng face_verification_attempts.
+ PAGEREF _Toc236041713 \h 
+50
+Bảng 3
+29: Bảng notifications
+ PAGEREF _Toc236041714 \h 
+51
+Bảng 3
+30: Bảng mô tả Quản lý tài khoản.
+ PAGEREF _Toc236041715 \h 
+57
+Bảng 3
+31: Bảng mô tả Quản lý người dùng.
+ PAGEREF _Toc236041716 \h 
+60
+Bảng 3
+32: Bảng mô tả Cơ sở vật chất.
+ PAGEREF _Toc236041717 \h 
+64
+Bảng 3
+33: Bảng mô tả Quản lý đợt đăng ký.
+ PAGEREF _Toc236041718 \h 
+67
+Bảng 3
+34: Bảng mô tả Quản lý hồ sơ đăng ký.
+ PAGEREF _Toc236041719 \h 
+70
+Bảng 3
+35: Bảng mô tả Quản lý hồ sơ lưu trú.
+ PAGEREF _Toc236041720 \h 
+73
+Bảng 3
+36: Bảng mô tả Quản lý điện.
+ PAGEREF _Toc236041721 \h 
+76
+Bảng 3
+37: Bảng mô tả Quản lý hóa đơn và thanh toán.
+ PAGEREF _Toc236041722 \h 
+78
+Bảng 3
+38: Bảng mô tả Quản lý an ninh.
+ PAGEREF _Toc236041723 \h 
+82
+Bảng 4
+1: Các kịch bản thử nghiệm chức năng đăng ký lưu trú.
+ PAGEREF _Toc236041724 \h 
+112
+Bảng 4
+2:
+ Kết quả thử nghiệm chức năng đăng ký lưu trú
+ PAGEREF _Toc236041725 \h 
+113
+Bảng 5
+1: Kết quả đối chiếu mục tiêu nghiên cứu.
+ PAGEREF _Toc236041726 \h 
+117
+Bảng B
+1: Nội dung cam kết và hình thức xử lý
+ PAGEREF _Toc236041727 \h 
+134
+GIỚI THIỆU
+ĐẶT VẤN ĐỀ, MỤC TIÊU LUẬN VĂN
+Đặt vấn đề
+Trong bối cảnh chuyển đổi số giáo dục, việc ứng dụng công nghệ thông tin vào quản lý ký túc xá là yêu cầu cấp thiết nhằm số hóa dữ liệu, nâng cao hiệu quả quản lý và đảm bảo an ninh. Qua khảo sát thực tế tại Ký túc xá Trường Đại học Công nghệ Sài Gòn (STU), nhiều nghiệp vụ vẫn được thực hiện bằng hồ sơ giấy và bảng tính Microsoft Excel, dẫn đến hiệu quả quản lý còn hạn chế.
+Thứ nhất
+, công tác tiếp nhận hồ sơ, xét duyệt đối tượng ưu tiên và phân bổ chỗ ở còn thực hiện thủ công, mất nhiều thời gian và dễ phát sinh sai sót khi số lượng sinh viên tăng cao vào đầu năm học.
+Thứ hai
+, việc hỗ trợ quản lý tài chính còn gặp khó khăn trong quá trình đối soát các giao dịch chuyển khoản và theo dõi các khoản thu, làm tăng khối lượng xử lý thủ công và nguy cơ cập nhật chưa chính xác.
+Thứ ba, 
+công tác kiểm soát ra vào và điểm danh còn nhiều hạn chế
+.
+ Với đặc thù cổng chính mở đến 23 giờ và chỉ có hai cán bộ quản lý luân phiên trực, việc kiểm soát hàng trăm sinh viên nội trú cũng như phát hiện người lạ chủ yếu dựa trên quan sát thủ công. Điều này làm tăng áp lực cho cán bộ trực và ảnh hưởng đến hiệu quả giám sát an ninh. Bên cạnh đó, công tác điểm danh hằng đêm vẫn dựa trên báo cáo của trưởng phòng, gây khó khăn trong việc theo dõi và quản lý thông tin cư trú một cách kịp thời, chính xác.
+Từ những hạn chế trên, việc xây dựng một hệ thống quản lý ký túc xá thông minh, tích hợp số hóa quy trình và kết nối với các thiết bị IoT là cần thiết nhằm nâng cao hiệu quả quản lý, tăng tính chính xác và hỗ trợ công tác vận hành của Ban quản lý.
+Mục tiêu
+Nhằm khắc phục các hạn chế trong công tác quản lý ký túc xá, luận văn thực hiện đề tài "
+Xây dựng ứng dụng quản lý ký túc xá thông minh
+". Hệ thống được phát triển theo mô hình phân tán, tích hợp giữa nền tảng Web, ứng dụng di động, các thiết bị IoT và dịch vụ trí tuệ nhân tạo nhằm hỗ trợ số hóa quy trình quản lý, nâng cao hiệu quả vận hành và tăng cường kiểm soát an ninh. Các mục tiêu chính của hệ thống bao gồm:
+Số hóa quy trình quản lý:
+ Xây dựng hệ thống quản lý tập trung hỗ trợ tiếp nhận hồ sơ đăng ký, quản lý lưu trú, tự động hóa thuật toán xếp giường và tiếp nhận phản ánh sự cố thông qua nền tảng Web và ứng dụng di động. 
+Hỗ trợ quản lý tài chính:
+ Tích hợp dịch vụ SePay để tiếp nhận thông tin giao dịch thanh toán qua mã QR, tự động cập nhật trạng thái thanh toán và hỗ trợ Ban Quản lý trong quá trình theo dõi, đối soát công nợ của sinh viên. 
+Kiểm soát ra vào:
+ Triển khai các bộ điều khiển tại cổng chính và cửa phòng, tích hợp công nghệ nhận diện khuôn mặt, thẻ RFID và mã PIN nhằm hỗ trợ kiểm soát ra vào, điểm danh, ghi nhận lịch sử truy cập và thực thi chính sách giới nghiêm theo quy định
+NHỮNG THÁCH THỨC CẦN GIẢI QUYẾT
+Để đạt được các mục tiêu đã đề ra, quá trình thiết kế và triển khai hệ thống đặt ra nhiều thách thức trên cả phương diện kỹ thuật và nghiệp vụ. Việc giải quyết các thách thức này là cơ sở để xây dựng một hệ thống đáp ứng yêu cầu quản lý ký túc xá, bảo đảm tính ổn định, chính xác và phù hợp với thực tế vận hành.
+Thách thức về mặt kỹ thuật
+Đồng bộ dữ liệu và tính ổn định của phần cứng:
+ Các thiết bị IoT tại cổng ra vào cần duy trì kết nối với máy chủ để thực hiện xác thực và điều khiển cửa. Thách thức đặt ra là xây dựng cơ chế truyền tải dữ liệu có độ trễ thấp, đồng thời thiết kế phương án dự phòng nhằm bảo đảm hệ thống vẫn hoạt động ổn định khi xảy ra sự cố kết nối mạng, cho phép thực hiện kiểm soát ra vào và ghi nhận lịch sử truy cập một cách liên tục.
+Năng lực xử lý trí tuệ nhân tạo:
+ Chức năng nhận diện khuôn mặt yêu cầu năng lực tính toán lớn và khả năng xử lý hình ảnh theo thời gian thực. Thách thức là xây dựng kiến trúc tách biệt dịch vụ AI thành một vi dịch vụ độc lập nhằm giảm tải cho máy chủ chính, đồng thời bảo đảm khả năng nhận diện ổn định trong các điều kiện ánh sáng khác nhau.
+Bảo mật hệ thống phân tán:
+ Hệ thống tích hợp nhiều thành phần như ứng dụng Web, ứng dụng di động, thiết bị IoT và dịch vụ AI, do đó đòi hỏi cơ chế bảo mật chặt chẽ. Thách thức là xây dựng cơ chế xác thực, phân quyền và bảo vệ dữ liệu phù hợp nhằm hạn chế nguy cơ truy cập trái phép, giả mạo giao dịch thanh toán và can thiệp vào quá trình điều khiển thiết bị.
+Thách thức về mặt nghiệp vụ
+Số hóa quy tắc phân bổ chỗ ở:
+ Quy trình xét duyệt hồ sơ lưu trú của ký túc xá dựa trên nhiều nhóm đối tượng ưu tiên và các điều kiện xét duyệt khác nhau. Thách thức là chuyển hóa các quy tắc nghiệp vụ này thành thuật toán phân bổ chỗ ở tự động, bảo đảm tính công bằng, chính xác và không phát sinh phân bổ trùng lặp. 
+Tự động hóa luồng đối soát tài chính:
+ Quá trình thanh toán của sinh viên chủ yếu 
+thực
+ hiện bằng hình thức chuyển khoản và có thể phát sinh các trường hợp nhập sai nội dung thanh toán. Thách thức là thiết kế luồng xử lý giao dịch thông qua mã QR và tích hợp dịch vụ SePay để hệ thống có thể tự động tiếp nhận thông tin giao dịch, cập nhật trạng thái thanh toán và hỗ trợ Ban Quản lý trong quá trình đối soát công nợ.
+NỘI DUNG PHẠM VI THỰC HIỆN
+ 
+Nội dung thực hiện
+Đề tài tập trung nghiên cứu, thiết kế và xây dựng hệ thống quản lý ký túc xá thông minh với các nhóm chức năng chính, đáp ứng ba lĩnh vực quản lý gồm hành chính, tài chính và an ninh.
+Công tác hành chính:
+ Số hóa quy trình quản lý lưu trú, bao gồm tiếp nhận hồ sơ đăng ký, xét duyệt hồ sơ, phân bổ chỗ ở, chuyển phòng, gia hạn lưu trú, trả phòng và quản lý cơ sở vật chất. 
+Công tác tài chính:
+ Hỗ trợ quản lý các khoản phí lưu trú, tính tiền điện, quản lý hóa đơn, theo dõi công nợ và tự động cập nhật trạng thái thanh toán thông qua dịch vụ SePay. 
+Công tác an ninh và hỗ trợ:
+ Tích hợp các thiết bị IoT và công nghệ nhận diện khuôn mặt nhằm hỗ trợ kiểm soát ra vào, điểm danh, ghi nhận lịch sử truy cập; đồng thời xây dựng chức năng thông báo và tiếp nhận phản ánh sự cố từ sinh viên.
+Phạm vi hệ thống
+Hệ thống được xây dựng dựa trên sự kết hợp giữa nền tảng phần mềm, trí tuệ nhân tạo và thiết bị IoT nhằm đáp ứng yêu cầu quản lý và vận hành ký túc xá.
+Phần mềm:
+ Bao gồm hệ thống máy chủ xử lý nghiệp vụ và các nền tảng sử dụng, gồm trang Web quản trị dành cho Ban Quản lý, trang Web công khai hỗ trợ sinh viên đăng ký hồ sơ, ứng dụng di động dành cho sinh viên và ứng dụng di động dành cho Ban Quản lý. 
+Trí tuệ nhân tạo:
+ Xây dựng dịch vụ nhận diện khuôn mặt độc lập nhằm hỗ trợ xác thực danh tính sinh viên trong quá trình kiểm soát ra vào. 
+Thiết bị IoT:
+ Triển khai các bộ điều khiển tại cổng chính và cửa phòng. Cổng chính tích hợp đầu đọc thẻ RFID và camera nhận diện khuôn mặt, trong khi cửa phòng sử dụng bàn phím ma trận để xác thực bằng mã PIN. Các thiết bị kết nối với máy chủ thông qua mạng không dây để thực hiện xác thực, điều khiển khóa cửa và ghi nhận lịch sử truy cập.
+Giới hạn đề tài
+Để bảo đảm phù hợp với phạm vi và thời gian thực hiện luận văn, đề tài tập trung vào các nghiệp vụ quản lý lưu trú cốt lõi. Các nội dung sau không thuộc phạm vi nghiên cứu và phát triển của hệ thống:
+Về phần cứng:
+ Không triển khai hệ thống kiểm soát ra vào tại khu vực cầu thang kết nối giữa khu lưu trú nam và khu lưu trú nữ. 
+Về thanh toán:
+ Không tích hợp trực tiếp các cổng thanh toán điện tử như MoMo hoặc VNPay. Hệ thống chỉ tích hợp dịch vụ SePay để tiếp nhận thông tin giao dịch chuyển khoản và hỗ trợ tự động đối soát thanh toán. 
+Về mặt nghiệp vụ:
+ Hệ thống không xây dựng phân hệ xử lý kỷ luật độc lập. Đối với các trường hợp vi phạm nội quy, như vi phạm giờ giới nghiêm, hệ thống chỉ thực hiện ghi nhận lịch sử ra vào, phát hiện các trường hợp bất thường và cung cấp dữ liệu phục vụ công tác theo dõi, xử lý của Ban Quản lý theo quy định hiện hành của Ký túc xá. Ngoài ra, hệ thống không phát triển các chức năng quản lý nhân sự, quản lý bảo trì cơ sở vật chất, quản lý bãi giữ xe và kế toán tài chính tổng hợp.
+KẾT QUẢ CẦN ĐẠT ĐƯỢC
+ 
+Để đáp ứng các mục tiêu đã đề ra, hệ thống cần đạt được các kết quả về chức năng và phi chức năng trong quá trình triển khai và vận hành. Các kết quả này là cơ sở để đánh giá mức độ đáp ứng yêu cầu của hệ thống đối với công tác quản lý ký túc xá. Bảng 1.1 trình bày các kết quả cần đạt cùng tiêu chí đánh giá tương ứng.
+STT
+Nhóm kết quả
+Kết quả cần đạt
+Tiêu chí đánh giá (Nghiệm thu)
+I
+Yêu cầu chức năng (Functional)
+1
+Hành chính
+Phân hệ quản lý quy trình nội trú
+Hệ thống hỗ trợ đầy đủ các nghiệp vụ tiếp nhận hồ sơ, xét duyệt, phân bổ chỗ ở, chuyển phòng, gia hạn lưu trú và trả phòng theo quy trình quản lý của ký túc xá.
+2
+Tài chính
+Phân hệ quản lý thanh toán
+Hệ thống tiếp nhận thông tin giao dịch thông qua dịch vụ SePay, tự động cập nhật trạng thái thanh toán và hỗ trợ Ban Quản lý theo dõi, đối soát công nợ của sinh viên.
+3
+An ninh
+Phân hệ kiểm soát ra vào
+Hệ thống hỗ trợ xác thực bằng thẻ RFID, nhận diện khuôn mặt và mã PIN để kiểm soát ra vào; đồng thời ghi nhận lịch sử truy cập và cảnh báo các trường hợp vi phạm giờ giới nghiêm.
+II
+Yêu cầu phi chức năng (Non-functional)
+4
+Tính ổn định
+Khả năng duy trì hoạt động
+Hệ thống duy trì hoạt động ổn định trong quá trình vận hành; các thiết bị IoT có khả năng xử lý các tình huống gián đoạn kết nối và đồng bộ dữ liệu sau khi kết nối được khôi phục.
+5
+Hiệu năng
+Khả năng xử lý hệ thống
+Hệ thống đáp ứng yêu cầu xử lý các nghiệp vụ chính như xác thực người dùng, nhận diện khuôn mặt, cập nhật thanh toán và điều khiển thiết bị IoT trong quá trình sử dụng.
+6
+Bảo mật
+Cơ chế xác thực và phân quyền
+Hệ thống áp dụng cơ chế xác thực, phân quyền và bảo vệ dữ liệu nhằm bảo đảm chỉ người dùng và thiết bị được cấp quyền mới có thể truy cập các chức năng và tài nguyên tương ứng.
+Bảng 
+ STYLEREF 1 \s 
+1
+ SEQ Bảng \* ARABIC \s 1 
+1
+: Kết quả cần đạt và tiêu chí đánh giá hệ thốn
+g
+P
+HƯƠNG PHÁP THỰC HIỆN
+CÁC HỆ THỐNG TƯ
+ơ
+NG TỰ
+ 
+Để có cơ sở xây dựng hệ thống, đề tài khảo sát một số hệ thống quản lý ký túc xá đang được triển khai tại các trường đại học ở Việt Nam nhằm đánh giá các chức năng hiện có, từ đó rút ra những kinh nghiệm phục vụ cho quá trình thiết kế và phát triển hệ thống.
+Hệ 
+thống
+ quản lý ký túc xá Trường Đại học Kinh tế Thành phố Hồ Chí Minh (UEH)
+Hệ thống của UEH hỗ trợ đăng ký nội trú, thanh toán trực tuyến và quản lý thông tin lưu trú. Bên cạnh đó, UEH đã triển khai hệ thống Camera AI kết hợp xác thực khuôn mặt để hỗ trợ kiểm soát ra vào ký túc xá 
+[1], [2]
+.
+Ưu điểm:
+Hỗ trợ đăng ký và thanh toán trực tuyến. 
+Ứng dụng nhận diện khuôn mặt trong kiểm soát ra vào. 
+Hạn chế:
+Chưa công bố mô hình quản lý tích hợp giữa các nghiệp vụ và thiết bị thông minh.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+1
+: Giao diện cổng thông tin ký túc xá Trường Đại học Kinh tế Thành phố Hồ Chí Minh (UEH)
+.
+Hệ thống quản lý ký túc xá Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH)
+Hệ thống của IUH cho phép sinh viên đăng ký nội trú, tra cứu thông tin và sử dụng tài khoản của trường để đăng nhập. Ký túc xá được trang bị hệ thống camera an ninh và phòng cháy chữa cháy phục vụ công tác quản lý 
+[3], [4]
+.
+Ưu điểm:
+Hỗ trợ đăng ký nội trú trực tuyến. 
+Có hệ thống camera an ninh phục vụ quản lý. 
+Hạn chế:
+Chưa
+ công bố việc ứng dụng nhận diện khuôn mặt hoặc IoT trong kiểm soát ra vào.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+2
+: Giao diện cổng thông tin ký túc xá Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH)
+.
+Bài học kinh nghiệm
+Qua khảo sát, các hệ thống đã hỗ trợ số hóa công tác quản lý nội trú và thanh toán. Tuy nhiên, mức độ tích hợp giữa quản lý hành chính, tài chính và kiểm soát ra vào còn khác nhau. Vì vậy, đề tài định hướng xây dựng một hệ thống quản lý thống nhất, tích hợp Web, Mobile, SePay và các công nghệ RFID, nhận diện khuôn mặt và IoT nhằm nâng cao hiệu quả quản lý.
+CÔNG NGHỆ SỬ DỤNG
+ 
+Để đáp ứng các yêu cầu về quản lý, kiểm soát ra vào và khả năng mở rộng, hệ thống được xây dựng trên cơ sở kết hợp các công nghệ phát triển phần mềm, trí tuệ nhân tạo, IoT và các nền tảng hỗ trợ triển khai. Việc lựa chọn các công nghệ này nhằm đáp ứng yêu cầu nghiệp vụ, hỗ trợ vận hành ổn định và thuận lợi cho quá trình bảo trì, mở rộng hệ thống.
+Công nghệ phần mềm.
+Phân hệ phần mềm đóng vai trò trung tâm trong việc xử lý nghiệp vụ, quản lý dữ liệu và cung cấp giao diện cho người dùng. Các công nghệ được sử dụng trong hệ thống được trình bày trong Bảng 2.1.
+Thành phần
+Công nghệ sử dụng
+Mục đích
+Backend
+Java 17, Spring Boot
+Xây dựng các dịch vụ xử lý nghiệp vụ, cung cấp API, xác thực, phân quyền và bảo mật.
+Cơ sở dữ liệu
+PostgreSQL
+Lưu trữ dữ liệu quan hệ và bảo đảm tính toàn vẹn dữ liệu.
+Frontend
+React, Vite, Material UI
+Phát triển giao diện Web quản trị và Web công khai.
+Ứng dụng di động
+Kotlin, Jetpack Compose
+Phát triển ứng dụng Android dành cho sinh viên và Ban Quản lý.
+Dịch vụ AI
+Python, FastAPI
+Triển khai vi dịch vụ nhận diện khuôn mặt phục vụ kiểm soát ra vào.
+Bảng 
+ STYLEREF 1 \s 
+2
+ SEQ Bảng \* ARABIC \s 1 
+1
+: Các công nghệ phần mềm được sử dụng
+.
+Nền tảng phần cứng.
+Để hỗ trợ chức năng kiểm soát ra vào, hệ thống sử dụng các thiết bị IoT nhằm thu nhận dữ liệu, giao tiếp với máy chủ và điều khiển khóa cửa. Các thiết bị trao đổi dữ liệu với hệ thống Backend thông qua giao thức MQTT và HTTP.
+Thành phần
+Thiết bị / Giao thức
+Mục đích
+Cổng chính
+ESP32-CAM, RFID RC522
+Thu nhận hình ảnh khuôn mặt và đọc thẻ RFID để gửi dữ liệu xác thực đến máy chủ.
+Cửa phòng
+ESP32, Keypad ma trận, LCD I2C
+Nhận mã PIN, hiển thị trạng thái và điều khiển mở cửa.
+Điều khiển
+Relay
+Điều khiển cơ cấu khóa cửa điện tử.
+Giao tiếp
+MQTT, HTTP
+Trao đổi dữ liệu giữa thiết bị IoT và hệ thống Backend.
+Bảng 
+ STYLEREF 1 \s 
+2
+ SEQ Bảng \* ARABIC \s 1 
+2
+: Các nền tảng phần cứng và thiết bị IoT
+.
+Công nghệ triển khai.
+Để bảo đảm hệ thống có thể triển khai thuận tiện, dễ dàng quản lý và mở rộng trong tương lai, đề tài sử dụng các công nghệ hỗ trợ triển khai theo mô hình dịch vụ độc lập. Các công nghệ triển khai được sử dụng trong hệ thống được trình bày trong Bảng 2.3.
+Thành phần
+Công nghệ sử dụng
+Mục đích
+Ảo hóa ứng dụng
+Docker
+Đóng gói các thành phần của hệ thống, bảo đảm tính đồng nhất giữa các môi trường phát triển và triển khai.
+Quản lý dịch vụ
+Docker Compose
+Quản lý cấu hình và khởi động đồng thời các dịch vụ của hệ thống.
+Máy chủ trung gian
+Eclipse Mosquitto (MQTT Broker)
+Quản lý việc truyền nhận dữ liệu giữa các thiết bị IoT và máy chủ Backend.
+Bảng 
+ STYLEREF 1 \s 
+2
+ SEQ Bảng \* ARABIC \s 1 
+3
+: Các công nghệ triển khai hệ thống.
+PHÂN TÍCH YÊU CẦU
+Các quy trình, nghiệp vụ
+Để xây dựng hệ thống đáp ứng yêu cầu quản lý tại Ký túc xá Trường Đại học Công nghệ Sài Gòn (STU), đề tài tiến hành khảo sát quy trình quản lý hiện tại, phân tích các yêu cầu nghiệp vụ và đề xuất các quy trình được số hóa.
+Khảo sát hiện trạng và đề xuất quy trình nghiệp vụ
+Khảo sát hiện trạng
+Qua khảo sát thực tế tại Ký túc xá Trường Đại học Công nghệ Sài Gòn (STU), công tác quản lý hiện nay chủ yếu được thực hiện theo phương thức thủ công, bao gồm các nghiệp vụ hành chính, tài chính và quản lý ra vào.
+Quản lý nội trú:
+ Sinh viên nộp hồ sơ trực tiếp, Ban Quản lý tiếp nhận, xét duyệt và phân bổ chỗ ở bằng phương pháp thủ công, gây mất nhiều thời gian trong các đợt đăng ký. 
+Quản lý tài chính:
+ Các khoản phí lưu trú và tiền điện được thanh toán bằng chuyển khoản hoặc tiền mặt. Việc đối chiếu giao dịch và cập nhật công nợ chủ yếu được thực hiện thủ công. 
+Kiểm soát ra vào:
+ Việc kiểm soát sinh viên ra vào ký túc xá và điểm danh chủ yếu dựa vào cán bộ quản lý, chưa có hệ thống tự động lưu trữ lịch sử và hỗ trợ cảnh báo các trường hợp vi phạm nội quy. 
+Từ kết quả khảo sát có thể nhận thấy phương thức quản lý hiện tại chưa đáp ứng tốt yêu cầu về tính tự động, khả năng tra cứu và quản lý tập trung. Đây là cơ sở để đề tài xây dựng hệ thống quản lý ký túc xá theo hướng số hóa.
+Đề xuất các quy trình nghiệp vụ
+Dựa trên kết quả khảo sát và yêu cầu quản lý, hệ thống đề xuất các quy trình nghiệp vụ chính như sau:
+Quy trình đăng ký và xét duyệt lưu trú
+Sinh viên thực hiện đăng ký nội trú trên hệ thống và cung cấp các thông tin cần thiết. Ban Quản lý tiếp nhận, xét duyệt hồ sơ và thực hiện phân bổ chỗ ở đối với các hồ sơ đủ điều kiện.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+3
+: Quy trình đăng ký và xét duyệt lưu trú
+Quy trình thanh toán phí lưu trú
+Sinh viên thực hiện thanh toán theo hình thức chuyển khoản. Hệ thống tiếp nhận thông tin giao dịch, cập nhật trạng thái thanh toán và hỗ trợ Ban Quản lý theo dõi công nợ.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+4
+: Quy trình thanh toán phí lưu trú
+ lần đầu.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+5
+: Quy trình thanh toán phí lưu trú
+ khi đang lưu trú.
+Quy trình nhận phòng
+Sau khi hoàn thành các thủ tục cần thiết, Ban Quản lý xác nhận nhận phòng, cấp quyền lưu trú và cập nhật thông tin của sinh viên trên hệ thống.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+6
+: Quy trình nhận phòng.
+Quy trình gia hạn lưu trú
+Sinh viên gửi yêu cầu gia hạn trước khi hết thời hạn lưu trú. Ban Quản lý xem xét và phê duyệt yêu cầu, sau đó hệ thống cập nhật thời gian lưu trú mới.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+7
+: Quy trình gia hạn lưu trú
+Quy trình chuyển phòng
+Sinh viên gửi yêu cầu chuyển phòng
+ hoặc là b
+a
+n quản lý cần di dời sinh viên
+. Sau khi 
+hoàn tất
+, hệ thống cập nhật thông tin chỗ ở mới và điều chỉnh dữ liệu liên quan.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+8
+: Quy trình chuyển phòng.
+Quy trình quản lý tiền điện
+Ban Quản lý cập nhật chỉ số điện định kỳ. Hệ thống tính toán lượng điện tiêu thụ, lập hóa đơn và thông báo đến sinh viên.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+9
+: Quy trình quản lý tiền điện
+Quy trình trả phòng
+Sinh viên gửi yêu cầu trả phòng. Sau khi Ban Quản lý kiểm tra và xác nhận hoàn thành các nghĩa vụ liên quan, hệ thống cập nhật trạng thái trả phòng và giải phóng chỗ ở.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+10
+:
+ Quy trình trả phòng.
+Quy trình kiểm soát ra vào
+Sinh viên thực hiện xác thực bằng một trong các phương thức được hệ thống hỗ trợ để ra vào ký túc xá. Hệ thống kiểm tra thông tin xác thực, ghi nhận lịch sử truy cập và hỗ trợ cảnh báo các trường hợp vi phạm nội quy.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+11
+:
+ 
+Quy trình 
+ra vào cổng.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+12
+:
+ 
+Quy trình 
+ra vào phòng.
+S
+ơ
+ đồ chức năng
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+13
+: Sơ đồ chức năng của hệ thống
+ 
+Sơ đồ Use case tổng quát
+Mô tả các tác nhân
+Sinh viên:
+ Là đối tượng sử dụng các dịch vụ của ký túc xá thông qua hệ thống SDMS. Sinh viên thực hiện các nghiệp vụ như quản lý tài khoản, nộp và theo dõi hồ sơ đăng ký lưu trú, quản lý quá trình lưu trú, thanh toán hóa đơn và đăng ký thông tin khuôn mặt phục vụ kiểm soát ra vào.
+Nhân viên:
+ Là cán bộ trực tiếp vận hành các hoạt động của Ban Quản lý Ký túc xá. Nhân viên chịu trách nhiệm tiếp nhận và xử lý hồ sơ đăng ký, thực hiện phân phòng, quản lý lưu trú, ghi nhận chỉ số điện, theo dõi thanh toán và xử lý các nghiệp vụ liên quan đến hệ thống kiểm soát ra vào.
+Quản trị viên:
+ Là tác nhân chịu trách nhiệm quản trị và cấu hình toàn bộ hệ thống. Ngoài các nghiệp vụ vận hành được kế thừa từ Nhân viên, Quản trị viên còn thực hiện quản lý tài khoản nhân viên, quản lý cơ sở vật chất và cấu hình các đợt đăng ký lưu trú.
+Mô tả các Use Case
+Quản lý tài khoản:
+ Cho phép người dùng thực hiện các chức năng liên quan đến tài khoản như đăng nhập, khôi phục mật khẩu, thay đổi mật khẩu và quản lý thông tin xác thực của cá nhân. 
+Quản lý người dùng:
+ Cho phép Quản trị viên quản lý tài khoản nhân viên của hệ thống, bao gồm tạo mới, cập nhật, khóa hoặc vô hiệu hóa tài khoản theo yêu cầu quản trị. 
+Quản lý cơ sở vật chất:
+ Cho phép Quản trị viên quản lý dữ liệu cơ sở vật chất của ký túc xá, bao gồm tòa nhà, tầng, phòng và giường nhằm phục vụ cho công tác quản lý và phân bổ chỗ ở. 
+Quản lý đợt đăng ký:
+ Cho phép Quản trị viên thiết lập các đợt đăng ký lưu trú theo từng học kỳ hoặc năm học, bao gồm thời gian đăng ký, điều kiện áp dụng và các tham số phục vụ quá trình xét duyệt. 
+Quản lý hồ sơ đăng ký:
+ Hỗ trợ tiếp nhận, theo dõi và xử lý các hồ sơ đăng ký lưu trú của sinh viên. Sinh viên có thể nộp và theo dõi hồ sơ, trong khi Nhân viên và Quản trị viên thực hiện thẩm định, xét duyệt hoặc từ chối hồ sơ theo quy định. 
+Quản lý lưu trú:
+ Hỗ trợ quản lý toàn bộ quá trình lưu trú của sinh viên tại ký túc xá, bao gồm phân phòng, nhận phòng, gia hạn lưu trú, trả phòng và cập nhật trạng thái lưu trú. 
+Quản lý điện:
+ Hỗ trợ Nhân viên và Quản trị viên ghi nhận chỉ số điện định kỳ của từng phòng, làm cơ sở tính toán chi phí điện và phục vụ công tác quản lý hóa đơn. 
+Quản lý hóa đơn và thanh toán:
+ Hỗ trợ quản lý các khoản phí phát sinh trong quá trình lưu trú. Sinh viên có thể tra cứu và thanh toán hóa đơn, trong khi Ban Quản lý theo dõi, xác nhận và quản lý tình trạng thanh toán của từng hóa đơn. 
+Quản lý an ninh (Khuôn mặt):
+ Hỗ trợ quản lý dữ liệu khuôn mặt phục vụ hệ thống kiểm soát ra vào. Sinh viên thực hiện đăng ký hoặc cập nhật thông tin khuôn mặt; Nhân viên và Quản trị viên thực hiện kiểm tra, phê duyệt, cập nhật hoặc thu hồi quyền sử dụng khi cần thiết.
+Hình 
+ STYLEREF 1 \s 
+2
+ SEQ Hình \* ARABIC \s 1 
+14
+: Use case tổng quát của hệ thống quản lý kí túc xá thông min
+h
+THIẾT KẾ
+THIẾT KẾ KIẾN TRÚC VÀ PHẦN CỨNG
+Kiến trúc tổng thể
+Hệ thống Quản lý Ký túc xá Thông minh được thiết kế theo mô hình kiến trúc phân tầng nhằm tách biệt giao diện người dùng, xử lý nghiệp vụ, lưu trữ dữ liệu và các thiết bị IoT. Kiến trúc này giúp hệ thống dễ mở rộng, bảo trì và đảm bảo khả năng xử lý đồng thời nhiều nghiệp vụ.
+Kiến trúc hệ thống gồm năm tầng chính:
+Client Layer:
+ Giao diện Web dành cho Ban quản lý và ứng dụng Mobile dành cho sinh viên. 
+Backend Layer:
+ Xử lý nghiệp vụ, xác thực người dùng và cung cấp REST API. 
+AI Service Layer:
+ Thực hiện xử lý và nhận diện khuôn mặt. 
+Data 
+ & 
+Messaging Layer:
+ Bao gồm PostgreSQL, Redis và MQTT Broker phục vụ lưu trữ và truyền thông điệp. 
+IoT Edge Layer:
+ Các thiết bị ESP32 thực hiện thu thập dữ liệu và điều khiển khóa cửa.
+Thành phần
+Công nghệ
+Vai trò
+Web Portal
+React 18, Vite, Material UI
+Giao diện quản trị
+Mobile App
+Kotlin
+Ứng dụng dành cho sinh viên
+Backend
+Spring Boot 3, Java 17
+Xử lý nghiệp vụ và REST API
+AI Service
+FastAPI, FaceNet
+Nhận diện khuôn mặt
+Database
+PostgreSQL
+Lưu trữ dữ liệu
+Cache
+Redis
+Lưu trữ tạm thời
+Message Broker
+Eclipse Mosquitto (MQTT)
+Giao tiếp với thiết bị IoT
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+1
+:
+ Thành phần công nghệ của hệ thống
+Thiết kế phần cứng IoT
+Hệ thống phần cứng IoT của SDMS được thiết kế gồm hai cụm thiết bị độc lập, tương ứng với hai khu vực kiểm soát chính là 
+cổng ra vào ký túc xá
+ và 
+cửa phòng lưu trú
+. Mỗi cụm sử dụng vi điều khiển ESP32 làm bộ xử lý trung tâm và kết nối với máy chủ thông qua mạng Wi-Fi để thực hiện xác thực và điều khiển khóa cửa.
+Các hình ảnh về phần cứng thì xem tại
+ Phụ lục D
+Cụm thiết bị cổng ra vào
+ 
+Cụm thiết bị này được lắp đặt tại cổng chính nhằm thực hiện xác thực người dùng bằng 
+khuôn mặt
+ hoặc 
+thẻ RFID
+ trước khi cấp quyền ra vào.
+Thành phần phần cứng gồm:
+Bo mạch 
+ESP32-CAM
+ tích hợp camera OV2640. 
+Mô-đun đọc thẻ RFID RC522. 
+Động cơ Servo Motor điều khiển khóa cửa.
+Linh kiện
+Tín hiệu
+ESP32-CAM
+Giao tiếp
+RC522
+SDA, SCK, MISO
+GPIO14, GPIO15, GPIO13
+SPI
+RC522
+MOSI
+GPIO2
+SPI
+RC522
+RST
+3.3V
+Nguồn
+Servo Motor
+PWM
+GPIO12
+PWM
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+2
+: Sơ đồ đấu nối cụm cổng ra vào
+.
+Cụm thiết bị cửa phòng
+ 
+Cụm thiết bị này được lắp đặt tại cửa các phòng lưu trú và sử dụng phương thức xác thực bằng 
+mã PIN
+ để điều khiển khóa cửa.
+Thành phần phần cứng gồm:
+Bo mạch 
+ESP32 DevKit V1
+. 
+Bàn phím 
+Keypad 4×4
+. 
+Màn hình 
+LCD 1602 (I2C)
+. 
+Động cơ 
+Servo Motor
+.
+Linh kiện
+Tín hiệu
+ESP32 DevKit V1
+Giao tiếp
+LCD 1602
+SDA, SCL
+GPIO21, GPIO22
+I2C
+Keypad 4×4
+ROW1–ROW4
+GPIO14, GPIO27, GPIO26, GPIO25
+Digital I/O
+Keypad 4×4
+COL1–COL4
+GPIO33, GPIO32, GPIO4, GPIO16
+Digital I/O
+Servo Motor
+PWM
+GPIO13
+PWM
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+3
+: Sơ đồ đấu nối cụm cửa phòng
+MÔ HÌNH DỮ LIỆU
+ 
+Mức ý niệm
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+1
+: Sơ đồ thực thể – mối liên kết mức ý niệm của hệ thống
+.
+Mức luận lý
+Sơ đồ logic dữ liệu
+ (mô hình
+system_configs(
+config_key
+, config_value, description, group_name, created_at, updated_at)
+user_accounts(
+account_id
+, username, email, password, role, status, last_login, refresh_token, refresh_token_expiry, reset_password_token, reset_password_expiry, failed_login_attempts, lock_time, 
+student_id
+, created_at, updated_at)
+students(
+student_id
+, 
+source_application_id
+, student_code, full_name, cccd, email, phone, father_name, father_phone, mother_name, mother_phone, contact_address, permanent_address, faculty, academic_year, avatar_url, face_image_url, is_face_registered, rfid_code, status, created_at, updated_at)
+buildings(
+building_id
+, code, name, description, status, gender, created_at, updated_at)
+floors(
+floor_id
+, floor_number, gender, 
+building_id
+, created_at, updated_at)
+rooms(
+room_id
+, room_code, capacity, occupied_beds, status, room_pin_code, version, 
+floor_id
+, created_at, updated_at)
+beds(
+bed_id
+, bed_code, status, note, version, 
+room_id
+, created_at, updated_at)
+registration_periods(
+period_id
+, period_name, start_date, end_date, stay_start_date, stay_end_date, is_active, registration_type, created_at, updated_at)
+registration_eligibilities(
+eligibility_id
+, 
+period_id
+, cccd, full_name, email, student_code, target, created_at, updated_at)
+dormitory_applications(
+application_id
+, version, 
+period_id
+, full_name, student_code, dob, gender, cccd, issue_date, issue_place, email, phone, permanent_address, pob, ethnic, religion, faculty, cohort, contact_address, father_name, father_yob, father_job, father_phone, mother_name, mother_yob, mother_job, mother_phone, status, priority_score, application_code, registration_form_pdf_url, commitment_form_pdf_url, reviewed_by_user_id, review_note, commitment_accepted, commitment_accepted_at, commitment_version, client_ip_address, waiting_list_used, payment_deadline, revision_deadline, approved_at, submitted_at, created_at, updated_at)
+application_priorities(
+priority_id
+, 
+application_id
+, priority_type, description, created_at, updated_at)
+verification_documents(
+document_id
+, 
+application_id
+, document_type, file_url, status, created_at, updated_at)
+dormitory_application_status_history(
+history_id
+, 
+application_id
+, from_status, to_status, changed_by_user_id, changed_at, note)
+student_housing_assignments(
+assignment_id
+, 
+application_id
+, 
+student_id
+, 
+bed_id
+, status, room_role, reserved_at, check_in_at, check_out_at, expected_check_out_at, created_at, updated_at)
+stay_extensions(
+extension_id
+, 
+student_id
+, reason, status, 
+registration_period_id
+, 
+current_bed_id
+, contract_pdf_url, commitment_pdf_url, description, reject_reason, old_expected_check_out_at, new_expected_check_out_at, created_at, updated_at)
+checkout_requests(
+request_id
+, 
+student_id
+, 
+assignment_id
+, intended_checkout_date, reason, bank_account_number, bank_name, status, reject_reason, created_at, updated_at)
+change_room_requests(
+id
+, 
+student_id
+, 
+current_assignment_id
+, 
+target_room_id
+, reason, admin_note, status, reviewed_by_user_id, created_at, updated_at)
+curfew_requests(
+request_id
+, 
+student_id
+, reason, expected_arrival_time, request_type, start_date, status, 
+resolved_by
+, admin_note, created_at, updated_at)
+utility_usages(
+id
+, 
+room_id
+, utility_type, month, year, old_reading, new_reading, total_usage, is_settled, version, created_at, updated_at)
+bills(
+bill_id
+, bill_type, amount, paid_amount, status, due_date, description, 
+assignment_id
+, 
+application_id
+, 
+room_id
+, 
+student_id
+, version, created_at, updated_at)
+payments(
+payment_id
+, 
+bill_id
+, amount, method, status, transaction_code, gateway_transaction_id, description, gateway_metadata, paid_at, created_at, updated_at)
+gates(
+gate_id
+, name, gate_type, 
+building_id
+, 
+room_id
+, mac_address, is_active, created_at, updated_at)
+curfew_policies(
+id
+, 
+building_id
+, resident_type, start_time, end_time, type, priority, is_active, created_at, updated_at)
+time_window_policies(
+id
+, 
+building_id
+, resident_type, start_time, end_time, is_active, created_at, updated_at)
+access_history(
+id
+, 
+student_id
+, 
+gate_id
+, 
+building_id
+, operator_id, event_timestamp, decision, denial_reason, method, direction, snapshot_url, created_at)
+face_profiles(
+profile_id
+, 
+student_id
+, face_image_url, pending_face_image_url, replacement_requested_at, status, rejection_reason, approved_by, approved_at, created_at, updated_at)
+face_embeddings(
+embedding_id
+, 
+profile_id
+, vector, created_at, updated_at)
+face_verification_attempts(
+attempt_id
+, gate_device_id, 
+profile_id
+, confidence_score, status, attempted_at)
+notifications(
+id
+, 
+user_id
+, title, message, action_url, notification_type, is_read, read_at, recipient, channel, status, error_message, event_id, sent_at, created_at)
+Mô tả các bảng dữ liệu
+Bảng
+ system_configs
+Bảng
+ 
+ 
+system_configs
+ 
+lưu trữ các tham số cấu hình của hệ thống. Các tham số được phân nhóm nhằm hỗ trợ Ban Quản lý thay đổi các thiết lập mà không cần chỉnh sửa mã nguồn, góp phần nâng cao khả năng quản trị và mở rộng hệ thống.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+configKey
+String
+x
+x
+x
+Mã định danh cấu hình
+configValue
+String
+Giá trị cấu hình
+description
+String
+Mô tả cấu hình
+groupName
+String
+Nhóm cấu hình
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+4
+: Bảng 
+system_configs
+Bảng
+ User Account 
+Bảng
+ 
+User Account
+ lưu trữ thông tin xác thực và phân quyền của tất cả người dùng trong hệ thống, bao gồm quản trị viên, nhân viên và sinh viên. Thực thể hỗ trợ các chức năng đăng nhập, quản lý phiên làm việc, đặt lại mật khẩu và liên kết với hồ sơ sinh viên.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+accountId
+UUID
+x
+x
+x
+Mã định danh tài khoản
+username
+String
+x
+x
+Tên đăng nhập
+email
+String
+x
+x
+Địa chỉ thư điện tử
+password
+String
+ x
+Mật khẩu đã mã hóa
+role
+String (Enum)
+x
+Vai trò người dùng
+status
+String (Enum)
+x
+Trạng thái tài khoản
+lastLogin
+DateTime
+Lần đăng nhập gần nhất
+refreshToken
+String
+Mã phiên đăng nhập
+refreshTokenExpiry
+DateTime
+Thời điểm hết hạn phiên
+resetPasswordToken
+String
+Mã đặt lại mật khẩu
+resetPasswordExpiry
+DateTime
+Thời điểm hết hạn đặt lại mật khẩu
+failedLoginAttempts
+Integer
+x
+Số lần đăng nhập sai
+lockTime
+DateTime
+Thời điểm khóa tài khoản
+studentId
+UUID
+Liên kết đến Student
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+5
+: Bảng 
+User Account
+Bảng
+ 
+Student
+s
+Bảng 
+students
+ lưu trữ thông tin của sinh viên đăng ký hoặc đang lưu trú tại ký túc xá. Dữ liệu trong bảng được sử dụng để quản lý hồ sơ sinh viên, phân bổ chỗ ở, gia hạn lưu trú, thanh toán hóa đơn và kiểm soát ra vào bằng công nghệ RFID và nhận diện khuôn mặt.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+studentId
+UUID
+x
+x
+x
+Mã định danh sinh viên
+sourceApplicationId
+UUID
+x
+x
+Hồ sơ đăng ký nội trú được phê duyệt
+studentCode
+String
+x
+Mã số sinh viên (MSSV)
+fullName
+String
+x
+Họ và tên
+cccd
+String
+x
+x
+Số căn cước công dân
+email
+String
+Địa chỉ thư điện tử
+phone
+String
+Số điện thoại
+fatherName
+String
+Họ tên cha
+fatherPhone
+String
+Số điện thoại cha
+motherName
+String
+Họ tên mẹ
+motherPhone
+String
+Số điện thoại mẹ
+contactAddress
+String
+Địa chỉ liên hệ
+permanentAddress
+String
+Địa chỉ thường trú
+faculty
+String
+Khoa đang theo học
+academicYear
+String
+Khóa học / Năm học
+avatarUrl
+String
+Ảnh đại diện
+faceImageUrl
+String
+Ảnh nhận diện khuôn mặt
+isFaceRegistered
+Boolean
+x
+Trạng thái đăng ký khuôn mặt
+rfidCode
+String
+x
+Mã thẻ RFID
+status
+String (Enum)
+x
+Trạng thái lưu trú
+createdAt
+DateTime
+x
+Thời gian tạo bản ghi
+updatedAt
+DateTime
+x
+Thời gian cập nhật bản ghi
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+6
+: Bảng 
+Students.
+Bảng buildings
+Bảng 
+buildings
+ lưu trữ thông tin các tòa nhà trong ký túc xá. Dữ liệu trong bảng được sử dụng để quản lý cơ sở vật chất, phân chia khu vực lưu trú theo giới tính và làm cơ sở tổ chức các tầng, phòng và các khu vực thuộc từng tòa nhà.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+buildingId
+UUID
+x
+x
+x
+Mã định danh tòa nhà
+code
+String
+x
+x
+Mã tòa nhà
+name
+String
+x
+Tên tòa nhà
+description
+String
+Mô tả
+status
+String (Enum)
+x
+Trạng thái hoạt động
+gender
+String (Enum)
+x
+Giới tính lưu trú áp dụng cho tòa nhà
+createdAt
+DateTime
+x
+Thời gian tạo bản ghi
+updatedAt
+DateTime
+x
+Thời gian cập nhật bản ghi
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+7
+: Bảng 
+buildings.
+Bảng floors
+Bảng 
+floors
+ lưu trữ thông tin các tầng thuộc từng tòa nhà trong ký túc xá. Mỗi tầng được gắn với một tòa nhà và được sử dụng để tổ chức, quản lý các phòng lưu trú theo cơ cấu của hệ thống.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+floorId
+UUID
+x
+x
+x
+Mã định danh tầng
+floorNumber
+Integer
+x
+Số thứ tự tầng
+gender
+String (Enum)
+x
+Giới tính lưu trú của tầng
+buildingId
+UUID
+x
+Mã tòa nhà
+createdAt
+DateTime
+x
+Thời gian tạo bản ghi
+updatedAt
+DateTime
+x
+Thời gian cập nhật bản ghi
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+8
+: Bảng floors
+Bảng rooms
+Bảng 
+rooms
+ lưu trữ thông tin các phòng thuộc từng tầng của ký túc xá. Dữ liệu trong bảng được sử dụng để quản lý sức chứa, tình trạng phòng và phục vụ quá trình phân bổ chỗ ở cho sinh viên.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+roomId
+UUID
+x
+x
+x
+Mã định danh phòng
+roomCode
+String
+x
+x
+Mã phòng
+capacity
+Integer
+x
+Sức chứa tối đa của phòng
+occupiedBeds
+Integer
+x
+Số giường đã được sử dụng
+status
+String (Enum)
+x
+Trạng thái phòng
+roomPinCode
+String
+Mã PIN của phòng
+version
+Integer
+x
+Phiên bản dữ liệu
+floorId
+UUID
+x
+Mã tầng
+createdAt
+DateTime
+x
+Thời gian tạo bản ghi
+updatedAt
+DateTime
+x
+Thời gian cập nhật bản ghi
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+9
+: Bảng 
+rooms
+Bảng beds
+Bảng 
+beds
+ lưu trữ thông tin các giường thuộc từng phòng trong ký túc xá. Dữ liệu trong bảng được sử dụng để quản lý tình trạng giường và làm cơ sở cho việc phân bổ chỗ ở của sinh viên.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+bedId
+UUID
+x
+x
+x
+Mã định danh giường
+bedCode
+String
+x
+x
+Mã giường
+status
+String (Enum)
+x
+Trạng thái giường
+note
+String
+Ghi chú
+version
+Integer
+x
+Phiên bản dữ liệu
+roomId
+UUID
+x
+Mã phòng
+createdAt
+DateTime
+x
+Thời gian tạo bản ghi
+updatedAt
+DateTime
+x
+Thời gian cập nhật bản ghi
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+10
+: Bảng 
+beds
+.
+Bảng registration_periods
+Bảng 
+registration_periods
+ lưu trữ thông tin các đợt đăng ký lưu trú của ký túc xá. Dữ liệu trong bảng được sử dụng để quản lý thời gian tiếp nhận hồ sơ, thời gian lưu trú và xác định trạng thái hoạt động của từng đợt đăng ký.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+periodId
+UUID
+x
+x
+x
+Mã định danh đợt đăng ký
+periodName
+String
+x
+Tên đợt đăng ký
+startDate
+DateTime
+x
+Thời gian bắt đầu đăng ký
+endDate
+DateTime
+x
+Thời gian kết thúc đăng ký
+stayStartDate
+DateTime
+x
+Thời gian bắt đầu lưu trú
+stayEndDate
+DateTime
+x
+Thời gian kết thúc lưu trú
+isActive
+Boolean
+x
+Trạng thái hoạt động
+registrationType
+String (Enum)
+x
+Loại đợt đăng ký
+createdAt
+DateTime
+x
+Thời gian tạo bản ghi
+updatedAt
+DateTime
+x
+Thời gian cập nhật bản ghi
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+11
+: Bảng 
+registration_periods
+.
+Bảng registration_eligibilities
+Bảng 
+registration_eligibilities
+ lưu trữ danh sách sinh viên đủ điều kiện tham gia từng đợt đăng ký lưu trú. Dữ liệu trong bảng được sử dụng để kiểm tra điều kiện đăng ký và xác định đối tượng được phép nộp hồ sơ.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+eligibilityId
+UUID
+x
+x
+x
+Mã định danh
+periodId
+UUID
+x
+Mã đợt đăng ký
+cccd
+String
+x
+Số căn cước công dân
+fullName
+String
+x
+Họ và tên sinh viên
+email
+String
+Địa chỉ thư điện tử
+studentCode
+String
+Mã số sinh viên
+target
+String (Enum)
+x
+Đối tượng đăng ký
+createdAt
+DateTime
+x
+Thời gian tạo bản ghi
+updatedAt
+DateTime
+x
+Thời gian cập nhật bản ghi
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+12
+: Bảng 
+registration_eligibilities
+.
+Bảng dormitory_applications
+Bảng 
+dormitory_applications
+ lưu trữ thông tin hồ sơ đăng ký lưu trú của sinh viên. Dữ liệu trong bảng được sử dụng để tiếp nhận, theo dõi, xét duyệt hồ sơ và làm căn cứ cho quá trình phân bổ chỗ ở tại ký túc xá.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+applicationId
+UUID
+x
+x
+x
+Mã định danh hồ sơ đăng ký
+applicationCode
+String
+x
+x
+Mã hồ sơ đăng ký
+periodId
+UUID
+x
+Mã đợt đăng ký
+fullName
+String
+x
+Họ và tên sinh viên
+studentCode
+String
+Mã số sinh viên
+cccd
+String
+x
+Số căn cước công dân
+email
+String
+Địa chỉ thư điện tử
+phone
+String
+Số điện thoại
+faculty
+String
+Khoa
+academicYear
+String
+Khóa học
+priorityType
+String (Enum)
+Đối tượng ưu tiên
+status
+String (Enum)
+x
+Trạng thái hồ sơ
+rejectionReason
+String
+Lý do từ chối hồ sơ
+submittedAt
+DateTime
+Thời gian nộp hồ sơ
+reviewedAt
+DateTime
+Thời gian xét duyệt
+reviewedBy
+UUID
+Nhân viên xét duyệt
+createdAt
+DateTime
+x
+Thời gian tạo bản ghi
+updatedAt
+DateTime
+x
+Thời gian cập nhật bản ghi
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+13
+: Bảng 
+dormitory_applications.
+Bảng student_housing_assignments
+Bảng 
+student_housing_assignments
+ lưu trữ thông tin phân bổ chỗ ở cho sinh viên tại ký túc xá. Dữ liệu trong bảng được sử dụng để quản lý việc sắp xếp sinh viên vào giường, theo dõi thời gian lưu trú và trạng thái của từng lần phân bổ.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+assignmentId
+UUID
+x
+x
+x
+Mã định danh phân bổ chỗ ở
+assignmentCode
+String
+x
+x
+Mã phân bổ chỗ ở
+studentId
+UUID
+x
+Mã sinh viên
+applicationId
+UUID
+x
+Mã hồ sơ đăng ký
+bedId
+UUID
+x
+Mã giường được phân bổ
+assignedAt
+DateTime
+x
+Thời gian phân bổ
+checkInDate
+Date
+Ngày nhận phòng
+expectedCheckOutDate
+Date
+x
+Ngày dự kiến trả phòng
+actualCheckOutDate
+Date
+Ngày thực tế trả phòng
+status
+String (Enum)
+x
+Trạng thái lưu trú
+note
+String
+Ghi chú
+createdAt
+DateTime
+x
+Thời gian tạo bản ghi
+updatedAt
+DateTime
+x
+Thời gian cập nhật bản ghi
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+14
+: 
+Bảng student_housing_assignments
+.
+Bảng stay_extensions
+Bảng 
+stay_extensions
+ lưu trữ thông tin các yêu cầu gia hạn lưu trú của sinh viên. Dữ liệu trong bảng được sử dụng để tiếp nhận, theo dõi quá trình xử lý và quản lý kết quả xét duyệt đối với các yêu cầu gia hạn thời gian lưu trú tại ký túc xá.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+extensionId
+UUID
+x
+x
+x
+Mã định danh yêu cầu gia hạn
+extensionCode
+String
+x
+x
+Mã yêu cầu gia hạn
+assignmentId
+UUID
+x
+Mã phân bổ chỗ ở
+studentId
+UUID
+x
+Mã sinh viên
+reason
+String
+x
+Lý do gia hạn
+requestedEndDate
+Date
+x
+Thời gian lưu trú đề nghị gia hạn đến
+approvedEndDate
+Date
+Thời gian lưu trú được phê duyệt
+status
+String (Enum)
+x
+Trạng thái yêu cầu
+rejectionReason
+String
+Lý do từ chối
+reviewedBy
+UUID
+Nhân viên xét duyệt
+reviewedAt
+DateTime
+Thời gian xét duyệt
+createdAt
+DateTime
+x
+Thời gian tạo bản ghi
+updatedAt
+DateTime
+x
+Thời gian cập nhật bản ghi
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+15
+: 
+Bảng 
+stay_extensions.
+Bảng checkout_requests
+Bảng checkout_requests lưu trữ các yêu cầu trả phòng của sinh viên. Dữ liệu trong bảng được sử dụng để tiếp nhận, theo dõi quá trình xử lý yêu cầu trả phòng, đồng thời quản lý thông tin hoàn trả tiền đặt cọc và kết quả xét duyệt của Ban Quản lý
+.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+requestId
+UUID
+x
+x
+x
+Mã định danh yêu cầu trả phòng
+studentId
+UUID
+x
+Mã sinh viên
+assignmentId
+UUID
+x
+Mã phân bổ chỗ ở
+intendedCheckoutDate
+DateTime
+x
+Ngày dự kiến trả phòng
+reason
+String
+Lý do trả phòng
+bankAccountNumber
+String
+Số tài khoản hoàn tiền đặt cọc
+bankName
+String
+Tên ngân hàng
+status
+String (Enum)
+x
+Trạng thái yêu cầu
+rejectReason
+String
+Lý do từ chối
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+16
+: 
+Bảng checkout_requests.
+Bảng change_room_requests
+Bảng 
+change_room_requests
+ lưu trữ các yêu cầu chuyển phòng của sinh viên trong thời gian lưu trú tại ký túc xá. Dữ liệu trong bảng được sử dụng để tiếp nhận, theo dõi quá trình xét duyệt và quản lý kết quả xử lý các yêu cầu chuyển phòng của Ban Quản lý.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+id
+UUID
+x
+x
+x
+Mã định danh yêu cầu chuyển phòng
+studentId
+UUID
+x
+Mã sinh viên
+currentAssignmentId
+UUID
+x
+Mã phân bổ chỗ ở hiện tại
+targetRoomId
+UUID
+Mã phòng muốn chuyển đến
+reason
+String
+x
+Lý do chuyển phòng
+adminNote
+String
+Ghi chú của Ban Quản lý
+status
+String (Enum)
+x
+Trạng thái yêu cầu
+reviewedByUserId
+UUID
+Người xét duyệt
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+17
+: 
+Bảng 
+change_room_requests.
+Bảng gates
+Bảng 
+gates
+ lưu trữ thông tin các thiết bị kiểm soát ra vào được triển khai trong ký túc xá. Dữ liệu trong bảng được sử dụng để quản lý các cổng ra vào, liên kết thiết bị với khu vực tương ứng và hỗ trợ hệ thống IoT thực hiện xác thực quyền truy cập.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+gateId
+UUID
+x
+x
+x
+Mã định danh thiết bị cổng
+name
+String
+x
+Tên thiết bị cổng
+gateType
+String (Enum)
+x
+Loại cổng kiểm soát
+buildingId
+UUID
+Mã tòa nhà
+roomId
+UUID
+Mã phòng
+macAddress
+String
+x
+x
+Địa chỉ MAC của thiết bị
+isActive
+Boolean
+x
+Trạng thái hoạt động
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+18
+:
+ 
+Bảng 
+gates
+.
+Bảng curfew_policies
+Bảng 
+curfew_policies
+ lưu trữ các chính sách giới nghiêm áp dụng cho từng nhóm sinh viên tại từng tòa nhà. Dữ liệu trong bảng được sử dụng để xác định khung giờ giới nghiêm, mức độ ưu tiên của từng chính sách và hỗ trợ hệ thống tự động kiểm soát quyền ra vào theo quy định.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+I
+d
+UUID
+x
+x
+x
+Mã định danh chính sách
+buildingId
+UUID
+x
+Mã tòa nhà
+residentType
+String (Enum)
+x
+Đối tượng áp dụng
+startTime
+Time
+x
+Thời gian bắt đầu giới nghiêm
+endTime
+Time
+x
+Thời gian kết thúc giới nghiêm
+T
+ype
+String (Enum)
+x
+Loại chính sách
+P
+riority
+Integer
+x
+Độ ưu tiên áp dụng
+isActive
+Boolean
+x
+Trạng thái áp dụng
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+19
+: 
+Bảng 
+curfew_policies
+.
+Bảng curfew_requests
+Bảng 
+curfew_requests
+ lưu trữ các yêu cầu xin về trễ hoặc xin vắng qua đêm của sinh viên. Dữ liệu trong bảng được sử dụng để tiếp nhận, xét duyệt và theo dõi các trường hợp đặc biệt, đồng thời hỗ trợ công tác quản lý và kiểm soát ra vào tại ký túc xá.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+requestId
+UUID
+x
+x
+x
+Mã định danh yêu cầu
+studentId
+UUID
+x
+Mã sinh viên
+reason
+String
+x
+Lý do xin về trễ hoặc vắng
+expectedArrivalTime
+DateTime
+Thời gian dự kiến quay lại
+requestType
+String (Enum)
+x
+Loại yêu cầu
+startDate
+DateTime
+Thời điểm bắt đầu vắng
+status
+String (Enum)
+x
+Trạng thái yêu cầu
+resolvedBy
+UUID
+Người xét duyệt
+adminNote
+String
+Ghi chú của Ban Quản lý
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+20
+: 
+Bảng
+ 
+curfew_requests.
+Bảng utility_usages
+Bảng 
+utility_usages
+ lưu trữ thông tin sử dụng điện, nước của từng phòng theo từng kỳ. Dữ liệu trong bảng được sử dụng để tính toán chi phí sử dụng tiện ích, lập hóa đơn và theo dõi tình trạng thanh toán của các phòng trong ký túc xá.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+id
+UUID
+x
+x
+x
+Mã định danh bản ghi sử dụng tiện ích
+roomId
+UUID
+x
+Mã phòng
+utilityType
+String (Enum)
+x
+Loại tiện ích
+month
+Integer
+Tháng ghi nhận
+year
+Integer
+Năm ghi nhận
+oldReading
+Integer
+Chỉ số cũ
+newReading
+Integer
+Chỉ số mới
+totalUsage
+Integer
+Tổng lượng tiêu thụ
+isSettled
+Boolean
+x
+Trạng thái đã lập hóa đơn hoặc tất toán
+version
+Integer
+x
+Phiên bản dữ liệu
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+21
+: 
+Bảng
+ 
+utility_usages
+.
+Bảng bills
+Bảng 
+bills
+ lưu trữ thông tin các khoản phí phát sinh trong quá trình lưu trú của sinh viên. Dữ liệu trong bảng được sử dụng để quản lý các khoản thu, theo dõi tình trạng thanh toán và làm căn cứ cho việc thực hiện thanh toán trong hệ thống.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+billId
+UUID
+x
+x
+x
+Mã định danh hóa đơn
+billType
+String (Enum)
+x
+Loại hóa đơn
+amount
+Decimal
+x
+Tổng số tiền phải thanh toán
+paidAmount
+Decimal
+x
+Số tiền đã thanh toán
+status
+String (Enum)
+x
+Trạng thái thanh toán
+dueDate
+Date
+Hạn thanh toán
+description
+String
+Nội dung hóa đơn
+assignmentId
+UUID
+Mã phân bổ chỗ ở
+applicationId
+UUID
+Mã hồ sơ đăng ký
+roomId
+UUID
+Mã phòng
+studentId
+UUID
+Mã sinh viên
+version
+Integer
+x
+Phiên bản dữ liệu
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+22
+: 
+Bảng
+ 
+bills
+.
+Bảng payments
+Bảng 
+payments
+ lưu trữ thông tin các giao dịch thanh toán của sinh viên đối với từng hóa đơn. Dữ liệu trong bảng được sử dụng để ghi nhận quá trình thanh toán, đối soát giao dịch với cổng thanh toán điện tử và lưu trữ thông tin phản hồi phục vụ việc kiểm tra, xác minh giao dịch.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+paymentId
+UUID
+x
+x
+x
+Mã định danh giao dịch thanh toán
+billId
+UUID
+x
+Mã hóa đơn
+A
+mount
+Decimal
+x
+Số tiền thanh toán
+M
+ethod
+String (Enum)
+x
+Phương thức thanh toán
+S
+tatus
+String (Enum)
+x
+Trạng thái giao dịch
+transactionCode
+String
+x
+x
+Mã giao dịch của hệ thống
+gatewayTransactionId
+String
+Mã giao dịch từ cổng thanh toán
+D
+escription
+String
+Nội dung giao dịch
+gatewayMetadata
+String
+Dữ liệu phản hồi từ cổng thanh toán
+paidAt
+DateTime
+Thời điểm thanh toán thành công
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+23
+: 
+Bảng
+ 
+payments.
+Bảng time_window_policies
+Bảng 
+time_window_policies
+ lưu trữ thông tin về các khoảng thời gian được phép ra vào đối với từng đối tượng sinh viên tại mỗi tòa nhà. Dữ liệu trong bảng được sử dụng để xác định quyền truy cập trước khi áp dụng các quy định về giới nghiêm, hỗ trợ quản lý hoạt động ra vào ký túc xá.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+id
+UUID
+x
+x
+x
+Mã định danh chính sách
+buildingId
+UUID
+x
+Mã tòa nhà
+residentType
+String (Enum)
+x
+Đối tượng áp dụng
+startTime
+Time
+x
+Thời gian bắt đầu
+endTime
+Time
+x
+Thời gian kết thúc
+isActive
+Boolean
+x
+Trạng thái áp dụng
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+24
+: 
+Bảng
+ 
+time_window_policies
+.
+=
+Bảng access_history
+Bảng 
+access_history
+ lưu trữ lịch sử kiểm soát ra vào của hệ thống. Dữ liệu trong bảng được sử dụng để theo dõi các lần xác thực bằng RFID, nhận diện khuôn mặt hoặc mã PIN, hỗ trợ quản lý an ninh, truy vết sự cố và thống kê hoạt động ra vào ký túc xá.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+id
+UUID
+x
+x
+x
+Mã định danh bản ghi
+studentId
+UUID
+x
+Mã sinh viên
+gateId
+UUID
+x
+Mã cổng ra vào
+buildingId
+UUID
+x
+Mã tòa nhà
+operatorId
+UUID
+Người can thiệp thủ công
+eventTimestamp
+DateTime
+x
+Thời điểm xác thực
+decision
+String (Enum)
+x
+Kết quả xác thực
+denialReason
+String
+Lý do từ chối truy cập
+method
+String (Enum)
+x
+Phương thức xác thực
+direction
+String (Enum)
+Hướng di chuyển
+snapshotUrl
+String
+Ảnh chụp tại thời điểm xác thực
+createdAt
+DateTime
+x
+Thời điểm tạo
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+25
+: 
+Bảng access_history
+.
+Bảng face_profiles
+Bảng 
+face_profiles
+ lưu trữ thông tin hồ sơ nhận diện khuôn mặt của sinh viên. Dữ liệu trong bảng được sử dụng để quản lý ảnh khuôn mặt hiện tại, ảnh chờ cập nhật và trạng thái phê duyệt, phục vụ chức năng nhận diện khuôn mặt trong hệ thống kiểm soát ra vào.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+profileId
+UUID
+x
+x
+x
+Mã định danh hồ sơ khuôn mặt
+studentId
+UUID
+x
+x
+Mã sinh viên
+faceImageUrl
+String
+Đường dẫn ảnh khuôn mặt hiện tại
+pendingFaceImageUrl
+String
+Đường dẫn ảnh khuôn mặt chờ duyệt
+replacementRequestedAt
+DateTime
+Thời điểm gửi yêu cầu thay ảnh
+status
+String (Enum)
+x
+Trạng thái phê duyệt
+rejectionReason
+String
+Lý do từ chối
+approvedBy
+UUID
+Người phê duyệt
+approvedAt
+DateTime
+Thời điểm phê duyệt
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+26
+: 
+Bảng
+ 
+face_profiles.
+Bảng face_embeddings
+Bảng 
+face_embeddings
+ lưu trữ vector đặc trưng khuôn mặt được sinh ra từ mô hình trí tuệ nhân tạo. Dữ liệu trong bảng được sử dụng để so khớp và xác thực danh tính sinh viên trong quá trình kiểm soát ra vào bằng công nghệ nhận diện khuôn mặt.
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+embeddingId
+UUID
+x
+x
+x
+Mã định danh vector khuôn mặt
+profileId
+UUID
+x
+x
+Mã hồ sơ khuôn mặt
+vector
+Vector
+x
+Vector đặc trưng khuôn mặt
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+27
+: 
+Bảng face_embeddings
+.
+Bảng face_verification_attempts
+Bảng 
+face_verification_attempts
+ lưu trữ lịch sử các lần xác thực khuôn mặt tại thiết bị kiểm soát ra vào. Dữ liệu trong bảng được sử dụng để theo dõi kết quả nhận diện, đánh giá độ chính xác của mô hình và hỗ trợ truy vết các sự kiện an ninh liên quan. 
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+attemptId
+UUID
+x
+x
+x
+Mã định danh lần xác thực
+gateDeviceId
+String
+x
+Mã thiết bị kiểm soát ra vào
+profileId
+UUID
+Mã hồ sơ khuôn mặt
+confidenceScore
+Decimal
+x
+Điểm tin cậy của kết quả nhận diện
+status
+String (Enum)
+x
+Kết quả xác thực khuôn mặt
+attemptedAt
+DateTime
+x
+Thời điểm thực hiện xác thực
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+28
+: 
+Bảng 
+face_verification_attempts.
+Bảng notifications
+Bảng 
+notifications
+ lưu trữ các thông báo được gửi đến người dùng trong hệ thống. Dữ liệu trong bảng được sử dụng để quản lý nội dung thông báo, theo dõi trạng thái gửi, trạng thái đã đọc và hỗ trợ nhiều kênh truyền tải khác nhau như thông báo trong hệ thống, email hoặc các kênh tích hợp khác. 
+Thuộc tính
+Kiểu dữ liệu
+K
+U
+M
+Diễn giải
+id
+UUID
+x
+x
+x
+Mã định danh thông báo
+userId
+UUID
+x
+Mã người dùng nhận thông báo
+title
+String
+x
+Tiêu đề thông báo
+message
+String
+x
+Nội dung thông báo
+actionUrl
+String
+Đường dẫn thực hiện hành động liên quan
+notificationType
+String (Enum)
+x
+Loại thông báo
+isRead
+Boolean
+x
+Trạng thái đã đọc
+readAt
+DateTime
+Thời điểm người dùng đọc thông báo
+recipient
+String (Enum)
+x
+Đối tượng nhận thông báo
+channel
+String (Enum)
+x
+Kênh gửi thông báo
+status
+String (Enum)
+x
+Trạng thái gửi thông báo
+errorMessage
+String
+Thông tin lỗi khi gửi thông báo
+eventId
+String
+Mã sự kiện liên quan
+sentAt
+DateTime
+Thời điểm gửi thông báo
+createdAt
+DateTime
+x
+Thời điểm tạo
+updatedAt
+DateTime
+x
+Thời điểm cập nhật
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+29
+: 
+Bảng 
+notifications
+Mô tả các ràng buộc dữ liệu
+ [1]
+ Tổng tiền của hóa đơn phải lớn hơn 0 và số tiền đã thanh toán không được vượt quá tổng tiền của hóa đơn.
+[2]
+ Sức chứa của mỗi phòng phải là số nguyên dương lớn hơn 0.
+[3]
+ Độ tin cậy của kết quả nhận diện khuôn mặt phải nằm trong khoảng từ 0 đến 1.
+[4]
+ Số lần đăng nhập thất bại của tài khoản không được nhỏ hơn 0.
+[5]
+ Giá trị giới tính chỉ được phép thuộc các nhóm mà hệ thống quy định.
+[6]
+ Giá trị phiên bản (version) của các thực thể phải luôn lớn hơn hoặc bằng 0.
+[7]
+ Thời gian kết thúc đợt đăng ký phải sau thời gian bắt đầu và trước thời gian lưu trú.
+[8]
+ Chỉ số điện, nước mới phải lớn hơn hoặc bằng chỉ số cũ.
+[9]
+ Tổng số tiền đã thanh toán của hóa đơn không được vượt quá tổng giá trị hóa đơn.
+[10]
+ Thời gian gia hạn lưu trú phải sau thời gian kết thúc lưu trú hiện tại.
+[11]
+ Tài khoản phải được khóa khi số lần đăng nhập sai vượt quá giới hạn cho phép.
+[12]
+ Mã sinh viên, số CCCD và mã thẻ RFID phải là duy nhất trong hệ thống.
+[13]
+ Cổng ra vào phải được liên kết đúng với tòa nhà hoặc phòng tương ứng theo loại cổng.
+[14]
+ Mỗi hồ sơ khuôn mặt chỉ được phép có một vector đặc trưng.
+[15]
+ Mã giao dịch thanh toán phải là duy nhất để tránh xử lý trùng lặp.
+[16]
+ Tài khoản có vai trò sinh viên phải được liên kết với một hồ sơ sinh viên.
+[17]
+ Số lượng sinh viên được phân bổ vào phòng không được vượt quá sức chứa của phòng.
+[18]
+ Một giường chỉ được phép được phân bổ cho một sinh viên tại cùng một thời điểm.
+[19]
+ Sinh viên chỉ được phân bổ vào tầng có giới tính phù hợp theo quy định.
+[20]
+ Một sinh viên chỉ được có một bản ghi lưu trú đang còn hiệu lực.
+[21]
+ Tổng số tiền thanh toán thành công phải khớp với số tiền đã thanh toán của hóa đơn.
+[22]
+ Phòng chuyển đến phải khác với phòng hiện tại của sinh viên.
+[23]
+ Chỉ các hồ sơ khuôn mặt đã được phê duyệt mới được phép tạo vector nhận diện.
+[24]
+ Đối với cửa phòng, chỉ sinh viên được phân bổ vào phòng đó mới được phép mở cửa.
+[25]
+ Sinh viên chỉ được thực hiện thủ tục trả phòng khi đã hoàn thành toàn bộ các khoản thanh toán còn tồn đọng.
+MỨC VẬT LÝ
+Mô hình dữ liệu mức vật lý
+Mô hình dữ liệu mức vật lý được triển khai trên hệ quản trị cơ sở dữ liệu PostgreSQL 17 dựa trên mô hình dữ liệu mức luận lý. Các thực thể được ánh xạ thành các bảng dữ liệu, đồng thời xác định kiểu dữ liệu, khóa chính, khóa ngoại và các ràng buộc nhằm đảm bảo tính toàn vẹn và nhất quán của dữ liệu. 
+Cơ sở dữ liệu sử dụng các kiểu dữ liệu phù hợp với PostgreSQL cùng các thành phần như 
+PRIMARY KEY
+, 
+FOREIGN KEY
+, 
+UNIQUE
+, 
+CHECK
+, 
+INDEX
+, 
+FUNCTION
+ và 
+TRIGGER
+ để hỗ trợ triển khai hệ thống. Toàn bộ mã định nghĩa cơ sở dữ liệu (DDL) được trình bày tại
+ 
+Phụ lục C
+. 
+Mã định nghĩa cơ sở dữ liệu
+Toàn bộ mã SQL định nghĩa cơ sở dữ liệu (DDL), bao gồm các lệnh khởi tạo Extension, tạo bảng, thiết lập ràng buộc, chỉ mục, Function và Trigger được trình bày tại 
+Phụ lục C
+ của luận văn. 
+MÔ HÌNH 
+X
+Ử LÝ
+Use case chi tiết
+Quản lý tài khoản
+Sơ đồ Use Case chi tiết 
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+2
+:
+ Sơ đồ Use Case chi tiết của Quản lý tài khoản
+Mô tả Use Case 
+Tên Use Case
+Quản lý tài khoản
+Actor
+Sinh viên, Nhân viên quản lý, Quản trị viên
+Mô tả
+Người dùng thực hiện các chức năng liên quan đến tài khoản nhằm truy cập hệ thống và quản lý thông tin bảo mật của tài khoản cá nhân.
+Pre-conditions
+Hệ thống đang hoạt động. Đối với chức năng Đăng nhập, Kích hoạt tài khoản, Đổi mật khẩu và Khôi phục mật khẩu, người dùng đã được cấp tài khoản hợp lệ.
+Post-conditions
+Success: Người dùng đăng nhập, kích hoạt hoặc cập nhật thông tin tài khoản thành công.
+Fail: Thao tác không thành công, dữ liệu tài khoản và phiên đăng nhập không thay đổi.
+Luồng sự kiện chính
+1. Actor truy cập phân hệ Quản lý tài khoản.
+2. Hệ thống hiển thị giao diện theo trạng thái.
+3. Extend Use Case: Kích hoạt tài khoản.
+4. Extend Use Case: Đăng nhập.
+5. Extend Use Case: Đăng xuất.
+6. Extend Use Case: Đổi mật khẩu.
+7. Extend Use Case: Khôi phục mật khẩu.
+Luồng phụ
+Actor nhấn nút Thoát. Hệ thống đóng màn hình hiện tại.
+<<Extend Use Case>>
+Kích hoạt tài khoản
+1. Sinh viên truy cập màn hình kích hoạt.
+2. Nhập Mã sinh viên, Mật khẩu tạm thời (Số CCCD) và Mật khẩu mới.
+3. Nhấn Kích hoạt.
+4. Hệ thống kiểm tra trạng thái tài khoản.
+5. Đối chiếu Mã sinh viên và Số CCCD.
+6. Cập nhật mật khẩu mới, chuyển trạng thái sang Đang hoạt động.
+7. Thiết lập phiên làm việc.
+Rẽ nhánh lỗi:
+• Tài khoản đã được kích hoạt.
+• Tài khoản bị khóa.
+• Mã sinh viên hoặc CCCD không chính xác.
+<<Extend Use Case>>
+Đăng xuất
+1. Actor chọn Đăng xuất.
+2. Hệ thống hủy phiên làm việc.
+3. Chuyển về màn hình Đăng nhập.
+<<Extend Use Case>>
+Đăng nhập
+1. Actor nhập Mã sinh viên hoặc Email và Mật khẩu.
+2. Hệ thống kiểm tra dữ liệu.
+3. Actor nhấn Đăng nhập.
+4. Hệ thống kiểm tra trạng thái tài khoản.
+5. Xác thực mật khẩu.
+6. Cấp quyền theo vai trò.
+Rẽ nhánh lỗi:
+• Thông tin để trống.
+• Tài khoản chưa kích hoạt hoặc bị khóa.
+• Sai mật khẩu; nếu sai quá 5 lần, khóa tài khoản 15 phút.
+<<Extend Use Case>>
+Đổi mật khẩu
+1. Actor chọn Đổi mật khẩu.
+2. Nhập mật khẩu hiện tại, mật khẩu mới và xác nhận.
+3. Hệ thống kiểm tra dữ liệu.
+4. Nhấn Lưu.
+5. Xác thực mật khẩu hiện tại.
+6. Cập nhật mật khẩu mới và hủy các phiên cũ.
+7. Thông báo thành công.
+Rẽ nhánh lỗi:
+• Mật khẩu xác nhận không khớp.
+• Mật khẩu hiện tại không đúng.
+<<Extend Use Case>>
+Khôi phục mật khẩu
+1. Actor chọn Quên mật khẩu.
+2. Nhập Email đã đăng ký.
+3. Hệ thống kiểm tra Email.
+4. Gửi liên kết và mã bảo mật (hiệu lực 15 phút).
+5. Actor nhập mật khẩu mới.
+6. Hệ thống kiểm tra mã và thời hạn.
+7. Cập nhật mật khẩu.
+Rẽ nhánh lỗi:
+• Mã bảo mật hết hạn hoặc không hợp lệ.
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+30
+: Bảng mô tả 
+Quản lý tài khoản.
+Quản lý người dùng
+Sơ đồ Use Case chi tiết 
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+3
+:
+ Sơ đồ Use Case chi tiết của Quản lý người dùng
+Mô tả Use Case 
+Tên Use Case
+Quản lý người dùng
+Actor
+Quản trị viên, Nhân viên, Sinh viên
+Mô tả
+Cung cấp các chức năng để Quản trị viên kiểm soát hệ thống nhân sự nội bộ và để Ban quản lý / Sinh viên theo dõi, duy trì tính chính xác của hồ sơ cá nhân.
+Pre-conditions
+Người dùng đã đăng nhập thành công vào hệ thống.
+Post-conditions
+Success: Dữ liệu người dùng được truy xuất và cập nhật an toàn vào hệ thống.
+Fail: Hệ thống chặn thao tác và hiển thị cảnh báo vi phạm quy tắc (ví dụ: Lỗi phân quyền, Lỗi trùng lặp).
+Luồng sự kiện chính
+1. Người dùng truy cập phân hệ Quản lý người dùng.
+2. Extend Use Case: Quản lý tài khoản nhân viên.
+3. Extend Use Case: Quản lý hồ sơ sinh viên.
+Luồng sự kiện phụ
+Người dùng cố tình truy cập chức năng vượt quá thẩm quyền. Hệ thống lập tức chặn lại và cảnh báo: "Từ chối quyền truy cập".
+<<Extend Use Case>>
+Quản lý tài khoản nhân viên
+1. Quản trị viên chọn phân hệ Quản lý tài khoản nhân viên.
+2. Chọn thao tác cần thực hiện.
+Rẽ nhánh 1 - Cấp tài khoản mới
+3.1 Quản trị viên điền biểu mẫu thêm nhân viên.
+3.2 Hệ thống đối chiếu sự tồn tại của Email và Tên đăng nhập.
+3.3 Lưu dữ liệu và kích hoạt tài khoản.
+Rẽ nhánh 2 - Khóa / Mở khóa tài khoản
+3.4 Chọn nhân viên cần thao tác.
+3.5 Nhấn nút thay đổi trạng thái.
+3.6 Hệ thống rà soát quy tắc bảo vệ (kiểm tra tài khoản Quản trị viên, tài khoản bản thân).
+3.7 Chuyển đổi trạng thái từ Hoạt động sang Khóa (hoặc ngược lại).
+Rẽ nhánh lỗi
+- Trùng lặp thông tin: Cảnh báo "Tên đăng nhập hoặc Email đã tồn tại".
+- Vi phạm quy tắc: Cảnh báo "Không thể tự khóa bản thân" hoặc "Không thể khóa Quản trị viên".
+<<Extend Use Case>>
+Quản lý hồ sơ sinh viên
+1. Hệ thống điều hướng giao diện tùy theo vai trò của người dùng.
+Rẽ nhánh 1 - Dành cho Sinh viên
+2.1 Sinh viên mở trang Hồ sơ cá nhân.
+2.2 Cập nhật các trường thông tin liên lạc (Số điện thoại, địa chỉ...).
+2.3 Hệ thống xác thực danh tính bảo mật từ máy chủ.
+2.4 Lưu thông tin cập nhật thành công.
+Rẽ nhánh 2 - Dành cho Ban quản lý 
+2.5 Mở danh sách toàn bộ hồ sơ sinh viên.
+2.6 Tìm kiếm và chọn xem chi tiết một hồ sơ.
+2.7 (Chỉ dành cho Quản trị viên) Tiến hành sửa đổi hồ sơ hoặc gán mã thẻ từ (RFID).
+2.8 
+Lưu thông tin và đồng bộ quyền kiểm soát vật lý
+.
+Rẽ nhánh lỗi
+- Dữ liệu không hợp lệ: Hiển thị cảnh báo yêu cầu nhập đúng định dạng.
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+31
+: Bảng mô tả Quản lý người dùng.
+Quản lý cơ sở vật chất
+S
+ơ đồ Use Case chi tiết 
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+4
+:
+ Sơ đồ Use Case chi tiết của Quản lý 
+cơ sở vật chất
+Mô tả Use Case 
+Tên Use Case
+Quản lý cơ sở vật chất
+Actor
+Quản trị viên, Nhân viên
+Mô tả
+Cung cấp hệ sinh thái quản lý toàn diện cấu trúc vật lý của ký túc xá, từ cấp độ Tòa nhà tổng thể cho đến từng Giường cá nhân, kết hợp tính toán tỷ lệ lấp đầy và đồng bộ khóa cửa thông minh.
+Pre-conditions
+Người dùng đăng nhập bằng tài khoản nội bộ Ban quản lý.
+Post-conditions
+Success: Cấu trúc hạ tầng được tạo mới, cập nhật hoặc xóa bỏ hoàn toàn khỏi CSDL.
+Fail: Hệ thống phát hiện vi phạm nghiệp vụ (ví dụ: quá sức chứa, xung đột giới tính, dữ liệu đang sử dụng) và chặn thao tác.
+Luồng sự kiện chính
+1. Actor mở giao diện Cấu hình hạ tầng.
+2. Hệ thống tải sơ đồ quản lý phân nhánh.
+3. Extend Use Case: Quản lý Tòa nhà.
+4. Extend Use Case: Quản lý Tầng.
+5. Extend Use Case: Quản lý Phòng.
+6. Extend Use Case: Quản lý Giường.
+Luồng sự kiện phụ
+Quản trị viên chọn xem Báo cáo. Hệ thống tổng hợp tỷ lệ lấp đầy phòng và danh sách phòng bảo trì để hiển thị trên Dashboard.
+<<Extend Use Case>>
+Quản lý Tòa nhà
+1. Chọn phân hệ Tòa nhà.
+2. Chọn thao tác xử lý.
+Rẽ nhánh 1 - Khởi tạo (Quyền Quản trị viên)
+3.1 Điền mã, tên và giới tính quy định của Tòa nhà.
+3.2 Hệ thống chống trùng lặp mã.
+3.3 Ghi nhận dữ liệu thành công.
+Rẽ nhánh 2 - Thay đổi trạng thái
+3.4 Chuyển trạng thái sang Bảo trì.
+3.5 Hệ thống kiểm tra xác nhận Tòa nhà hiện đang trống.
+3.6 Cập nhật thành công.
+Rẽ nhánh 3 - Gỡ bỏ hạ tầng (Quyền Quản trị viên)
+3.7 Yêu cầu xóa Tòa nhà.
+3.8 Hệ thống quét lịch sử lưu trú.
+3.9 Nếu chưa từng có người ở, xóa toàn bộ dữ liệu liên quan và Tòa nhà.
+Rẽ nhánh lỗi
+- Cố xóa Tòa nhà đã có người ở: Cảnh báo "Chỉ được phép dừng hoạt động, không được xóa".
+<<Extend Use Case>>
+Quản lý Tầng
+Thực hiện tương tự Use Case Quản lý Tòa nhà.
+Khác biệt trong nghiệp vụ:
+- Kiểm tra giới tính: Nếu Tòa nhà quy định là Nữ, hệ thống chặn thao tác tạo Tầng Nam hoặc Tầng Hỗn hợp.
+<<Extend Use Case>>
+Quản lý Phòng
+Thực hiện tương tự Use Case Quản lý Tòa nhà.
+Khác biệt trong nghiệp vụ:
+- Khi tạo phòng mới, hệ thống tự động sinh mã PIN 6 số cho khóa cửa thông minh.
+- Ban quản lý có thể chỉ định Trưởng phòng; khi thay đổi, người giữ chức vụ trước sẽ được cập nhật lại trạng thái.
+<<Extend Use Case>>
+Quản lý Giường
+Thực hiện tương tự Use Case Quản lý Tòa nhà.
+Khác biệt trong nghiệp vụ:
+- Hỗ trợ tạo tự động danh sách giường theo sức chứa của phòng.
+- Không cho phép tạo vượt quá số lượng sức chứa tối đa.
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+32
+: Bảng mô tả Cơ sở vật chất.
+Quản lý đợt đăng ký
+Sơ đồ Use Case chi tiết 
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+5
+:
+ 
+Sơ đồ Use Case chi tiết của Quản lý 
+đợt đăng ký
+Mô tả Use Case 
+Tên Use Case
+Quản lý đợt đăng ký
+Actor
+Quản trị viên
+Mô tả
+Quản trị viên sử dụng Use Case này để tạo mới, điều chỉnh thời gian, kiểm soát việc đóng/mở cổng tiếp nhận và gỡ bỏ các chiến dịch lưu trú.
+Pre-conditions
+Quản trị viên đã đăng nhập và có quyền truy cập phân hệ Cấu hình.
+Post-conditions
+Success: Trạng thái và dữ liệu của đợt đăng ký được hệ thống ghi nhận chính xác.
+Fail: Hệ thống chặn các thao tác vi phạm quy tắc thời gian hoặc bảo toàn dữ liệu.
+Luồng sự kiện chính
+1. Quản trị viên mở phân hệ Quản lý đợt đăng ký.
+2. Hệ thống tải danh sách các đợt đăng ký hiện có.
+3. Extend Use Case: Thêm đợt đăng ký mới.
+4. Extend Use Case: Cập nhật đợt đăng ký.
+5. Extend Use Case: Kích hoạt / Tắt đợt đăng ký.
+6. Extend Use Case: Xóa đợt đăng ký.
+Luồng sự kiện phụ
+Quản trị viên nhấn nút Thoát tại bất kỳ màn hình nào. Hệ thống đóng chức năng và quay về trang chủ.
+<<Extend Use Case>>
+Thêm đợt đăng ký mới
+1. Quản trị viên chọn Thêm mới đợt đăng ký.
+2. Điền các thông số: Tên đợt, Loại hình, Ngày bắt đầu, Ngày kết thúc.
+3. Hệ thống đối soát quy tắc thời gian (Ngày kết thúc không được nằm trong quá khứ, lớn hơn Ngày bắt đầu).
+4. Lưu dữ liệu dưới trạng thái Nháp (Tạm dừng) để chờ duyệt.
+Rẽ nhánh lỗi
+- Ngày tháng không hợp lệ: Hiển thị cảnh báo yêu cầu nhập lại.
+<<Extend Use Case>>
+Cập nhật đợt đăng ký
+1. Chọn một đợt đăng ký cần chỉnh sửa.
+2. Hệ thống kiểm tra trạng thái của đợt đăng ký.
+3. Nếu đợt đăng ký đang hoạt động và đã qua ngày bắt đầu, hệ thống khóa các trường không được phép chỉnh sửa.
+4. Quản trị viên chỉnh sửa các trường còn lại.
+5. Cập nhật dữ liệu thành công.
+Rẽ nhánh lỗi
+- Không thể thay đổi loại đợt đăng ký đang hoạt động.
+<<Extend Use Case>>
+Kích hoạt / Tắt đợt đăng ký (Mở / Đóng cổng)
+1. Chọn một đợt đăng ký nháp và nhấn Kích hoạt.
+2. Hệ thống tắt các đợt khác đang hoạt động theo quy tắc chỉ có một đợt được mở.
+3. Chuyển trạng thái đợt được chọn sang Đang hoạt động.
+4. Nếu chọn Tắt, hệ thống đóng đợt đăng ký và ngừng tiếp nhận hồ sơ mới.
+<<Extend Use Case>>
+Xóa đợt đăng ký
+1. Chọn Xóa một đợt đăng ký.
+2. Hệ thống kiểm tra các hồ sơ đã liên kết.
+3. Nếu chưa có hồ sơ đăng ký, hệ thống xóa dữ liệu.
+Rẽ nhánh lỗi
+- Nếu đợt đăng ký đã có hồ sơ liên kết, hệ thống từ chối xóa và yêu cầu chuyển sang trạng thái Tạm dừng.
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+33
+: Bảng mô tả Quản lý đợt đăng ký.
+Quản lý hồ sơ đăng ký
+Sơ đồ Use Case chi tiết 
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+6
+:
+ 
+Sơ đồ Use Case chi tiết của Quản lý 
+hồ sơ đăng ký
+Mô tả Use Case 
+Tên Use Case
+Quản lý hồ sơ đăng ký
+Actor
+Sinh viên, Quản trị viên, Nhân viên
+Mô tả
+Bao quát toàn bộ vòng đời của một Đơn đăng ký lưu trú: từ lúc Sinh viên khởi tạo, đính kèm minh chứng cho đến quá trình xét duyệt chuyên sâu của Ban quản lý.
+Pre-conditions
+Sinh viên phải thỏa mãn điều kiện tham gia đợt đăng ký. Admin/Staff đã đăng nhập.
+Post-conditions
+Success: Hồ sơ được phê duyệt, kích hoạt quy trình xếp phòng và xuất hóa đơn.
+Fail: Hồ sơ bị từ chối, giải phóng tài nguyên giường trống.
+Luồng sự kiện chính
+1. Extend Use Case: Nộp hồ sơ.
+2. Extend Use Case: Theo dõi trạng thái hồ sơ.
+3. Extend Use Case: Bổ sung hồ sơ.
+4. Extend Use Case: Xét duyệt hồ sơ.
+Luồng sự kiện phụ
+Người dùng (Sinh viên) tắt trình duyệt khi đang làm nháp. Hệ thống vẫn lưu trữ thông tin ở trạng thái Nháp (Draft).
+<<Extend Use Case>>
+Nộp hồ sơ (Sinh viên)
+1. Sinh viên truy cập biểu mẫu và điền thông tin (Mã SV, Họ tên, CCCD).
+2. Tải lên minh chứng bắt buộc (Mặt trước/Mặt sau CCCD).
+3. Xác nhận và gửi đơn.
+4. Hệ thống kiểm tra tính hợp lệ của đợt đăng ký hiện hành.
+5. Lưu dữ liệu, chuyển trạng thái sang Chờ xét duyệt.
+6. Kích hoạt quy trình xử lý hồ sơ tiếp theo.
+<<Extend Use Case>>
+Theo dõi trạng thái hồ sơ (Sinh viên)
+1. Sinh viên nhập Mã số sinh viên vào cổng tra cứu.
+2. Hệ thống tìm hồ sơ mới nhất.
+3. Hiển thị trạng thái (Đang chờ, Cần bổ sung, Đã duyệt) và thông tin giường dự kiến (nếu có).
+<<Extend Use Case>>
+Bổ sung hồ sơ (Sinh viên)
+1. Sinh viên nhận thông báo hồ sơ cần bổ sung.
+2. Đăng nhập và chọn hồ sơ có trạng thái "Yêu cầu bổ sung".
+3. Hệ thống kiểm tra thời hạn bổ sung.
+4. Nếu còn hạn, sinh viên tải lên tài liệu được yêu cầu.
+5. Hệ thống chuyển trạng thái về Chờ xét duyệt.
+Rẽ nhánh lỗi
+- Quá thời hạn: Hệ thống từ chối tiếp nhận và chuyển hồ sơ sang trạng thái "Bị từ chối do quá hạn".
+<<Extend Use Case>>
+Xét duyệt hồ sơ (Ban quản lý)
+1. Ban quản lý mở danh sách hồ sơ chờ duyệt.
+2. Xem thông tin và tài liệu đính kèm.
+Rẽ nhánh 1 - Yêu cầu bổ sung
+3.1 Đánh dấu nội dung cần bổ sung và ghi chú lý do.
+3.2 Hệ thống gửi thông báo đến sinh viên.
+Rẽ nhánh 2 - Phê duyệt
+3.3 Chấp nhận hồ sơ.
+3.4 Hệ thống xác nhận hồ sơ hợp lệ.
+3.5 Chuyển hồ sơ sang quy trình thanh toán và phân bổ chỗ ở.
+Rẽ nhánh 3 - Từ chối
+3.6 Từ chối hồ sơ kèm lý do.
+3.7 Hệ thống thu hồi chỗ ở dự kiến (nếu đã phân bổ).
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+34
+: Bảng mô tả Quản lý hồ sơ đăng ký.
+Quản lý lưu trú
+Sơ đồ Use Case chi tiết 
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+7
+:
+ Sơ đồ Use Case chi tiết của Quản lý 
+lưu trú
+Mô tả Use Case 
+Tên Use Case
+Quản lý lưu trú
+Actor
+Sinh viên, Quản trị viên, Nhân viên
+Mô tả
+Theo dõi và điều phối các biến động trong suốt thời gian sinh viên sinh hoạt tại KTX, bao gồm Nhận phòng, Chuyển phòng, Gia hạn lưu trú và Trả phòng.
+Pre-conditions
+Sinh viên đã hoàn tất đóng lệ phí giữ chỗ và được xếp vào danh sách phòng.
+Post-conditions
+Success: Dữ liệu lưu trú được cập nhật, giường được giải phóng hoặc phân bổ lại.
+Fail: Hệ thống chặn thao tác do sinh viên còn nợ phí hoặc vi phạm điều kiện lưu trú.
+Luồng sự kiện chính
+1. Hệ thống điều hướng chức năng theo vai trò người dùng.
+2. Extend Use Case: Nhận phòng (Check-in).
+3. Extend Use Case: Chuyển phòng.
+4. Extend Use Case: Gia hạn lưu trú.
+5. Extend Use Case: Trả phòng (Check-out).
+<<Extend Use Case>>
+Nhận phòng (Check-in)
+1. Sinh viên đến quầy tiếp nhận.
+2. Nhân viên xác nhận thông tin nhận phòng.
+3. Hệ thống cập nhật trạng thái lưu trú và cấp quyền cư trú.
+4. 
+Hệ thống đồng bộ quyền ra vào tại khu vực lưu trú
+.
+<<Extend Use Case>>
+Chuyển phòng
+1. Sinh viên gửi yêu cầu chuyển phòng hoặc Ban quản lý thực hiện điều chuyển.
+2. Ban quản lý lựa chọn phòng và giường phù hợp.
+3. Hệ thống cập nhật thông tin lưu trú sang phòng mới.
+4. Trường hợp chuyển để bảo trì, sau khi toàn bộ sinh viên rời khỏi phòng cũ, hệ thống chuyển phòng sang trạng thái Bảo trì.
+<<Extend Use Case>>
+Gia hạn lưu trú
+1. Sinh viên gửi yêu cầu gia hạn.
+2. Hệ thống kiểm tra điều kiện và công nợ.
+3. Nếu là Trưởng phòng hoặc Phó phòng, hệ thống tự động phê duyệt.
+4. Các trường hợp còn lại được chuyển đến Ban quản lý xét duyệt.
+5. Hệ thống cập nhật thời gian lưu trú mới.
+<<Extend Use Case>>
+Trả phòng (Check-out)
+1. Sinh viên gửi yêu cầu trả phòng.
+2. Hệ thống kiểm tra thời hạn báo trước, thời gian còn lại của hợp đồng và tình trạng công nợ.
+3. Ban quản lý kiểm tra hiện trạng phòng và phê duyệt.
+4. Hệ thống thu hồi quyền truy cập của sinh viên, cập nhật trạng thái giường và hoàn tất thủ tục trả phòng.
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+35
+: Bảng mô tả Quản lý hồ sơ lưu trú.
+Quản lý điện
+ 
+Sơ đồ Use Case chi tiết 
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+8
+:
+ 
+Sơ đồ Use Case chi tiết của Quản lý 
+điện
+Mô tả Use Case 
+Tên Use Case
+Quản lý điện
+Actor
+Nhân viên, Quản trị viên
+Mô tả
+Quản lý việc theo dõi và chốt số điện tiêu thụ hàng tháng của các phòng trong KTX, đồng thời xử lý các trường hợp cần thu hồi kết quả chốt điện khi có sai sót.
+Pre-conditions
+Phòng đang ở trạng thái có sinh viên lưu trú. Người dùng Ban quản lý đã đăng nhập thành công.
+Post-conditions
+Success: Chỉ số điện được hệ thống ghi nhận và hóa đơn tiền điện được tự động phát hành thành công hoặc hủy bỏ thành công.
+Fail: Hệ thống chặn thao tác do nhập sai dữ liệu số hoặc xung đột trạng thái thanh toán của hóa đơn.
+Luồng sự kiện chính
+1. Ban quản lý lựa chọn chức năng quản lý điện phù hợp.
+2. Extend Use Case: Ghi chỉ số điện.
+3. Extend Use Case: Hủy kết quả chốt điện.
+<<Extend Use Case>>
+Ghi chỉ số điện
+1. Ban quản lý mở màn hình chốt điện, chọn Tòa nhà, Tầng và Tháng cần chốt.
+2. Hệ thống tải danh sách phòng và tự động điền chỉ số điện cũ.
+3. Ban quản lý nhập chỉ số điện mới.
+4. Hệ thống kiểm tra: Chỉ số mới phải lớn hơn hoặc bằng chỉ số cũ.
+5. Hệ thống tính toán sản lượng điện tiêu thụ và lưu kết quả.
+6. Hệ thống kích hoạt quy trình chuyển dữ liệu sang phân hệ Thanh toán để lập hóa đơn tiền điện.
+Rẽ nhánh lỗi:
+• Nếu chỉ số mới nhỏ hơn chỉ số cũ, hệ thống hiển thị thông báo lỗi và chặn thao tác lưu.
+<<Extend Use Case>>
+Hủy kết quả chốt điện
+1. Ban quản lý chọn bản ghi chốt điện cần hủy.
+2. Hệ thống kiểm tra tình trạng hóa đơn tiền điện tương ứng.
+3. Nếu hóa đơn chưa được thanh toán, hệ thống thu hồi (xóa) hóa đơn.
+4. Xóa bản ghi chốt điện.
+5. Đưa phòng về trạng thái 'Chưa chốt' để nhập lại chỉ số.
+Rẽ nhánh lỗi:
+• Nếu hóa đơn đã được thanh toán hoặc thanh toán một phần, hệ thống từ chối thao tác hủy.
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+36
+: Bảng mô tả Quản lý điện.
+Quản lý hóa đơn và thanh toán
+Sơ đồ Use Case chi tiết 
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+9
+:
+ 
+Sơ đồ Use Case chi tiết của Quản lý 
+hóa đơn và thanh toán
+Mô tả Use Case 
+Tên Use Case
+Quản lý hóa đơn và thanh toán
+Actor
+Sinh viên, Nhân viên, Quản trị viên
+Mô tả
+Giám sát công nợ, quản lý danh sách các loại hóa đơn phát sinh trong quá trình lưu trú và hỗ trợ chức năng thanh toán trực tuyến hoặc thu tiền mặt.
+Pre-conditions
+Hệ thống đã phát sinh hóa đơn từ các phân hệ (Lưu trú, Điện nước).
+- Đối với Quản lý danh sách: Người dùng phải đăng nhập thành công.
+- Đối với Thanh toán: Sinh viên có thể đã đăng nhập hoặc truy cập ẩn danh để thanh toán tiền giữ chỗ lần đầu qua cổng Public.
+Post-conditions
+Success: Hóa đơn được chuyển sang trạng thái 'Đã thanh toán' (PAID). Hệ thống tự động kích hoạt các quy trình liên quan.
+Luồng sự kiện chính
+1. Hệ thống điều hướng người dùng theo phân quyền hoặc trạng thái truy cập.
+2. Extend Use Case: Quản lý danh sách hóa đơn.
+3. Extend Use Case: Thanh toán hóa đơn.
+<<Extend Use Case>>
+Quản lý danh sách hóa đơn (Yêu cầu đăng nhập)
+1. Sinh viên đăng nhập và chọn mục Hóa đơn.
+2. Hệ thống tổng hợp toàn bộ hóa đơn từ các nguồn phát sinh.
+3. Hiển thị danh sách theo trạng thái: Chưa thanh toán, Đã thanh toán, Quá hạn.
+Rẽ nhánh (Ban quản lý):
+• Nếu Nhân viên hoặc Quản trị viên đăng nhập, hệ thống hiển thị danh sách công nợ của toàn bộ ký túc xá và cho phép lọc theo Tòa nhà, Tầng, Trạng thái.
+<<Extend Use Case>>
+Thanh toán hóa đơn
+1. Sinh viên truy cập hóa đơn thông qua cổng Public hoặc danh sách hóa đơn nội bộ.
+2. Chọn phương thức thanh toán VietQR.
+3. Hệ thống tạo mã giao dịch và sinh mã QR SePay.
+4. Sinh viên quét mã bằng ứng dụng ngân hàng để thanh toán.
+5. Hệ thống tự động tiếp nhận thông tin giao dịch.
+6. Đối chiếu mã giao dịch và số tiền thanh toán.
+7. Nếu hợp lệ, cập nhật hóa đơn sang trạng thái 'Đã thanh toán' (PAID) và thông báo kết quả.
+Rẽ nhánh (Thu tiền mặt):
+• Nhân viên hoặc Quản trị viên xác nhận thu tiền mặt.
+• Hệ thống sinh mã giao dịch CASH-... và cập nhật hóa đơn sang trạng thái 'Đã thanh toán' (PAID).
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+37
+: Bảng mô tả Quản lý hóa đơn và thanh toán.
+Quản lý an ninh
+Sơ đồ Use Case chi tiết 
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+10
+:
+ 
+Sơ đồ Use Case chi tiết của Quản lý 
+an ninh
+Mô tả Use Case
+Tên Use Case
+Quản lý an ninh
+Actor
+Sinh viên, Ban quản lý
+Mô tả
+Giám sát toàn bộ quy trình kiểm soát truy cập vật lý, bao gồm việc thiết lập dữ liệu sinh trắc học cá nhân, cấp quyền qua cửa tự động và đối soát lịch sử ra vào với kỷ luật giới nghiêm.
+Pre-conditions
+Sinh viên đang trong trạng thái lưu trú hợp lệ tại phân khu được chỉ định.
+Post-conditions
+Dữ liệu định danh được cập nhật, quyền mở cửa được đồng bộ tức thời và các vi phạm ra vào được hệ thống ghi nhận.
+Luồng sự kiện chính
+1. Người dùng truy cập phân hệ quản lý an ninh.
+2. Hệ thống kiểm tra tính hợp lệ của tài khoản và cung cấp các luồng nghiệp vụ tương ứng.
+3. Extend Use Case: Đăng ký hồ sơ sinh trắc học.
+4. Extend Use Case: Yêu cầu thay đổi hồ sơ sinh trắc học.
+5. Extend Use Case: Phê duyệt hồ sơ.
+6. Extend Use Case: Thu hồi quyền ra vào.
+7. Extend Use Case: Tra cứu lịch sử ra vào.
+Luồng sự kiện phụ
+Phát hiện dữ liệu không hợp lệ:
+1. Nếu người dùng thao tác sai quy định (ví dụ: cố tình tải ảnh mới khi hồ sơ cũ vẫn đang hiệu lực), hệ thống từ chối.
+2. Hiển thị thông báo hướng dẫn người dùng chuyển sang luồng nghiệp vụ phù hợp (Yêu cầu thay đổi).
+<<Extend Use Case>>
+Đăng ký hồ sơ sinh trắc học (Quy tắc chống gian lận)
+1. Sinh viên cung cấp hình ảnh khuôn mặt dùng để nhận diện.
+2. Hệ thống rà soát tình trạng hồ sơ hiện tại của sinh viên.
+Rẽ nhánh (Hồ sơ đang hoạt động)
+- Nếu sinh viên đã có hồ sơ đang hiệu lực, hệ thống từ chối việc ghi đè trực tiếp.
+- Yêu cầu sinh viên chuyển sang quy trình 'Yêu cầu thay đổi hồ sơ'.
+3. Nếu hồ sơ hợp lệ hoặc trước đó bị từ chối/thu hồi, hệ thống tiếp nhận hình ảnh mới và chuyển sang trạng thái chờ duyệt.
+<<Extend Use Case>>
+Yêu cầu thay đổi hồ sơ sinh trắc học
+1. Sinh viên đang có hồ sơ hiệu lực cung cấp hình ảnh nhận diện mới.
+2. Hệ thống kiểm tra và ngăn chặn nếu đang có yêu cầu thay đổi chưa được xử lý.
+3. Hệ thống ghi nhận hình ảnh dưới dạng yêu cầu chờ phê duyệt và gửi thông báo tới Ban quản lý.
+<<Extend Use Case>>
+Phê duyệt hồ sơ (Kích hoạt luồng đồng bộ)
+1. Ban quản lý truy cập danh sách hồ sơ đang chờ xử lý.
+2. Đối chiếu hình ảnh và xác nhận phê duyệt.
+3. Hệ thống chuyển trạng thái hồ sơ sang đã duyệt.
+4. Hệ thống kích hoạt quy trình xử lý dữ liệu định danh và đồng bộ quyền mở cửa tới khu vực lưu trú.
+<<Extend Use Case>>
+Thu hồi quyền ra vào (Xóa dữ liệu vật lý)
+1. Ban quản lý chọn sinh viên vi phạm hoặc hết hạn lưu trú.
+2. Hệ thống chuyển trạng thái hồ sơ sang đã thu hồi.
+3. Hệ thống vô hiệu hóa quyền truy cập và xóa dữ liệu sinh trắc học tại các điểm kiểm soát liên quan.
+<<Extend Use Case>>
+Tra cứu lịch sử ra vào (Quy tắc giới nghiêm)
+1. Người dùng yêu cầu tra cứu lịch sử ra vào.
+2. Hệ thống hiển thị thời gian, địa điểm, chiều di chuyển và kết quả xác thực.
+3. Hệ thống đối chiếu với quy định giờ giới nghiêm.
+Rẽ nhánh (Kiểm soát vi phạm)
+- Nếu sinh viên về quá giờ quy định, hệ thống đối chiếu với đơn xin phép.
+- Nếu không có đơn được phê duyệt, hệ thống từ chối mở cửa và ghi nhận sự kiện 'Vi phạm kỷ luật giới nghiêm'.
+Bảng 
+ STYLEREF 1 \s 
+3
+ SEQ Bảng \* ARABIC \s 1 
+38
+: Bảng mô tả Quản lý an ninh.
+Sơ đồ tuần tự
+Sơ đồ tuần tự quy trình
+ 
+ sinh viên nộp hồ sơ đăng ký lưu trú
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+11
+:
+ Sơ đồ tuần tự của quy tr
+ình
+ sinh viên nộp hồ sơ đăng ký lưu trú
+Sơ đồ tuần tự quy trình xét duyệt hồ sơ đăng ký
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+12
+:
+ Sơ đồ tuần tự của quy trình xét duyệt hồ sơ đăng ký
+Sơ đồ tuần tự quy trình thanh toán phí giữ chỗ
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+13
+:
+ Sơ đồ tuần tự của quy trình thanh toán phí giữ chỗ
+Sơ đồ tuần tự quy trình kích hoạt tài khoản cư 
+dân
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+14
+:
+ Sơ đồ tuần tự của quy trình kích hoạt tài khoản cư dân
+Sơ đồ tuần tự quy trình nhận phòng và đồng bộ quyền truy cập
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+15
+:
+ Sơ đồ tuần tự của quy trình nhận phòng và đồng bộ quyền truy cập
+Sơ đồ tuần tự quy trình xác thực ra vào bằng công nghệ sinh trắc học
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+16
+:
+ Sơ đồ tuần tự quy trình xác thực ra vào bằng công nghệ sinh trắc học
+Sơ đồ tuần tự quy trình ghi chỉ số điện và phát hành hóa đơn
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+17
+:
+ Sơ đồ tuần tự của quy trình ghi chỉ số điện và phát hành hóa đơn
+Sơ đồ tuần tự quy trình thanh toán hóa đơn trong thời gian lưu trú
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+18
+:
+ 
+Sơ đồ tuần tự quy trình thanh toán hóa đơn trong thời gian lưu trú
+Sơ đồ tuần tự quy trình trả phòng
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+19
+:
+ 
+Sơ đồ tuần tự quy trình trả phòng
+Sơ đồ hoạt động
+Sơ đồ
+ hoạt động 
+quy trình sinh viên nộp hồ sơ đăng ký lưu trú
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+20
+:
+ 
+Sơ đồ hoạt động quy trình sinh viên nộp hồ sơ đăng ký lưu trú
+.
+Sơ đồ 
+hoạt động 
+quy trình xét duyệt hồ sơ đăng ký
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+21
+:
+ Sơ đồ hoạt động quy trình xét duyệt hồ sơ đăng ký
+Sơ đồ 
+hoạt động 
+quy trình thanh toán phí giữ chỗ
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+22
+:
+ Sơ đồ hoạt động quy trình thanh toán phí giữ chỗ
+Sơ đồ 
+hoạt động 
+quy trình kích hoạt tài khoản cư dân
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+23
+:
+ Sơ đồ hoạt động quy trình kích hoạt tài khoản cư dân
+Sơ đồ 
+hoạt động 
+quy trình nhận phòng và đồng bộ quyền truy cập
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+24
+:
+ Sơ đồ hoạt động quy trình nhận phòng và đồng bộ quyền truy cập
+Sơ đồ 
+hoạt động 
+quy trình xác thực ra vào bằng công nghệ sinh trắc học
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+25
+:
+ Sơ đồ hoạt động quy trình xác thực ra vào bằng công nghệ sinh trắc học
+Sơ đồ 
+hoạt động 
+quy trình ghi chỉ số điện và phát hành hóa đơn
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+26
+:
+ Sơ đồ hoạt động quy trình ghi chỉ số điện và phát hành hóa đơn
+Sơ đồ 
+hoạt động 
+quy trình thanh toán hóa đơn trong thời gian lưu trú
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+27
+:
+ Sơ đồ hoạt động quy trình thanh toán hóa đơn trong thời gian lưu trú
+Sơ đồ 
+hoạt động 
+quy trình trả phòng
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+28
+:
+ Sơ đồ hoạt động quy trình trả phòng
+.
+HỆ THỐNG MÀN HÌNH
+Web Admin
+Giao diện Đăng nhập (Login)
+Giao diện Đăng nhập là cửa ngõ truy cập dành cho Ban quản lý. Màn hình được thiết kế theo ngôn ngữ Material Design với giao diện đơn giản, trực quan và tập trung vào chức năng xác thực người dùng. Hệ thống cung cấp các trường nhập tên đăng nhập, mật khẩu và hỗ trợ chức năng quên mật khẩu nhằm đảm bảo tính thuận tiện trong quá trình sử dụng.
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+29
+:
+ 
+Giao diện Đăng nhập hệ thống Admin
+Giao diện Bảng điều khiển (Dashboard)
+Giao diện Bảng điều khiển (Dashboard) là trung tâm giám sát của hệ thống quản trị ký túc xá, cung cấp các thông tin tổng quan về tình hình vận hành thông qua các chỉ số thống kê, biểu đồ trực quan và các thẻ thông tin (KPI). Từ màn hình này, quản trị viên có thể nhanh chóng theo dõi số lượng sinh viên, tình trạng phòng ở, các yêu cầu xử lý và các thông tin quan trọng khác.
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+30
+:
+ Giao diện Bảng điều khiển Admin
+Giao diện Quản lý sinh viên (Student Management)
+Giao diện Quản lý sinh viên hỗ trợ cán bộ quản lý thực hiện các nghiệp vụ tra cứu, cập nhật và quản lý thông tin sinh viên đang lưu trú trong ký túc xá. Dữ liệu được hiển thị dưới dạng bảng kết hợp với chức năng tìm kiếm, lọc dữ liệu và các thao tác quản lý nhằm nâng cao hiệu quả quản trị.
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+31
+:
+ Giao diện Quản lý sinh viên
+Giao diện Quản lý cổng kiểm soát (IoT Management)
+Giao diện Quản lý cổng kiểm soát cho phép quản trị viên giám sát và điều khiển các thiết bị IoT được triển khai tại ký túc xá. Thông qua giao diện này, người quản trị có thể theo dõi trạng thái hoạt động của các cổng kiểm soát, thực hiện điều khiển từ xa và quản lý các thiết bị nhằm đảm bảo an ninh cho hệ thống.
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+32
+:
+ Giao diện Quản lý cổng kiểm soát
+Web Public
+Giao diện Trang chủ (Landing Page)
+Trang chủ là giao diện đầu tiên mà người dùng truy cập khi sử dụng hệ thống. Giao diện cung cấp các thông tin giới thiệu về ký túc xá, các dịch vụ hỗ trợ, thông báo mới nhất và cho phép sinh viên thực hiện đăng ký lưu trú trực tuyến thông qua các chức năng được tích hợp trên website.
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+33
+:
+ Giao diện trang chủ Web Public
+App Student
+Giao diện Trang chủ (Home Screen)
+Giao diện Trang chủ trên ứng dụng di động cung cấp các chức năng chính dành cho sinh viên như theo dõi thông tin phòng ở, nhận thông báo từ Ban quản lý, truy cập nhanh đến các tiện ích và sử dụng các dịch vụ nội trú ngay trên thiết bị di động.
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+34
+:
+ Giao diện Trang chủ ứng dụng Sinh viên
+Giao diện Định danh khuôn mặt (Face Recognition)
+Giao diện Định danh khuôn mặt tích hợp công nghệ trí tuệ nhân tạo (AI) nhằm hỗ trợ sinh viên đăng ký và xác thực dữ liệu khuôn mặt phục vụ quá trình kiểm soát ra vào ký túc xá. Chức năng này giúp nâng cao tính bảo mật và giảm sự phụ thuộc vào phương thức sử dụng mã QR truyền thống.
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+35
+:
+ Giao diện Quản lý khuôn mặt
+Giao diện Thanh toán hóa đơn (Payment)
+Giao diện Thanh toán hóa đơn cho phép sinh viên theo dõi các khoản phí phát sinh như tiền phòng, điện, nước và thực hiện thanh toán trực tuyến thông qua mã QR động. Chức năng này góp phần đơn giản hóa quy trình thanh toán và nâng cao trải nghiệm người dùng.
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+36
+:
+ Giao diện Thanh toán hóa đơn
+App Admin
+Giao diện Bảng điều khiển (Mobile Dashboard)
+Giao diện Bảng điều khiển trên ứng dụng dành cho quản trị viên cung cấp khả năng giám sát nhanh tình trạng hoạt động của hệ thống ngay trên thiết bị di động. Từ màn hình này, cán bộ quản lý có thể theo dõi các chỉ số quan trọng, nhận thông báo và thực hiện các thao tác quản lý cần thiết một cách linh hoạt.
+Hình 
+ STYLEREF 1 \s 
+3
+ SEQ Hình \* ARABIC \s 1 
+37
+:
+ Giao diện Bảng điều khiển ứng dụng Quản trị viên
+HỆ THỐNG BÁO BIỂU
+Báo cáo công tác lưu trú và đăng ký
+Nhóm báo cáo này hỗ trợ Ban quản lý theo dõi tình hình đăng ký và lưu trú của sinh viên trong từng giai đoạn.
+Các thông tin thống kê bao gồm:
+Số lượng hồ sơ theo từng trạng thái như chờ duyệt, chờ thanh toán và đã hoàn tất nhận phòng. 
+Tỷ lệ lấp đầy của từng tòa nhà, từng tầng và toàn bộ ký túc xá dựa trên số lượng giường đã sử dụng. 
+Số lượng yêu cầu gia hạn lưu trú và kết quả xử lý của từng yêu cầu. 
+Thống kê số lượng sinh viên đang lưu trú theo từng khu vực và từng tòa nhà. 
+Những báo cáo này giúp Ban quản lý theo dõi tiến độ xử lý hồ sơ, đánh giá tình trạng sử dụng chỗ ở và chủ động trong công tác phân bổ phòng.
+Báo cáo tài chính
+Nhóm báo cáo tài chính hỗ trợ theo dõi tình hình thu phí và công nợ của sinh viên.
+Các nội dung thống kê gồm:
+Tổng doanh thu từ các hóa đơn đã thanh toán. 
+Danh sách các hóa đơn chưa thanh toán hoặc còn công nợ. 
+Tiến độ thanh toán theo từng kỳ thu phí. 
+Doanh thu theo từng loại hóa đơn và từng khoảng thời gian. 
+Các báo cáo này giúp bộ phận quản lý dễ dàng kiểm soát tình hình tài chính, theo dõi công nợ và đánh giá hiệu quả công tác thu phí.
+Báo cáo an ninh
+Nhóm báo cáo này khai thác dữ liệu từ hệ thống kiểm soát ra vào nhằm hỗ trợ công tác quản lý an ninh trong ký túc xá.
+Các nội dung báo cáo bao gồm:
+Thống kê số lượng sinh viên đang có mặt và không có mặt trong ký túc xá dựa trên lịch sử xác thực gần nhất. 
+Thống kê số lượt ra vào theo từng khung giờ trong ngày. 
+Tra cứu lịch sử ra vào của từng sinh viên. 
+Thống kê số lượt xác thực bằng RFID và nhận diện khuôn mặt. 
+Các báo cáo này giúp Ban quản lý theo dõi tình hình ra vào ký túc xá, hỗ trợ xử lý các tình huống phát sinh và nâng cao công tác bảo đảm an ninh.
+Báo cáo vận hành
+Nhóm báo cáo vận hành hỗ trợ theo dõi tình trạng cơ sở vật chất và kế hoạch lưu trú của sinh viên.
+Các nội dung báo cáo gồm:
+Danh sách các phòng đang bảo trì hoặc gặp sự cố. 
+Danh sách sinh viên sắp hết thời hạn lưu trú để chủ động thực hiện thủ tục gia hạn hoặc trả phòng. 
+Thống kê tình trạng sử dụng phòng và giường. 
+Đề xuất các phòng còn trống phục vụ việc chuyển phòng khi phát sinh nhu cầu. 
+Nhóm báo cáo này giúp Ban quản lý chủ động trong việc bố trí chỗ ở, quản lý cơ sở vật chất và xây dựng kế hoạch vận hành ký túc xá.
+Cơ chế tổng hợp dữ liệu
+Các báo cáo trong hệ thống được xây dựng trên cơ sở dữ liệu từ nhiều phân hệ như quản lý lưu trú, hóa đơn, kiểm soát ra vào và cơ sở vật chất. Dữ liệu được tổng hợp và xử lý trước khi hiển thị trên Dashboard nhằm bảo đảm tính chính xác và dễ theo dõi.
+Để nâng cao hiệu năng truy xuất, hệ thống sử dụng 
+Redis
+ để lưu trữ tạm thời các dữ liệu thống kê thường xuyên được truy cập. Việc sử dụng bộ nhớ đệm giúp giảm số lượng truy vấn trực tiếp đến cơ sở dữ liệu, rút ngắn thời gian tải Dashboard và cải thiện khả năng phục vụ khi nhiều người dùng truy cập đồng thời.
+Khi dữ liệu tại các phân hệ thay đổi, hệ thống sẽ cập nhật hoặc làm mới dữ liệu thống kê trong Redis nhằm bảo đảm các báo cáo phản ánh đúng tình trạng hiện tại của hệ thống.
+THỬ NGHIỆM
+CÁC KỊCH BẢN THỬ NGHIỆM
+Mục đích của quá trình thử nghiệm là đánh giá tính đúng đắn và khả năng đáp ứng của chức năng 
+đăng ký lưu trú
+ đối với các yêu cầu nghiệp vụ đã đặt ra. Quá trình thử nghiệm được thực hiện theo phương pháp 
+Kiểm thử hộp đen (Black-box Testing)
+, tập trung kiểm tra các trường hợp nhập liệu hợp lệ, dữ liệu không hợp lệ và các tình huống vi phạm ràng buộc dữ liệu.
+Các kịch bản thử nghiệm được xây dựng dựa trên các quy tắc kiểm tra dữ liệu của biểu mẫu đăng ký lưu trú.
+Mã kịch bản
+Tên kịch bản
+Các bước thực hiện
+Dữ liệu đầu vào
+Kết quả kỳ vọng
+TC-REG-01
+Đăng ký hồ sơ hợp lệ
+Truy cập trang đăng ký → Nhập đầy đủ thông tin → Nhấn Gửi hồ sơ
+Họ tên, MSSV, CCCD, Email, SĐT hợp lệ
+Hệ thống tạo hồ sơ thành công, hiển thị thông báo đăng ký thành công và chuyển hồ sơ sang trạng thái Chờ duyệt.
+TC-REG-02
+Thiếu thông tin bắt buộc
+Để trống MSSV và CCCD → Nhấn Gửi hồ sơ
+MSSV: rỗng; CCCD: rỗng
+Hệ thống không cho phép gửi hồ sơ và hiển thị thông báo yêu cầu nhập đầy đủ thông tin.
+TC-REG-03
+Sai định dạng Email
+Nhập Email không đúng định dạng → Nhấn Gửi hồ sơ
+sinhvien_stu.edu.vn
+Hệ thống hiển thị cảnh báo định dạng Email không hợp lệ và không cho phép gửi hồ sơ.
+TC-REG-04
+Trùng dữ liệu định danh
+Nhập MSSV hoặc CCCD đã tồn tại → Nhấn Gửi hồ sơ
+MSSV hoặc CCCD đã có trong hệ thống
+Hệ thống từ chối tạo hồ sơ và hiển thị thông báo dữ liệu đã tồn tại.
+Bảng 
+ STYLEREF 1 \s 
+4
+ SEQ Bảng \* ARABIC \s 1 
+1
+: Các kịch bản thử nghiệm chức năng đăng ký lưu trú
+.
+KẾT QUẢ THỬ NGHIỆM CÁC KỊCH BẢN
+Sau khi thực hiện các kịch bản thử nghiệm trên môi trường triển khai thực tế, chức năng đăng ký lưu trú hoạt động đúng theo yêu cầu thiết kế. Các trường hợp nhập liệu hợp lệ được xử lý thành công, trong khi các trường hợp dữ liệu không hợp lệ hoặc vi phạm ràng buộc đều được hệ thống phát hiện và thông báo cho người dùng.
+Mã kịch bản
+Kết quả thực tế
+Trạng thái
+TC-REG-01
+Hệ thống tạo hồ sơ thành công và hiển thị thông báo đăng ký thành công.
+Đạt
+TC-REG-02
+Hệ thống yêu cầu nhập đầy đủ các trường bắt buộc và không cho phép gửi hồ sơ.
+Đạt
+TC-REG-03
+Hệ thống hiển thị cảnh báo Email không hợp lệ.
+Đạt
+TC-REG-04
+Hệ thống từ chối tạo hồ sơ khi MSSV hoặc CCCD đã tồn tại và hiển thị thông báo lỗi.
+Đạt
+Bảng 
+ STYLEREF 1 \s 
+4
+ SEQ Bảng \* ARABIC \s 1 
+2
+:
+ Kết quả thử nghiệm chức năng đăng ký lưu trú
+Để minh họa kết quả thực hiện các kịch bản thử nghiệm, Hình 4-1 đến Hình 4-4 lần lượt thể hiện kết quả của các kịch bản TC-REG-01, TC-REG-02, TC-REG-03 và TC-REG-04.
+Hình 
+ STYLEREF 1 \s 
+4
+ SEQ Hình \* ARABIC \s 1 
+1
+:
+ 
+Kết quả thực hiện kịch bản TC-REG-01 – Đăng ký hồ sơ hợp lệ.
+Hình 
+ STYLEREF 1 \s 
+4
+ SEQ Hình \* ARABIC \s 1 
+2
+: 
+Kết quả thực hiện kịch bản TC-REG-02 – Thiếu thông tin bắt buộc.
+Hình 
+ STYLEREF 1 \s 
+4
+ SEQ Hình \* ARABIC \s 1 
+3
+: 
+Kết quả thực hiện kịch bản TC-REG-03 – Sai định dạng Email.
+Hình 
+ STYLEREF 1 \s 
+4
+ SEQ Hình \* ARABIC \s 1 
+4
+: 
+Kết quả thực hiện kịch bản TC-REG-04 – Trùng dữ liệu định danh.
+XỬ LÝ CÁC TRƯỜNG HỢP NGOẠI LỆ
+Trong quá trình thử nghiệm, hệ thống được đánh giá khả năng xử lý các trường hợp ngoại lệ nhằm bảo đảm tính toàn vẹn của dữ liệu và duy trì hoạt động ổn định.
+Ngoại lệ dữ liệu trùng lặp
+Khi sinh viên đăng ký với 
+email của
+ sinh viên đã tồn tại trong hệ thống, Backend từ chối tạo hồ sơ mới và trả về thông báo lỗi phù hợp. Frontend tiếp nhận thông báo và hiển thị nội dung dễ hiểu để người dùng thực hiện điều chỉnh thông tin.
+Hình 
+ STYLEREF 1 \s 
+4
+ SEQ Hình \* ARABIC \s 1 
+5
+: Kết quả thực hiện trường hợp ngoại lệ - Ngoại lệ dữ liệu trùng lặp
+Ngoại lệ dữ liệu không hợp lệ
+Đối với các trường thông tin bắt buộc hoặc dữ liệu không đúng định dạng, hệ thống thực hiện kiểm tra trước khi gửi yêu cầu đến máy chủ. Người dùng được yêu cầu bổ sung hoặc chỉnh sửa thông tin trước khi tiếp tục đăng ký
+Hình 
+ STYLEREF 1 \s 
+4
+ SEQ Hình \* ARABIC \s 1 
+6
+:
+ Kết quả thực hiện trường hợp ngoại lệ - Ngoại lệ dữ liệu không hợp lệ
+THỬ NGHIỆM PHÂN HỆ SMART ACCESS VÀ IOT GATEWAY
+Để đánh giá khả năng hoạt động của phân hệ Smart Access, quá trình thử nghiệm được thực hiện trên môi trường triển khai thực tế với các thiết bị ESP32-CAM, ESP32 DevKit V1, Camera OV2640, MQTT Broker và Backend SDMS. Các kịch bản thử nghiệm được xây dựng nhằm kiểm tra toàn bộ quy trình xác thực ra vào ký túc xá trong các điều kiện hoạt động khác nhau, bao gồm xác thực bằng thẻ từ, xác thực hai bước bằng khuôn mặt, kiểm tra chính sách giới nghiêm và chế độ hoạt động ngoại tuyến (Offline Mode).
+Mã kịch bản
+Tên kịch bản
+Các bước thực hiện
+Điều kiện đầu vào
+Kết quả kỳ vọng
+TC-SA-01
+Xác thực trong giờ hành chính
+Quẹt thẻ RFID tại cổng
+Thời gian từ 06:01 đến 17:59, thẻ hợp lệ
+Hệ thống xác thực thành công, Backend gửi lệnh MQTT mở cửa và ghi lịch sử truy cập.
+TC-SA-02
+Xác thực hai bước (Thẻ + Khuôn mặt)
+Quẹt thẻ RFID và chụp ảnh khuôn mặt
+Thời gian từ 18:00 đến 06:00, thẻ hợp lệ, khuôn mặt khớp
+Backend xác thực thành công, AI nhận diện đúng khuôn mặt và gửi lệnh mở cửa qua MQTT.
+TC-SA-03
+Kiểm tra chính sách giới nghiêm
+Quẹt thẻ RFID sau 23:00
+Không có đơn xin phép hoặc quá thời hạn cho phép
+Hệ thống từ chối mở cửa và trả về mã lỗi theo chính sách giới nghiêm.
+TC-SA-04
+Kiểm tra chế độ Offline
+Ngắt kết nối Backend hoặc WiFi của ESP32
+Thẻ nằm trong danh sách Offline Whitelist
+ESP32 tự xác thực cục bộ, mở cửa và lưu nhật ký để đồng bộ khi có mạng.
+Bảng 
+ STYLEREF 1 \s 
+4
+ SEQ Bảng \* ARABIC \s 1 
+3
+: 
+Các kịch bản thử nghiệm phân hệ Smart Access và IoT Gateway
+Kịch bản 1 – Xác thực trong giờ hành chính
+Điều kiện thử nghiệm
+Máy chủ hoạt động trong khoảng thời gian từ 06:01 đến 17:59. Chính sách xác thực hai bước chưa được kích hoạt.
+Các bước thực hiện
+Sinh viên quẹt thẻ RFID tại cổng. 
+ESP32 gửi yêu cầu 
+POST /verify/card
+ đến Backend. 
+Backend kiểm tra thời gian hệ thống. 
+Backend xác thực thẻ RFID hợp lệ. 
+Backend gửi lệnh MQTT 
+UNLOCK
+ đến ESP32. 
+ESP32 kích hoạt Relay mở khóa điện từ. 
+Backend ghi nhận lịch sử truy cập. 
+Kết quả mong đợi
+Cửa được mở ngay sau khi xác thực thẻ thành công mà không yêu cầu nhận diện khuôn mặt.
+Hình 
+ STYLEREF 1 \s 
+4
+ SEQ Hình \* ARABIC \s 1 
+7
+:
+ 
+Hình ảnh
+ thực 
+nghiệm thực tế
+ Kịch bản 1
+Kịch bản 2 – Xác thực hai bước (Thẻ từ và Khuôn mặt)
+Điều kiện thử nghiệm
+Máy chủ hoạt động trong khoảng thời gian từ 18:00 đến 06:00, chính sách xác thực hai bước được kích hoạt.
+Các bước thực hiện
+Sinh viên quẹt thẻ RFID. 
+ESP32-CAM chụp ảnh khuôn mặt. 
+ESP32 gửi thẻ RFID và ảnh khuôn mặt lên Backend dưới dạng 
+multipart/form-data
+. 
+Backend chuyển ảnh sang dịch vụ AI để nhận diện khuôn mặt. 
+AI so sánh vector khuôn mặt với dữ liệu đã đăng ký. 
+Nếu nhận diện thành công, Backend gửi lệnh MQTT mở cửa. 
+Nếu nhận diện thất bại, hệ thống từ chối mở cửa và trả về lỗi DUAL_AUTH_MISMATCH. 
+Kết quả mong đợi
+Trường hợp khuôn mặt khớp: cửa được mở. 
+Trường hợp khuôn mặt không khớp: cửa không mở, hệ thống cảnh báo bằng đèn đỏ hoặc còi báo. 
+Hình 
+ STYLEREF 1 \s 
+4
+ SEQ Hình \* ARABIC \s 1 
+8
+: Hình ảnh
+ thực 
+nghiệm thực tế
+ Kịch bản 
+2
+Kịch bản 3 – Kiểm tra chính sách giới nghiêm
+Điều kiện thử nghiệm
+Sinh viên thực hiện xác thực sau 23:00.
+Các bước thực hiện
+Sinh viên quẹt thẻ RFID. 
+Backend xác thực thẻ và khuôn mặt. 
+Backend đánh giá chính sách giới nghiêm. 
+Các trường hợp thử nghiệm
+Trường hợp 1: Không có đơn xin phép.
+Hệ thống từ chối mở cửa và trả về lỗi 
+CURFEW_VIOLATION
+.
+Trường hợp 2: Có đơn xin phép đã được phê duyệt.
+Backend xác nhận đơn hợp lệ và cho phép mở cửa.
+Trường hợp 3: Có đơn xin phép nhưng quay về sau thời hạn quy định.
+Backend trả về lỗi LATE_DEADLINE_EXCEEDED và không cho phép mở cửa.
+Kết quả mong đợi
+Hệ thống xử lý đúng theo từng chính sách giới nghiêm đã được cấu hình.
+Kịch bản 4 – Chế độ Offline
+Điều kiện thử nghiệm
+Backend hoặc kết nối WiFi của ESP32 bị gián đoạn.
+Các bước thực hiện
+Sinh viên quẹt thẻ RFID. 
+ESP32 không kết nối được đến Backend. 
+ESP32 tra cứu mã UID trong danh sách Offline Whitelist đã lưu trong bộ nhớ NVS. 
+Nếu UID hợp lệ, ESP32 tự kích hoạt Relay mở cửa. 
+ESP32 lưu nhật ký truy cập vào bộ nhớ Flash. 
+Khi kết nối được khôi phục, ESP32 tự động đồng bộ toàn bộ nhật ký lên Backend. 
+Kết quả mong đợi
+Hệ thống vẫn cho phép mở cửa đối với các thẻ hợp lệ ngay cả khi mất kết nối mạng, đồng thời bảo đảm dữ liệu truy cập được đồng bộ sau khi hệ thống hoạt động trở lại.
+Kết quả thử nghiệm
+Sau khi thực hiện các kịch bản trên môi trường triển khai thực tế, phân hệ Smart Access và IoT Gateway hoạt động ổn định, đáp ứng đúng yêu cầu thiết kế. Chức năng xác thực thẻ RFID, xác thực hai bước bằng khuôn mặt, kiểm tra chính sách giới nghiêm và chế độ hoạt động ngoại tuyến đều cho kết quả đúng với nghiệp vụ đã xây dựng.
+Mã kịch bản
+Kết quả thực tế
+Trạng thái
+TC-SA-01
+Hệ thống xác thực thẻ thành công và mở cửa ngay trong giờ hành chính.
+Đạt
+TC-SA-02
+Hệ thống yêu cầu xác thực khuôn mặt ngoài giờ hành chính và xử lý đúng cả trường hợp thành công và thất bại.
+Đạt
+TC-SA-03
+Chính sách giới nghiêm được áp dụng đúng theo từng trường hợp có hoặc không có đơn xin phép.
+Đạt
+TC-SA-04
+Chế độ Offline hoạt động đúng, mở cửa bằng Offline Whitelist và đồng bộ nhật ký sau khi có mạng.
+Đạt
+Bảng 
+ STYLEREF 1 \s 
+4
+ SEQ Bảng \* ARABIC \s 1 
+4
+:
+ 
+Kết quả thử nghiệm phân hệ Smart Access và IoT Gateway
+KẾT LUẬN
+KẾT QUẢ ĐỐI CHIẾU VỚI MỤC TIÊU
+STT
+Tiêu chí đánh giá
+Kết quả kỳ vọng
+Đánh giá
+Minh chứng thực tế
+1
+Quản lý cơ sở vật chất ký túc xá
+Quản lý tập trung thông tin tòa nhà, tầng, phòng và giường trên hệ thống.
+Đạt
+Hệ thống cho phép quản lý đầy đủ thông tin tòa nhà, tầng, phòng, giường và trạng thái sử dụng.
+2
+Quản lý quy trình đăng ký và lưu trú
+Hỗ trợ quy trình đăng ký, xét duyệt hồ sơ, phân phòng, nhận phòng, chuyển phòng, gia hạn và trả phòng.
+Đạt
+Các quy trình nghiệp vụ được số hóa thông qua biểu mẫu trực tuyến và quy trình xử lý hồ sơ trên hệ thống.
+3
+Kiểm soát ra vào bằng RFID và nhận diện khuôn mặt
+Hỗ trợ xác thực sinh viên bằng RFID hoặc nhận diện khuôn mặt để kiểm soát ra vào.
+Đạt
+Hệ thống tích hợp thiết bị IoT với máy chủ để xác thực và điều khiển cửa tự động.
+4
+Quản lý thanh toán
+Tự động cập nhật trạng thái thanh toán hóa đơn thông qua SePay.
+Đạt
+Cơ chế Webhook tự động cập nhật trạng thái giao dịch và giảm thao tác đối soát thủ công.
+5
+Hiệu năng xử lý
+Bảo đảm thời gian phản hồi nhanh, đáp ứng nhu cầu sử dụng trong điều kiện thông thường.
+Đạt
+Hệ thống phản hồi các yêu cầu nhận diện và mở cửa trong thời gian cho phép, không gây độ trễ đáng kể.
+6
+Khả năng xử lý đồng thời
+Hệ thống hoạt động ổn định khi nhiều người dùng truy cập đồng thời.
+Đạt một phần
+Kiến trúc hiện tại chưa triển khai cân bằng tải nên khả năng mở rộng còn hạn chế khi số lượng yêu cầu đồng thời tăng cao.
+7
+Tính chính xác của dữ liệu
+Mỗi giao dịch thanh toán chỉ được ghi nhận một lần, hạn chế dữ liệu trùng lặp.
+Đạt
+Áp dụng cơ chế Idempotency để kiểm tra mã giao dịch duy nhất trước khi cập nhật dữ liệu.
+8
+Độ ổn định của thiết bị IoT
+Thiết bị IoT hoạt động ổn định và hỗ trợ kiểm soát ra vào liên tục.
+Đạt một phần
+Thiết bị vẫn phụ thuộc vào kết nối mạng do chưa thể lưu trữ đầy đủ dữ liệu sinh trắc học tại cục bộ.
+Bảng 
+ STYLEREF 1 \s 
+5
+ SEQ Bảng \* ARABIC \s 1 
+1
+: Kết quả đối chiếu mục tiêu nghiên cứu.
+CÁC VẤN ĐỀ CÒN TỒN ĐỌNG
+Thông qua quá trình triển khai và đánh giá hệ thống, đề tài ghi nhận một số hạn chế về kiến trúc và triển khai thực tế như sau:
+Sự phụ thuộc vào kết nối mạng của thiết bị IoT:
+ Do giới hạn về tài nguyên phần cứng của ESP32, thiết bị chưa thể lưu trữ toàn bộ dữ liệu sinh trắc học tại cục bộ. Vì vậy, quá trình xác thực hiện vẫn phụ thuộc vào kết nối mạng để trao đổi dữ liệu với máy chủ. 
+Khả năng mở rộng của kiến trúc xử lý:
+ Phân hệ nhận diện khuôn mặt hiện xử lý theo cơ chế đồng bộ
+. 
+Việc chưa triển khai cơ chế 
+hàng đợi thông điệp (Message Queue)
+ làm hạn chế khả năng mở rộng khi số lượng yêu cầu xử lý đồng thời tăng cao. 
+Giới hạn về phương thức thanh toán:
+ Hệ thống hiện chỉ hỗ trợ đối soát thông qua SePay và chưa tích hợp trực tiếp API của các ví điện tử phổ biến, do đó khả năng lựa chọn phương thức thanh toán còn hạn chế.
+MỞ RỘNG
+Từ những hạn chế hiện tại và nhu cầu thực tế trong công tác quản lý ký túc xá, hệ thống có thể tiếp tục được nghiên cứu và phát triển theo các hướng sau:
+Ứng dụng trí tuệ nhân tạo trong quy trình đăng ký và xét duyệt:
+ Nghiên cứu tích hợp các mô hình AI nhằm hỗ trợ kiểm tra tính hợp lệ của hồ sơ, phát hiện thông tin bất thường và gợi ý kết quả xét duyệt dựa trên các tiêu chí đã cấu hình, góp phần giảm thời gian xử lý và hỗ trợ cán bộ quản lý trong quá trình xét duyệt. 
+Mở rộng ứng dụng IoT trong quản lý điện, nước:
+ Tích hợp đồng hồ điện và đồng hồ nước thông minh để tự động thu thập chỉ số tiêu thụ, hỗ trợ tính toán chi phí, phát hiện bất thường và giảm thao tác nhập liệu thủ công. 
+Hoàn thiện các phân hệ quản lý:
+ Bổ sung chức năng quản lý bảo trì cơ sở vật chất, quản lý khen thưởng và kỷ luật nhằm hỗ trợ ban quản lý theo dõi toàn diện quá trình sinh hoạt và lưu trú của sinh viên. 
+Mở rộng phương thức thanh toán:
+ Tích hợp thêm các cổng thanh toán điện tử như MoMo, ZaloPay và các nền tảng thanh toán trực tuyến khác nhằm đa dạng hóa phương thức thanh toán và nâng cao trải nghiệm người dùng. 
+Ứng dụng cơ chế cập nhật dữ liệu theo thời gian thực:
+ Nghiên cứu triển khai các công nghệ như WebSocket hoặc Server-Sent Events (SSE) để đồng bộ trạng thái đăng ký, xét duyệt hồ sơ, thanh toán, kiểm soát ra vào và các thông báo giữa máy chủ với người dùng theo thời gian thực, góp phần nâng cao khả năng tương tác và giảm độ trễ cập nhật dữ liệu. 
+Nâng cao khả năng mở rộng và tính sẵn sàng của hệ thống:
+ Nghiên cứu triển khai cơ chế xử lý bất đồng bộ bằng RabbitMQ kết hợp mô hình máy chủ phân tán và cụm 
+Tính sẵn sàng cao (High Availability)
+ nhằm nâng cao hiệu năng, khả năng mở rộng và độ ổn định của hệ thống. 
+Hoàn thiện quy trình kiểm thử và vận hành:
+ Bổ sung các kịch bản kiểm thử đơn vị, kiểm thử tích hợp và tự động hóa quy trình triển khai nhằm nâng cao chất lượng phần mềm và hỗ trợ bảo trì trong tương lai.
+PHỤ LỤC
+PHỤ LỤC A: HƯỚNG DẪN SỬ DỤNG
+DÀNH CHO BAN QUẢN LÝ (WEB ADMIN)
+Quy trình 
+m
+ở đợt đăng ký nội trú mới
+Đây là bước quan trọng nhất để bắt đầu một kỳ tuyển sinh. Quản trị viên
+ 
+thực hiện theo ba bước sau:
+Bước 1. Khởi tạo thông tin đợt đăng ký
+Truy cập menu 
+Quản lý đợt đăng ký
+ và nhấn 
+Tạo mới
+. 
+Nhập các thông tin cơ bản: 
+Tên đợt:
+ Ví dụ: 
+Đăng ký KTX Học kỳ 1 - 2024
+. 
+Thời gian nộp đơn:
+ Chọn ngày bắt đầu và ngày kết thúc. Sau thời điểm kết thúc, sinh viên sẽ không thể nộp hồ sơ. 
+Thời gian lưu trú:
+ Chọn ngày bắt đầu và ngày kết thúc thời gian ở nội trú. 
+Loại đăng ký:
+ Chọn một trong ba loại: 
+Tân sinh viên; 
+Sinh viên đang nội trú; 
+Đăng ký tự do. 
+Nhấn 
+Lưu
+ để lưu thông tin. 
+Bước 2. Chuẩn bị danh sách đủ điều kiện
+Lưu ý:
+ Bước này chỉ áp dụng đối với đợt đăng ký dành cho 
+Tân sinh viên
+ hoặc 
+Đăng ký tự do
+. Nếu chọn loại 
+Sinh viên đang nội trú
+, có thể bỏ qua bước này.
+Chọn 
+Danh sách đủ điều kiện
+ tại đợt đăng ký vừa tạo. 
+Chuẩn bị tệp Excel theo đúng cấu trúc quy định
+.
+Nhấn 
+Import Excel
+ để tải tệp lên hệ thống. 
+Kiểm tra lại số lượng và thông tin sinh viên đã được nhập chính xác. 
+Bước 3. Kích hoạt đợt đăng ký
+Quay lại danh sách các đợt đăng ký. 
+Nhấn 
+Kích hoạt
+ 
+tại đợt cần mở. 
+Quy trình 
+p
+hê duyệt hồ sơ sinh viên
+Đây là quy trình thẩm định hồ sơ nhiều bước nhằm đảm bảo tính chính xác và đầy đủ của dữ liệu trước khi tiếp nhận sinh viên vào ký túc xá.
+Bước 1. Tiếp nhận và xem thông tin tổng quan
+Truy cập menu 
+Kiểm duyệt hồ sơ
+. 
+Chọn một hồ sơ đang ở trạng thái 
+Chờ duyệt
+.
+Kiểm tra các thông tin định danh của sinh viên
+Kiểm tra thông tin 
+xếp phòng dự kiến
+Bước 2. Đối chiếu tài liệu do hệ thống sinh tự động
+Bước 3. Thẩm định minh chứng đính kèm
+Nếu hợp lệ, chọn 
+Hợp lệ
+.
+Nếu không hợp lệ, chọn 
+Lỗi sai
+.
+ 
+Bước 4. Quyết định xử lý hồ sơ
+Sau khi hoàn tất việc kiểm tra, Admin lựa chọn một trong ba thao tác sau:
+Yêu cầu bổ sung
+Áp dụng khi có ít nhất một tài liệu không đạt yêu cầu.
+Admin cần:
+Nhập nội dung hướng dẫn chỉnh sửa; 
+Thiết lập thời hạn cập nhật. 
+Hệ thống sẽ gửi email yêu cầu sinh viên bổ sung hồ sơ.
+Từ chối
+Áp dụng đối với hồ sơ không đủ điều kiện.
+Kết quả:
+Giải phóng vị trí giường đã giữ
+.
+Gửi thông báo từ chối đến sinh viên. 
+Duyệt hợp lệ
+Áp dụng khi toàn bộ hồ sơ hợp lệ.
+Kết quả:
+Hồ sơ chuyển sang trạng thái 
+Chờ đóng tiền
+ 
+Hệ thống tự động tạo hóa đơn; 
+Gửi email thông báo và hướng dẫn thanh toán; 
+Cấp thông tin tài khoản ứng dụng cho sinh viên.
+Quy trình 
+n
+hận phòng và 
+q
+uản lý định danh
+Đây là phương thức sử dụng thiết bị di động.
+Bước 1. Quét thông tin định danh
+Quét mã QR trên CCCD
+ 
+hoặc 
+n
+hập số CCCD thủ công. 
+Bước 2. Đối soát thông tin
+Ứng dụng hiển thị:
+Ảnh chân dung; 
+Thông tin phòng
+.
+Thông tin giường. 
+Admin tiến hành đối chiếu với sinh viên thực tế.
+Bước 3. Gán thẻ RFID
+Có thể:
+Quét từ đầu đọc
+.
+Hoặc nhập thủ công.
+Bước 4. Xác nhận và giao khóa
+Kết quả:
+Hệ thống lưu mã RFID vào hồ sơ sinh viên
+.
+Sinh viên có thể sử dụng thẻ để mở cổng IoT
+.
+Trạng thái cư trú được kích hoạt.
+DÀNH CHO SINH VIÊN (WEB PUBLIC)
+Quy trình 
+đ
+ăng ký nội trú trực tuyến
+Sau khi Ban Quản lý kích hoạt đợt đăng ký, sinh viên thực hiện đăng ký nội trú trực tuyến theo các bước sau:
+Bước 1. Xác thực danh tính (OTP Verification)
+Truy cập trang chủ 
+Web Public
+. 
+Nhập địa chỉ email sinh viên và nhấn 
+Nhận mã OTP
+. 
+Kiểm tra hộp thư điện tử để lấy mã xác thực gồm 06 chữ số. 
+Nhập mã OTP vào hệ thống để bắt đầu khai báo hồ sơ. 
+Bước 2. Khai báo thông tin cá nhân và gia đình
+Sinh viên điền đầy đủ các thông tin theo biểu mẫu. Đối với các sinh viên đã có thông tin trong danh sách đủ điều kiện, hệ thống sẽ tự động điền một số trường dữ liệu.
+Bước 3. Tải lên minh chứng 
+Sinh viên chuẩn bị các hình ảnh rõ nét và tải lên hệ thống, bao gồm:
+Ảnh chân dung. 
+Ảnh mặt trước CCCD/CMND. 
+Ảnh mặt sau CCCD/CMND. 
+Các giấy tờ ưu tiên (nếu có)
+ 
+Bước 4. Ký cam kết điện tử và nộp hồ sơ
+Bước 5. Nhấn nộp hồ sơ
+Tra cứu và theo dõi tiến độ hồ sơ
+Sau khi nộp hồ sơ thành công, sinh viên có thể sử dụng chức năng 
+Tra cứu hồ sơ
+ để theo dõi quá trình x
+ử lí
+Theo dõi trạng thái hồ sơ
+Hệ thống hiển thị rõ trạng thái hiện tại của hồ sơ, bao gồm:
+Chờ xét duyệt
+:
+ Hồ sơ đã được tiếp nhận và đang chờ Ban Quản lý kiểm tra. 
+Yêu cầu bổ sung
+:
+ Hồ sơ cần bổ sung hoặc chỉnh sửa tài liệu theo yêu cầu của Ban Quản lý. 
+Chờ đóng tiền
+ 
+ Hồ sơ đã được phê duyệt hợp lệ và đang chờ thanh toán. 
+Đã tiếp nhận
+: 
+Sinh viên đã hoàn thành thanh toán và được xác nhận chính thức. 
+Theo dõi thông tin xếp phòng
+Hệ thống hiển thị thông tin phòng nội trú dự kiến 
+Đồng thời áp dụng các quy định sau:
+Sinh viên có tối đa 
+03 ngày
+ kể từ ngày hồ sơ được phê duyệt để hoàn tất thanh toán. 
+Nếu quá thời hạn trên mà chưa thanh toán, hồ sơ sẽ chuyển sang trạng thái 
+EXPIRED
+, đồng thời hệ thống tự động hủy giữ chỗ và giải phóng giường cho sinh viên khác. 
+Theo dõi thông tin thanh toán
+Hệ thống tự động tính toán tiền nội trú dựa trên thời gian lưu trú 
+Thanh toán
+Thanh toán trực tuyến
+Quét mã QR SePay (Ngân hàng MBBank). 
+Thanh toán trực tiếp
+Đóng tiền mặt tại Văn phòng Ban Quản lý Ký túc xá. 
+Kích hoạt tài 
+khoản
+ sau khi 
+thanh
+ toán
+Sau khi hệ thống xác nhận thanh toán thành công
+Sinh viên nhấn 
+Kích hoạt tài khoản cư dân ngay
+ để bắt đầu sử dụng ứng dụng di động. 
+Bước 1. Thông tin tài khoản mặc định
+Hệ thống tự động tạo tài khoản với:
+Tên đăng nhập:
+ Mã số sinh viên (MSSV). 
+Mật khẩu mặc định:
+ Chính là Mã số sinh viên. 
+Bước 2. Thiết lập mật khẩu mới
+Sinh viên nhập:
+Mật khẩu mới
+.
+Xác nhận lại mật khẩu. 
+Bước 3. Hoàn tất kích hoạt
+Sau khi kích hoạt thành công:
+Tài khoản chuyển sang trạng thái 
+ACTIVE
+. 
+Sinh viên sử dụng tài khoản này để đăng nhập vào 
+Ứng dụng SDMS Student
+.
+Quy trình bổ sung hồ sơ
+Trong trường hợp hồ sơ chưa đạt yêu cầu, sinh viên thực hiện bổ sung theo hướng dẫn của Ban Quản lý
+: 
+Hệ thống chuyển hồ sơ sang trạng thái 
+Yêu cầu bổ sung
+. 
+Những tài liệu chưa đạt sẽ được đánh dấu màu đỏ và hiển thị ghi chú giải thích nguyên nhân. 
+Sinh viên tải lại các tài liệu theo yêu cầu và nhấn 
+Cập nhật hồ sơ
+ để gửi hồ sơ xét duyệt lại. 
+DÀNH CHO SINH VIÊN (APP STUDENT)
+Tải và 
+đ
+ăng nhập ứng dụng
+Sau khi hoàn tất quá trình kích hoạt tài khoản trên 
+Web Public
+, sinh viên có thể cài đặt và sử dụng ứng dụng 
+SDMS Student
+ để truy cập các tiện ích nội trú trên thiết bị di động.
+Bước 1. Tải và cài đặt ứng dụng
+Sinh viên thực hiện tải và cài đặt ứng dụng 
+SDMS Student
+ trên điện thoại thông minh 
+Bước 2. Đăng nhập ứng dụng
+Sau khi cài đặt thành công, sinh viên mở ứng dụng và đăng nhập bằng các thông tin sau:
+Tên đăng nhập:
+ Mã số sinh viên (MSSV). 
+Mật khẩu:
+ Mật khẩu đã được thiết lập trong quá trình kích hoạt tài khoản trên Web Public. 
+Sau khi nhập đầy đủ thông tin, nhấn 
+Đăng nhập
+ để truy cập vào hệ thống.
+Bước 3. Sử dụng các tiện ích nội trú
+Sau khi đăng nhập thành công, sinh viên sẽ được chuyển đến 
+Trang chủ
+ của ứng dụng. Tại đây, người dùng có thể sử dụng đầy đủ các chức năng phục vụ quá trình sinh hoạt tại ký túc xá, bao gồm:
+Xem thông tin cá nhân và thông tin phòng ở. 
+Theo dõi lịch sử ra vào ký túc xá. 
+Quản lý và thanh toán các hóa đơn nội trú. 
+Sử dụng chức năng định danh khuôn mặt phục vụ kiểm soát ra vào. 
+Nhận các thông báo mới từ Ban Quản lý. 
+Truy cập nhanh đến các tiện ích và dịch vụ được tích hợp trong hệ thống. 
+Ứng dụng được thiết kế với giao diện trực quan, thân thiện và tối ưu cho thiết bị di động, giúp sinh viên dễ dàng sử dụng các dịch vụ của hệ thống SDMS mọi lúc, mọi nơi.
+PHỤ LỤC 
+B
+: TÀI LIỆU KHẢO SÁT HIỆN TRẠNG VÀ QUY CHẾ VẬN HÀNH KÝ TÚC XÁ TRƯỜNG ĐẠI HỌC CÔNG NGHỆ SÀI GÒN (STU)
+TỔNG QUAN VỀ KÝ TÚC XÁ STU
+Vị trí và giao thông
+Ký túc xá Trường Đại học Công nghệ Sài Gòn (STU) nằm trong khuôn viên trường tại số 
+180 Cao Lỗ, Phường 4, Quận 8, Thành phố Hồ Chí Minh
+. Khu ký túc xá có một cổng chính và các cổng phụ phục vụ việc di chuyển của sinh viên, tạo điều kiện thuận lợi cho việc học tập và tham gia các hoạt động tại trường.
+Quy mô và cơ sở vật chất
+Ký túc xá gồm 
+01 tòa nhà 02 tầng
+, sử dụng cầu thang bộ để di chuyển giữa các tầng.
+Tổng số phòng: 20 phòng. 
+Sức chứa: khoảng 500 sinh viên. 
+Tầng 1 (Phòng 101–110): khu lưu trú nam. 
+Tầng 2 (Phòng 201–210): khu lưu trú nữ. 
+Mỗi phòng bố trí khoảng 30 giường.
+Tiện ích nội khu
+Trong phòng
+Mỗi phòng được trang bị giường, bàn học, quạt và tủ cá nhân cho từng sinh viên. Mỗi phòng có khóa riêng và hiện chưa được trang bị máy lạnh.
+Khu vực học tập và sinh hoạt
+Ký túc xá được phủ sóng WiFi, có phòng học chung dành cho sinh viên và khu vực phơi đồ riêng.
+Tiện ích dùng chung
+Sinh viên được sử dụng máy lọc nước nóng/lạnh. Ban quản lý bố trí khu vực sử dụng chung gồm bàn ủi và bình đun siêu tốc nhằm đáp ứng nhu cầu sinh hoạt.
+Nước sinh hoạt và vệ sinh
+Nước sinh hoạt được cung cấp miễn phí. Nhà vệ sinh và phòng tắm được sử dụng chung theo từng tầng. Công tác vệ sinh khu vực chung do nhân viên của trường thực hiện.
+An ninh và gửi xe
+Ký túc xá được giám sát bằng hệ thống camera hoạt động 24/7. Sinh viên gửi xe tại hầm xe của trường, chi phí gửi xe do bộ phận bảo vệ quản lý.
+Đơn vị quản lý và vận hành
+Ký túc xá do 
+Ban Quản lý Ký túc xá thuộc Phòng Hành chính – Quản trị
+ trực tiếp quản lý. Ban quản lý bố trí cán bộ trực luân phiên nhằm hỗ trợ và xử lý các vấn đề phát sinh.
+Hiện nay, các nghiệp vụ tiếp nhận hồ sơ, quản lý lưu trú, điểm danh và theo dõi tiền điện được thực hiện thủ công bằng hồ sơ giấy và Microsoft Excel.
+Thông tin liên hệ
+Điện thoại Phòng Hành chính – Quản trị: 
+028.38505520
+ 
+Văn phòng Ban Quản lý KTX: 
+028.38508673
+ 
+Email: 
+ktx@stu.edu.vn
+ 
+QUY TRÌNH ĐĂNG KÝ, XÉT DUYỆT VÀ CHU KỲ LƯU TRÚ
+Nguyên tắc phân bổ và chu kỳ lưu trú
+Việc đăng ký lưu trú được thực hiện theo 
+02 học kỳ chính
+, mỗi học kỳ kéo dài khoảng 
+06 tháng
+.
+Sau khi kết thúc hai học kỳ, sinh viên có nhu cầu tiếp tục lưu trú trong thời gian hè có thể đăng ký lưu trú 
+02 tháng
+. Đây là giai đoạn độc lập để Ban Quản lý rà soát, đánh giá ý thức chấp hành nội quy và xét duyệt việc tiếp tục lưu trú cho năm học tiếp theo.
+Sinh viên được gia hạn vẫn phải nộp lại Phiếu đăng ký lưu trú và Bản cam kết theo quy định.
+Sau khi hoàn tất việc xét duyệt sinh viên cũ, Ban Quản lý xác định số lượng chỗ trống và tổ chức tiếp nhận hồ sơ của tân sinh viên vào đầu năm học.
+Sinh viên giữ chức vụ Trưởng phòng hoặc Phó phòng được ưu tiên xem xét tiếp tục lưu trú nhằm duy trì công tác tự quản, đồng thời vẫn phải thực hiện đầy đủ hồ sơ đăng ký.
+Các đợt xét duyệt đầu năm học
+Đợt 1
+Tiếp nhận hồ sơ trong tháng 8 và công bố kết quả vào cuối tháng.
+Đợt 2
+Tiếp nhận hồ sơ bổ sung trong tháng 9 nếu còn chỗ trống và công bố kết quả sau khi hoàn thành xét duyệt.
+Phí lưu trú được tính từ thời điểm sinh viên nhận phòng.
+Đối tượng ưu tiên
+Các nhóm ưu tiên gồm:
+Con liệt sĩ, thương binh, bệnh binh hoặc đối tượng chính sách theo quy định. 
+Con của người hoạt động kháng chiến bị nhiễm chất độc hóa học. 
+Sinh viên là người dân tộc thiểu số. 
+Sinh viên thuộc hộ nghèo, cận nghèo hoặc khu vực khó khăn. 
+Sinh viên khuyết tật hoặc mồ côi không nơi nương tựa. 
+Đảng viên, bộ đội hoặc công an đã hoàn thành nghĩa vụ quân sự. 
+Sinh viên tích cực tham gia công tác Đoàn, Hội và hoạt động xã hội. 
+Hồ sơ đăng ký
+Hồ sơ gồm:
+Phiếu đăng ký lưu trú theo mẫu. 
+Bản cam kết chấp hành nội quy ký túc xá. 
+Hai bản sao CCCD hoặc CMND. 
+Bốn ảnh 3×4. 
+Giấy tờ chứng minh đối tượng ưu tiên (nếu có). 
+Phương thức nộp hồ sơ
+Phiếu đăng ký có thể gửi qua đường bưu điện hoặc thư điện tử theo hướng dẫn của Nhà trường.
+Các giấy tờ còn lại được nộp trực tiếp tại Văn phòng Ban Quản lý khi sinh viên đến nhận phòng.
+QUY TRÌNH CHI PHÍ, CHU KỲ THANH TOÁN VÀ ĐIỆN NƯỚC
+Mức phí lưu trú và chu kỳ thanh toán
+Mức phí lưu trú hiện hành là 
+350.000 đồng/tháng/sinh viên
+.
+Đối với hai học kỳ chính, phí lưu trú được thu theo từng quý (03 tháng/lần). Sinh viên lưu trú trong kỳ hè đóng phí theo thời gian lưu trú thực tế của kỳ hè.
+Thời gian, địa điểm và hình thức thanh toán
+Các khoản phí lưu trú do 
+Phòng Kế hoạch – Tài chính
+ của Nhà trường quản lý. Ban Quản lý Ký túc xá có trách nhiệm thông báo, hướng dẫn và hỗ trợ sinh viên thực hiện đúng quy định.
+Thông báo thu phí được ban hành trước mỗi kỳ thanh toán. Sinh viên thực hiện đóng phí tại Văn phòng Ban Quản lý Ký túc xá bằng tiền mặt hoặc chuyển khoản theo hướng dẫn của Nhà trường.
+Sau khi hoàn tất thanh toán, sinh viên được cấp biên lai thu phí có xác nhận của Nhà trường.
+Trường hợp gặp khó khăn về tài chính, sinh viên có thể làm đơn xin gia hạn thời gian đóng phí để Ban Quản lý xem xét theo quy định.
+Tiền điện và nước sinh hoạt
+Nước sinh hoạt được cung cấp miễn phí.
+Tiền điện được tính theo chỉ số công tơ của từng phòng. Chi phí điện được các thành viên trong phòng tự phân chia và Trưởng phòng đại diện nộp cho Ban Quản lý.
+Quy định hoàn trả phí
+Sinh viên chuyển khỏi ký túc xá phải hoàn thành các thủ tục theo quy định.
+Đối với trường hợp bị buộc chấm dứt lưu trú do vi phạm nội quy, sinh viên vẫn phải thanh toán đầy đủ các khoản chi phí phát sinh theo quy định của Nhà trường.
+QUY TRÌNH BỐ TRÍ PHÒNG VÀ BỘ KHUNG QUẢN LÝ
+Nguyên tắc bố trí và tự quản
+Sinh viên được bố trí phòng theo kế hoạch của Ban Quản lý và phải lưu trú đúng phòng đã được phân công.
+Trong trường hợp có lý do chính đáng và còn chỗ trống, sinh viên có thể đề nghị chuyển phòng để Ban Quản lý xem xét.
+Các phòng tự tổ chức công tác vệ sinh, trực nhật và bầu Trưởng phòng, Phó phòng để điều phối sinh hoạt chung.
+Bộ khung quản lý phòng
+Mỗi phòng bố trí 
+01 Trưởng phòng
+ và 
+01 Phó phòng
+.
+Trưởng phòng có trách nhiệm:
+Điều hành sinh hoạt của phòng. 
+Phân công trực nhật. 
+Quản lý tài sản dùng chung. 
+Thực hiện điểm danh hằng đêm. 
+Báo cáo danh sách sinh viên vắng mặt cho Ban Quản lý. 
+Ban Quản lý tổng hợp và lưu trữ thông tin điểm danh phục vụ công tác quản lý lưu trú.
+Kiểm tra và bảo trì
+Ban Quản lý thực hiện kiểm tra định kỳ hoặc đột xuất nhằm đánh giá tình trạng vệ sinh, việc chấp hành nội quy và sử dụng cơ sở vật chất.
+Sinh viên phản ánh các sự cố về điện, nước hoặc trang thiết bị trong thời gian tiếp nhận theo quy định để được hỗ trợ sửa chữa.
+Các hư hỏng phát sinh do hao mòn tự nhiên được Nhà trường sửa chữa. Trường hợp hư hỏng do sử dụng sai mục đích hoặc cố ý làm hỏng, sinh viên phải bồi thường theo quy định.
+Việc mang thêm tài sản hoặc thiết bị từ bên ngoài vào ký túc xá phải được Ban Quản lý chấp thuận trước khi sử dụng
+QUY TRÌNH KHUNG GIỜ VẬN HÀNH VÀ NỘI QUY SINH HOẠT
+Khung giờ hoạt động
+Ký túc xá áp dụng khung giờ sinh hoạt nhằm đảm bảo an ninh và nề nếp chung.
+05 giờ 30:
+ Mở cổng. 
+22 giờ 00:
+ Đóng cổng. Trường hợp ra sớm hoặc về trễ phải được Ban Quản lý cho phép. 
+23 giờ 00 – 05 giờ 30:
+ Sinh viên tắt đèn, giữ trật tự. Trường hợp cần học khuya sử dụng phòng học chung của ký túc xá. 
+Quy định về khách và người ngoài
+Sinh viên có trách nhiệm phối hợp với Ban Quản lý trong công tác bảo đảm an ninh khu vực ký túc xá.
+Bạn bè đến thăm chỉ được gặp tại khu vực tầng trệt, không được vào phòng lưu trú.
+Người thân có nhu cầu lưu trú qua đêm phải đăng ký và được Ban Quản lý chấp thuận trước khi ở lại.
+Quy định sinh hoạt chung
+Sinh viên có trách nhiệm thực hiện các quy định sau:
+Trang phục lịch sự khi sinh hoạt trong khuôn viên ký túc xá. 
+Giữ gìn vệ sinh phòng ở và khu vực chung; đổ rác đúng nơi quy định. 
+Không tự ý câu mắc điện hoặc sử dụng các thiết bị điện không đúng quy định. 
+Việc sử dụng bàn ủi và bình đun siêu tốc phải thực hiện tại khu vực dùng chung. 
+Giữ gìn trật tự, không gây tiếng ồn ảnh hưởng đến sinh viên khác. 
+Không viết, vẽ hoặc dán giấy lên tường và tài sản của ký túc xá. 
+Nam sinh viên không được tự ý lên khu vực lưu trú của nữ sinh. 
+Kết thúc lưu trú
+Khi kết thúc thời gian lưu trú hoặc chuyển khỏi ký túc xá, sinh viên phải:
+Hoàn thành các khoản chi phí còn lại, đặc biệt là tiền điện của phòng. 
+Thu dọn toàn bộ tài sản cá nhân. 
+Thông báo cho Trưởng phòng, Phó phòng hoặc Ban Quản lý để cập nhật danh sách lưu trú. 
+BẢNG 11 ĐIỀU CAM KẾT VÀ MỨC XỬ LÝ KỶ LUẬT
+STT
+Nội dung cam kết
+Hình thức xử lý
+1
+Không mua bán, tàng trữ hoặc sử dụng ma túy; không hút thuốc lá trong ký túc xá; không xăm hình.
+Buộc ra khỏi KTX
+2
+Không nấu ăn, đốt lửa; không sử dụng hoặc tàng trữ chất dễ cháy nổ và thiết bị đun nấu trái quy định.
+Buộc ra khỏi KTX
+3
+Không chứa chấp người lưu trú trái phép; không đưa bạn bè vào phòng ở.
+Buộc ra khỏi KTX
+4
+Không phá hoại hoặc sử dụng sai mục đích hệ thống phòng cháy chữa cháy.
+Buộc ra khỏi KTX
+5
+Không uống rượu bia, đánh bạc, cá độ; không tàng trữ văn hóa phẩm trái phép hoặc hung khí; không gây mất an ninh trật tự.
+Buộc ra khỏi KTX
+6
+Chấp hành quy định về trang phục, ứng xử và khu vực lưu trú; không viết, vẽ hoặc làm hư hỏng cơ sở vật chất.
+Xử lý theo quy chế
+7
+Bảo quản tài sản của ký túc xá; bồi thường khi làm hư hỏng do lỗi của cá nhân.
+Xử lý theo quy chế
+8
+Không tự ý vào khu vực cấm; chủ động phối hợp bảo vệ tài sản và báo cáo người lạ khi phát hiện.
+Xử lý theo quy chế
+9
+Giữ gìn trật tự sau 22 giờ; thực hiện vệ sinh phòng ở và đổ rác đúng quy định.
+Xử lý theo quy chế
+10
+Chấp hành đầy đủ Quy chế Ký túc xá, phân công phòng ở và tự bảo quản tài sản cá nhân.
+Xử lý theo quy chế
+11
+Tuân thủ các quy định về kiểm tra, kiểm soát an ninh tại khu vực cổng ra vào.
+Buộc ra khỏi KTX
+Bảng 
+B
+ STYLEREF 1 \s 
+5
+ SEQ Bảng \* ARABIC \s 1 
+2
+: 
+Nội dung cam kết và hình thức xử lý
+QUY TRÌNH ỨNG PHÓ KHẨN CẤP (PCCC)
+Khi phát hiện cháy hoặc sự cố có nguy cơ gây mất an toàn, sinh viên thực hiện theo trình tự sau:
+Ngắt nguồn điện tại khu vực xảy ra sự cố nếu bảo đảm an toàn. 
+Sử dụng bình chữa cháy gần nhất để xử lý đám cháy trong khả năng cho phép. 
+Báo ngay cho Ban Quản lý Ký túc xá và lực lượng bảo vệ để tổ chức ứng cứu và xử lý kịp thời.
+PHỤ LỤC 
+C
+: 
+MÃ ĐỊNH NGHĨA CƠ SỞ DỮ LIỆU (SQL DDL
+)
+-- Kích hoạt các extension cần thiết cho PostgreSQL 
+CREATE EXTENSION IF NOT EXISTS 
+"uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS 
+vector;
+-- ==========================================
+-- PHÂN HỆ 1: CẤU HÌNH & TÀI KHOẢN
+-- ==========================================
+-- 1. system_configs
+CREATE TABLE 
+system_configs 
+(
+    
+config_key 
+VARCHAR
+(
+100
+) 
+PRIMARY KEY
+,
+    
+config_value 
+TEXT NOT NULL
+,
+    
+description 
+TEXT
+,
+    
+group_name 
+VARCHAR
+(
+50
+) 
+NOT NULL
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 2. user_accounts
+CREATE TABLE 
+user_accounts 
+(
+    
+account_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+username 
+VARCHAR
+(
+50
+) 
+UNIQUE NOT NULL
+,
+    
+email 
+VARCHAR
+(
+100
+) 
+UNIQUE NOT NULL
+,
+    
+password 
+VARCHAR
+(
+255
+) 
+NOT NULL
+,
+    
+role 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+DEFAULT 
+'PENDING_ACTIVATION' 
+NOT NULL
+,
+    
+last_login 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+refresh_token 
+VARCHAR
+(
+255
+),
+    
+refresh_token_expiry 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+reset_password_token 
+VARCHAR
+(
+255
+),
+    
+reset_password_expiry 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+failed_login_attempts 
+INTEGER DEFAULT 
+0 
+NOT NULL
+,
+    
+lock_time 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+student_id 
+UUID UNIQUE
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- ==========================================
+-- PHÂN HỆ 2: SINH VIÊN VÀ ĐĂNG KÝ
+-- ==========================================
+-- 3. registration_periods
+CREATE TABLE 
+registration_periods 
+(
+    
+period_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+period_name 
+VARCHAR
+(
+100
+) 
+NOT NULL
+,
+    
+start_date 
+TIMESTAMP WITHOUT TIME ZONE NOT NULL
+,
+    
+end_date 
+TIMESTAMP WITHOUT TIME ZONE NOT NULL
+,
+    
+stay_start_date 
+TIMESTAMP WITHOUT TIME ZONE NOT NULL
+,
+    
+stay_end_date 
+TIMESTAMP WITHOUT TIME ZONE NOT NULL
+,
+    
+is_active 
+BOOLEAN DEFAULT TRUE NOT NULL
+,
+    
+registration_type 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 4. registration_eligibilities
+CREATE TABLE 
+registration_eligibilities 
+(
+    
+eligibility_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+period_id 
+UUID NOT NULL REFERENCES 
+registration_periods
+(
+period_id
+),
+    
+cccd 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+full_name 
+VARCHAR
+(
+100
+) 
+NOT NULL
+,
+    
+email 
+VARCHAR
+(
+100
+),
+    
+student_code 
+VARCHAR
+(
+20
+),
+    
+target 
+VARCHAR
+(
+50
+) 
+NOT NULL
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+CONSTRAINT 
+uk_eligibility_cccd 
+UNIQUE 
+(
+period_id
+, 
+cccd
+),
+    
+CONSTRAINT 
+uk_eligibility_student_code 
+UNIQUE 
+(
+period_id
+, 
+student_code
+),
+    
+CONSTRAINT 
+uk_eligibility_email 
+UNIQUE 
+(
+period_id
+, 
+email
+)
+);
+-- 5. dormitory_applications
+CREATE TABLE 
+dormitory_applications 
+(
+    
+application_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+version 
+BIGINT NOT NULL DEFAULT 
+0
+,
+    
+period_id 
+UUID NOT NULL REFERENCES 
+registration_periods
+(
+period_id
+),
+    
+full_name 
+VARCHAR
+(
+100
+) 
+NOT NULL
+,
+    
+student_code 
+VARCHAR
+(
+20
+),
+    
+dob 
+DATE NOT NULL
+,
+    
+gender 
+VARCHAR
+(
+10
+) 
+NOT NULL
+,
+    
+cccd 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+issue_date 
+DATE
+,
+    
+issue_place 
+VARCHAR
+(
+100
+),
+    
+email 
+VARCHAR
+(
+100
+),
+    
+phone 
+VARCHAR
+(
+20
+),
+    
+permanent_address 
+TEXT
+,
+    
+pob 
+VARCHAR
+(
+100
+),
+    
+ethnic 
+VARCHAR
+(
+50
+),
+    
+religion 
+VARCHAR
+(
+50
+),
+    
+faculty 
+VARCHAR
+(
+100
+),
+    
+cohort 
+VARCHAR
+(
+20
+),
+    
+contact_address 
+TEXT
+,
+    
+father_name 
+VARCHAR
+(
+100
+),
+    
+father_yob 
+INTEGER
+,
+    
+father_job 
+VARCHAR
+(
+100
+),
+    
+father_phone 
+VARCHAR
+(
+20
+),
+    
+mother_name 
+VARCHAR
+(
+100
+),
+    
+mother_yob 
+INTEGER
+,
+    
+mother_job 
+VARCHAR
+(
+100
+),
+    
+mother_phone 
+VARCHAR
+(
+20
+),
+    
+status 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+priority_score 
+INTEGER DEFAULT 
+0
+,
+    
+application_code 
+VARCHAR
+(
+50
+) 
+UNIQUE NOT NULL
+,
+    
+registration_form_pdf_url 
+TEXT
+,
+    
+commitment_form_pdf_url 
+TEXT
+,
+    
+reviewed_by_user_id 
+UUID
+,
+    
+review_note 
+TEXT
+,
+    
+commitment_accepted 
+BOOLEAN DEFAULT FALSE
+,
+    
+commitment_accepted_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+commitment_version 
+VARCHAR
+(
+10
+),
+    
+client_ip_address 
+VARCHAR
+(
+45
+),
+    
+waiting_list_used 
+BOOLEAN DEFAULT FALSE NOT NULL
+,
+    
+payment_deadline 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+revision_deadline 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+approved_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+submitted_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+CONSTRAINT 
+uk_period_cccd 
+UNIQUE 
+(
+period_id
+, 
+cccd
+)
+);
+-- 6. application_priorities
+CREATE TABLE 
+application_priorities 
+(
+    
+priority_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+application_id 
+UUID NOT NULL REFERENCES 
+dormitory_applications
+(
+application_id
+) 
+ON DELETE CASCADE
+,
+    
+priority_type 
+VARCHAR
+(
+50
+) 
+NOT NULL
+,
+    
+description 
+TEXT
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 7. verification_documents
+CREATE TABLE 
+verification_documents 
+(
+    
+document_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+application_id 
+UUID NOT NULL REFERENCES 
+dormitory_applications
+(
+application_id
+) 
+ON DELETE CASCADE
+,
+    
+document_type 
+VARCHAR
+(
+50
+) 
+NOT NULL
+,
+    
+file_url 
+TEXT NOT NULL
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+DEFAULT 
+'PENDING' 
+NOT NULL
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 8. dormitory_application_status_history
+CREATE TABLE 
+dormitory_application_status_history 
+(
+    
+history_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+application_id 
+UUID NOT NULL REFERENCES 
+dormitory_applications
+(
+application_id
+) 
+ON DELETE CASCADE
+,
+    
+from_status 
+VARCHAR
+(
+20
+),
+    
+to_status 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+changed_by_user_id 
+UUID NOT NULL
+,
+    
+changed_at 
+TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+note 
+TEXT
+);
+-- 9. students
+CREATE TABLE 
+students 
+(
+    
+student_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+source_application_id 
+UUID UNIQUE NOT NULL REFERENCES 
+dormitory_applications
+(
+application_id
+),
+    
+student_code 
+VARCHAR
+(
+50
+) 
+UNIQUE
+,
+    
+full_name 
+VARCHAR
+(
+100
+) 
+NOT NULL
+,
+    
+cccd 
+VARCHAR
+(
+20
+) 
+UNIQUE NOT NULL
+,
+    
+email 
+VARCHAR
+(
+100
+),
+    
+phone 
+VARCHAR
+(
+20
+),
+    
+father_name 
+VARCHAR
+(
+100
+),
+    
+father_phone 
+VARCHAR
+(
+20
+),
+    
+mother_name 
+VARCHAR
+(
+100
+),
+    
+mother_phone 
+VARCHAR
+(
+20
+),
+    
+contact_address 
+TEXT
+,
+    
+permanent_address 
+TEXT
+,
+    
+faculty 
+VARCHAR
+(
+100
+),
+    
+academic_year 
+VARCHAR
+(
+20
+),
+    
+avatar_url 
+VARCHAR
+(
+500
+),
+    
+face_image_url 
+VARCHAR
+(
+500
+),
+    
+is_face_registered 
+BOOLEAN DEFAULT FALSE NOT NULL
+,
+    
+rfid_code 
+VARCHAR
+(
+50
+) 
+UNIQUE
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+DEFAULT 
+'PENDING_CHECKIN' 
+NOT NULL
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- ==========================================
+-- PHÂN HỆ 3: CƠ SỞ VẬT CHẤT
+-- ==========================================
+-- 10. buildings
+CREATE TABLE 
+buildings 
+(
+    
+building_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+code 
+VARCHAR
+(
+20
+) 
+UNIQUE NOT NULL
+,
+    
+name 
+VARCHAR
+(
+100
+) 
+NOT NULL
+,
+    
+description 
+TEXT
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+gender 
+VARCHAR
+(
+10
+) 
+NOT NULL
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 11. floors
+CREATE TABLE 
+floors 
+(
+    
+floor_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+floor_number 
+INTEGER NOT NULL
+,
+    
+gender 
+VARCHAR
+(
+10
+) 
+NOT NULL
+,
+    
+building_id 
+UUID NOT NULL REFERENCES 
+buildings
+(
+building_id
+),
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+CONSTRAINT 
+uk_building_floor 
+UNIQUE 
+(
+building_id
+, 
+floor_number
+)
+);
+-- 12. rooms
+CREATE TABLE 
+rooms 
+(
+    
+room_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+room_code 
+VARCHAR
+(
+30
+) 
+NOT NULL
+,
+    
+capacity 
+INTEGER NOT NULL
+,
+    
+occupied_beds 
+INTEGER NOT NULL DEFAULT 
+0
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+room_pin_code 
+VARCHAR
+(
+10
+),
+    
+version 
+INTEGER NOT NULL DEFAULT 
+0
+,
+    
+floor_id 
+UUID NOT NULL REFERENCES 
+floors
+(
+floor_id
+),
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+CONSTRAINT 
+uk_floor_room_code 
+UNIQUE 
+(
+floor_id
+, 
+room_code
+)
+);
+-- 13. beds
+CREATE TABLE 
+beds 
+(
+    
+bed_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+bed_code 
+VARCHAR
+(
+30
+) 
+NOT NULL
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+note 
+VARCHAR
+(
+500
+),
+    
+version 
+INTEGER NOT NULL DEFAULT 
+0
+,
+    
+room_id 
+UUID NOT NULL REFERENCES 
+rooms
+(
+room_id
+),
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+CONSTRAINT 
+uk_room_bed_code 
+UNIQUE 
+(
+room_id
+, 
+bed_code
+)
+);
+-- ==========================================
+-- PHÂN HỆ 4: LƯU TRÚ VÀ ĐƠN TỪ
+-
+-
+ ==========================================
+-- 14. student_housing_assignments
+CREATE TABLE 
+student_housing_assignments 
+(
+    
+assignment_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+application_id 
+UUID NOT NULL REFERENCES 
+dormitory_applications
+(
+application_id
+),
+    
+student_id 
+UUID REFERENCES 
+students
+(
+student_id
+),
+    
+bed_id 
+UUID NOT NULL REFERENCES 
+beds
+(
+bed_id
+),
+    
+status 
+VARCHAR
+(
+30
+) 
+NOT NULL
+,
+    
+room_role 
+VARCHAR
+(
+30
+) 
+DEFAULT 
+'MEMBER'
+,
+    
+reserved_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+check_in_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+check_out_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+expected_check_out_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 15. stay_extensions
+CREATE TABLE 
+stay_extensions 
+(
+    
+extension_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+student_id 
+UUID NOT NULL REFERENCES 
+students
+(
+student_id
+),
+    
+reason 
+TEXT NOT NULL
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+DEFAULT 
+'PENDING' 
+NOT NULL
+,
+    
+registration_period_id 
+UUID NOT NULL REFERENCES 
+registration_periods
+(
+period_id
+),
+    
+current_bed_id 
+UUID NOT NULL REFERENCES 
+beds
+(
+bed_id
+),
+    
+contract_pdf_url 
+TEXT
+,
+    
+commitment_pdf_url 
+TEXT
+,
+    
+description 
+TEXT
+,
+    
+reject_reason 
+TEXT
+,
+    
+old_expected_check_out_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+new_expected_check_out_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 16. checkout_requests
+CREATE TABLE 
+checkout_requests 
+(
+    
+request_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+student_id 
+UUID NOT NULL REFERENCES 
+students
+(
+student_id
+),
+    
+assignment_id 
+UUID NOT NULL REFERENCES 
+student_housing_assignments
+(
+assignment_id
+),
+    
+intended_checkout_date 
+TIMESTAMP WITHOUT TIME ZONE NOT NULL
+,
+    
+reason 
+TEXT
+,
+    
+bank_account_number 
+VARCHAR
+(
+50
+),
+    
+bank_name 
+VARCHAR
+(
+100
+),
+    
+status 
+VARCHAR
+(
+20
+) 
+DEFAULT 
+'PENDING' 
+NOT NULL
+,
+    
+reject_reason 
+TEXT
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 17. change_room_requests
+CREATE TABLE 
+change_room_requests 
+(
+    
+id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+student_id 
+UUID NOT NULL REFERENCES 
+students
+(
+student_id
+),
+    
+current_assignment_id 
+UUID NOT NULL REFERENCES 
+student_housing_assignments
+(
+assignment_id
+),
+    
+target_room_id 
+UUID NOT NULL REFERENCES 
+rooms
+(
+room_id
+),
+    
+reason 
+TEXT NOT NULL
+,
+    
+admin_note 
+TEXT
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+DEFAULT 
+'PENDING' 
+NOT NULL
+,
+    
+reviewed_by_user_id 
+UUID
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 18. curfew_requests
+CREATE TABLE 
+curfew_requests 
+(
+    
+request_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+student_id 
+UUID NOT NULL REFERENCES 
+students
+(
+student_id
+),
+    
+reason 
+TEXT NOT NULL
+,
+    
+expected_arrival_time 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+request_type 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+start_date 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+DEFAULT 
+'PENDING' 
+NOT NULL
+,
+    
+resolved_by 
+UUID
+,
+    
+admin_note 
+TEXT
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- ==========================================
+-- PHÂN HỆ 5: THANH TOÁN
+-- ==========================================
+-- 19. utility_usages
+CREATE TABLE 
+utility_usages 
+(
+    
+id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+room_id 
+UUID NOT NULL REFERENCES 
+rooms
+(
+room_id
+),
+    
+utility_type 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+month 
+INTEGER
+,
+    
+year 
+INTEGER
+,
+    
+old_reading 
+INTEGER
+,
+    
+new_reading 
+INTEGER
+,
+    
+total_usage 
+INTEGER
+,
+    
+is_settled 
+BOOLEAN DEFAULT FALSE
+,
+    
+version 
+INTEGER NOT NULL DEFAULT 
+0
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 20. bills
+CREATE TABLE 
+bills 
+(
+    
+bill_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+bill_type 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+amount 
+NUMERIC
+(
+15
+,
+2
+) 
+NOT NULL
+,
+    
+paid_amount 
+NUMERIC
+(
+15
+,
+2
+) 
+DEFAULT 
+0.00 
+NOT NULL
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+DEFAULT 
+'UNPAID' 
+NOT NULL
+,
+    
+due_date 
+DATE
+,
+    
+description 
+TEXT
+,
+    
+assignment_id 
+UUID
+,
+    
+application_id 
+UUID
+,
+    
+room_id 
+UUID
+,
+    
+student_id 
+UUID
+,
+    
+version 
+BIGINT NOT NULL DEFAULT 
+0
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 21. payments
+CREATE TABLE 
+payments 
+(
+    
+payment_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+bill_id 
+UUID NOT NULL REFERENCES 
+bills
+(
+bill_id
+),
+    
+amount 
+NUMERIC
+(
+15
+,
+2
+) 
+NOT NULL
+,
+    
+method 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+DEFAULT 
+'PENDING' 
+NOT NULL
+,
+    
+transaction_code 
+VARCHAR
+(
+100
+) 
+UNIQUE NOT NULL
+,
+    
+gateway_transaction_id 
+VARCHAR
+(
+100
+),
+    
+description 
+TEXT
+,
+    
+gateway_metadata 
+TEXT
+,
+    
+paid_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- ==========================================
+-- PHÂN HỆ 6: SMART ACCESS IOT & FACE AI
+-- ==========================================
+-- 22. gates
+CREATE TABLE 
+gates 
+(
+    
+gate_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+name 
+VARCHAR
+(
+100
+) 
+NOT NULL
+,
+    
+gate_type 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+building_id 
+UUID REFERENCES 
+buildings
+(
+building_id
+),
+    
+room_id 
+UUID REFERENCES 
+rooms
+(
+room_id
+),
+    
+mac_address 
+VARCHAR
+(
+50
+) 
+UNIQUE NOT NULL
+,
+    
+is_active 
+BOOLEAN DEFAULT TRUE NOT NULL
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 23. curfew_policies
+CREATE TABLE 
+curfew_policies 
+(
+    
+id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+building_id 
+UUID NOT NULL REFERENCES 
+buildings
+(
+building_id
+),
+    
+resident_type 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+start_time 
+TIME NOT NULL
+,
+    
+end_time 
+TIME NOT NULL
+,
+    
+type 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+priority 
+INTEGER NOT NULL
+,
+    
+is_active 
+BOOLEAN DEFAULT TRUE NOT NULL
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 24. time_window_policies
+CREATE TABLE 
+time_window_policies 
+(
+    
+id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+building_id 
+UUID NOT NULL REFERENCES 
+buildings
+(
+building_id
+),
+    
+resident_type 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+start_time 
+TIME NOT NULL
+,
+    
+end_time 
+TIME NOT NULL
+,
+    
+is_active 
+BOOLEAN DEFAULT TRUE NOT NULL
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 25. access_history
+CREATE TABLE 
+access_history 
+(
+    
+id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+student_id 
+UUID NOT NULL REFERENCES 
+students
+(
+student_id
+),
+    
+gate_id 
+UUID NOT NULL REFERENCES 
+gates
+(
+gate_id
+),
+    
+building_id 
+UUID NOT NULL REFERENCES 
+buildings
+(
+building_id
+),
+    
+operator_id 
+UUID
+,
+    
+event_timestamp 
+TIMESTAMP WITHOUT TIME ZONE NOT NULL
+,
+    
+decision 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+denial_reason 
+TEXT
+,
+    
+method 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+direction 
+VARCHAR
+(
+20
+) 
+DEFAULT 
+'UNKNOWN'
+,
+    
+snapshot_url 
+TEXT
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP 
+NOT NULL
+    
+-- Bảng sổ cái bất biến: Không có cột updated_at
+);
+-- 26. face_profiles
+CREATE TABLE 
+face_profiles 
+(
+    
+profile_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+student_id 
+UUID UNIQUE NOT NULL REFERENCES 
+students
+(
+student_id
+),
+    
+face_image_url 
+VARCHAR
+(
+500
+),
+    
+pending_face_image_url 
+VARCHAR
+(
+500
+),
+    
+replacement_requested_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+status 
+VARCHAR
+(
+50
+) 
+NOT NULL
+,
+    
+rejection_reason 
+TEXT
+,
+    
+approved_by 
+UUID
+,
+    
+approved_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- 27. face_embeddings
+CREATE TABLE 
+face_embeddings 
+(
+    
+embedding_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+profile_id 
+UUID UNIQUE NOT NULL REFERENCES 
+face_profiles
+(
+profile_id
+) 
+ON DELETE CASCADE
+,
+    
+vector 
+vector
+(
+512
+) 
+NOT NULL
+, 
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP 
+NOT NULL
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP 
+NOT NULL
+);
+-- HNSW Vector Index for fast cosine similarity search
+CREATE INDEX 
+idx_face_embeddings_hnsw 
+ON 
+face_embeddings 
+USING 
+hnsw 
+(
+vector 
+vector_cosine_ops
+);
+-- 28. face_verification_attempts
+CREATE TABLE 
+face_verification_attempts 
+(
+    
+attempt_id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+gate_device_id 
+VARCHAR
+(
+50
+) 
+NOT NULL
+,
+    
+profile_id 
+UUID REFERENCES 
+face_profiles
+(
+profile_id
+),
+    
+confidence_score 
+DOUBLE PRECISION NOT NULL
+,
+    
+status 
+VARCHAR
+(
+50
+) 
+NOT NULL
+,
+    
+attempted_at 
+TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT 
+CURRENT_TIMESTAMP
+    
+-- Dữ liệu lịch sử quét: Không có cột updated_at
+);
+-- ==========================================
+-- PHÂN HỆ 7: THÔNG BÁO (NOTIFICATION)
+-- ==========================================
+-- 29. notifications
+CREATE TABLE 
+notifications 
+(
+    
+id 
+UUID PRIMARY KEY DEFAULT 
+uuid_generate_v4
+(),
+    
+user_id 
+UUID NOT NULL REFERENCES 
+user_accounts
+(
+account_id
+),
+    
+title 
+VARCHAR
+(
+255
+) 
+NOT NULL
+,
+    
+message 
+TEXT NOT NULL
+,
+    
+action_url 
+VARCHAR
+(
+500
+),
+    
+notification_type 
+VARCHAR
+(
+50
+) 
+NOT NULL
+,
+    
+is_read 
+BOOLEAN DEFAULT FALSE NOT NULL
+,
+    
+read_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+recipient 
+VARCHAR
+(
+50
+) 
+NOT NULL
+,
+    
+channel 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+status 
+VARCHAR
+(
+20
+) 
+NOT NULL
+,
+    
+error_message 
+TEXT
+,
+    
+event_id 
+VARCHAR
+(
+100
+),
+    
+sent_at 
+TIMESTAMP WITHOUT TIME ZONE
+,
+    
+created_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+,
+    
+updated_at 
+TIMESTAMP WITHOUT TIME ZONE DEFAULT 
+CURRENT_TIMESTAMP
+);
+-- ==========================================
+-- PHÂN HỆ 8: CÀI ĐẶT RÀNG BUỘC TOÀN VẸN (VẬT LÝ) VÀ TRIGGER
+-- ==========================================
+-- 1. Ràng buộc miền giá trị và liên thuộc tính bằng CHECK CONSTRAINT
+ALTER TABLE 
+bills 
+ADD CONSTRAINT 
+chk_bills_amount 
+CHECK 
+(
+amount 
+> 
+0
+),
+ADD CONSTRAINT 
+chk_bills_paid_amount 
+CHECK 
+(
+paid_amount 
+<= 
+amount 
+AND 
+paid_amount 
+>= 
+0
+);
+ALTER TABLE 
+rooms 
+ADD CONSTRAINT 
+chk_rooms_capacity 
+CHECK 
+(
+capacity 
+> 
+0
+);
+ALTER TABLE 
+utility_usages 
+ADD CONSTRAINT 
+chk_utility_reading 
+CHECK 
+(
+new_reading 
+>= 
+old_reading
+);
+-- 2. Trigger kiểm tra sức chứa phòng trước khi phân bổ sinh viên
+CREATE OR REPLACE FUNCTION 
+check_room_capacity_before_insert
+()
+RETURNS TRIGGER AS 
+$$
+DECLARE
+    
+v_capacity 
+INTEGER
+;
+    
+v_occupied 
+INTEGER
+;
+BEGIN
+    SELECT 
+capacity
+, 
+occupied_beds 
+INTO 
+v_capacity
+, 
+v_occupied
+    
+FROM 
+rooms 
+WHERE 
+room_id 
+= (
+SELECT 
+room_id 
+FROM 
+beds 
+WHERE 
+bed_id 
+= 
+NEW
+.
+bed_id
+);
+    
+IF 
+v_occupied 
+>= 
+v_capacity 
+THEN
+        RAISE EXCEPTION 
+'RBTV Vi phạm: Phòng đã đạt tối đa sức chứa (capacity = %)'
+, 
+v_capacity
+;
+    
+END IF
+;
+    
+RETURN 
+NEW
+;
+END
+;
+$$ 
+LANGUAGE 
+plpgsql
+;
+CREATE TRIGGER 
+trg_check_room_capacity
+BEFORE INSERT OR UPDATE ON 
+student_housing_assignments
+FOR EACH ROW
+EXECUTE FUNCTION 
+check_room_capacity_before_insert
+();
+PHỤ LỤC
+ D: 
+THÔNG SỐ KỸ THUẬT CÁC LINH KIỆN PHẦN CỨNG
+CỤM THIẾT BỊ KIỂM SOÁT CỔNG RA VÀO (SMART ACCESS)
+Vi điều khiển chính – ESP32-CAM (AI Thinker)
+Vai trò trong hệ thống
+ESP32-CAM là thiết bị trung tâm của cụm kiểm soát cổng chính (Smart Access). Thiết bị đảm nhiệm chức năng thu nhận hình ảnh khuôn mặt, giao tiếp với hệ thống Backend thông qua giao thức REST HTTP và tiếp nhận các lệnh điều khiển từ MQTT Broker để thực hiện điều khiển thiết bị.
+Thông số
+Giá trị
+Vi xử lý (SoC)
+ESP32-S (Tensilica LX6 Dual-Core 32-bit)
+Tốc độ xử lý
+Lên đến 240 MHz (600 DMIPS)
+SRAM nội
+520 KB
+PSRAM ngoài
+4 MB
+Flash SPI
+32 Mbit (4 MB)
+Camera tích hợp
+OV2640 – 2 Megapixel
+Kết nối Wi-Fi
+IEEE 802.11 b/g/n/e/i (2.4 GHz)
+Kết nối Bluetooth
+Bluetooth 4.2 BR/EDR và BLE
+Điện áp hoạt động
+3.3 V (khuyến nghị cấp nguồn 5 V – 2 A)
+Dòng tiêu thụ (Flash tắt)
+Khoảng 180 mA @ 5 V
+Dòng tiêu thụ (Flash sáng tối đa)
+Khoảng 310 mA @ 5 V
+Dòng tiêu thụ (Deep Sleep)
+Khoảng 6 mA @ 5 V
+Giao tiếp
+UART, SPI, I2C, PWM, ADC, DAC
+Khe cắm thẻ nhớ
+MicroSD (TF Card), hỗ trợ tối đa 4 GB
+Anten
+PCB On-board (độ lợi khoảng 2 dBi)
+Kích thước
+27 mm × 40.5 mm × 4.5 mm
+Kiểu đóng gói
+DIP-16
+Bảng D-
+ SEQ Bảng \* ARABIC 
+2
+: Bảng mô tả thông số ESP32-CAM.
+Hình 
+D
+ SEQ Hình \* ARABIC \s 1 
+1
+: 
+Hình ảnh của 
+ESP32-CAM
+.
+Module Camera OV2640
+Vai trò trong hệ thống
+OV2640 là cảm biến hình ảnh được tích hợp sẵn trên bo mạch ESP32-CAM. Module có nhiệm vụ thu nhận hình ảnh khuôn mặt sinh viên, mã hóa dưới định dạng JPEG và truyền đến hệ thống Backend để phục vụ quá trình nhận diện khuôn mặt.
+Thông số
+Giá trị
+Loại cảm biến
+CMOS 1/4 inch
+Độ phân giải tối đa
+2 MP (UXGA – 1600 × 1200 pixel)
+Kích thước điểm ảnh
+2.2 μm × 2.2 μm
+Điện áp hoạt động
+3.3 V (mức I/O từ 1.7 V đến 3.3 V)
+Giao tiếp điều khiển
+SCCB (tương thích I2C)
+Định dạng đầu ra
+JPEG, YUV 4:2:2, RGB565, RGB555, Raw RGB
+Bộ nén ảnh
+Tích hợp bộ nén JPEG phần cứng
+Các độ phân giải hỗ trợ
+UXGA (1600×1200), SXGA (1280×1024), SVGA (800×600), VGA (640×480), QVGA (320×240), CIF, QQVGA
+Tốc độ khung hình
+Tối đa 15 fps (UXGA), 30 fps (SVGA)
+Bảng D-
+ SEQ Bảng \* ARABIC 
+3
+: Bảng mô tả thông số 
+Camera OV2640
+.
+CỤM THIẾT BỊ KIỂM SOÁT CỬA PHÒNG (ROOM DOOR)
+Vi điều khiển ESP32 DevKit V1 (DOIT)
+Vai trò trong hệ thống
+ESP32 DevKit V1 là bộ điều khiển trung tâm của cụm kiểm soát cửa phòng (Room Door). Thiết bị có nhiệm vụ tiếp nhận dữ liệu từ bàn phím ma trận, hiển thị thông tin lên màn hình LCD, xử lý quá trình xác thực mã PIN và điều khiển động cơ servo thực hiện thao tác đóng hoặc mở chốt cửa.
+Thông số
+Giá trị
+Vi xử lý
+Tensilica Xtensa® 32-bit LX6 Dual-Core
+Tốc độ xử lý
+160 MHz hoặc 240 MHz (có thể điều chỉnh)
+SRAM
+520 KB
+Flash
+4 MB
+Điện áp hoạt động (GPIO)
+3.3 V
+Điện áp đầu vào (VIN)
+7 V – 12 V (khuyến nghị)
+Nguồn USB
+Micro-USB 5 V
+Wi-Fi
+IEEE 802.11 b/g/n (lên đến 150 Mbps)
+Bluetooth
+Bluetooth 4.2 BR/EDR và BLE
+Số chân Digital I/O (GPIO)
+25 chân
+ADC
+Tối đa 18 kênh, độ phân giải 12-bit
+DAC
+2 kênh, độ phân giải 8-bit
+Giao tiếp UART
+3 cổng
+Giao tiếp SPI
+2–4 cổng
+Giao tiếp I2C
+2–3 cổng
+Tính năng khác
+Cảm biến chạm điện dung (10 kênh), PWM, Hall Sensor, tăng tốc mã hóa phần cứng
+Bảng D-
+ SEQ Bảng \* ARABIC 
+4
+: Bảng mô tả thông số 
+ESP32 DevKit V1
+.
+Hình 
+D
+ SEQ Hình \* ARABIC \s 1 
+2
+: 
+Hình ảnh của 
+ESP32
+ DevKit V1 (DOIT)
+.
+CỤM THIẾT BỊ NHẬN DẠNG THẺ RFID
+Module đọc thẻ RFID MFRC522 (RC522)
+Vai trò trong hệ thống
+MFRC522 là module đọc thẻ RFID hoạt động ở tần số 13.56 MHz, được tích hợp trong cụm Smart Access. Thiết bị có nhiệm vụ nhận dạng thẻ RFID của sinh viên, đọc mã định danh (UID) và truyền dữ liệu đến ESP32 để thực hiện quá trình xác thực với hệ thống Backend
+.
+Thông số
+Giá trị
+IC chính
+NXP MFRC522
+Tần số hoạt động
+13.56 MHz
+Điện áp hoạt động
+2.5 V – 3.3 V DC
+Dòng tiêu thụ (hoạt động)
+13 – 26 mA
+Dòng tiêu thụ (chờ)
+10 – 13 mA
+Dòng tiêu thụ (Sleep)
+< 80 µA
+Dòng tiêu thụ cực đại
+< 30 mA
+Giao tiếp
+SPI (tối đa 10 Mbit/s), I2C, UART
+Khoảng cách đọc thẻ
+Tối đa khoảng 50 mm
+Chuẩn thẻ hỗ trợ
+ISO/IEC 14443A, MIFARE Classic, MIFARE Ultralight, MIFARE DESFire
+Nhiệt độ hoạt động
+-20°C đến +80°C
+Bảng D-
+ SEQ Bảng \* ARABIC 
+5
+: Bảng mô tả thông số 
+RFID MFRC522
+.
+Hình 
+D
+ SEQ Hình \* ARABIC \s 1 
+3
+: 
+Hình ảnh của 
+RFID MFRC522 (RC522)
+.
+Hình 
+D
+ SEQ Hình \* ARABIC \s 1 
+4
+: 
+Hình ảnh của 
+thẽ RFID của sinh viên
+.
+THIẾT BỊ NHẬP LIỆU
+Bàn phím ma trận Matrix K
+ey
+pad
+ 4x4
+Vai trò trong hệ thống
+Bàn phím ma trận 4×4 là thiết bị nhập liệu của cụm cửa phòng (Room Door). Thiết bị cho phép sinh viên nhập mã PIN để xác thực và mở khóa cửa, đồng thời hỗ trợ cơ chế xác thực ngoại tuyến (Offline PIN Fallback) khi kết nối mạng tạm thời không khả dụng.
+Thông số
+Giá trị
+Loại
+Màng (Membrane) phẳng
+Số phím
+16 phím (4 hàng × 4 cột)
+Điện áp hoạt động
+3.3 V – 5 V DC
+Dòng tối đa mỗi phím
+30 – 100 mA
+Điện trở tiếp xúc
+< 100 Ω
+Điện trở cách điện
+> 100 MΩ @ 100 V
+Số chân giao tiếp
+8 chân (4 hàng + 4 cột)
+Thời gian nảy phím (Bounce)
+≤ 5 ms
+Tuổi thọ
+Trên 1.000.000 lần nhấn
+Nhiệt độ hoạt động
+-20°C đến +60°C
+Phương pháp quét
+Matrix Scanning
+Bảng D-
+ SEQ Bảng \* ARABIC 
+6
+: Bảng mô tả thông số 
+Matrix Keypad 4x4
+.
+Hình 
+D
+ SEQ Hình \* ARABIC \s 1 
+5
+: 
+Hình ảnh của 
+Bàn phím ma trận Matrix Keypad 4x4
+.
+CÁC THIẾT BỊ CHẤP HÀNH VÀ HIỂN THỊ KHÁC
+Động cơ servo – SG90 Micro Servo
+Vai trò trong hệ thống:
+ Cơ cấu chấp hành (Actuator) cơ học. Điều khiển chốt cửa phòng (Room Door Latch). Quay từ vị trí khóa sang mở khi ESP32 nhận lệnh xác thực thành công.
+Thông số
+Giá trị
+Hãng sản xuất
+TowerPro (và các nhà sản xuất tương thích)
+Trọng lượng
+9 g
+Kích thước
+22.2 mm × 11.8 mm × 31 mm
+Điện áp hoạt động
+4.8V – 6V DC
+Mô-men xoắn @ 4.8V
+~1.8 kgf·cm
+Mô-men xoắn @ 6V
+~2.2 – 2.4 kgf·cm
+Tốc độ quay @ 4.8V
+~0.10 – 0.12 giây/60°
+Góc quay
+Khoảng 180° (±90° từ tâm)
+Phương pháp điều khiển
+PWM (Pulse Width Modulation)
+Tần số PWM
+50 Hz (chu kỳ 20 ms)
+Độ rộng xung điều khiển
+500 µs – 2400 µs
+Xung giữa (90°)
+~1500 µs
+Xung min (0°)
+~1000 µs
+Xung max (180°)
+~2000 µs
+Loại động cơ
+3-cực
+Loại bánh răng
+Nhựa (Plastic Gear)
+Nhiệt độ hoạt động
+0°C – 55°C
+GPIO điều khiển
+GPIO 13 (ESP32 DevKit V1)
+Bảng D-
+ SEQ Bảng \* ARABIC 
+7
+: Bảng mô tả thông số 
+Động cơ servo – SG90 Micro Servo
+.
+Hình 
+D
+ SEQ Hình \* ARABIC \s 1 
+6
+: 
+Hình ảnh của 
+Động cơ servo – SG90 Micro Servo
+.
+Module màn hình – LCD 16×2 với giao tiếp I2C (PCF8574)
+Vai trò trong hệ thống:
+ Hiển thị trạng thái hệ thống và hướng dẫn người dùng tại cụm cửa phòng. Ví dụ: 
+"Nhập mã PIN"
+, 
+"Xác thực thành công"
+, 
+"Sai mã, thử lại"
+.
+Thông số
+Giá trị
+Loại hiển thị
+LCD ký tự (Character LCD)
+Số ký tự
+16 ký tự × 2 dòng
+Điện áp hoạt động
+5V DC
+IC mở rộng I2C
+PCF8574 (hoặc PCF8574T)
+Điện áp IC mở rộng
+2.5V – 6V
+Giao tiếp
+I2C (2 dây: SDA + SCL)
+Địa chỉ I2C mặc định
+0x27 (PCF8574) hoặc 0x3F (PCF8574A)
+Số chân kết nối với MCU
+4 chân (GND, VCC, SDA, SCL)
+Điều chỉnh độ tương phản
+Biến trở (Potentiometer) trên module
+Đèn nền (Backlight)
+LED, điều khiển bằng jumper
+Bảng D-
+ SEQ Bảng \* ARABIC 
+8
+: Bảng mô tả thông số
+ 
+màn hình -
+ 
+LCD 16×2
+.
+Hình 
+D
+ SEQ Hình \* ARABIC \s 1 
+7
+: 
+Hình ảnh của 
+màn hình - 
+ 
+LCD 16×2
+.
+Module rơ-le – Relay Module 1 Kênh 5V (Opto-Isolated)
+Vai trò trong hệ thống:
+ Cơ cấu chấp hành điện. Điều khiển việc cấp hoặc ngắt nguồn cho khóa từ (Electromagnetic Lock) tại cổng chính (Smart Access), thực hiện chức năng mở hoặc đóng cửa theo lệnh từ hệ thống.
+Thông số
+Giá trị
+Điện áp điều khiển (VCC)
+3.75V – 6V DC
+Dòng tiêu thụ cuộn dây
+~70 mA (khi được kích hoạt)
+Dòng tiêu thụ chờ
+2 – 5 mA
+Dòng kích (Trigger Current)
+2 – 20 mA
+Tải tối đa (AC)
+10A @ 250VAC
+Tải tối đa (DC)
+10A @ 30VDC
+Thời gian đóng (Operate)
+< 10 ms
+Thời gian mở (Release)
+< 5 ms
+Mức kích (Trigger Logic)
+High hoặc Low (có thể chọn bằng jumper)
+Cách ly điện
+Opto-Isolated (sử dụng Optocoupler EL817)
+Các đầu nối tải
+COM (Common), NO (Normally Open), NC (Normally Closed)
+Chỉ thị LED
+LED nguồn (xanh) và LED trạng thái (đỏ)
+Bảng D-
+ SEQ Bảng \* ARABIC 
+9
+: Bảng mô tả thông số 
+Relay Module 1 Kênh 5V
+.
+TÀI LIỆU THAM KHẢO
+[1]
+ UEH Dormitory Management System, 
+Ký túc xá UEH
+. 
+https://kytucxa.ueh.edu.vn
+[2]
+ Trường Đại học Kinh tế TP. Hồ Chí Minh, 
+Các tiện ích công nghệ chính thức hiện diện và cập nhật tại UEH – Camera AI tại Ký túc xá
+. 
+https://www.ueh.edu.vn/cuoc-song-ueh/tin-tuc/cac-tien-ich-cong-nghe-chinh-thuc-hien-dien-va-cap-nhat-tai-ueh-tu-05012026-tang-toc-chuyen-doi-so-huong-den-dai-hoc-thong-minh-75718
+[3]
+ Ký túc xá Trường Đại học Công nghiệp TP. Hồ Chí Minh. 
+https://ktx.iuh.edu.vn
+[4]
+ Trường Đại học Công nghiệp TP. Hồ Chí Minh, 
+Phòng Quản lý Ký túc xá
+. 
+https://iuh.edu.vn/vi/phong-quan-ly-ky-tuc-xa.html

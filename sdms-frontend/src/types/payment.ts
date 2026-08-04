@@ -26,6 +26,7 @@ export interface BillAdminResponse {
   billType: BillType;
   dueDate: string;
   applicationId?: string;
+  requiresRefund?: boolean;
 }
 
 export interface PaymentInstruction {
@@ -34,6 +35,7 @@ export interface PaymentInstruction {
   accountHolder: string;
   qrCodeUrl?: string;
   contentPrefix?: string;
+  amount?: number;
 }
 
 export interface PageResponse<T> {

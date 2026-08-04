@@ -44,7 +44,7 @@ TRUNCATE TABLE utility_usages CASCADE;
 
 
 SELECT * FROM  rooms
-WHERE room_code = 'A101';
+WHERE room_code = 'A102';
 
 update rooms
     set occupied_beds = 4
@@ -58,6 +58,8 @@ WHERE room_id = 'dddddddd-4444-4444-4444-dddddddddddd';
 select * from user_accounts;
 
 SELECT * FROM notifications WHERE notification_type = 'ELECTRIC_FEE';
+SELECT * FROM students;
+SELECT * FROM user_accounts;
 
 
 

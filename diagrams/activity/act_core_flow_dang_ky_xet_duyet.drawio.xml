@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Activity - Đăng ký & Xét duyệt" id="diagram_act_core_flow_dang_ky_xet_duyet.drawio.xml">
+    <mxGraphModel dx="1200" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="start" value="S" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=none;strokeWidth=1;fontStyle=1" vertex="1" parent="1"><mxGeometry x="394" y="40" width="40" height="40" as="geometry" /></mxCell>
+        <mxCell id="n1" value="1. Nộp đơn Đăng ký" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="110" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n2" value="2. BsubmitApplication(dto)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="190" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n3" value="3. CsubmitApplication(dto)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="270" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n4" value="4. Admin Phê duyệt đơn" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="350" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n5" value="5. Bapprove(id)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="430" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n6" value="6. Capprove(id)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="510" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="d1" value="Validate?" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="374" y="590" width="80" height="80" as="geometry" /></mxCell>
+        <mxCell id="n7" value="7. publishEvent(Allocation)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="700" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n8" value="8. handleAllocation()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="780" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="d2" value="Còn Giường?" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="374" y="860" width="80" height="80" as="geometry" /></mxCell>
+        <mxCell id="n9" value="9. save(Assignment)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="970" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="n10" value="10. Thông báo" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="334" y="1050" width="160" height="50" as="geometry" /></mxCell>
+        <mxCell id="end" value="" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="394" y="1130" width="40" height="40" as="geometry" /></mxCell>
+
+        <mxCell id="e_start_n1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="start" target="n1">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n1_n2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n1" target="n2">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n2_n3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n2" target="n3">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n3_n4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n3" target="n4">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n4_n5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n4" target="n5">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n5_n6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n5" target="n6">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n6_d1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n6" target="d1">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_d1_n4" value="False (Bổ sung)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="d1" target="n4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="560" y="630" /><mxPoint x="560" y="375" /></Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_d1_n7" value="True" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="d1" target="n7">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n7_n8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n7" target="n8">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n8_d2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n8" target="d2">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_d2_n10" value="False (Vào Waiting List)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="d2" target="n10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="280" y="900" /><mxPoint x="280" y="1075" /></Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_d2_n9" value="True" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="d2" target="n9">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n9_n10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n9" target="n10">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="e_n10_end" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="n10" target="end">
+          <mxGeometry relative="1" as="geometry">
+            
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

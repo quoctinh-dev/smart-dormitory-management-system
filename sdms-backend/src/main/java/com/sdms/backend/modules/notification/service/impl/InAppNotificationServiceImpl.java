@@ -67,7 +67,7 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
     @Override
     @Transactional(readOnly = true)
     public long getUnreadCount() {
-        return notificationRepository.countByUserIdAndIsReadFalse(getCurrentUserId());
+        return notificationRepository.countUnreadByUserId(getCurrentUserId());
     }
 
     /**
@@ -94,15 +94,8 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
     @Override
     @Transactional
     public void markAllAsRead() {
-        List<Notification> unreadList =
-                notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(getCurrentUserId());
-
-        unreadList.forEach(notification -> {
-            notification.setRead(true);
-            notification.setReadAt(LocalDateTime.now());
-        });
-
-        notificationRepository.saveAll(unreadList);
+        int updatedCount = notificationRepository.markAllAsReadByUserId(getCurrentUserId());
+        // Tránh log nhiều nếu không cần, nhưng đảm bảo data đã lưu thẳng vào DB.
     }
 
     /**
@@ -134,7 +127,7 @@ public class InAppNotificationServiceImpl implements InAppNotificationService {
                 .message(notification.getMessage())
                 .actionUrl(notification.getActionUrl())
                 .type(notification.getType())
-                .isRead(notification.isRead())
+                .isRead(notification.isRead()) // Boolean auto-boxing từ boolean entity
                 .readAt(notification.getReadAt())
                 .createdAt(notification.getCreatedAt())
                 .build();

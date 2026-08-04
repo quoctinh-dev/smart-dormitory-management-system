@@ -1,0 +1,151 @@
+<mxfile host="Electron" modified="2026-07-23T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.2" type="device">
+  <diagram id="hw_arch_sdms" name="Sơ đồ Kiến trúc Phần cứng IoT">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- BỘ XỬ LÝ TRUNG TÂM & MẠNG -->
+        <mxCell id="NET_Cloud" value="&lt;b&gt;Backend &amp;amp; MQTT Broker&lt;/b&gt;&lt;br&gt;(Spring Boot / Mosquitto)" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="280" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="NET_Wifi" value="Wi-Fi Router (IEEE 802.11 b/g/n)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="440" y="170" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- KẾT NỐI MẠNG -->
+        <mxCell id="ED_NET" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="NET_Wifi" target="NET_Cloud">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================== -->
+        <!-- CỤM 1: SMART ACCESS GATE (CỔNG KTX)            -->
+        <!-- ============================================== -->
+        <mxCell id="BOX_Gate" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="320" width="400" height="380" as="geometry" />
+        </mxCell>
+        <mxCell id="LBL_Gate" value="&lt;b&gt;CỤM 1: CỔNG KÝ TÚC XÁ&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontFamily=Times New Roman;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="170" y="290" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- MCU 1 -->
+        <mxCell id="MCU_Gate" value="&lt;b&gt;ESP32-CAM&lt;/b&gt;&lt;br&gt;(AI-Thinker 4MB PSRAM)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontFamily=Times New Roman;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="160" y="360" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Modules Cụm 1 -->
+        <mxCell id="M1_Cam" value="Camera OV2640" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="500" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="M1_RFID" value="Module RFID RC522" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="210" y="500" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="M1_Servo" value="Động cơ Servo&lt;br&gt;(Khóa cổng)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="340" y="500" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="M1_Buzzer" value="Còi chip (Buzzer)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="210" y="600" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Cụm 1 -->
+        <mxCell id="ED_M1_Cam" value="DVP Bus" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;fontFamily=Times New Roman;fontSize=10;" edge="1" parent="1" source="MCU_Gate" target="M1_Cam">
+          <mxGeometry x="-0.65" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="130" y="460" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ED_M1_RFID" value="SPI (GPIO 14,15,2,13)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;fontFamily=Times New Roman;fontSize=10;" edge="1" parent="1" source="MCU_Gate" target="M1_RFID">
+          <mxGeometry x="-0.2" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_M1_Servo" value="PWM (GPIO 12)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;fontFamily=Times New Roman;fontSize=10;" edge="1" parent="1" source="MCU_Gate" target="M1_Servo">
+          <mxGeometry x="-0.65" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="390" y="460" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ED_M1_Buzzer" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;fontFamily=Times New Roman;fontSize=10;" edge="1" parent="1" source="M1_RFID" target="M1_Buzzer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Vẽ lại nét cho Buzzer do nó nối thẳng từ MCU qua đường của RFID trên hình -->
+        <mxCell id="ED_M1_Buzzer_real" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="MCU_Gate" target="M1_Buzzer">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="260" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ============================================== -->
+        <!-- CỤM 2: ROOM DOOR CONTROLLER (CỬA PHÒNG)         -->
+        <!-- ============================================== -->
+        <mxCell id="BOX_Room" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="320" width="400" height="380" as="geometry" />
+        </mxCell>
+        <mxCell id="LBL_Room" value="&lt;b&gt;CỤM 2: CỬA PHÒNG LƯU TRÚ&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontFamily=Times New Roman;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="710" y="290" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- MCU 2 -->
+        <mxCell id="MCU_Room" value="&lt;b&gt;ESP32 DevKit V1&lt;/b&gt;&lt;br&gt;(30 Pins)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontFamily=Times New Roman;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="700" y="360" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Modules Cụm 2 -->
+        <mxCell id="M2_Keypad" value="Keypad Ma Trận 4x4" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="620" y="500" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="M2_LCD" value="Màn hình LCD 1602" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="750" y="500" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="M2_Servo" value="Động cơ Servo&lt;br&gt;(Khóa cửa phòng)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="880" y="500" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Cụm 2 -->
+        <mxCell id="ED_M2_Keypad" value="Digital I/O (8 pins)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;fontFamily=Times New Roman;fontSize=10;" edge="1" parent="1" source="MCU_Room" target="M2_Keypad">
+          <mxGeometry x="-0.65" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="460" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ED_M2_LCD" value="I2C (GPIO 21, 22)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;fontFamily=Times New Roman;fontSize=10;" edge="1" parent="1" source="MCU_Room" target="M2_LCD">
+          <mxGeometry x="-0.2" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_M2_Servo" value="PWM (GPIO 13)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;fontFamily=Times New Roman;fontSize=10;" edge="1" parent="1" source="MCU_Room" target="M2_Servo">
+          <mxGeometry x="-0.65" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="930" y="460" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- KẾT NỐI TỪ ESP ĐẾN WIFI -->
+        <mxCell id="ED_MCU1_Wifi" value="Wi-Fi (TCP/UDP)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=10;" edge="1" parent="1" source="MCU_Gate" target="NET_Wifi">
+          <mxGeometry x="-0.3" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="260" y="200" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ED_MCU2_Wifi" value="Wi-Fi (TCP/UDP)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;strokeWidth=1.5;fontFamily=Times New Roman;fontSize=10;" edge="1" parent="1" source="MCU_Room" target="NET_Wifi">
+          <mxGeometry x="-0.3" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="800" y="200" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

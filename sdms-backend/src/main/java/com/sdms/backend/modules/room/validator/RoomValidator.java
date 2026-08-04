@@ -29,6 +29,7 @@ public class RoomValidator {
     // Tập hợp trạng thái cư trú ràng buộc an toàn, ngăn chặn việc can thiệp hạ tầng kỹ thuật vĩ mô
     private static final List<AssignmentStatus> ACTIVE_STATUSES = List.of(
             AssignmentStatus.RESERVED,
+            AssignmentStatus.PENDING_CHECKIN,
             AssignmentStatus.OCCUPIED
     );
 

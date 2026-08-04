@@ -15,6 +15,7 @@ import com.sdms.backend.modules.room.repository.RoomRepository;
 import com.sdms.backend.modules.student.repository.StudentRepository;
 import com.sdms.backend.modules.system.service.SystemConfigService;
 import com.sdms.backend.modules.user.entity.UserAccount;
+import com.sdms.backend.modules.room.repository.StudentHousingAssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +41,7 @@ public class BillService {
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final StudentRepository studentRepository;
     private final RoomRepository roomRepository;
+    private final StudentHousingAssignmentRepository assignmentRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
@@ -172,7 +174,7 @@ public class BillService {
      * Lấy danh sách tất cả hóa đơn phân trang (Admin/Staff view) kèm thông tin sinh viên.
      */
     @Transactional(readOnly = true)
-    public PageResponse<Map<String, Object>> getAllBillsPaged(String search, String status, String billType, Pageable pageable) {
+    public PageResponse<Map<String, Object>> getAllBillsPaged(String search, String status, String billType, Boolean requiresRefund, Pageable pageable) {
         List<Bill> allBills = billRepository.findAll();
         List<Map<String, Object>> filteredResult = new ArrayList<>();
 
@@ -183,6 +185,7 @@ public class BillService {
         for (Bill bill : allBills) {
             if (filterStatus && !bill.getStatus().name().equals(status)) continue;
             if (filterType && !bill.getBillType().name().equals(billType)) continue;
+            if (requiresRefund != null && bill.getRequiresRefund() != requiresRefund) continue;
 
             Map<String, Object> map = new HashMap<>();
             map.put("billId", bill.getBillId());
@@ -192,6 +195,7 @@ public class BillService {
             map.put("billType", bill.getBillType());
             map.put("status", bill.getStatus());
             map.put("dueDate", bill.getDueDate());
+            map.put("requiresRefund", bill.getRequiresRefund());
 
             String studentName = null;
             if (bill.getApplicationId() != null) {
@@ -334,6 +338,14 @@ public class BillService {
             }
         }
 
+        // Kiểm tra xem đã báo cáo người này chưa (Anti-double split)
+        List<UUID> alreadyReportedIds = billRepository.findStudentIdsByParentBillId(billId);
+        for (UUID requestedId : request.getNonPayingStudentIds()) {
+            if (alreadyReportedIds.contains(requestedId)) {
+                throw new AppException(ErrorCode.DATA_CONFLICT, "Sinh viên này đã bị tách nợ trong hóa đơn này rồi");
+            }
+        }
+
         BigDecimal totalDeduction = request.getAmountPerStudent().multiply(new BigDecimal(request.getNonPayingStudentIds().size()));
         
         if (originalBill.getAmount().compareTo(totalDeduction) <= 0) {
@@ -344,28 +356,34 @@ public class BillService {
         originalBill.setAmount(originalBill.getAmount().subtract(totalDeduction));
         Bill savedOriginalBill = billRepository.save(originalBill);
 
-        // Tạo các hóa đơn phạt (PENALTY_FEE) cho người vi phạm
+        // Tạo các hóa đơn điện tách nợ cho người vi phạm (Giữ nguyên loại hóa đơn để kế toán dễ thống kê)
         for (UUID nonPayingStudentId : request.getNonPayingStudentIds()) {
-            Bill penaltyBill = new Bill();
-            penaltyBill.setStudentId(nonPayingStudentId);
-            penaltyBill.setRoomId(originalBill.getRoomId());
-            penaltyBill.setBillType(BillType.PENALTY_FEE);
-            penaltyBill.setAmount(request.getAmountPerStudent());
-            penaltyBill.setPaidAmount(BigDecimal.ZERO);
-            penaltyBill.setStatus(BillStatus.UNPAID);
-            penaltyBill.setDueDate(originalBill.getDueDate());
-            penaltyBill.setDescription("Nợ tiền điện chung phòng. Chuyển từ hóa đơn: " + originalBill.getBillCode());
-            penaltyBill.setBillCode(generateBillCode(BillType.PENALTY_FEE));
+            Bill splitBill = new Bill();
+            splitBill.setStudentId(nonPayingStudentId);
+            splitBill.setRoomId(originalBill.getRoomId());
+            splitBill.setBillType(originalBill.getBillType());
             
-            Bill savedPenaltyBill = billRepository.save(penaltyBill);
+            // Lấy assignmentId của sinh viên để App có thể hiển thị bedCode
+            assignmentRepository.findByStudent_StudentIdAndStatus(nonPayingStudentId, com.sdms.backend.modules.room.enums.AssignmentStatus.OCCUPIED)
+                    .ifPresent(assignment -> splitBill.setAssignmentId(assignment.getAssignmentId()));
+
+            splitBill.setAmount(request.getAmountPerStudent());
+            splitBill.setPaidAmount(BigDecimal.ZERO);
+            splitBill.setStatus(BillStatus.UNPAID);
+            splitBill.setDueDate(originalBill.getDueDate());
+            splitBill.setDescription("Phần nợ tiền điện chung phòng (Tách từ hóa đơn: " + originalBill.getBillCode() + ")");
+            splitBill.setBillCode(generateBillCode(originalBill.getBillType()));
+            splitBill.setParentBillId(originalBill.getBillId());
+            
+            Bill savedSplitBill = billRepository.save(splitBill);
             
             // Thông báo (tùy chọn)
             eventPublisher.publishEvent(new ManualBillCreatedEvent(
-                    savedPenaltyBill.getBillCode(),
-                    savedPenaltyBill.getStudentId(),
-                    savedPenaltyBill.getBillType(),
-                    savedPenaltyBill.getAmount(),
-                    savedPenaltyBill.getDescription()
+                    savedSplitBill.getBillCode(),
+                    savedSplitBill.getStudentId(),
+                    savedSplitBill.getBillType(),
+                    savedSplitBill.getAmount(),
+                    savedSplitBill.getDescription()
             ));
         }
 
@@ -379,6 +397,36 @@ public class BillService {
         BigDecimal remaining = bill.getAmount().subtract(
                 bill.getPaidAmount() != null ? bill.getPaidAmount() : BigDecimal.ZERO
         );
+        Boolean isBillOwner = false;
+        try {
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof com.sdms.backend.modules.user.entity.UserAccount) {
+                com.sdms.backend.modules.user.entity.UserAccount user = (com.sdms.backend.modules.user.entity.UserAccount) auth.getPrincipal();
+                if (user.getStudent() != null && bill.getStudentId() != null) {
+                    isBillOwner = user.getStudent().getStudentId().equals(bill.getStudentId());
+                }
+            }
+        } catch (Exception e) {}
+
+        // Fetch reported students
+        java.util.List<UUID> reportedStudentIds = billRepository.findStudentIdsByParentBillId(bill.getBillId());
+
+        Boolean isSplittable = isBillOwner && bill.getBillType() == BillType.ELECTRIC_FEE && bill.getParentBillId() == null;
+
+        String roomCode = null;
+        if (bill.getRoomId() != null) {
+            roomCode = roomRepository.findById(bill.getRoomId())
+                    .map(com.sdms.backend.modules.room.entity.Room::getRoomCode)
+                    .orElse(null);
+        }
+
+        String bedCode = null;
+        if (bill.getAssignmentId() != null) {
+            bedCode = assignmentRepository.findById(bill.getAssignmentId())
+                    .map(a -> a.getBed() != null ? a.getBed().getBedCode() : null)
+                    .orElse(null);
+        }
+
         return BillResponse.builder()
                 .billId(bill.getBillId())
                 .billCode(bill.getBillCode())
@@ -390,6 +438,12 @@ public class BillService {
                 .dueDate(bill.getDueDate())
                 .description(bill.getDescription())
                 .assignmentId(bill.getAssignmentId())
+                .roomCode(roomCode)
+                .bedCode(bedCode)
+                .isBillOwner(isBillOwner)
+                .isSplittable(isSplittable)
+                .requiresRefund(bill.getRequiresRefund())
+                .reportedStudentIds(reportedStudentIds)
                 .build();
     }
     

@@ -1,0 +1,159 @@
+<mxfile host="Electron" modified="2026-07-23T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.2" type="device">
+  <diagram id="erd_sdms" name="Sơ đồ Thực thể Kết hợp (ERD)">
+    <mxGraphModel dx="1400" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1650" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===================== DOMAIN BOXES ===================== -->
+        <mxCell id="DOM_Room" value="NHÓM LƯU TRÚ (Room &amp; Assignment)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#000000;strokeWidth=1;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1150" height="300" as="geometry" />
+        </mxCell>
+
+        <mxCell id="DOM_Student" value="NHÓM SINH VIÊN &amp; HỒ SƠ (Student &amp; Profile)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#000000;strokeWidth=1;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="370" width="670" height="330" as="geometry" />
+        </mxCell>
+
+        <mxCell id="DOM_Payment" value="NHÓM TÀI CHÍNH (Payment &amp; Billing)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#000000;strokeWidth=1;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="40" width="370" height="300" as="geometry" />
+        </mxCell>
+
+        <mxCell id="DOM_IoT" value="NHÓM AN NINH &amp; IOT (Access Control &amp; AI)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#000000;strokeWidth=1;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontFamily=Times New Roman;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="740" y="370" width="850" height="330" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== ENTITIES ===================== -->
+        
+        <!-- ROOM DOMAIN -->
+        <mxCell id="E_Buildings" value="&lt;b&gt;buildings&lt;/b&gt;&lt;hr&gt;PK: building_id&lt;br&gt;code&lt;br&gt;name" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="90" width="140" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="E_Floors" value="&lt;b&gt;floors&lt;/b&gt;&lt;hr&gt;PK: floor_id&lt;br&gt;FK: building_id&lt;br&gt;floor_number" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="250" y="90" width="140" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="E_Rooms" value="&lt;b&gt;rooms&lt;/b&gt;&lt;hr&gt;PK: room_id&lt;br&gt;FK: floor_id&lt;br&gt;room_code&lt;br&gt;capacity" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="440" y="90" width="140" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="E_Beds" value="&lt;b&gt;beds&lt;/b&gt;&lt;hr&gt;PK: bed_id&lt;br&gt;FK: room_id&lt;br&gt;bed_code&lt;br&gt;status" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="630" y="90" width="140" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="E_Assignments" value="&lt;b&gt;student_housing_assignments&lt;/b&gt;&lt;hr&gt;PK: assignment_id&lt;br&gt;FK: bed_id&lt;br&gt;FK: student_id&lt;br&gt;FK: application_id&lt;br&gt;status (RESERVED, OCCUPIED)" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="840" y="80" width="220" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- STUDENT DOMAIN -->
+        <mxCell id="E_Students" value="&lt;b&gt;students&lt;/b&gt;&lt;hr&gt;PK: student_id&lt;br&gt;student_code&lt;br&gt;full_name&lt;br&gt;cccd&lt;br&gt;rfid_code" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="460" y="440" width="160" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="E_Applications" value="&lt;b&gt;dormitory_applications&lt;/b&gt;&lt;hr&gt;PK: application_id&lt;br&gt;full_name&lt;br&gt;status" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="190" y="440" width="180" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="E_Users" value="&lt;b&gt;user_accounts&lt;/b&gt;&lt;hr&gt;PK: account_id&lt;br&gt;FK: student_id&lt;br&gt;username&lt;br&gt;role" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="460" y="600" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- PAYMENT DOMAIN -->
+        <mxCell id="E_Bills" value="&lt;b&gt;bills&lt;/b&gt;&lt;hr&gt;PK: bill_id&lt;br&gt;FK: assignment_id&lt;br&gt;amount&lt;br&gt;status" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="80" width="140" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="E_Payments" value="&lt;b&gt;payments&lt;/b&gt;&lt;hr&gt;PK: payment_id&lt;br&gt;FK: bill_id&lt;br&gt;transaction_code&lt;br&gt;amount" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="80" width="140" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- IOT & AI DOMAIN -->
+        <mxCell id="E_Gates" value="&lt;b&gt;gates&lt;/b&gt;&lt;hr&gt;PK: gate_id&lt;br&gt;name&lt;br&gt;status" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="550" width="130" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="E_AccessHist" value="&lt;b&gt;access_history&lt;/b&gt;&lt;hr&gt;PK: id&lt;br&gt;FK: student_id&lt;br&gt;FK: gate_id&lt;br&gt;event_timestamp (BRIN Index)&lt;br&gt;decision" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="960" y="550" width="190" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="E_FaceProfiles" value="&lt;b&gt;face_profiles&lt;/b&gt;&lt;hr&gt;PK: profile_id&lt;br&gt;FK: student_id&lt;br&gt;status" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="410" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="E_FaceEmbeds" value="&lt;b&gt;face_embeddings&lt;/b&gt;&lt;hr&gt;PK: embedding_id&lt;br&gt;FK: profile_id&lt;br&gt;vector(512) [HNSW Index]" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=5;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontFamily=Times New Roman;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="410" width="170" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== EDGES (RELATIONSHIPS) ===================== -->
+        <!-- Room Hierarchy -->
+        <mxCell id="ED_B_F" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Buildings" target="E_Floors">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_F_R" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Floors" target="E_Rooms">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_R_B" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Rooms" target="E_Beds">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Assignment Links -->
+        <mxCell id="ED_Bed_Ass" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Beds" target="E_Assignments">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_App_Ass" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERone;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Applications" target="E_Assignments">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="280" y="240" />
+              <mxPoint x="880" y="240" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ED_Stu_Ass" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Students" target="E_Assignments">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="260" />
+              <mxPoint x="930" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Billing -->
+        <mxCell id="ED_Ass_Bill" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Assignments" target="E_Bills">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_Bill_Pay" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Bills" target="E_Payments">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Student Profiles -->
+        <mxCell id="ED_App_Stu" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERone;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Applications" target="E_Students">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_Stu_User" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERone;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Students" target="E_Users">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_Stu_Face" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERone;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Students" target="E_FaceProfiles">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="380" />
+              <mxPoint x="1130" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Face AI -->
+        <mxCell id="ED_Face_Emb" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERone;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_FaceProfiles" target="E_FaceEmbeds">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Access History -->
+        <mxCell id="ED_Stu_Acc" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Students" target="E_AccessHist">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ED_Gate_Acc" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;strokeColor=#000000;" edge="1" parent="1" source="E_Gates" target="E_AccessHist">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

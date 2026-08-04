@@ -64,7 +64,12 @@ public class ReservationExpiryJob {
                                 assignment.getBed().getBedId(),
                                 assignment.getStudent() != null ? assignment.getStudent().getStudentId() : null
                         ));
-                        log.info("[Scheduler] Emitted ReservationPaymentExpiredEvent for assignmentId: {}", assignment.getAssignmentId());
+                        
+                        // HỦY HÓA ĐƠN ĐỂ KHÔNG BỊ QUÉT LÀ OVERDUE BỞI BILL OVERDUE JOB
+                        bill.setStatus(BillStatus.CANCELLED);
+                        billRepository.save(bill);
+                        
+                        log.info("[Scheduler] Emitted ReservationPaymentExpiredEvent & Cancelled Bill for assignmentId: {}", assignment.getAssignmentId());
                     }
                 }
             } catch (Exception e) {

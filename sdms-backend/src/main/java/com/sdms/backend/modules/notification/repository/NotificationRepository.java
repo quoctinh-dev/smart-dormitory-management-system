@@ -13,6 +13,13 @@ import java.util.UUID;
 public interface NotificationRepository extends JpaRepository<Notification, Long>, JpaSpecificationExecutor<Notification> {
     List<Notification> findByUserIdOrderByCreatedAtDesc(UUID userId);
     List<Notification> findByUserIdAndIsReadFalseOrderByCreatedAtDesc(UUID userId);
-    long countByUserIdAndIsReadFalse(UUID userId);
+    
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(n) FROM Notification n WHERE n.userId = :userId AND n.isRead = false")
+    long countUnreadByUserId(@org.springframework.data.repository.query.Param("userId") UUID userId);
+    
     Optional<Notification> findByIdAndUserId(Long id, UUID userId);
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true, flushAutomatically = true)
+    @org.springframework.data.jpa.repository.Query("UPDATE Notification n SET n.isRead = true, n.readAt = CURRENT_TIMESTAMP WHERE n.userId = :userId AND n.isRead = false")
+    int markAllAsReadByUserId(@org.springframework.data.repository.query.Param("userId") UUID userId);
 }

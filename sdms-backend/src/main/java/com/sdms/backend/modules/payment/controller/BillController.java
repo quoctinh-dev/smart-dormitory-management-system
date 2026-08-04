@@ -66,8 +66,9 @@ public class BillController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String billType,
+            @RequestParam(required = false) Boolean requiresRefund,
             Pageable pageable) {
-        PageResponse<Map<String, Object>> pageResponse = billService.getAllBillsPaged(search, status, billType, pageable);
+        PageResponse<Map<String, Object>> pageResponse = billService.getAllBillsPaged(search, status, billType, requiresRefund, pageable);
         return ApiResponse.success("Lấy danh sách hóa đơn thành công", pageResponse);
     }
 

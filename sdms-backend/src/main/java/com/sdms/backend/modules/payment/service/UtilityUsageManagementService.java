@@ -38,6 +38,7 @@ public class UtilityUsageManagementService {
     private final RoomRepository roomRepository;
     private final UtilityUsageRepository utilityUsageRepository;
     private final BillRepository billRepository;
+    private final com.sdms.backend.modules.payment.repository.PaymentRepository paymentRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
@@ -221,14 +222,38 @@ public class UtilityUsageManagementService {
             }
         }
 
-        // 4. Nếu hóa đơn chưa thanh toán -> Xóa toàn bộ hóa đơn liên quan
+        // 4. Nếu hóa đơn chưa thanh toán -> Xóa toàn bộ payments liên quan trước, rồi mới xóa bill
         if (!relatedBills.isEmpty()) {
+            List<UUID> billIds = relatedBills.stream()
+                    .map(com.sdms.backend.modules.payment.entity.Bill::getBillId)
+                    .collect(Collectors.toList());
+            // Xóa payment records (FK child) trước để tránh constraint violation
+            paymentRepository.deleteAllByBillIds(billIds);
             billRepository.deleteAll(relatedBills);
-            log.info("Deleted {} unpaid bills for room {} for {} {}", relatedBills.size(), roomId, utilityType, monthYearStr);
+            log.info("Deleted {} unpaid bills (and their payment records) for room {} for {} {}", relatedBills.size(), roomId, utilityType, monthYearStr);
         }
 
         // 5. Xóa bản ghi chốt số điện/nước
         utilityUsageRepository.delete(usage);
-        log.info("Cancelled utility record for room {}, {} {}", roomId, utilityType, monthYearStr);
+        log.info("Cancelled utility record for room {} type {} month {}/{}", roomId, utilityType, month, year);
+    }
+
+    @Transactional(readOnly = true)
+    public List<com.sdms.backend.modules.payment.dto.response.StudentUtilityResponse> getRoomUtilityHistory(UUID roomId) {
+        List<UtilityUsage> usages = utilityUsageRepository.findTop24ByRoomIdOrderByYearDescMonthDesc(roomId);
+        return usages.stream()
+                .map(u -> com.sdms.backend.modules.payment.dto.response.StudentUtilityResponse.builder()
+                        .utilityUsageId(u.getId())
+                        .roomId(u.getRoomId())
+                        .utilityType(u.getUtilityType())
+                        .month(u.getMonth())
+                        .year(u.getYear())
+                        .oldReading(u.getOldReading())
+                        .newReading(u.getNewReading())
+                        .totalUsage(u.getTotalUsage())
+                        .isSettled(u.getIsSettled())
+                        .readingDate(u.getCreatedAt() != null ? u.getCreatedAt().toLocalDate() : null)
+                        .build())
+                .collect(Collectors.toList());
     }
 }

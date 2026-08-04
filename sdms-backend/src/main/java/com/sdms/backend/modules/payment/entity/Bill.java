@@ -63,9 +63,15 @@ public class Bill extends BaseEntity {
     @Column(name = "student_id")
     private UUID studentId;
 
+    @Column(name = "requires_refund", nullable = false)
+    private Boolean requiresRefund = false;
+
     @Column(name = "extension_count", nullable = false)
     private Integer extensionCount = 0;
 
     @Version
     private Long version;
+
+    @Column(name = "parent_bill_id")
+    private UUID parentBillId;
 }

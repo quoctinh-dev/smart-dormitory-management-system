@@ -10,10 +10,16 @@ export const useMaintenanceAdmin = () => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalElements, setTotalElements] = useState(0);
 
+    const [statusFilter, setStatusFilter] = useState<MaintenanceStatus | ''>('');
+    
     const fetchList = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await adminMaintenanceApi.getAllRequests({ page, size: rowsPerPage });
+            const res = await adminMaintenanceApi.getAllRequests({ 
+                page, 
+                size: rowsPerPage,
+                status: statusFilter !== '' ? statusFilter : undefined
+            });
             setData(res.content ?? []);
             setTotalElements(res.totalElements ?? 0);
         } catch {
@@ -21,7 +27,7 @@ export const useMaintenanceAdmin = () => {
         } finally {
             setLoading(false);
         }
-    }, [page, rowsPerPage]);
+    }, [page, rowsPerPage, statusFilter]);
 
     useEffect(() => {
         fetchList();
@@ -46,6 +52,8 @@ export const useMaintenanceAdmin = () => {
         setRowsPerPage,
         totalElements,
         fetchList,
-        updateStatus
+        updateStatus,
+        statusFilter,
+        setStatusFilter
     };
 };

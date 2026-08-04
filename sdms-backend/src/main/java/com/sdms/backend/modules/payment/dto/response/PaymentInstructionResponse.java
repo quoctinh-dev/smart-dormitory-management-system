@@ -7,8 +7,9 @@ import lombok.Data;
 @Builder
 public class PaymentInstructionResponse {
     private String bankName;
-    private String accountNumber;
+    private String bankAccount;
     private String accountHolder;
     private String qrCodeUrl;
-    private String contentPrefix;
+    private String content;
+    private java.math.BigDecimal amount;
 }

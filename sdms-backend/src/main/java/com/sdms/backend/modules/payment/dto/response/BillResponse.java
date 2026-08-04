@@ -35,4 +35,12 @@ public class BillResponse {
     private String roomCode;
 
     private String bedCode;
+    
+    private Boolean isBillOwner;
+    
+    private Boolean requiresRefund;
+
+    private java.util.List<UUID> reportedStudentIds;
+
+    private Boolean isSplittable;
 }
